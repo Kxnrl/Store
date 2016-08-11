@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.0.6 - 2016/08/09 15:10 - new syntax[5926] "
+#define PLUGIN_VERSION " 3.0.7 - 2016/08/11 15:42 - new syntax[5929] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -645,6 +645,7 @@ public void OnClientConnected(int client)
 		}
 	}
 	
+	Players_OnClientConnected(client);
 	Sprays_OnClientConnected(client);
 	Sound_OnClientConnected(client);
 }

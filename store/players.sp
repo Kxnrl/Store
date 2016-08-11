@@ -69,6 +69,7 @@ bool g_bTEForcedSkin = false;
 bool g_bCTForcedSkin = false;
 bool g_bSpawnTrails[MAXPLAYERS+1];
 bool g_bHasPlayerskin[MAXPLAYERS+1];
+bool g_bHideMode[MAXPLAYERS+1];
 float g_fClientCounters[MAXPLAYERS+1];
 float g_fLastPosition[MAXPLAYERS+1][3];
 char g_szAuraName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];  
@@ -102,6 +103,9 @@ public void Players_OnPluginStart()
 	HookEvent("round_start", Event_RoundStart, EventHookMode_Post);
 	HookEvent("round_end", Event_RoundEnd, EventHookMode_Post);
 
+	RegConsoleCmd("sm_hide", Command_Hide, "Hide Trail and Neon");
+	RegConsoleCmd("sm_hidetrail", Command_Hide, "Hide Trail and Neon");
+	RegConsoleCmd("sm_hideneon", Command_Hide, "Hide Trail and Neon");
 	RegConsoleCmd("sm_hdd", Command_HDD, "Change to HDD mode");
 	RegConsoleCmd("sm_nextform", Command_NextForm, "Change to NEXT FORM");
 }
@@ -191,6 +195,11 @@ public void Neon_OnMapStart()
 public void Part_OnMapStart()
 {
 	
+}
+
+public void Players_OnClientConnected(int client)
+{
+	g_bHideMode[client] = false;
 }
 
 public void Aura_OnClientDisconnect(int client)
@@ -437,7 +446,7 @@ public int RemoveTrail(int client, int slot)
 		GetEdictClassname(g_iClientTrails[client][slot], STRING(m_szClassname));
 		if(strcmp("env_spritetrail", m_szClassname)==0)
 		{
-			//SDKUnhook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_TrailSetTransmit);
+			SDKUnhook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Trail);
 			AcceptEntityInput(g_iClientTrails[client][slot], "Kill");
 		}
 	}
@@ -665,7 +674,7 @@ int CreateTrail(int client, int itemid = -1, int slot = 0)
 			DispatchKeyValue(g_iClientTrails[client][slot], "model", g_eTrails[m_iData][szMaterial]);
 			DispatchSpawn(g_iClientTrails[client][slot]);
 			AttachTrail(g_iClientTrails[client][slot], client, m_iCurrent, m_iNumEquipped);	
-			//SDKHook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_TrailSetTransmit);
+			SDKHook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Trail);
 		}
 			
 		//Ugh...
@@ -812,7 +821,7 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 		g_iClientHats[client][g_eHats[m_iData][iSlot]]=m_iEnt;
 		
 		// We don't want the client to see his own hat
-		SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit);
+		SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
 		
 		// Teleport the hat to the right position and attach it
 		TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR); 
@@ -829,7 +838,7 @@ public int RemoveHat(int client, int slot)
 {
 	if(g_iClientHats[client][slot] != 0 && IsValidEdict(g_iClientHats[client][slot]))
 	{
-		SDKUnhook(g_iClientHats[client][slot], SDKHook_SetTransmit, Hook_SetTransmit);
+		SDKUnhook(g_iClientHats[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Hat);
 		char m_szClassname[64];
 		GetEdictClassname(g_iClientHats[client][slot], STRING(m_szClassname));
 		if(strcmp("prop_dynamic", m_szClassname)==0)
@@ -838,9 +847,9 @@ public int RemoveHat(int client, int slot)
 	g_iClientHats[client][slot] = 0;
 }
 
-public Action Hook_SetTransmit(int ent, int client)
+public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-	if(GetFeatureStatus(FeatureType_Native, "IsPlayerInTP")==FeatureStatus_Available)
+	if(GetFeatureStatus(FeatureType_Native, "IsPlayerInTP") == FeatureStatus_Available)
 		if(IsPlayerInTP(client))
 			return Plugin_Continue;
 
@@ -861,6 +870,22 @@ public Action Hook_SetTransmit(int ent, int client)
 	}
 
 	return Plugin_Continue;
+}
+
+public Action Hook_SetTransmit_Neon(int ent, int client)
+{
+  if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
+    SetEdictFlags(ent, GetEdictFlags(ent) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
+
+  return !(g_bHideMode[client]) ? Plugin_Continue : Plugin_Handled;
+}
+
+public Action Hook_SetTransmit_Trail(int ent, int client)
+{
+	if(g_bHideMode[client])
+		return Plugin_Handled;
+	else
+		return Plugin_Continue;
 }
 
 public int Bonemerge(int ent)
@@ -970,6 +995,9 @@ void Store_RemoveClientNeon(int client)
 {
 	if(g_iClientNeon[client] != 0)
 	{
+		if(IsValidEntity(g_iClientNeon[client]))
+			SDKUnhook(g_iClientNeon[client], SDKHook_SetTransmit, Hook_SetTransmit_Neon);
+
 		if(IsValidEdict(g_iClientNeon[client]))
 			AcceptEntityInput(g_iClientNeon[client], "Kill");
 
@@ -1021,6 +1049,8 @@ void Store_SetClientNeon(int client)
 		AcceptEntityInput(iNeon, "SetParent", client, iNeon, 0);
 		
 		g_iClientNeon[client] = iNeon;
+		
+		SDKHook(iNeon, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
 	}
 }
 
@@ -1059,6 +1089,26 @@ void Store_SetClientPart(int client)
 		AcceptEntityInput(g_iClientPart[client], "SetParent", client, g_iClientPart[client], 0);
 	}
 }
+
+public Action Command_Hide(int client, int args)
+{
+	if(!IsClientInGame(client))
+		return Plugin_Handled;
+	
+	if(!g_bHideMode[client])
+	{
+		g_bHideMode[client] = false;
+		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hide\x01' 你已\x04开启\x01屏蔽足迹和霓虹");
+	}
+	else
+	{
+		g_bHideMode[client] = true;
+		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hide\x01' 你已\x07关闭\x01屏蔽足迹和霓虹");
+	}
+
+	return Plugin_Handled;
+}
+
 
 public Action Command_HDD(int client, int args)
 {

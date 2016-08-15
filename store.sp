@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.0.7 - 2016/08/11 15:42 - new syntax[5929] "
+#define PLUGIN_VERSION " 3.0.7 - 2016/08/14 22:33 - new syntax[5928] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -694,7 +694,7 @@ public Action Command_Store(int client, int args)
 
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01!");
+		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07积分为负\x01!");
 		return Plugin_Handled;
 	}	
 
@@ -715,7 +715,7 @@ public Action Command_Inventory(int client, int args)
 	
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01!");
+		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07积分为负\x01!");
 		return Plugin_Handled;
 	}
 	
@@ -736,7 +736,7 @@ public Action Command_Credits(int client, int args)
 	
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01!");
+		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07积分为负\x01!");
 		return Plugin_Handled;
 	}
 
@@ -1525,7 +1525,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			g_eClients[client][iOriginalCredits] = SQL_FetchInt(hndl, 3);
 			g_eClients[client][iDateOfJoin] = SQL_FetchInt(hndl, 4);
 			g_eClients[client][iDateOfLastJoin] = m_iTime;
-			g_eClients[client][bBan] = SQL_FetchInt(hndl, 6) == 1 ? true : false;
+			g_eClients[client][bBan] = (SQL_FetchInt(hndl, 6) == 1 || g_eClients[client][iCredits] < 0) ? true : false;
 			
 			Format(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
 			SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);

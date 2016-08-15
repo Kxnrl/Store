@@ -50,8 +50,14 @@ public Plugin myinfo =
 //////////////////////////////
 //		PLUGIN FORWARDS		//
 //////////////////////////////
-public OnPluginStart()
+public OnMapStart()
 {
+	if(g_hTimer != INVALID_HANDLE)
+	{
+		KillTimer(g_hTimer);
+		g_hTimer = INVALID_HANDLE;
+	}
+	
 	g_hTimer = CreateTimer(300.0, CreditTimer);
 }
 
@@ -123,36 +129,10 @@ public Action CreditTimer(Handle timer)
 			Format(szFrom, 128, " \x10[");
 			Format(szReason, 128, "PA-加成[");
 
-			if(ifaith == 1)
+			if(ifaith > 0)
 			{
 				m_iCredits += 3;
-				char faith[32];
-				Format(faith, 32, "%s", szFaith_CNAME[ifaith]);
-				StrCat(szFrom, 128, faith);
-				StrCat(szReason, 128, szFaith_NAME[ifaith]);
-			}
-			else if(ifaith == 2)
-			{
-				m_iCredits += 5;
-				char faith[32];
-				Format(faith, 32, "%s", szFaith_CNAME[ifaith]);
-				StrCat(szFrom, 128, faith);
-				StrCat(szReason, 128, szFaith_NAME[ifaith]);
-			}
-			else if(ifaith == 3)
-			{
-				m_iCredits += 4;
-				char faith[32];
-				Format(faith, 32, "%s", szFaith_CNAME[ifaith]);
-				StrCat(szFrom, 128, faith);
-				StrCat(szReason, 128, szFaith_NAME[ifaith]);
-			}
-			else if(ifaith == 4)
-			{
-				m_iCredits += 4;
-				char faith[32];
-				Format(faith, 32, "%s", szFaith_CNAME[ifaith]);
-				StrCat(szFrom, 128, faith);
+				StrCat(szFrom, 128, szFaith_CNAME[ifaith]);
 				StrCat(szReason, 128, szFaith_NAME[ifaith]);
 			}
 			else
@@ -162,10 +142,10 @@ public Action CreditTimer(Handle timer)
 				StrCat(szReason, 128, "在线时间 ");
 			}
 			
-
-			if(PA_GetGroupID(client) > 0)
+			int authid = PA_GetGroupID(client);
+			if(authid > 0)
 			{
-				if(PA_GetGroupID(client) < 401)
+				if(authid < 401)
 				{
 					m_iCredits += 3;
 					char auname[32];
@@ -174,18 +154,18 @@ public Action CreditTimer(Handle timer)
 					Format(auname, 32, "\x0A|\x0C%s", auname);
 					StrCat(szFrom, 128, auname);
 				}
-				else if(500 > PA_GetGroupID(client) >= 401)
+				else if(500 > authid >= 401)
 				{
 					if(PA_GetGroupID(client) == 401)
-						m_iCredits += 3;
+						m_iCredits += 2;
 					else if(PA_GetGroupID(client) == 402)
-						m_iCredits += 4;
+						m_iCredits += 3;
 					else if(PA_GetGroupID(client) == 403)
-						m_iCredits += 5;
+						m_iCredits += 3;
 					else if(PA_GetGroupID(client) == 404)
-						m_iCredits += 6;
+						m_iCredits += 4;
 					else if(PA_GetGroupID(client) == 405)
-						m_iCredits += 7;
+						m_iCredits += 4;
 					
 					char auname[32];
 					PA_GetGroupName(client, auname, 32);
@@ -193,7 +173,7 @@ public Action CreditTimer(Handle timer)
 					Format(auname, 32, "\x0A|\x0C%s", auname);
 					StrCat(szFrom, 128, auname);
 				}
-				else if(9000 > PA_GetGroupID(client) >= 500)
+				else if(9000 > authid >= 500)
 				{
 					m_iCredits += 3;
 					char auname[32];
@@ -202,18 +182,18 @@ public Action CreditTimer(Handle timer)
 					Format(auname, 32, "\x0A|\x0C%s", auname);
 					StrCat(szFrom, 128, auname);
 				}
-				else if(9990 > PA_GetGroupID(client) >= 9101)
+				else if(9990 > authid >= 9101)
 				{
-					m_iCredits += 5;
+					m_iCredits += 4;
 					char auname[32];
 					PA_GetGroupName(client, auname, 32);
 					StrCat(szReason, 128, auname);
 					Format(auname, 32, "\x0A|\x0C%s", auname);
 					StrCat(szFrom, 128, auname);
 				}
-				else if(PA_GetGroupID(client) > 9990)
+				else if(authid > 9990)
 				{
-					m_iCredits += 10;
+					m_iCredits += 5;
 					char auname[32];
 					PA_GetGroupName(client, auname, 32);
 					StrCat(szReason, 128, auname);
@@ -229,19 +209,19 @@ public Action CreditTimer(Handle timer)
 			{
 				if(VIP_GetVipType(client) == 3)
 				{
-					m_iCredits += 5;
+					m_iCredits += 3;
 					StrCat(szFrom, 128, "\x0A|\x07永久VIP");
 					StrCat(szReason, 128, " SVIP ");
 				}
 				else if(VIP_GetVipType(client) == 2)
 				{
-					m_iCredits += 4;
+					m_iCredits += 2;
 					StrCat(szFrom, 128, "\x0A|\x07年费VIP");
 					StrCat(szReason, 128, " YVIP ");
 				}
 				else if(VIP_GetVipType(client) == 1)
 				{
-					m_iCredits += 2;
+					m_iCredits += 1;
 					StrCat(szFrom, 128, "\x0A|\x07月费VIP");
 					StrCat(szReason, 128, " MVIP ");
 				}
@@ -250,7 +230,7 @@ public Action CreditTimer(Handle timer)
 			if(g_bInOfficalGroup[client] && !m_bGroupCreidts)
 			{				
 				m_bGroupCreidts = true;
-				m_iCredits += 6;				
+				m_iCredits += 2;
 				StrCat(szFrom, 128, "\x0A|\x06官方组");
 				StrCat(szReason, 128, "官方组");
 			}
@@ -258,7 +238,7 @@ public Action CreditTimer(Handle timer)
 			if(g_bInMimiGameGroup[client] && !m_bGroupCreidts)
 			{
 				m_bGroupCreidts = true;
-				m_iCredits += 7;
+				m_iCredits += 3;
 				StrCat(szFrom, 128, "\x0A|\x06娱乐挂壁");
 				StrCat(szReason, 128, "娱乐挂壁");
 			}
@@ -267,7 +247,7 @@ public Action CreditTimer(Handle timer)
 			{
 				if(g_bInOpeatorGroup[client])
 				{
-					m_iCredits += 10;
+					m_iCredits += 5;
 					StrCat(szFrom, 128, "\x0A|\x10OP");
 					StrCat(szReason, 128, "OP ");
 				}		

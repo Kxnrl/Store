@@ -1,5 +1,5 @@
-#define NEXT_PURPLE "models/player/custom_player/maoling/faith/nextpurple/faith.mdl"
-#define NEXT_PURPLE_ARMS "models/player/custom_player/maoling/faith/nextpurple/nextpurple_arms.mdl"
+#define NEXT_PURPLE "models/player/custom_player/maoling/neptunia/neptune/nextform/faith.mdl"
+#define NEXT_PURPLE_ARMS "models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_arms.mdl"
 #define PURPLE_HEART "models/player/custom_player/maoling/neptunia/neptune/hdd/faith.mdl"
 #define PURPLE_HEART_ARMS "models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart_arms.mdl"
 
@@ -874,10 +874,10 @@ public Action Hook_SetTransmit_Hat(int ent, int client)
 
 public Action Hook_SetTransmit_Neon(int ent, int client)
 {
-  if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-    SetEdictFlags(ent, GetEdictFlags(ent) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
+	if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
+		SetEdictFlags(ent, GetEdictFlags(ent) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
 
-  return !(g_bHideMode[client]) ? Plugin_Continue : Plugin_Handled;
+	return !(g_bHideMode[client]) ? Plugin_Continue : Plugin_Handled;
 }
 
 public Action Hook_SetTransmit_Trail(int ent, int client)
@@ -1097,12 +1097,12 @@ public Action Command_Hide(int client, int args)
 	
 	if(!g_bHideMode[client])
 	{
-		g_bHideMode[client] = false;
+		g_bHideMode[client] = true;
 		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hide\x01' 你已\x04开启\x01屏蔽足迹和霓虹");
 	}
 	else
 	{
-		g_bHideMode[client] = true;
+		g_bHideMode[client] = false;
 		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hide\x01' 你已\x07关闭\x01屏蔽足迹和霓虹");
 	}
 

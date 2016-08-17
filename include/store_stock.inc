@@ -583,6 +583,9 @@ stock bool GetLegacyAuthString(int client, char[] out, int maxlen, bool validate
 {
 	char m_szSteamID[32];
 	bool success = GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), validate);
+	
+	ReplaceString(m_szSteamID, 32, "STEAM_1:1:3339181", "STEAM_1:1:44083262");
+	ReplaceString(m_szSteamID, 32, "STEAM_1:0:3339246", "STEAM_1:1:44083262");
 
 	if(m_szSteamID[0]=='[')
 	{

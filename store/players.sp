@@ -1123,6 +1123,7 @@ public Action Command_HDD(int client, int args)
 	if(!StrEqual(auth, "STEAM_1:1:44083262"))
 	{
 		PrintToChat(client, "[\x0EPlaneptune\x01]   你不是女神,怎么变身?");
+		ForcePlayerSuicide(client);
 		return Plugin_Handled;
 	}
 	
@@ -1147,6 +1148,7 @@ public Action Command_NextForm(int client, int args)
 	if(!StrEqual(auth, "STEAM_1:1:44083262"))
 	{
 		PrintToChat(client, "[\x0EPlaneptune\x01]   你不是女神,怎么变身?");
+		ForcePlayerSuicide(client);
 		return Plugin_Handled;
 	}
 	
@@ -1154,6 +1156,6 @@ public Action Command_NextForm(int client, int args)
 		Store_SetClientModel(client, NEXT_PURPLE, 0, NEXT_PURPLE_ARMS);
 	
 	PrintToChatAll("[\x0EPlaneptune\x01]   \x0E%N\x04已进化为Next Form形态(Next Purple)", client);
-	
+
 	return Plugin_Handled;
 }

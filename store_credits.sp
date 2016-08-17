@@ -209,7 +209,7 @@ public Action CreditTimer(Handle timer)
 			{
 				if(VIP_GetVipType(client) == 3)
 				{
-					m_iCredits += 3;
+					m_iCredits += 2;
 					StrCat(szFrom, 128, "\x0A|\x07永久VIP");
 					StrCat(szReason, 128, " SVIP ");
 				}
@@ -237,7 +237,6 @@ public Action CreditTimer(Handle timer)
 			
 			if(g_bInMimiGameGroup[client] && !m_bGroupCreidts)
 			{
-				m_bGroupCreidts = true;
 				m_iCredits += 3;
 				StrCat(szFrom, 128, "\x0A|\x06娱乐挂壁");
 				StrCat(szReason, 128, "娱乐挂壁");
@@ -247,7 +246,7 @@ public Action CreditTimer(Handle timer)
 			{
 				if(g_bInOpeatorGroup[client])
 				{
-					m_iCredits += 5;
+					m_iCredits += 3;
 					StrCat(szFrom, 128, "\x0A|\x10OP");
 					StrCat(szReason, 128, "OP ");
 				}		

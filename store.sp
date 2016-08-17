@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.0.7 - 2016/08/14 22:33 - new syntax[5928] "
+#define PLUGIN_VERSION " 3.0.8 - 2016/08/18 04:06 - new syntax[5928] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -2149,7 +2149,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 	{
 		if(g_iItems == STORE_MAX_ITEMS)
 				continue;
-		if (KvGetNum(kv, "enabled", 1) && KvGetNum(kv, "type", -1)==-1 && KvGotoFirstSubKey(kv))
+		if (KvGetNum(kv, "enabled", 1) && KvGetNum(kv, "type", -1) == -1 && KvGotoFirstSubKey(kv))
 		{
 			KvGoBack(kv);
 			KvGetSectionName(kv, g_eItems[g_iItems][szName], 64);

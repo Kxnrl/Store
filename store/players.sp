@@ -547,11 +547,9 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
 	if(!IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
 		return Plugin_Continue;
 
-	if(!g_bGameModeMG)
-		return Plugin_Continue;
+	if(g_bGameModeMG)
+		Store_PreSetClientModel(client);
 
-	Store_PreSetClientModel(client);
-	
 	//PrintToChatAll("Team %N", client);
 	
 	return Plugin_Continue;

@@ -4,13 +4,12 @@
 //		DEFINITIONS 		//
 //////////////////////////////
 #define PLUGIN_NAME " Store Credits Controler "
-#define PLUGIN_AUTHOR "maoling ( shAna.xQy )"
+#define PLUGIN_AUTHOR "maoling ( xQy )"
 #define PLUGIN_DESCRIPTION ""
-#define PLUGIN_VERSION " 4.3 "
+#define PLUGIN_VERSION " 4.5 "
 #define PLUGIN_URL "http://steamcommunity.com/id/_xQy_/"
 #define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
-#define PLUGIN_PREFIX_SIGN "[\x0C签到\x01]  "
-#define PLUGIN_PREFIX "[\x04周\x07年\x0C庆\x01]  "
+#define PLUGIN_PREFIX_SIGN "[\x0EPlaneptune\x01]  "
 
 //////////////////////////////
 //		INCLUDES			//
@@ -283,13 +282,10 @@ public void CG_OnClientDailySign(client)
 		return;	
 	}
 
-	Active_GiveSignCredits(client);
-}
-
-public Active_GiveSignCredits(client)
-{
-	int Credits = GetRandomInt(1, 300);
+	int Credits = GetRandomInt(3, 300);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
-	PrintToChat(client,"%s \x10你获得了\x04%d\x0FCredits\x0C \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
-	PrintToChatAll("%s \x0E%N\x01完成了每日签到,获得\x04 %d\x0FCredits\x0C", PLUGIN_PREFIX_SIGN, client, Credits);
+	CG_GiveClientShare(client, Credits/3, "签到");
+	PrintToChat(client,"%s \x10你获得了\x04%d \x0FCredits \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
+	PrintToChat(client,"%s \x10你获得了\x04%d \x10点\x0FShare \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits/3);
+	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0FCredits\x01, \x04%d \x10点\x0FShare", PLUGIN_PREFIX_SIGN, client, Credits, Credits/3);
 }

@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.0.9 - 2016/08/20 06:47 - new syntax[5928] "
+#define PLUGIN_VERSION " 3.1 - 2016/08/23 04:41 - new syntax[5928] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -31,7 +31,6 @@
 //////////////////////////////
 //			ENUMS			//
 //////////////////////////////
-
 enum Client
 {
 	iId,
@@ -255,6 +254,13 @@ public int Native_GetClientPlayerSkin(Handle myself, int numParams)
 	}
 }
 
+public int Native_ResetPlayerSkin(Handle myself, int numParams)
+{
+	int client = GetNativeCell(1);
+	if(client && IsClientInGame(client) && IsPlayerAlive(client) && 2<=GetClientTeam(client)<=3)
+		Store_PreSetClientModel(client);
+}
+
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	CreateNative("Store_RegisterHandler", Native_RegisterHandler);
@@ -281,6 +287,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_IsClientBanned", Native_IsClientBanned);
 	CreateNative("Store_HasClientPlayerSkin", Native_HasClientPlayerSkin);
 	CreateNative("Store_GetClientPlayerSkin", Native_GetClientPlayerSkin);
+	CreateNative("Store_ResetPlayerSkin", Native_ResetPlayerSkin);
 
 	MarkNativeAsOptional("HideTrails_ShouldHide");
 	MarkNativeAsOptional("FPVMI_AddViewModelToClient");

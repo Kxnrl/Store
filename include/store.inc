@@ -84,3 +84,4 @@ native int Store_GetClientID(int client);
 native bool Store_IsClientBanned(int client);
 native bool Store_HasClientPlayerSkin(int client);
 native void Store_GetClientPlayerSkin(int client, char[] buffer, int maxLen);
+native void Store_ResetPlayerSkin(int client);

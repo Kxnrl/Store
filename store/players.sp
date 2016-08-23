@@ -1118,7 +1118,7 @@ public Action Command_HDD(int client, int args)
 	
 	char auth[32];
 	GetClientAuthId(client, AuthId_Steam2, auth, 32, true);
-	if(!StrEqual(auth, "STEAM_1:1:44083262"))
+	if(g_eClients[client][iId] != 1)
 	{
 		PrintToChat(client, "[\x0EPlaneptune\x01]   你不是女神,怎么变身?");
 		ForcePlayerSuicide(client);
@@ -1143,7 +1143,7 @@ public Action Command_NextForm(int client, int args)
 	
 	char auth[32];
 	GetClientAuthId(client, AuthId_Steam2, auth, 32, true);
-	if(!StrEqual(auth, "STEAM_1:1:44083262"))
+	if(g_eClients[client][iId] != 1)
 	{
 		PrintToChat(client, "[\x0EPlaneptune\x01]   你不是女神,怎么变身?");
 		ForcePlayerSuicide(client);

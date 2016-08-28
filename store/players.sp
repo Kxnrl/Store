@@ -1130,6 +1130,8 @@ public Action Command_HDD(int client, int args)
 	
 	PrintToChatAll("[\x0EPlaneptune\x01]   \x0E%N\x04已变身为HDD形态(Purple Heart)", client);
 	
+	ResetPlayerArms(client);
+	
 	return Plugin_Handled;
 }
 
@@ -1154,6 +1156,65 @@ public Action Command_NextForm(int client, int args)
 		Store_SetClientModel(client, NEXT_PURPLE, 0, NEXT_PURPLE_ARMS);
 	
 	PrintToChatAll("[\x0EPlaneptune\x01]   \x0E%N\x04已进化为Next Form形态(Next Purple)", client);
+	
+	ResetPlayerArms(client);
 
 	return Plugin_Handled;
+}
+
+void ResetPlayerArms(int client)
+{
+	int iWeapon;
+	
+	char szWeapon[4][32];
+	
+	for(int slot; slot <= 3; ++slot)
+	{
+		iWeapon = -1;
+		if((iWeapon = GetPlayerWeaponSlot(client, slot)) != -1 && IsValidEntity(iWeapon))
+		{
+			GetEdictClassname(iWeapon, szWeapon[slot], 32);
+
+			switch(GetEntProp(iWeapon, Prop_Send, "m_iItemDefinitionIndex"))
+			{
+				case 60: strcopy(szWeapon[slot], 32, "weapon_m4a1_silencer");
+				case 61: strcopy(szWeapon[slot], 32, "weapon_usp_silencer");
+				case 63: strcopy(szWeapon[slot], 32, "weapon_cz75a");
+				case 64: strcopy(szWeapon[slot], 32, "weapon_revolver");
+			}
+
+			RemovePlayerItem(client, iWeapon);
+			AcceptEntityInput(iWeapon, "Kill");
+		}
+	}
+
+	Handle pack;
+	CreateDataTimer(0.5, Timer_ResetPlayerArms, pack);
+	WritePackCell(pack, GetClientUserId(client));
+	WritePackString(pack, szWeapon[0]);
+	WritePackString(pack, szWeapon[1]);
+	WritePackString(pack, szWeapon[2]);
+	WritePackString(pack, szWeapon[3]);
+}
+
+public Action Timer_ResetPlayerArms(Handle timer, Handle pack)
+{
+	int client;
+	char szWeapon[4][32];
+	
+	ResetPack(pack);
+	client = GetClientOfUserId(ReadPackCell(pack));
+	ReadPackString(pack, szWeapon[0], 32);
+	ReadPackString(pack, szWeapon[1], 32);
+	ReadPackString(pack, szWeapon[2], 32);
+	ReadPackString(pack, szWeapon[3], 32);
+	
+	if(!IsClientInGame(client) || !IsPlayerAlive(client))
+		return;
+
+	for(int slot; slot <= 3; ++slot)
+	{
+		if(strlen(szWeapon[slot]) > 7)
+			GivePlayerItem(client, szWeapon[slot]);
+	}
 }

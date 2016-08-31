@@ -1116,12 +1116,13 @@ public Action Command_HDD(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	char auth[32];
-	GetClientAuthId(client, AuthId_Steam2, auth, 32, true);
+	CG_GiveClientShare(client, -100, "HDD变身");
+	PrintToChat(client, "[\x0EPlaneptune\x01]   你支付了\x04100\x01点\x0CShare\x01来变身为HDD形态");
+	PrintToChat(client, "[\x0EPlaneptune\x01]   Initializating  HDD Form ....");
+	
 	if(g_eClients[client][iId] != 1)
 	{
-		PrintToChat(client, "[\x0EPlaneptune\x01]   你不是女神,怎么变身?");
-		ForcePlayerSuicide(client);
+		CreateTimer(3.0, Timer_IntiFailed, client);
 		return Plugin_Handled;
 	}
 	
@@ -1143,12 +1144,13 @@ public Action Command_NextForm(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	char auth[32];
-	GetClientAuthId(client, AuthId_Steam2, auth, 32, true);
+	CG_GiveClientShare(client, -100, "Next Form变身");
+	PrintToChat(client, "[\x0EPlaneptune\x01]   你支付了\x04100\x01点\x0CShare\x01来变身为NextForm形态");
+	PrintToChat(client, "[\x0EPlaneptune\x01]   Initializating  Next Form ....");
+	
 	if(g_eClients[client][iId] != 1)
 	{
-		PrintToChat(client, "[\x0EPlaneptune\x01]   你不是女神,怎么变身?");
-		ForcePlayerSuicide(client);
+		CreateTimer(3.0, Timer_IntiFailed, client);
 		return Plugin_Handled;
 	}
 	
@@ -1217,4 +1219,47 @@ public Action Timer_ResetPlayerArms(Handle timer, Handle pack)
 		if(strlen(szWeapon[slot]) > 7)
 			GivePlayerItem(client, szWeapon[slot]);
 	}
+}
+
+public Action Timer_IntiFailed(Handle timer, int client)
+{
+	if(!IsClientInGame(client))
+		return Plugin_Stop;
+	
+	if(!IsPlayerAlive(client))
+	{
+		PrintToChat(client, "[\x0EPlaneptune\x01]   Change过程并不是无敌的,你被人打死了");
+		return Plugin_Stop;
+	}
+	
+	PrintToChat(client, "[\x0EPlaneptune\x01]   Initialization Failed...");
+
+	int iEnt = CreateEntityByName("env_explosion");
+	
+	if(iEnt != -1)
+	{
+		float fPos[3];
+		GetClientAbsOrigin(client, fPos);
+		
+		SetEntProp(iEnt, Prop_Data, "m_spawnflags", 6146);
+		SetEntProp(iEnt, Prop_Data, "m_iMagnitude", 200);
+		SetEntProp(iEnt, Prop_Data, "m_iRadiusOverride", 50);
+		
+		DispatchSpawn(iEnt);
+		ActivateEntity(iEnt);
+		
+		TeleportEntity(iEnt, fPos, NULL_VECTOR, NULL_VECTOR);
+		SetEntPropEnt(iEnt, Prop_Send, "m_hOwnerEntity", client);
+
+		AcceptEntityInput(iEnt, "Explode");
+		AcceptEntityInput(iEnt, "Kill");
+		
+		char szSound[32];
+		Format(szSound, 32, "weapons/hegrenade/explode%d.wav", GetRandomInt(3, 5));
+		EmitSoundToAll(szSound);
+	}
+	
+	PrintToChat(client, "[\x0EPlaneptune\x01]   变身之前请先确保你拥有女神之力...");
+	
+	return Plugin_Stop;
 }

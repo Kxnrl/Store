@@ -1219,6 +1219,8 @@ public Action Timer_ResetPlayerArms(Handle timer, Handle pack)
 		if(strlen(szWeapon[slot]) > 7)
 			GivePlayerItem(client, szWeapon[slot]);
 	}
+	
+	CloseHandle(pack);
 }
 
 public Action Timer_IntiFailed(Handle timer, int client)

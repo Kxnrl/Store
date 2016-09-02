@@ -490,14 +490,11 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 	CreateTimer(1.0, Timer_SetClientNeon, GetClientUserId(client));
 	CreateTimer(1.0, Timer_SetClientPart, GetClientUserId(client));
 
-	//PrintToChatAll("Spawn1 %N", client);
-
 	if(g_bGameModeZE)
 		if(GetClientTeam(client) != 3)
 			return Plugin_Stop;
 
 	Store_PreSetClientModel(client);
-	//PrintToChatAll("Spawn2 %N", client);
 
 	return Plugin_Stop;
 }
@@ -520,8 +517,6 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 			RemoveHat(client, i);
 		}
 	}
-	
-	//PrintToChatAll("Death %N", client);
 
 	return Plugin_Continue;
 }
@@ -549,8 +544,6 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
 
 	if(g_bGameModeMG)
 		Store_PreSetClientModel(client);
-
-	//PrintToChatAll("Team %N", client);
 	
 	return Plugin_Continue;
 }
@@ -591,10 +584,7 @@ public Action Timer_CreateTrails(Handle timer, int userid)
 
 void Store_PreSetClientModel(int client)
 {
-	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
-
-	if(m_iEquipped < 0)
-		m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
+	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
 
 	if(m_iEquipped >= 0)
 	{
@@ -627,15 +617,8 @@ void Store_SetClientModel(int client, const char[] model, const int skin = 0, co
 	
 	g_bHasPlayerskin[client] = true;
 	
-	//PrintToConsole(client, "szModel: %s", model);
-	//PrintToConsole(client, "strArms: %s", arms);
-	//PrintToConsole(client, "Current: %s", currentmodel);
-	
 	if(!StrEqual(arms, "null") && !StrEqual(currentmodel, arms))
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
-	
-	//GetEntPropString(client, Prop_Send, "m_szArmsModel", currentmodel, 128);
-	//PrintToConsole(client, "Final:: %s", currentmodel);
 }
 
 int CreateTrail(int client, int itemid = -1, int slot = 0)
@@ -1096,12 +1079,12 @@ public Action Command_Hide(int client, int args)
 	if(!g_bHideMode[client])
 	{
 		g_bHideMode[client] = true;
-		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hide\x01' 你已\x04开启\x01屏蔽足迹和霓虹");
+		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hidetrail\x01' 你已\x04开启\x01屏蔽足迹和霓虹");
 	}
 	else
 	{
 		g_bHideMode[client] = false;
-		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hide\x01' 你已\x07关闭\x01屏蔽足迹和霓虹");
+		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hidetrail\x01' 你已\x07关闭\x01屏蔽足迹和霓虹");
 	}
 
 	return Plugin_Handled;
@@ -1116,15 +1099,16 @@ public Action Command_HDD(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	CG_GiveClientShare(client, -100, "HDD变身");
-	PrintToChat(client, "[\x0EPlaneptune\x01]   你支付了\x04100\x01点\x0CShare\x01来变身为HDD形态");
-	PrintToChat(client, "[\x0EPlaneptune\x01]   Initializating  HDD Form ....");
-	
 	if(g_eClients[client][iId] != 1)
 	{
+		CG_GiveClientShare(client, -100, "HDD变身");
+		PrintToChat(client, "[\x0EPlaneptune\x01]   你支付了\x04100\x01点\x0CShare\x01来变身为HDD形态");
+		PrintToChat(client, "[\x0EPlaneptune\x01]   Initializating  HDD Form ....");
 		CreateTimer(3.0, Timer_IntiFailed, client);
 		return Plugin_Handled;
 	}
+	
+	PrintToChat(client, "[\x0EPlaneptune\x01]   Initializating  HDD Form ....");
 	
 	if(IsModelPrecached(PURPLE_HEART) && IsModelPrecached(PURPLE_HEART_ARMS))
 		Store_SetClientModel(client, PURPLE_HEART, 0, PURPLE_HEART_ARMS);
@@ -1144,15 +1128,16 @@ public Action Command_NextForm(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	CG_GiveClientShare(client, -100, "Next Form变身");
-	PrintToChat(client, "[\x0EPlaneptune\x01]   你支付了\x04100\x01点\x0CShare\x01来变身为NextForm形态");
-	PrintToChat(client, "[\x0EPlaneptune\x01]   Initializating  Next Form ....");
-	
 	if(g_eClients[client][iId] != 1)
 	{
+		CG_GiveClientShare(client, -100, "Next Form变身");
+		PrintToChat(client, "[\x0EPlaneptune\x01]   你支付了\x04100\x01点\x0CShare\x01来变身为NextForm形态");
+		PrintToChat(client, "[\x0EPlaneptune\x01]   Initializating  Next Form ....");
 		CreateTimer(3.0, Timer_IntiFailed, client);
 		return Plugin_Handled;
 	}
+	
+	PrintToChat(client, "[\x0EPlaneptune\x01]   Initializating  Next Form ....");
 	
 	if(IsModelPrecached(NEXT_PURPLE) && IsModelPrecached(NEXT_PURPLE_ARMS))
 		Store_SetClientModel(client, NEXT_PURPLE, 0, NEXT_PURPLE_ARMS);

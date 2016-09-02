@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.1.2 - 2016/09/01 06:49 - new syntax[5928] "
+#define PLUGIN_VERSION " 3.1.3 - 2016/09/02 02:40 - new syntax[5928] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -240,10 +240,8 @@ public int Native_GetClientPlayerSkin(Handle myself, int numParams)
 	else
 	{
 		int client = GetNativeCell(1);
-		int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 
-		if(m_iEquipped < 0)
-			m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
+		int m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
 
 		if(m_iEquipped >= 0)
 		{
@@ -257,7 +255,7 @@ public int Native_GetClientPlayerSkin(Handle myself, int numParams)
 public int Native_ResetPlayerSkin(Handle myself, int numParams)
 {
 	int client = GetNativeCell(1);
-	if(client && IsClientInGame(client) && IsPlayerAlive(client) && 2<=GetClientTeam(client)<=3)
+	if(client && IsClientInGame(client) && IsPlayerAlive(client))
 		Store_PreSetClientModel(client);
 }
 

@@ -51,7 +51,7 @@ stock int PrecacheModel2(const char[] model, bool preload = false)
 }
 
 
-char g_szModelExts[][16] = {".phy", ".sw.vtx", ".dx80.vtx", ".dx90.vtx", ".vtx", ".xbox.vtx", ".vvd"};
+char g_szModelExts[][16] = {".phy", ".dx90.vtx", ".vtx", ".vvd", ".ani"};
 stock int Downloader_AddFileToDownloadsTable(const char[] filename)
 {
 	if(!FileExists2(filename))
@@ -583,9 +583,6 @@ stock bool GetLegacyAuthString(int client, char[] out, int maxlen, bool validate
 {
 	char m_szSteamID[32];
 	bool success = GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), validate);
-	
-	ReplaceString(m_szSteamID, 32, "STEAM_1:1:3339181", "STEAM_1:1:44083262");
-	ReplaceString(m_szSteamID, 32, "STEAM_1:0:3339246", "STEAM_1:1:44083262");
 
 	if(m_szSteamID[0]=='[')
 	{

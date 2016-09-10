@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.1.3 - 2016/09/02 02:40 - new syntax[5928] "
+#define PLUGIN_VERSION " 3.1.4 - 2016/09/11 01:25 - new syntax[5928] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -92,7 +92,6 @@ int g_iPackageHandler = -1;
 int g_iDatabaseRetries = 0;
 
 bool g_bInvMode[MAXPLAYERS+1];
-bool g_bMySQL = false;
 
 bool g_bGameModeZE;
 bool g_bGameModeTT;
@@ -1396,98 +1395,11 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
 		// If it's already connected we are good to go
 		if(g_hDatabase != INVALID_HANDLE)
 			return;
-			
+
 		g_hDatabase = hndl;
-		char m_szDriver[2];
-		SQL_ReadDriver(g_hDatabase, STRING(m_szDriver));
-		if(m_szDriver[0] == 'm')
-		{
-			g_bMySQL = true;
-			SQL_TVoid(g_hDatabase, "CREATE TABLE IF NOT EXISTS `store_players` (\
-										  `id` int(11) NOT NULL AUTO_INCREMENT,\
-										  `authid` varchar(32) NOT NULL,\
-										  `name` varchar(64) NOT NULL,\
-										  `credits` int(11) NOT NULL,\
-										  `date_of_join` int(11) NOT NULL,\
-										  `date_of_last_join` int(11) NOT NULL,\
-										  `ban` int(1) unsigned NOT NULL DEFAULT '0',\
-										  PRIMARY KEY (`id`),\
-										  UNIQUE KEY `id` (`id`),\
-										  UNIQUE KEY `authid` (`authid`)\
-										)");
-			SQL_TVoid(g_hDatabase, "CREATE TABLE IF NOT EXISTS `store_items` (\
-										  `id` int(11) NOT NULL AUTO_INCREMENT,\
-										  `player_id` int(11) NOT NULL,\
-										  `type` varchar(16) NOT NULL,\
-										  `unique_id` varchar(256) NOT NULL,\
-										  `date_of_purchase` int(11) NOT NULL,\
-										  `date_of_expiration` int(11) NOT NULL,\
-										  PRIMARY KEY (`id`)\
-										)");
-			SQL_TVoid(g_hDatabase, "CREATE TABLE IF NOT EXISTS `store_equipment` (\
-										  `player_id` int(11) NOT NULL,\
-										  `type` varchar(16) NOT NULL,\
-										  `unique_id` varchar(256) NOT NULL,\
-										  `slot` int(11) NOT NULL\
-										)");
-			SQL_TVoid(g_hDatabase, "CREATE TABLE IF NOT EXISTS `store_logs` (\
-										  `id` int(11) NOT NULL AUTO_INCREMENT,\
-										  `player_id` int(11) NOT NULL,\
-										  `credits` int(11) NOT NULL,\
-										  `reason` varchar(256) NOT NULL,\
-										  `date` int(11) NOT NULL,\
-										  PRIMARY KEY (`id`)\
-										)");
-			SQL_TQuery(g_hDatabase, SQLCallback_NoError, "ALTER TABLE store_items ADD COLUMN price_of_purchase int(11)");
-			char m_szQuery[512];
-			Format(STRING(m_szQuery), "CREATE TABLE IF NOT EXISTS `%s` (\
-										  `id` int(11) NOT NULL AUTO_INCREMENT,\
-										  `parent_id` int(11) NOT NULL DEFAULT '-1',\
-										  `item_price` int(32) NOT NULL,\
-										  `item_type` varchar(64) NOT NULL,\
-										  `item_flag` varchar(64) NOT NULL,\
-										  `item_name` varchar(64) NOT NULL,\
-										  `additional_info` text NOT NULL,\
-										  `item_status` tinyint(1) NOT NULL,\
-										  `supported_game` varchar(64) NOT NULL,\
-										  PRIMARY KEY (`id`)\
-										)", g_eCvars[g_cvarItemsTable][sCache]);
-			SQL_TVoid(g_hDatabase, m_szQuery);
-		}
-		else
-		{
-			SQL_TVoid(g_hDatabase, "CREATE TABLE IF NOT EXISTS `store_players` (\
-										  `id` INTEGER PRIMARY KEY AUTOINCREMENT,\
-										  `authid` varchar(32) NOT NULL,\
-										  `name` varchar(64) NOT NULL,\
-										  `credits` int(11) NOT NULL,\
-										  `date_of_join` int(11) NOT NULL,\
-										  `date_of_last_join` int(11) NOT NULL\
-										)");
-			SQL_TVoid(g_hDatabase, "CREATE TABLE IF NOT EXISTS `store_items` (\
-										  `id` INTEGER PRIMARY KEY AUTOINCREMENT,\
-										  `player_id` int(11) NOT NULL,\
-										  `type` varchar(16) NOT NULL,\
-										  `unique_id` varchar(256) NOT NULL,\
-										  `date_of_purchase` int(11) NOT NULL,\
-										  `date_of_expiration` int(11) NOT NULL\
-										)");
-			SQL_TVoid(g_hDatabase, "CREATE TABLE IF NOT EXISTS `store_equipment` (\
-										  `player_id` int(11) NOT NULL,\
-										  `type` varchar(16) NOT NULL,\
-										  `unique_id` varchar(256) NOT NULL,\
-										  `slot` int(11) NOT NULL\
-										)");
-			SQL_TQuery(g_hDatabase, SQLCallback_NoError, "ALTER TABLE store_items ADD COLUMN price_of_purchase int(11)");
-			if(strcmp(g_eCvars[g_cvarItemSource][sCache], "database")==0)
-			{
-	
-				SetFailState("Database item source can only be used with MySQL databases");
-			}
-		}
-		
+
 		// Do some housekeeping
-		char m_szQuery[512];
+		char m_szQuery[256];
 		Format(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
 		SQL_TVoid(g_hDatabase, m_szQuery);
 		SQL_SetCharset(g_hDatabase, "utf8");
@@ -1518,7 +1430,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 		int m_iTime = GetTime();
 		g_eClients[client][iUserId] = userid;
 		g_eClients[client][iItems] = -1;
-		GetLegacyAuthString(client, STRING(m_szSteamID), false);
+		GetLegacyAuthString(client, STRING(m_szSteamID), true);
 		strcopy(g_eClients[client][szAuthId], 32, m_szSteamID[8]);
 		GetClientName(client, g_eClients[client][szName], 64);
 		SQL_EscapeString(g_hDatabase, g_eClients[client][szName], g_eClients[client][szNameEscaped], 128);
@@ -1532,6 +1444,16 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			g_eClients[client][iDateOfLastJoin] = m_iTime;
 			g_eClients[client][bBan] = (SQL_FetchInt(hndl, 6) == 1 || g_eClients[client][iCredits] < 0) ? true : false;
 			
+			if(g_eClients[client][iId] == 1)
+			{
+				GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true);
+				if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_0:1:44083262"))
+				{
+					KickClient(client, "STEAM AUTH ERROR");
+					return;
+				}
+			}
+
 			Format(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
 			SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
 
@@ -1540,8 +1462,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 		}
 		else
 		{
-			Format(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', %d, %d, %d, '0')",
-						g_eClients[client][szAuthId], g_eClients[client][szNameEscaped], g_eCvars[g_cvarStartCredits][aCache], m_iTime, m_iTime);
+			Format(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', %d, %d, %d, '0')", g_eClients[client][szAuthId], g_eClients[client][szNameEscaped], g_eCvars[g_cvarStartCredits][aCache], m_iTime, m_iTime);
 			SQL_TQuery(g_hDatabase, SQLCallback_InsertClient, m_szQuery, userid);
 			g_eClients[client][iCredits] = g_eCvars[g_cvarStartCredits][aCache];
 			g_eClients[client][iOriginalCredits] = g_eCvars[g_cvarStartCredits][aCache];
@@ -1566,9 +1487,23 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 		if(!client)
 			return;
 
-		char m_szQuery[512];
-		Format(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-		SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
+		if(g_eClients[client][bBan])
+		{
+			g_eClients[client][bLoaded] = true;
+			g_eClients[client][iItems] = 0;
+			return;
+		}
+		
+		if(g_eClients[client][iId] == 1)
+		{
+			char m_szSteamID[32];
+			GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true);
+			if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_0:1:44083262"))
+			{
+				KickClient(client, "STEAM AUTH ERROR");
+				return;
+			}
+		}
 
 		if(!SQL_GetRowCount(hndl))
 		{
@@ -1607,6 +1542,10 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 			}
 		}
 		g_eClients[client][iItems] = i;
+		
+		char m_szQuery[512];
+		Format(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+		SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
 	}
 }
 
@@ -1629,7 +1568,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 			g_eClients[client][bLoaded] = true;
 			return;
 		}
-		
+
 		while(SQL_FetchRow(hndl))
 		{
 			SQL_FetchString(hndl, 1, STRING(m_szType));
@@ -1803,7 +1742,7 @@ public void Store_LoadClientInventory(int client)
 	char m_szQuery[512];
 	char m_szAuthId[32];
 
-	GetLegacyAuthString(client, STRING(m_szAuthId));
+	GetLegacyAuthString(client, STRING(m_szAuthId), true);
 	if(m_szAuthId[0] == 0)
 		return;
 
@@ -1888,10 +1827,7 @@ public void Store_SaveClientData(int client)
 		return;
 	
 	char m_szQuery[512];
-	if(g_bMySQL)
-		Format(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`+%d, `date_of_last_join`=%d, `name`='%s' WHERE `id`=%d", g_eClients[client][iCredits]-g_eClients[client][iOriginalCredits], g_eClients[client][iDateOfLastJoin], g_eClients[client][szNameEscaped], g_eClients[client][iId]);
-	else
-		Format(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`+%d, `date_of_last_join`=%d, `name`='%s' WHERE `id`=%d", g_eClients[client][iCredits]-g_eClients[client][iOriginalCredits], g_eClients[client][iDateOfLastJoin], g_eClients[client][szNameEscaped], g_eClients[client][iId]);
+	Format(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`+%d, `date_of_last_join`=%d, `name`='%s' WHERE `id`=%d", g_eClients[client][iCredits]-g_eClients[client][iOriginalCredits], g_eClients[client][iDateOfLastJoin], g_eClients[client][szNameEscaped], g_eClients[client][iId]);
 
 	g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
 

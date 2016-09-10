@@ -587,7 +587,7 @@ public int Native_HasClientItem(Handle myself, int numParams)
 	// Is the item free (available for everyone)?
 	if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
 		return true;
-		
+
 	// Can he even have it?	
 	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
 		return false;
@@ -2248,6 +2248,9 @@ public int Store_GetExpiration(int client, int itemid)
 
 int Store_UseItem(int client, int itemid, bool synced = false, int slot = 0)
 {
+	if(!Store_HasClientItem(client, itemid))
+		return 1;
+
 	int m_iSlot = slot;
 	if(g_eTypeHandlers[g_eItems[itemid][iHandler]][fnUse] != INVALID_FUNCTION)
 	{

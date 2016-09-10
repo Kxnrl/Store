@@ -589,6 +589,17 @@ void Store_PreSetClientModel(int client)
 	if(m_iEquipped >= 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
+		
+		if(!Store_HasClientItem(client, m_iData))
+		{
+			ForcePlayerSuicide(client);
+			CreateTimer(5.0, Timer_KickClient, GetClientUserId(client));
+			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
+			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
+			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
+			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
+			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
+		}
 
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][iSkin], g_ePlayerSkins[m_iData][szArms]);
 	}

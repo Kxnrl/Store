@@ -589,18 +589,12 @@ void Store_PreSetClientModel(int client)
 	if(m_iEquipped >= 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
-		
-		if(!Store_HasClientItem(client, m_iData))
+		if(g_eClients[client][iId] != 1 && (StrContains(g_ePlayerSkins[m_iData][szModel], "nextpurple", false) != -1 || StrContains(g_ePlayerSkins[m_iData][szModel], "purpleheart", false) != -1 || StrContains(g_ePlayerSkins[m_iData][szModel], "faith", false) != -1))
 		{
-			ForcePlayerSuicide(client);
-			CreateTimer(5.0, Timer_KickClient, GetClientUserId(client));
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
+			char m_szAuth[32];
+			GetClientAuthId(client, AuthId_Steam2, m_szAuth, 32, true);
+			LogError("Client[%N] StoreId[%d] SteamId[%s] Model[%s]", client, g_eClients[client][iId], m_szAuth, g_ePlayerSkins[m_iData][szModel]);
 		}
-
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][iSkin], g_ePlayerSkins[m_iData][szArms]);
 	}
 	else if(g_eCvars[g_cvarSkinForceChange][aCache])

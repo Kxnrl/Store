@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.1.4 - 2016/09/11 01:25 - new syntax[5928] "
+#define PLUGIN_VERSION " 3.1.4 - 2016/09/11 03:54 - new syntax[5928] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -1452,6 +1452,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 					KickClient(client, "STEAM AUTH ERROR");
 					return;
 				}
+				PrintToConsole(client, "Store Checking Access.");
 			}
 
 			Format(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
@@ -1487,6 +1488,10 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 		if(!client)
 			return;
 
+		char m_szQuery[512];
+		Format(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+		SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
+
 		if(g_eClients[client][bBan])
 		{
 			g_eClients[client][bLoaded] = true;
@@ -1503,6 +1508,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 				KickClient(client, "STEAM AUTH ERROR");
 				return;
 			}
+			PrintToConsole(client, "Store Checking Access.");
 		}
 
 		if(!SQL_GetRowCount(hndl))
@@ -1542,10 +1548,6 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 			}
 		}
 		g_eClients[client][iItems] = i;
-		
-		char m_szQuery[512];
-		Format(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-		SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
 	}
 }
 
@@ -2248,9 +2250,6 @@ public int Store_GetExpiration(int client, int itemid)
 
 int Store_UseItem(int client, int itemid, bool synced = false, int slot = 0)
 {
-	if(!Store_HasClientItem(client, itemid))
-		return 1;
-
 	int m_iSlot = slot;
 	if(g_eTypeHandlers[g_eItems[itemid][iHandler]][fnUse] != INVALID_FUNCTION)
 	{

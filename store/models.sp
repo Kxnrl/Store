@@ -100,18 +100,6 @@ public int Models_Remove(int client, int id)
 
 void CheckingClientAccess(int client, int m_iData)
 {
-	if(!Store_HasClientItem(client, m_iData))
-	{
-		ForcePlayerSuicide(client);
-		CreateTimer(5.0, Timer_KickClient, GetClientUserId(client));
-		PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-		PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-		PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-		PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-		PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-		return;
-	}
-		
 	if(StrContains(g_eCustomModel[m_iData][szModelV], "neptune", false) != -1)
 	{
 		char m_szAuthId[32];

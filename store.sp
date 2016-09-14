@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.1.4 - 2016/09/11 03:54 - new syntax[5928] "
+#define PLUGIN_VERSION " 3.1.5b - 2016/09/15 03:37 - new syntax[5929] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -233,7 +233,7 @@ public int Native_GetClientPlayerSkin(Handle myself, int numParams)
 {
 	if(g_bGameModePR)
 	{
-		if(SetNativeString(2, "null", GetNativeCell(3)) != SP_ERROR_NONE)
+		if(SetNativeString(2, "none", GetNativeCell(3)) != SP_ERROR_NONE)
 			ThrowNativeError(SP_ERROR_NATIVE, "Can not return Player Skin.");
 	}
 	else
@@ -248,7 +248,108 @@ public int Native_GetClientPlayerSkin(Handle myself, int numParams)
 			if(SetNativeString(2, g_ePlayerSkins[m_iData][szModel], GetNativeCell(3)) != SP_ERROR_NONE)
 				ThrowNativeError(SP_ERROR_NATIVE, "Can not return Player Skin.");
 		}
+		else
+			SetNativeString(2, "none", GetNativeCell(3));
 	}
+}
+
+public int Native_HasClientGoddess(Handle myself, int numParams)
+{
+	int client = GetNativeCell(1);
+	int nation = GetNativeCell(2);
+	int formid = GetNativeCell(3);
+	
+	if(g_eClients[client][bBan])
+		return false;
+	
+	if(g_eClients[client][iId] == 1)
+		return true;
+
+	if(nation == PURPLE)
+	{
+		if(formid == 1)
+		{
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune.mdl")))
+				return true;
+			
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune.mdl")))
+				return true;
+		}
+		else if(formid == 2)
+		{
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl")))
+				return true;
+			
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/hdd/faith.mdl")))
+				return true;
+		}
+		else if(formid == 3)
+		{
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple.mdl")))
+				return true;
+			
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/faith.mdl")))
+				return true;
+			
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_nothruster.mdl")))
+				return true;
+			
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/faith_nothruster.mdl")))
+				return true;
+		}
+	}
+	else if(nation == BLACK)
+	{
+		if(formid == 1)
+		{
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/noire/normal/noire.mdl")))
+				return true;
+		}
+		else if(formid == 2)
+		{
+			
+		}
+		else if(formid == 3)
+		{
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/noire/nextform/nextblack.mdl")))
+				return true;
+		}
+	}
+	else if(nation == WHITE)
+	{
+		if(formid == 1)
+		{
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/blanc/normal/blanc.mdl")))
+				return true;
+		}
+		else if(formid == 2)
+		{
+			
+		}
+		else if(formid == 3)
+		{
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/blanc/nextform/nextwhite.mdl")))
+				return true;
+		}
+	}
+	else if(nation == GREEN)
+	{
+		if(formid == 1)
+		{
+			
+		}
+		else if(formid == 2)
+		{
+			
+		}
+		else if(formid == 3)
+		{
+			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/vert/nextform/nextgreen.mdl")))
+				return true;
+		}
+	}
+	
+	return false;
 }
 
 public int Native_ResetPlayerSkin(Handle myself, int numParams)
@@ -284,6 +385,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_IsClientBanned", Native_IsClientBanned);
 	CreateNative("Store_HasClientPlayerSkin", Native_HasClientPlayerSkin);
 	CreateNative("Store_GetClientPlayerSkin", Native_GetClientPlayerSkin);
+	CreateNative("Store_HasClientGoddess", Native_HasClientGoddess);
 	CreateNative("Store_ResetPlayerSkin", Native_ResetPlayerSkin);
 
 	MarkNativeAsOptional("HideTrails_ShouldHide");
@@ -588,10 +690,6 @@ public int Native_HasClientItem(Handle myself, int numParams)
 	if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
 		return true;
 
-	// Can he even have it?	
-	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
-		return false;
-		
 	// Check if the client actually has the item
 	for(int i = 0; i < g_eClients[client][iItems]; ++i)
 	{

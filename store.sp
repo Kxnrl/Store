@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.1.5b - 2016/09/15 03:37 - new syntax[5929] "
+#define PLUGIN_VERSION " 3.2beta - 2016/09/25 17:38 - new syntax[5930] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -2499,4 +2499,77 @@ void CheckGameMode()
 	char temp[128];
 	Format(temp, 128, "%s%s%s%s", szFaith_NAME[1], szFaith_CNAME[1], szFaith_NATION[1], szFaith_CNATION[1]);
 	g_Share[0] = 0;
+}
+
+bool Store_IsWhiteList(int client)
+{
+	if(g_eClients[client][iId] == 1)
+		return true;
+	
+	if(g_eClients[client][iId] == 157809)
+		return true;
+	
+	return false;
+}
+
+bool Store_IsPlayerTP(int client)
+{
+	if(g_bThirdperson[client])
+		return true;
+	
+	if(g_bMirror[client])
+		return true;
+	
+	return false;
+}
+
+void CheckClientTP(int client)
+{
+	if(g_bThirdperson[client])
+	{
+		SetThirdperson(client, false);
+		g_bThirdperson[client] = false;
+	}
+
+	if(g_bMirror[client])
+	{
+		SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", -1);
+		SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
+		SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
+		SetEntProp(client, Prop_Send, "m_iFOV", 90);
+		char valor[6];
+		GetConVarString(FindConVar("mp_forcecamera"), valor, 6);
+		SendConVarValue(client, FindConVar("mp_forcecamera"), valor);
+		g_bMirror[client] = false;
+	}
+}
+
+void ToggleThirdperson(int client)
+{
+	if(g_bThirdperson[client])
+	{
+		SetThirdperson(client, true);
+	}
+	else
+	{
+		SetThirdperson(client, false);
+	}
+}
+
+void SetThirdperson(int client, bool tp)
+{
+	static Handle m_hAllowTP = INVALID_HANDLE;
+	if(m_hAllowTP == INVALID_HANDLE)
+		m_hAllowTP = FindConVar("sv_allow_thirdperson");
+
+	SetConVarInt(m_hAllowTP, 1);
+
+	if(tp)
+	{
+		ClientCommand(client, "thirdperson");
+	}
+	else
+	{
+		ClientCommand(client, "firstperson");
+	}
 }

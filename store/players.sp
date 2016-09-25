@@ -1,7 +1,3 @@
-#define NEXT_PURPLE "models/player/custom_player/maoling/neptunia/neptune/nextform/faith.mdl"
-#define NEXT_PURPLE_ARMS "models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_arms.mdl"
-#define PURPLE_HEART "models/player/custom_player/maoling/neptunia/neptune/hdd/faith.mdl"
-#define PURPLE_HEART_ARMS "models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart_arms.mdl"
 
 enum PlayerSkin
 {
@@ -70,6 +66,8 @@ bool g_bCTForcedSkin = false;
 bool g_bSpawnTrails[MAXPLAYERS+1];
 bool g_bHasPlayerskin[MAXPLAYERS+1];
 bool g_bHideMode[MAXPLAYERS+1];
+bool g_bMirror[MAXPLAYERS+1];
+bool g_bThirdperson[MAXPLAYERS+1];
 float g_fClientCounters[MAXPLAYERS+1];
 float g_fLastPosition[MAXPLAYERS+1][3];
 char g_szAuraName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];  
@@ -106,6 +104,8 @@ public void Players_OnPluginStart()
 	RegConsoleCmd("sm_hide", Command_Hide, "Hide Trail and Neon");
 	RegConsoleCmd("sm_hidetrail", Command_Hide, "Hide Trail and Neon");
 	RegConsoleCmd("sm_hideneon", Command_Hide, "Hide Trail and Neon");
+	RegConsoleCmd("sm_tp", Command_TP, "Toggle TP Mode");
+	RegConsoleCmd("sm_seeme", Cmd_Mirror, "Toggle Mirror Mode");
 }
 
 public void PlayerSkins_OnMapStart()
@@ -198,6 +198,8 @@ public void Part_OnMapStart()
 public void Players_OnClientConnected(int client)
 {
 	g_bHideMode[client] = false;
+	g_bThirdperson[client] = false;
+	g_bMirror[client] = false;
 }
 
 public void Aura_OnClientDisconnect(int client)
@@ -500,6 +502,8 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	
+	CheckClientTP(client);
 
 	Store_RemoveClientAura(client);
 	Store_RemoveClientNeon(client);
@@ -626,6 +630,9 @@ void Store_SetClientModel(int client, const char[] model, const int skin = 0, co
 
 int CreateTrail(int client, int itemid = -1, int slot = 0)
 {
+	if(g_bGameModeZE && !Store_IsWhiteList(client))
+		return;
+	
 	int m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "trail", slot) : itemid);
 	
 	if(m_iEquipped >= 0)
@@ -833,9 +840,11 @@ public int RemoveHat(int client, int slot)
 
 public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-	if(GetFeatureStatus(FeatureType_Native, "IsPlayerInTP") == FeatureStatus_Available)
-		if(IsPlayerInTP(client))
-			return Plugin_Continue;
+	if(Store_IsPlayerTP(client))
+		return Plugin_Continue;
+	
+	if(g_bHideMode[client])
+		return Plugin_Handled;
 
 	for(int i = 0; i< STORE_MAX_SLOTS; ++i)
 		if(ent == g_iClientHats[client][i])
@@ -931,6 +940,9 @@ void Store_SetClientAura(int client)
 	{
 		Store_RemoveClientAura(client);
 	}
+	
+	if(g_bGameModeZE && !Store_IsWhiteList(client))
+		return;
 
 	if(!(strcmp(g_szAuraClient[client], "", false) == 0))
 	{
@@ -992,7 +1004,12 @@ void Store_RemoveClientNeon(int client)
 void Store_SetClientNeon(int client)
 {
 	if(g_iClientNeon[client] != 0)
+	{
 		Store_RemoveClientNeon(client);
+	}
+	
+	if(g_bGameModeZE && !Store_IsWhiteList(client))
+		return;
 	
 	int m_iEquipped = Store_GetEquippedItem(client, "neon", 0); 
 	if(m_iEquipped < 0) 
@@ -1052,7 +1069,12 @@ void Store_RemoveClientPart(int client)
 void Store_SetClientPart(int client)
 {
 	if(g_iClientPart[client] != 0)
+	{
 		Store_RemoveClientPart(client);
+	}
+	
+	if(g_bGameModeZE && !Store_IsWhiteList(client))
+		return;
 
 	if(!(strcmp(g_szPartClient[client], "", false) == 0))
 	{
@@ -1090,5 +1112,69 @@ public Action Command_Hide(int client, int args)
 		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hidetrail\x01' 你已\x07关闭\x01屏蔽足迹和霓虹");
 	}
 
+	return Plugin_Handled;
+}
+
+public Action Command_TP(int client, int args)
+{
+	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB) && !Store_IsWhiteList(client))
+	{
+		PrintToChat(client, "[\x0EPlaneptune\x01]  当前模式不允许使用TP");
+		return Plugin_Handled;
+	}
+
+	if(!IsPlayerAlive(client))
+	{
+		PrintToChat(client, "[\x0EPlaneptune\x01]  你已经嗝屁了,还想开TP?");
+		return Plugin_Handled;
+	}
+	
+	if(g_bMirror[client])
+	{
+		PrintToChat(client, "[\x0EPlaneptune\x01]  你已经开了SeeMe,还想开TP?");
+		return Plugin_Handled;
+	}
+
+	g_bThirdperson[client] = !g_bThirdperson[client];
+	ToggleThirdperson(client);
+
+	return Plugin_Handled;
+}
+
+
+public Action Cmd_Mirror(int client, int args)
+{
+	if(!IsPlayerAlive(client))
+	{
+		PrintToChat(client, "[\x0EPlaneptune\x01]  你已经嗝屁了,还想开SeeMe?");
+		return Plugin_Handled;
+	}
+	
+	if(g_bThirdperson[client])
+	{
+		PrintToChat(client, "[\x0EPlaneptune\x01]  你已经开了TP,还想开SeeMe?");
+		return Plugin_Handled;
+	}
+	
+	if(!g_bMirror[client])
+	{
+		SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", 0); 
+		SetEntProp(client, Prop_Send, "m_iObserverMode", 1);
+		SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 0);
+		SetEntProp(client, Prop_Send, "m_iFOV", 120);
+		SendConVarValue(client, FindConVar("mp_forcecamera"), "1");
+		g_bMirror[client] = true;
+	}
+	else
+	{
+		SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", -1);
+		SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
+		SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
+		SetEntProp(client, Prop_Send, "m_iFOV", 90);
+		char valor[6];
+		GetConVarString(FindConVar("mp_forcecamera"), valor, 6);
+		SendConVarValue(client, FindConVar("mp_forcecamera"), valor);
+		g_bMirror[client] = false;
+	}
 	return Plugin_Handled;
 }

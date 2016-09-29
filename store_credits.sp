@@ -9,7 +9,7 @@
 #define PLUGIN_VERSION " 4.5b3 "
 #define PLUGIN_URL "http://steamcommunity.com/id/_xQy_/"
 #define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
-#define PLUGIN_PREFIX_SIGN "[\x0EPlaneptune\x01]  "
+#define PLUGIN_PREFIX "[\x0EPlaneptune\x01]  "
 
 //////////////////////////////
 //		INCLUDES			//
@@ -19,11 +19,19 @@
 #include <store>
 #include <steamworks>
 #include <cg_core>
+#include <items>
+#include <smlib>
+#include <sdktools>
+#include <sdkhooks>
+
+#pragma newdecls required
 
 //////////////////////////////////
 //		GLOBAL VARIABLES		//
 //////////////////////////////////
 Handle g_hTimer = INVALID_HANDLE;
+Handle g_hRandom = INVALID_HANDLE;
+Handle g_hDB = INVALID_HANDLE;
 
 bool g_bInOfficalGroup[MAXPLAYERS+1];
 bool g_bInMimiGameGroup[MAXPLAYERS+1];
@@ -49,23 +57,48 @@ public Plugin myinfo =
 //////////////////////////////
 //		PLUGIN FORWARDS		//
 //////////////////////////////
-public OnMapStart()
+public void OnPluginStart()
 {
+	IntiDatabase();
+	RegAdminCmd("sm_boxtest", Command_BoxTest, ADMFLAG_ROOT);
+	RegAdminCmd("sm_signtest", Command_SignTest, ADMFLAG_ROOT);
+}
+
+public void OnMapStart()
+{
+	PrecacheModel("models/maoling/active/gtx/titan.mdl");
+
 	if(g_hTimer != INVALID_HANDLE)
 	{
 		KillTimer(g_hTimer);
 		g_hTimer = INVALID_HANDLE;
 	}
 	
+	if(g_hRandom != INVALID_HANDLE)
+	{
+		KillTimer(g_hRandom);
+		g_hRandom = INVALID_HANDLE;
+	}
+	
 	g_hTimer = CreateTimer(300.0, CreditTimer);
+	g_hRandom = CreateTimer(GetRandomFloat(300.0,600.0), RandomDrop);
 }
 
-public OnClientPostAdminCheck(int client)
+public void OnMapEnd()
+{
+	if(g_hRandom != INVALID_HANDLE)
+	{
+		KillTimer(g_hRandom);
+		g_hRandom = INVALID_HANDLE;
+	}
+}
+
+public void OnClientPostAdminCheck(int client)
 {
 	LookupPlayerGroups(client);
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(int client)
 {
 	g_bInOfficalGroup[client] = false;
 	g_bInMimiGameGroup[client] = false;
@@ -73,7 +106,7 @@ public OnClientDisconnect(client)
 	g_bIsCheck[client] = false;
 }
 
-public LookupPlayerGroups(client)
+public int LookupPlayerGroups(int client)
 {
 	g_bIsCheck[client] = true;
 	SteamWorks_GetUserGroupStatus(client, CG_group_id);
@@ -81,7 +114,7 @@ public LookupPlayerGroups(client)
 	SteamWorks_GetUserGroupStatus(client, OP_group_id);
 }
 
-public SteamWorks_OnClientGroupStatus(authid, groupid, bool isMember, bool isOfficer)
+public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember, bool isOfficer)
 {
 	if(isMember || isOfficer) 
 	{
@@ -125,8 +158,8 @@ public Action CreditTimer(Handle timer)
 			int ifaith = CG_GetClientFaith(client);
 			bool m_bGroupCreidts = false;
 			char szFrom[128], szReason[128];
-			Format(szFrom, 128, " \x10[");
-			Format(szReason, 128, "PA-加成[");
+			Format(szFrom, 128, "\x0C国庆节双倍=>\x10[");
+			Format(szReason, 128, "store_credits[");
 
 			if(ifaith > 0)
 			{
@@ -254,6 +287,8 @@ public Action CreditTimer(Handle timer)
 			StrCat(szFrom, 128, "\x10]");
 			StrCat(szReason, 128, "]");
 			
+			m_iCredits *= 2;
+			
 			Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
 			PrintToChat(client, "%s \x10你获得了\x04 %d Credits \x0A积分来自", PLUGIN_PREFIX_CREDITS, m_iCredits);
@@ -268,24 +303,561 @@ public Action CreditTimer(Handle timer)
 	return Plugin_Continue;
 }
 
-public void CG_OnClientDailySign(client)
+public Action Command_SignTest(int client, int args)
+{
+	CG_OnClientDailySign(client);
+}
+
+public void CG_OnClientDailySign(int client)
 {
 	if(!g_bInOfficalGroup[client])
 	{
-		PrintToChat(client, "%s 检测到你当前未加入\x0C官方组\x01  你无法获得签到奖励", PLUGIN_PREFIX_SIGN);
+		PrintToChat(client, "%s 检测到你当前未加入\x0C官方组\x01  你无法获得签到奖励", PLUGIN_PREFIX);
 		return;	
 	}
 	
 	if(CG_GetClientFaith(client) <= 0)
 	{
-		PrintToChat(client, "%s 检测到你当前没有\x0EFaith\x01  你无法获得签到奖励", PLUGIN_PREFIX_SIGN);
+		PrintToChat(client, "%s 检测到你当前没有\x0EFaith\x01  你无法获得签到奖励", PLUGIN_PREFIX);
 		return;	
 	}
+	
+	Active_GiveSignCredits(client);
+	Active_RandomStoreItem(client);
+}
 
+void IntiDatabase()
+{
+	char m_szError[128];
+	g_hDB = SQL_Connect("csgo", true, m_szError, 128);
+
+	if(g_hDB != INVALID_HANDLE)
+	{
+		SQL_SetCharset(g_hDB, "utf8");
+		LogMessage("Connect to database successful!");
+	}
+	else
+	{
+		PrintToServer("Not connecting to database: %s", m_szError);
+		LogMessage("Not connecting to database: %s", m_szError);
+	}
+}
+
+void Active_GiveSignCredits(int client)
+{
 	int Credits = GetRandomInt(3, 300);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
 	CG_GiveClientShare(client, Credits/3, "签到");
-	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0FCredits\x01, \x04%d\x0FShare", PLUGIN_PREFIX_SIGN, client, Credits, Credits/3);
+	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0FCredits\x01, \x04%d\x0FShare", PLUGIN_PREFIX, client, Credits, Credits/3);
 	PrintToChat(client,"%s \x10你获得了\x04%d \x0FCredits \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
 	PrintToChat(client,"%s \x10你获得了\x04%d \x0FShare \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits/3);
+}
+
+void Active_RandomStoreItem(int client)
+{
+	int m_iModelsID = GetRandomInt(1,24);
+	int m_iTime = (GetRandomInt(1, 24)*3600);
+	int userid = GetClientUserId(client);
+	char m_szModelPath[128], m_szQuery[512];
+	GetModelPath(m_iModelsID, m_szModelPath, 128);
+	Handle pack = CreateDataPack();
+	WritePackCell(pack, userid);
+	WritePackCell(pack, m_iModelsID);
+	WritePackCell(pack, m_iTime);
+	ResetPack(pack);
+	Format(m_szQuery, 512, "SELECT date_of_expiration FROM store_items WHERE player_id = %d AND unique_id='%s';", Store_GetClientID(client), m_szModelPath);
+	SQL_TQuery(g_hDB, SQLCallback_SignCheckItem, m_szQuery, pack);
+}
+
+public void SQLCallback_SignCheckItem(Handle owner, Handle hndl, const char[] error, Handle pack)
+{
+	int userid = ReadPackCell(pack);
+	int client = GetClientOfUserId(userid);
+	int m_iModelsID = ReadPackCell(pack);
+	int m_iTime = ReadPackCell(pack);
+	CloseHandle(pack);
+	int m_iExpTime = -1;
+	char m_szModelPath[128], m_szModelName[128];
+	GetModelPath(m_iModelsID, m_szModelPath, 128);
+	GetModelName(m_iModelsID, m_szModelName, 128);
+	
+	if(!client)
+		return;
+
+	Handle data = CreateDataPack();
+	WritePackCell(data, userid);
+	WritePackCell(data, m_iModelsID);
+	WritePackCell(data, m_iTime);
+
+	if(hndl == INVALID_HANDLE)
+	{
+		PrintToChat(client, "%s 发放签到奖励模型失败: SQL读取数据失败SQL_CheckItem CallBack.", PLUGIN_PREFIX);
+		LogError("SQL_SignCheckItem CallBack Error: %s", error);
+		return;
+	}
+
+	if(SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
+	{
+		m_iExpTime = SQL_FetchInt(hndl, 0);
+		if(m_iExpTime == 0)
+		{
+			PrintToChat(client, "%s 本次你签到的奖励模型为\x04%s\x01,但你已经持有该模型永久物品,我们在此表示遗憾", PLUGIN_PREFIX, m_szModelName);
+			PrintToChatAll("%s \x0C%N\x01完成了每日签到,获得了\x04%s\x01 ,按Y输入!sign来签到", PLUGIN_PREFIX, client, m_szModelName);
+		}
+		else
+		{
+			m_iExpTime += m_iTime;
+			char m_szQuery[512];
+			Format(m_szQuery, 512, "UPDATE store_items SET date_of_expiration = '%i' WHERE player_id = %d AND `unique_id`=\"%s\"", m_iExpTime, Store_GetClientID(client), m_szModelPath);
+			WritePackCell(data, m_iExpTime);
+			ResetPack(data);
+
+			if(m_iExpTime != 0)
+				SQL_TQuery(g_hDB, SQLCallback_SignUpdateExpTime, m_szQuery, data);
+			else
+				PrintToChat(client, "%s 本次你签到的奖励模型为\x04%s\x01,但你已经持有该模型永久物品,我们在此表示遗憾", PLUGIN_PREFIX, m_szModelName);
+		}
+	}
+	else
+	{
+		char m_szQuery[512];
+		m_iExpTime = GetTime()+m_iTime;
+		Format(m_szQuery, 512, "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"playerskin\", \"%s\", %d, %d, 30);", Store_GetClientID(client), m_szModelPath, GetTime(), m_iExpTime);
+		WritePackCell(data, m_iExpTime);
+		ResetPack(data);
+		SQL_TQuery(g_hDB, SQLCallback_SignItemInsert, m_szQuery, data);
+	}
+}
+
+public void SQLCallback_SignUpdateExpTime(Handle owner, Handle hndl, const char[] error, Handle pack)
+{
+	int userid = ReadPackCell(pack);
+	int client = GetClientOfUserId(userid);
+	int m_iModelsID = ReadPackCell(pack);
+	int m_iTime = ReadPackCell(pack);
+	int m_iExpTime = ReadPackCell(pack);
+	CloseHandle(pack);
+	
+	if(!client)
+		return;
+	
+	if(hndl == INVALID_HANDLE)
+	{
+		PrintToChat(client, "%s 发放签到奖励模型失败: SQL读取数据失败SQL_UpdateExpTime CallBack.", PLUGIN_PREFIX);
+		LogError("%N SQL_UpdateExpTime CallBack  Error: %s", client, error);
+		return;
+	}
+	char m_szModelName[128];
+	GetModelName(m_iModelsID, m_szModelName, 128);
+	int hours = m_iTime/3600;
+	PrintToChat(client, "%s 签到成功,您已获得\x04%s\x07(%i小时[从原有的基础上延长])\x01作为奖励", PLUGIN_PREFIX, m_szModelName, hours);
+	PrintToChatAll("%s \x0C%N\x01完成了每日签到,获得了\x04%s\x01 ,按Y输入!sign来签到", PLUGIN_PREFIX, client, m_szModelName);
+	PrintToConsole(client, "m_iTime=%i  m_iExpTime=%i", m_iTime, m_iExpTime);
+}
+
+public void SQLCallback_SignItemInsert(Handle owner, Handle hndl, const char[] error, Handle pack)
+{
+	int userid = ReadPackCell(pack);
+	int client = GetClientOfUserId(userid);
+	int m_iModelsID = ReadPackCell(pack);
+	int m_iTime = ReadPackCell(pack);
+	int m_iExpTime = ReadPackCell(pack);
+	CloseHandle(pack);
+	
+	if(!client)
+		return;
+	
+	if(hndl == INVALID_HANDLE)
+	{
+		PrintToChat(client, "%s 发放签到奖励模型失败: SQL读取数据失败SQL_RandomItemInsert CallBack.", PLUGIN_PREFIX);
+		LogError("%N SQL_UpdateExpTime CallBack  Error: %s", client, error);
+		return;
+	}
+	char m_szModelName[128];
+	GetModelName(m_iModelsID, m_szModelName, 128);
+	int hours = m_iTime/3600;
+	PrintToChat(client, "%s 签到成功,您已获得\x04%s\x07(%i小时[新物品获得])\x01作为奖励", PLUGIN_PREFIX, m_szModelName, hours);
+	PrintToChatAll("%s \x0C%N\x01完成了每日签到,获得了\x04%s\x01 ,按Y输入!sign来签到", PLUGIN_PREFIX, client, m_szModelName);
+	PrintToConsole(client, "m_iTime=%i  m_iExpTime=%i", m_iTime, m_iExpTime);
+}
+
+public Action Command_BoxTest(int client, int args)
+{
+	for(int x = 0; x < 5; ++x)
+			CreateBoxCase();
+		
+	PrintToChatAll("%s 服务器内一些不为人知的角落,产生了一些宝箱", PLUGIN_PREFIX);
+}
+
+public Action RandomDrop(Handle timer)
+{
+	RemoveAllBox();
+
+	int total;
+	for(int i = 1; i <= MaxClients; ++i)
+		if(IsClientInGame(i))
+			if(GetClientTeam(i) > 1)
+				total++;
+	
+	if(total >= 7)
+	{
+		total = total/7;
+		
+		for(int x = 0; x < total; ++x)
+			CreateBoxCase();
+		
+		PrintToChatAll("%s 服务器内一些不为人知的角落,产生了一些宝箱", PLUGIN_PREFIX);
+	}
+	else
+		PrintToChatAll("%s 服务器当前人数不足,本轮宝箱取消", PLUGIN_PREFIX);
+
+	g_hRandom = CreateTimer(GetRandomFloat(300.0,600.0), RandomDrop);
+}
+
+public int CreateBoxCase()
+{
+	int client = Client_GetRandom(CLIENTFILTER_ALIVE);
+	float DropPos[3];
+	GetClientAbsOrigin(client, DropPos);
+	DropPos[0] += GetRandomFloat(-100.0, 100.0);
+	DropPos[1] += GetRandomFloat(-100.0, 100.0);
+	DropPos[2] += 70.0;
+
+	int iEntity = CreateBox(DropPos);
+	
+	return iEntity;
+}
+
+int CreateBox(float DropPos[3])
+{
+	int iEntity = CreateEntityByName("prop_physics_override");
+	
+	char szTargetName[32];
+	Format(szTargetName, 32, "active_box_%d", iEntity);
+
+	DispatchKeyValue(iEntity, "Solid", "6");
+	DispatchKeyValue(iEntity, "model", "models/maoling/active/gtx/titan.mdl");
+	DispatchKeyValue(iEntity, "spawnflags", "256");
+	DispatchKeyValue(iEntity, "targetname", szTargetName);
+	DispatchKeyValueVector(iEntity, "origin", DropPos);
+
+	DispatchSpawn(iEntity);
+
+	ActivateEntity(iEntity);
+
+	SetEntProp(iEntity, Prop_Data, "m_takedamage", 2);
+	SetEntProp(iEntity, Prop_Data, "m_iMaxHealth", 233);
+	SetEntProp(iEntity, Prop_Data, "m_iHealth", 233);
+	TeleportEntity(iEntity, DropPos, NULL_VECTOR, NULL_VECTOR);
+
+	SDKHook(iEntity, SDKHook_OnTakeDamage, OnTakeDamage);
+
+	return iEntity;
+}
+
+public void RemoveAllBox()
+{
+	int iEntity = -1;
+	char m_szName[64];
+	while((iEntity = FindEntityByClassname(iEntity, "prop_physics_override")) != -1)
+	{
+		if(IsValidEntity(iEntity))
+		{
+			GetEntPropString(iEntity, Prop_Data, "m_iName", m_szName, 64);
+			if(StrContains(m_szName, "active_box", false ) != -1)
+				AcceptEntityInput(iEntity, "Kill");
+		}
+	}
+}
+
+void OpenBoxCase(int client, int iEntity)
+{
+	int iRandom_Item;
+	int iRandom_Type = GetRandomInt(1, 11);
+	int iRandom_Time = GetRandomInt(1, 3);
+	char m_szType[16], m_szName[128], m_szPath[128], m_szTime[32], m_szQuery[512];
+
+	if(iRandom_Type == 1)
+		iRandom_Item = GetRandomInt(1, 19);
+	else if(iRandom_Type == 2)
+		iRandom_Item = GetRandomInt(1, 2);
+	else if(iRandom_Type == 3)
+		iRandom_Item = GetRandomInt(1, 8);
+	else if(iRandom_Type == 4)
+		iRandom_Item = GetRandomInt(1, 26);
+	else if(iRandom_Type == 5)
+		iRandom_Item = GetRandomInt(1, 10);
+	else if(iRandom_Type == 6)
+		iRandom_Item = GetRandomInt(1, 8);
+	else if(iRandom_Type == 7)
+		iRandom_Item = GetRandomInt(1, 22);
+	else if(iRandom_Type == 8)
+		iRandom_Item = GetRandomInt(1, 8);
+	else if(iRandom_Type == 9)
+		iRandom_Item = GetRandomInt(1, 5);
+	else if(iRandom_Type == 10)
+		iRandom_Item = GetRandomInt(1, 6);
+	
+	GetItemString(iRandom_Type, iRandom_Item, m_szType, m_szName, m_szPath);
+	
+	if(iRandom_Time == 1)
+		Format(m_szTime, 32, "1天");
+	if(iRandom_Time == 2)
+		Format(m_szTime, 32, "1周");
+	if(iRandom_Time == 3)
+		Format(m_szTime, 32, "1月");
+	
+	PrintToChat(client, "%s 你获得了 \x04[%s - %s] \x07%s \x01 正在检查你的库存是否有物品重复", PLUGIN_PREFIX, m_szName, m_szType, m_szTime);
+
+	Handle pack = CreateDataPack();
+	WritePackCell(pack, GetClientUserId(client));
+	WritePackCell(pack, iRandom_Type);
+	WritePackCell(pack, iRandom_Item);
+	WritePackCell(pack, iRandom_Time);
+
+	Format(m_szQuery, 512, "SELECT date_of_expiration FROM store_items WHERE player_id = %d AND unique_id='%s'", Store_GetClientID(client), m_szPath);
+	SQL_TQuery(g_hDB, SQLCallback_CheckItem, m_szQuery, pack);
+	
+	CreateTimer(0.0, Timer_RemoveEntity, EntIndexToEntRef(iEntity));
+}
+
+public Action Timer_RemoveEntity(Handle timer, int iRef)
+{
+	int iEntity = EntRefToEntIndex(iRef);
+	if(iEntity != INVALID_ENT_REFERENCE)
+	{
+		if(IsValidEntity(iEntity))
+		{
+			int iEnt = CreateEntityByName("env_explosion");
+	
+			if(iEnt != -1)
+			{
+				float fPos[3];
+				GetClientAbsOrigin(iEntity, fPos);
+				
+				SetEntProp(iEnt, Prop_Data, "m_spawnflags", 6146);
+				SetEntProp(iEnt, Prop_Data, "m_iMagnitude", GetRandomInt(1,10));
+				SetEntProp(iEnt, Prop_Data, "m_iRadiusOverride", 100);
+				
+				DispatchSpawn(iEnt);
+				ActivateEntity(iEnt);
+
+				TeleportEntity(iEnt, fPos, NULL_VECTOR, NULL_VECTOR);
+				SetEntPropEnt(iEnt, Prop_Send, "m_hOwnerEntity", 0);
+
+				AcceptEntityInput(iEnt, "Explode");
+				AcceptEntityInput(iEnt, "Kill");
+				
+				char szSound[32];
+				Format(szSound, 32, "weapons/hegrenade/explode%d.wav", GetRandomInt(3, 5));
+				EmitSoundToAll(szSound);
+			}
+	
+			SDKUnhook(iEntity, SDKHook_OnTakeDamage, OnTakeDamage);
+			AcceptEntityInput(iEntity, "Kill");
+		}
+	}
+}
+
+public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
+{
+	if(attacker > MaxClients || attacker < 1)
+		return Plugin_Continue;
+
+	if(victim == attacker)
+		return Plugin_Continue;
+
+	if(IsValidEdict(weapon))
+	{
+		char szWeapon[32];
+		GetEdictClassname(weapon, szWeapon, 32);
+		if(StrContains(szWeapon, "knife", false) == -1)
+		{
+			if(GetClientHealth(attacker) > 1)
+				SetEntityHealth(attacker, GetClientHealth(attacker) > 50 ? GetClientHealth(attacker) - 50 : 1); 
+			else if(IsPlayerAlive(attacker))
+				ForcePlayerSuicide(attacker);
+			PrintCenterText(attacker, "你非法破坏活动宝箱\n 你已经被天谴");
+			PrintToChatAll("%s  \x02%N\x07因为非法破坏活动宝箱,已遭到天谴", PLUGIN_PREFIX, attacker);
+			return Plugin_Handled;
+		}
+	}
+
+	if(IsValidEdict(inflictor))
+	{
+		char entityclass[32];
+		GetEdictClassname(inflictor, entityclass, 32);
+		if(StrEqual(entityclass, "hegrenade_projectile") || StrEqual(entityclass, "inferno"))
+			return Plugin_Handled;
+	}
+	
+	int health = GetEntProp(victim, Prop_Data, "m_iHealth");
+	
+	if(float(health) < damage)
+	{
+		if(attacker > 0 && attacker <= MaxClients)
+		{
+			int healthleft = health - RoundToCeil(damage);
+			
+			if(healthleft < 0)
+				healthleft = 0;
+			
+			PrintHintText(attacker,"宝箱剩余HP: %d / 500",healthleft);
+			
+			if(IsClientInGame(attacker))
+				OpenBoxCase(attacker, victim);
+		}
+	}
+	else
+	{
+		if(attacker > 0 && attacker <= MaxClients)
+		{
+			int healthleft = health - RoundToCeil(damage);
+			
+			if(healthleft < 0)
+				healthleft = 0;
+
+			PrintHintText(attacker,"宝箱剩余HP: %d / 500",healthleft);
+		}
+	}
+
+	return Plugin_Continue;
+}
+
+public void SQLCallback_CheckItem(Handle owner, Handle hndl, const char[] error, Handle pack)
+{
+	ResetPack(pack);
+	int userid = ReadPackCell(pack);
+	int client = GetClientOfUserId(userid);
+	int iRandom_Type = ReadPackCell(pack);
+	int iRandom_Item = ReadPackCell(pack);
+	int iRandom_Time = ReadPackCell(pack);
+	int m_iExpTime = -1;
+	char m_szType[16], m_szName[128], m_szPath[128], m_szTime[32], m_szQuery[512];
+	
+	if(!client)
+		return;
+	
+	if(hndl == INVALID_HANDLE)
+	{
+		PrintToChat(client, "%s 检查物品库存重复失败/发放宝箱奖励失败: SQLCallback_CheckItem.", PLUGIN_PREFIX);
+		LogError("SQL_CheckItem CallBack Error: %s", error);
+		CloseHandle(pack);
+		return;
+	}
+	
+	GetItemString(iRandom_Type, iRandom_Item, m_szType, m_szName, m_szPath);
+
+	if(iRandom_Time == 1)
+		Format(m_szTime, 32, "1天");
+	if(iRandom_Time == 2)
+		Format(m_szTime, 32, "1周");
+	if(iRandom_Time == 3)
+		Format(m_szTime, 32, "1月");
+
+	if(SQL_HasResultSet(hndl) && SQL_FetchRow(hndl))
+	{
+		m_iExpTime = SQL_FetchInt(hndl, 0);
+		if(m_iExpTime == 0)
+		{
+			PrintToChat(client, "%s 你已经持有 \x04[%s - %s] \x01永久物品,我们在此表示遗憾", PLUGIN_PREFIX, m_szName, m_szType);
+			PrintToChatAll("%s \x0C%N\x01打开了宝箱,获得了 \x04[%s - %s] \x07%s", PLUGIN_PREFIX, client, m_szName, m_szType, m_szTime);
+		}
+		else
+		{
+			if(iRandom_Time == 1)
+				m_iExpTime += 86400;
+			else if(iRandom_Time == 2)
+				m_iExpTime += 604800;
+			else if(iRandom_Time == 3)
+				m_iExpTime += 2592000;
+
+			Format(m_szQuery, 512, "UPDATE store_items SET date_of_expiration = '%i' WHERE player_idplayer_id = %d AND `unique_id`=\"%s\"", m_iExpTime, Store_GetClientID(client), m_szPath);
+			SQL_TQuery(g_hDB, SQLCallback_UpdateExpTime, m_szQuery, pack);
+		}
+	}
+	else
+	{
+		if(iRandom_Time == 1)
+			m_iExpTime = GetTime()+86400;
+		else if(iRandom_Time == 2)
+			m_iExpTime = GetTime()+604800;
+		else if(iRandom_Time == 3)
+			m_iExpTime = GetTime()+2592000;
+	
+		Format(m_szQuery, 512, "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, 30);", Store_GetClientID(client), m_szType, m_szPath, GetTime(), m_iExpTime);
+		SQL_TQuery(g_hDB, SQLCallback_ItemInsert, m_szQuery, pack);
+	}
+}
+
+public void SQLCallback_UpdateExpTime(Handle owner, Handle hndl, const char[] error, Handle pack)
+{
+	ResetPack(pack);
+	int userid = ReadPackCell(pack);
+	int client = GetClientOfUserId(userid);
+	int iRandom_Type = ReadPackCell(pack);
+	int iRandom_Item = ReadPackCell(pack);
+	int iRandom_Time = ReadPackCell(pack);
+	
+	CloseHandle(pack);
+	
+	if(!client)
+		return;
+	
+	if(hndl == INVALID_HANDLE)
+	{
+		PrintToChat(client, "%s 发放宝箱奖励失败: SQLCallback_UpdateExpTime.", PLUGIN_PREFIX);
+		LogError("%N SQL_UpdateExpTime CallBack  Error: %s", client, error);
+		return;
+	}
+	
+	char m_szType[16], m_szName[128], m_szPath[128], m_szTime[32];
+	
+	GetItemString(iRandom_Type, iRandom_Item, m_szType, m_szName, m_szPath);
+
+	if(iRandom_Time == 1)
+		Format(m_szTime, 32, "1天");
+	if(iRandom_Time == 2)
+		Format(m_szTime, 32, "1周");
+	if(iRandom_Time == 3)
+		Format(m_szTime, 32, "1月");
+
+	PrintToChat(client, "%s 您已获得 \x04[%s - %s] \x07%s \x01(从原有的基础上延长)", PLUGIN_PREFIX, m_szName, m_szType, m_szTime);
+	PrintToChatAll("%s \x0C%N\x01打开了宝箱,获得了 \x04[%s - %s] \x07%s", PLUGIN_PREFIX, client, m_szName, m_szType, m_szTime);
+}
+
+public void SQLCallback_ItemInsert(Handle owner, Handle hndl, const char[] error, Handle pack)
+{
+	ResetPack(pack);
+	int userid = ReadPackCell(pack);
+	int client = GetClientOfUserId(userid);
+	int iRandom_Type = ReadPackCell(pack);
+	int iRandom_Item = ReadPackCell(pack);
+	int iRandom_Time = ReadPackCell(pack);
+	
+	CloseHandle(pack);
+	
+	if(!client)
+		return;
+	
+	if(hndl == INVALID_HANDLE)
+	{
+		PrintToChat(client, "%s 发放宝箱奖励失败: SQLCallback_ItemInsert.", PLUGIN_PREFIX);
+		LogError("%N SQLCallback_ItemInsert CallBack  Error: %s", client, error);
+		return;
+	}
+	
+	char m_szType[16], m_szName[128], m_szPath[128], m_szTime[32];
+	
+	GetItemString(iRandom_Type, iRandom_Item, m_szType, m_szName, m_szPath);
+	
+	if(iRandom_Time == 1)
+		Format(m_szTime, 32, "1天");
+	if(iRandom_Time == 2)
+		Format(m_szTime, 32, "1周");
+	if(iRandom_Time == 3)
+		Format(m_szTime, 32, "1月");
+
+	PrintToChat(client, "%s 您已获得 \x04[%s - %s] \x07%s \x01(新物品获得,需要重新进入服务器)", PLUGIN_PREFIX, m_szName, m_szType, m_szTime);
+	PrintToChatAll("%s \x0C%N\x01打开了宝箱,获得了 \x04[%s - %s] \x07%s", PLUGIN_PREFIX, client, m_szName, m_szType, m_szTime);
 }

@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.2beta - 2016/09/25 17:38 - new syntax[5930] "
+#define PLUGIN_VERSION " 3.2beta2 - 2016/09/29 0:35 - new syntax[5930] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -267,7 +267,7 @@ public int Native_HasClientGoddess(Handle myself, int numParams)
 
 	if(nation == PURPLE)
 	{
-		if(formid == 1)
+		if(formid == 0)
 		{
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune.mdl")))
 				return true;
@@ -275,7 +275,7 @@ public int Native_HasClientGoddess(Handle myself, int numParams)
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune.mdl")))
 				return true;
 		}
-		else if(formid == 2)
+		else if(formid == 1)
 		{
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl")))
 				return true;
@@ -283,7 +283,7 @@ public int Native_HasClientGoddess(Handle myself, int numParams)
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/hdd/faith.mdl")))
 				return true;
 		}
-		else if(formid == 3)
+		else if(formid == 2)
 		{
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple.mdl")))
 				return true;
@@ -300,16 +300,16 @@ public int Native_HasClientGoddess(Handle myself, int numParams)
 	}
 	else if(nation == BLACK)
 	{
-		if(formid == 1)
+		if(formid == 0)
 		{
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/noire/normal/noire.mdl")))
 				return true;
 		}
-		else if(formid == 2)
+		else if(formid == 1)
 		{
 			
 		}
-		else if(formid == 3)
+		else if(formid == 2)
 		{
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/noire/nextform/nextblack.mdl")))
 				return true;
@@ -317,16 +317,16 @@ public int Native_HasClientGoddess(Handle myself, int numParams)
 	}
 	else if(nation == WHITE)
 	{
-		if(formid == 1)
+		if(formid == 0)
 		{
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/blanc/normal/blanc.mdl")))
 				return true;
 		}
-		else if(formid == 2)
+		else if(formid == 1)
 		{
 			
 		}
-		else if(formid == 3)
+		else if(formid == 2)
 		{
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/blanc/nextform/nextwhite.mdl")))
 				return true;
@@ -334,15 +334,15 @@ public int Native_HasClientGoddess(Handle myself, int numParams)
 	}
 	else if(nation == GREEN)
 	{
-		if(formid == 1)
+		if(formid == 0)
+		{
+			
+		}
+		else if(formid == 1)
 		{
 			
 		}
 		else if(formid == 2)
-		{
-			
-		}
-		else if(formid == 3)
 		{
 			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/vert/nextform/nextgreen.mdl")))
 				return true;
@@ -1569,6 +1569,10 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			g_eClients[client][iDateOfLastJoin] = m_iTime;
 			g_eClients[client][bLoaded] = true;
 			g_eClients[client][iItems] = 0;
+			
+			int m_iItemId = Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl");
+			Store_GiveItem(client, m_iItemId, GetTime(), GetTime()+604800, 300);
+			PrintToChat(client, "[\x0EPlaneptune\x01]  作为新玩家你收到了Planeptune女神的赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
 
 			if(g_eCvars[g_cvarStartCredits][aCache] > 0)
 				Store_LogMessage(client, g_eCvars[g_cvarStartCredits][aCache], "首次进服赠送");
@@ -1683,6 +1687,20 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 				Store_UseItem(client, m_iUniqueId, true, SQL_FetchInt(hndl, 3));
 		}
 		g_eClients[client][bLoaded] = true;
+		
+		if(CG_GetLastseen(client) <= 1473004800)
+		{
+			if(!Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl")))
+			{
+				PrintToChat(client, "[\x0EPlaneptune\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了一个[\x04害怕/滑稽\x01](\x0C30天\x01)");
+				Store_GiveItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"), GetTime(), GetTime()+2592000, 300);
+			}
+			else
+			{
+				PrintToChat(client, "[\x0EPlaneptune\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了[\x046666Credits\x01]");
+				Store_SetClientCredits(client, Store_GetClientCredits(client)+6666, "老玩家回归");
+			}
+		}
 	}
 }
 

@@ -105,7 +105,9 @@ public void Players_OnPluginStart()
 	RegConsoleCmd("sm_hidetrail", Command_Hide, "Hide Trail and Neon");
 	RegConsoleCmd("sm_hideneon", Command_Hide, "Hide Trail and Neon");
 	RegConsoleCmd("sm_tp", Command_TP, "Toggle TP Mode");
-	RegConsoleCmd("sm_seeme", Cmd_Mirror, "Toggle Mirror Mode");
+	RegConsoleCmd("sm_seeme", Command_Mirror, "Toggle Mirror Mode");
+	
+	RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
 }
 
 public void PlayerSkins_OnMapStart()
@@ -495,8 +497,25 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 			return Plugin_Stop;
 
 	Store_PreSetClientModel(client);
+	
+	CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
 
 	return Plugin_Stop;
+}
+
+public Action Command_Arms(int client, int args)
+{
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+		return Plugin_Handled;
+	
+	if(g_bGameModeZE && GetClientTeam(client) == 2)
+		return Plugin_Handled;
+	
+	Store_PreSetClientModel(client);
+	
+	CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
+	
+	return Plugin_Handled;
 }
 
 public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast)
@@ -545,8 +564,11 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
 		return Plugin_Continue;
 
 	if(g_bGameModeMG)
+	{
 		Store_PreSetClientModel(client);
-	
+		CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
+	}
+
 	return Plugin_Continue;
 }
 
@@ -581,6 +603,22 @@ public Action Timer_CreateTrails(Handle timer, int userid)
 		CreateTrail(client, -1, i);
 	}
 
+	return Plugin_Stop;
+}
+
+public Action Timer_FixPlayerArms(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
+		return Plugin_Stop;
+	
+	if(g_bGameModeZE)
+		if(GetClientTeam(client) != 3)
+			return Plugin_Stop;
+		
+	Store_PreSetClientModel(client);
+	
 	return Plugin_Stop;
 }
 
@@ -632,7 +670,7 @@ int CreateTrail(int client, int itemid = -1, int slot = 0)
 {
 	if(g_bGameModeZE && !Store_IsWhiteList(client))
 		return;
-	
+
 	int m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "trail", slot) : itemid);
 	
 	if(m_iEquipped >= 0)
@@ -1142,7 +1180,7 @@ public Action Command_TP(int client, int args)
 }
 
 
-public Action Cmd_Mirror(int client, int args)
+public Action Command_Mirror(int client, int args)
 {
 	if(!IsPlayerAlive(client))
 	{

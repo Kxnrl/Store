@@ -6,7 +6,7 @@
 #define PLUGIN_NAME " Store Credits Controler "
 #define PLUGIN_AUTHOR "maoling ( xQy )"
 #define PLUGIN_DESCRIPTION ""
-#define PLUGIN_VERSION " 4.5b3 "
+#define PLUGIN_VERSION " 4.5.1rc2 "
 #define PLUGIN_URL "http://steamcommunity.com/id/_xQy_/"
 #define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
 #define PLUGIN_PREFIX "[\x0EPlaneptune\x01]  "
@@ -59,14 +59,15 @@ public Plugin myinfo =
 //////////////////////////////
 public void OnPluginStart()
 {
-	IntiDatabase();
+	//IntiDatabase();
 	RegAdminCmd("sm_boxtest", Command_BoxTest, ADMFLAG_ROOT);
 	RegAdminCmd("sm_signtest", Command_SignTest, ADMFLAG_ROOT);
 }
 
 public void OnMapStart()
 {
-	PrecacheModel("models/maoling/active/gtx/titan.mdl");
+	if(!FindPluginByFile("rankme.smx") && !FindPluginByFile("warmod.smx"))
+		PrecacheModel("models/maoling/active/gtx/titan.mdl");
 
 	if(g_hTimer != INVALID_HANDLE)
 	{
@@ -81,16 +82,9 @@ public void OnMapStart()
 	}
 	
 	g_hTimer = CreateTimer(300.0, CreditTimer);
-	g_hRandom = CreateTimer(GetRandomFloat(300.0,600.0), RandomDrop);
-}
-
-public void OnMapEnd()
-{
-	if(g_hRandom != INVALID_HANDLE)
-	{
-		KillTimer(g_hRandom);
-		g_hRandom = INVALID_HANDLE;
-	}
+	
+	//if(!FindPluginByFile("deathmatch.smx") && !FindPluginByFile("warmod.smx"))
+	//	g_hRandom = CreateTimer(GetRandomFloat(300.0,600.0), RandomDrop);
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -147,6 +141,8 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
 
 public Action CreditTimer(Handle timer)
 {
+	g_hTimer = INVALID_HANDLE;
+
 	for(int client = 1; client <= MaxClients; ++client)
     {
 		if(!IsClientInGame(client))
@@ -299,8 +295,6 @@ public Action CreditTimer(Handle timer)
 	}
 
 	g_hTimer = CreateTimer(300.0, CreditTimer);
-
-	return Plugin_Continue;
 }
 
 public Action Command_SignTest(int client, int args)
@@ -323,7 +317,7 @@ public void CG_OnClientDailySign(int client)
 	}
 	
 	Active_GiveSignCredits(client);
-	Active_RandomStoreItem(client);
+	//Active_RandomStoreItem(client);
 }
 
 void IntiDatabase()
@@ -484,13 +478,15 @@ public void SQLCallback_SignItemInsert(Handle owner, Handle hndl, const char[] e
 public Action Command_BoxTest(int client, int args)
 {
 	for(int x = 0; x < 5; ++x)
-			CreateBoxCase();
+		CreateBoxCase();
 		
 	PrintToChatAll("%s 服务器内一些不为人知的角落,产生了一些宝箱", PLUGIN_PREFIX);
 }
 
 public Action RandomDrop(Handle timer)
 {
+	g_hRandom = INVALID_HANDLE;
+
 	RemoveAllBox();
 
 	int total;
@@ -498,15 +494,15 @@ public Action RandomDrop(Handle timer)
 		if(IsClientInGame(i))
 			if(GetClientTeam(i) > 1)
 				total++;
-	
-	if(total >= 7)
+
+	if(total >= 8)
 	{
-		total = total/7;
+		total = total/8;
 		
 		for(int x = 0; x < total; ++x)
 			CreateBoxCase();
 		
-		PrintToChatAll("%s 服务器内一些不为人知的角落,产生了一些宝箱", PLUGIN_PREFIX);
+		PrintToChatAll("%s 服务器内掉落了\x04%d\x01个宝箱", PLUGIN_PREFIX, total);
 	}
 	else
 		PrintToChatAll("%s 服务器当前人数不足,本轮宝箱取消", PLUGIN_PREFIX);
@@ -573,8 +569,8 @@ public void RemoveAllBox()
 void OpenBoxCase(int client, int iEntity)
 {
 	int iRandom_Item;
-	int iRandom_Type = GetRandomInt(1, 11);
-	int iRandom_Time = GetRandomInt(1, 3);
+	int iRandom_Type = GetRandomInt(1, 15);
+	int iRandom_Time = GetRandomInt(1, 100);
 	char m_szType[16], m_szName[128], m_szPath[128], m_szTime[32], m_szQuery[512];
 
 	if(iRandom_Type == 1)
@@ -597,9 +593,22 @@ void OpenBoxCase(int client, int iEntity)
 		iRandom_Item = GetRandomInt(1, 5);
 	else if(iRandom_Type == 10)
 		iRandom_Item = GetRandomInt(1, 6);
+	else if(iRandom_Type == 11)
+		iRandom_Item = 1;
 	
-	GetItemString(iRandom_Type, iRandom_Item, m_szType, m_szName, m_szPath);
+	if(!GetItemString(iRandom_Type, iRandom_Item, m_szType, m_szName, m_szPath) || iRandom_Type > 11)
+	{
+		PrintToChat(client, "%s  你的脸太黑了，居然什么都没有得到", PLUGIN_PREFIX);
+		return;
+	}
 	
+	if(iRandom_Time > 80)
+		iRandom_Time = 3;
+	else if(iRandom_Time >= 50)
+		iRandom_Time = 2;
+	else
+		iRandom_Time = 1;
+
 	if(iRandom_Time == 1)
 		Format(m_szTime, 32, "1天");
 	if(iRandom_Time == 2)
@@ -633,7 +642,7 @@ public Action Timer_RemoveEntity(Handle timer, int iRef)
 			if(iEnt != -1)
 			{
 				float fPos[3];
-				GetClientAbsOrigin(iEntity, fPos);
+				GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", fPos); //GetClientAbsOrigin(iEntity, fPos);
 				
 				SetEntProp(iEnt, Prop_Data, "m_spawnflags", 6146);
 				SetEntProp(iEnt, Prop_Data, "m_iMagnitude", GetRandomInt(1,10));
@@ -673,10 +682,11 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		GetEdictClassname(weapon, szWeapon, 32);
 		if(StrContains(szWeapon, "knife", false) == -1)
 		{
-			if(GetClientHealth(attacker) > 1)
-				SetEntityHealth(attacker, GetClientHealth(attacker) > 50 ? GetClientHealth(attacker) - 50 : 1); 
-			else if(IsPlayerAlive(attacker))
-				ForcePlayerSuicide(attacker);
+			if(FindPluginByFile("zombiereloaded.smx"))
+				SlapPlayer(attacker, 10);
+			else
+				SlapPlayer(attacker, 35);
+
 			PrintCenterText(attacker, "你非法破坏活动宝箱\n 你已经被天谴");
 			PrintToChatAll("%s  \x02%N\x07因为非法破坏活动宝箱,已遭到天谴", PLUGIN_PREFIX, attacker);
 			return Plugin_Handled;
@@ -702,7 +712,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			if(healthleft < 0)
 				healthleft = 0;
 			
-			PrintHintText(attacker,"宝箱剩余HP: %d / 500",healthleft);
+			PrintHintText(attacker,"宝箱剩余HP: %d / 233",healthleft);
 			
 			if(IsClientInGame(attacker))
 				OpenBoxCase(attacker, victim);
@@ -717,7 +727,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			if(healthleft < 0)
 				healthleft = 0;
 
-			PrintHintText(attacker,"宝箱剩余HP: %d / 500",healthleft);
+			PrintHintText(attacker,"宝箱剩余HP: %d / 233",healthleft);
 		}
 	}
 
@@ -772,7 +782,7 @@ public void SQLCallback_CheckItem(Handle owner, Handle hndl, const char[] error,
 			else if(iRandom_Time == 3)
 				m_iExpTime += 2592000;
 
-			Format(m_szQuery, 512, "UPDATE store_items SET date_of_expiration = '%i' WHERE player_idplayer_id = %d AND `unique_id`=\"%s\"", m_iExpTime, Store_GetClientID(client), m_szPath);
+			Format(m_szQuery, 512, "UPDATE store_items SET date_of_expiration = '%i' WHERE player_id = %d AND `unique_id`=\"%s\"", m_iExpTime, Store_GetClientID(client), m_szPath);
 			SQL_TQuery(g_hDB, SQLCallback_UpdateExpTime, m_szQuery, pack);
 		}
 	}

@@ -370,7 +370,7 @@ stock void Chat(int client, char[] format, any ...)
 	char msg[256];
 	char msg2[256];
 	SetGlobalTransTarget(client); 
-	Format(msg, 256, "\x04[Store]\x01 %s", format);
+	Format(msg, 256, "[\x04Store\x01]  %s", format);
 	VFormat(msg2, 256, msg, 3);
 	ReplaceString(msg2, 256, "{NORMAL}", "\x01");
 	ReplaceString(msg2, 256, "{HIGHLIGHT}", "\x04");
@@ -413,7 +413,7 @@ stock void ChatAll(char[] format, any ...)
 			continue;
 
 		SetGlobalTransTarget(i); 
-		Format(msg, 256, "\x04[Store]\x01 %s", format);
+		Format(msg, 256, "[\x04Store\x01]  %s", format);
 		VFormat(msg2, 256, msg, 2);
 		ReplaceString(msg2, 256, "{NORMAL}", "\x01");
 		ReplaceString(msg2, 256, "{HIGHLIGHT}", "\x04");

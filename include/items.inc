@@ -790,42 +790,42 @@ bool GetItemString(int iRandom_Type, iRandom_Item, char[] m_szType, char[] m_szN
 		{
 			Format(m_szType, 16, "sound");
 			Format(m_szName, 128, "溜金哇开呀酷裂");
-			Format(m_szPath, 128, "sound/maoling/store/overwatch/genji.mp3");
+			Format(m_szPath, 128, "maoling/store/overwatch/genji.mp3");
 			return true;
 		}
 		if(iRandom_Item == 2)
 		{
 			Format(m_szType, 16, "sound");
 			Format(m_szName, 128, "溜噶哇噶叠其噢酷啦污");
-			Format(m_szPath, 128, "sound/maoling/store/overwatch/hanzo.mp3");
+			Format(m_szPath, 128, "maoling/store/overwatch/hanzo.mp3");
 			return true;
 		}
 		if(iRandom_Item == 3)
 		{
 			Format(m_szType, 16, "sound");
 			Format(m_szName, 128, "Fire in the Hole");
-			Format(m_szPath, 128, "sound/maoling/store/overwatch/junkrat.mp3");
+			Format(m_szPath, 128, "maoling/store/overwatch/junkrat.mp3");
 			return true;
 		}
 		if(iRandom_Item == 4)
 		{
 			Format(m_szType, 16, "sound");
 			Format(m_szName, 128, "午时已到");
-			Format(m_szPath, 128, "sound/maoling/store/overwatch/mccree.mp3");
+			Format(m_szPath, 128, "maoling/store/overwatch/mccree.mp3");
 			return true;
 		}
 		if(iRandom_Item == 5)
 		{
 			Format(m_szType, 16, "sound");
 			Format(m_szName, 128, "冻住不许走");
-			Format(m_szPath, 128, "sound/maoling/store/overwatch/mei.mp3");
+			Format(m_szPath, 128, "maoling/store/overwatch/mei.mp3");
 			return true;
 		}
 		if(iRandom_Item == 6)
 		{
 			Format(m_szType, 16, "sound");
 			Format(m_szName, 128, "噢!在这停顿");
-			Format(m_szPath, 128, "sound/maoling/store/overwatch/lucio.mp3");
+			Format(m_szPath, 128, "maoling/store/overwatch/lucio.mp3");
 			return true;
 		}
 	}

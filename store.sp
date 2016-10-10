@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.2beta2 - 2016/09/29 0:35 - new syntax[5930] "
+#define PLUGIN_VERSION " 3.2.2rc4 - 2016/10/08 03:26 - new syntax[5930] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -25,7 +25,6 @@
 #undef REQUIRE_PLUGIN
 #include <clientprefs>
 #include <scp>
-#include <thirdperson>
 #include <fpvm_interface>
 
 //////////////////////////////
@@ -154,7 +153,6 @@ public void OnPluginStart()
 	// Register Commands
 	RegConsoleCmd("sm_store", Command_Store);
 	RegConsoleCmd("buyammo1", Command_Store);
-	RegConsoleCmd("buyammo2", Command_Store);
 	RegConsoleCmd("sm_shop", Command_Store);
 	RegConsoleCmd("sm_inv", Command_Inventory);
 	RegConsoleCmd("sm_inventory", Command_Inventory);
@@ -202,6 +200,121 @@ public void OnPluginEnd()
 				OnClientDisconnect(i);
 }
 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	CreateNative("Store_RegisterHandler", Native_RegisterHandler);
+	CreateNative("Store_RegisterMenuHandler", Native_RegisterMenuHandler);
+	CreateNative("Store_SetDataIndex", Native_SetDataIndex);
+	CreateNative("Store_GetDataIndex", Native_GetDataIndex);
+	CreateNative("Store_GetEquippedItem", Native_GetEquippedItem);
+	CreateNative("Store_IsClientLoaded", Native_IsClientLoaded);
+	CreateNative("Store_DisplayPreviousMenu", Native_DisplayPreviousMenu);
+	CreateNative("Store_SetClientMenu", Native_SetClientMenu);
+	CreateNative("Store_GetClientCredits", Native_GetClientCredits);
+	CreateNative("Store_SetClientCredits", Native_SetClientCredits);
+	CreateNative("Store_IsItemInBoughtPackage", Native_IsItemInBoughtPackage);
+	CreateNative("Store_DisplayConfirmMenu", Native_DisplayConfirmMenu);
+	CreateNative("Store_ShouldConfirm", Native_ShouldConfirm);
+	CreateNative("Store_GiveItem", Native_GiveItem);
+	CreateNative("Store_RemoveItem", Native_RemoveItem);
+	CreateNative("Store_GetClientTarget", Native_GetClientTarget);
+	CreateNative("Store_GiveClientItem", Native_GiveClientItem);
+	CreateNative("Store_HasClientItem", Native_HasClientItem);
+	CreateNative("Store_IterateEquippedItems", Native_IterateEquippedItems);
+	CreateNative("Store_SaveClientAll", Native_SaveClientAll);
+	CreateNative("Store_GetClientID", Native_GetClientID);
+	CreateNative("Store_IsClientBanned", Native_IsClientBanned);
+	CreateNative("Store_HasClientPlayerSkin", Native_HasClientPlayerSkin);
+	CreateNative("Store_GetClientPlayerSkin", Native_GetClientPlayerSkin);
+	CreateNative("Store_HasClientGoddess", Native_HasClientGoddess);
+	CreateNative("Store_ResetPlayerSkin", Native_ResetPlayerSkin);
+
+	MarkNativeAsOptional("FPVMI_SetClientModel");
+	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
+	MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
+	MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
+
+	return APLRes_Success;
+}
+
+//////////////////////////////////////
+//		REST OF PLUGIN FORWARDS		//
+//////////////////////////////////////
+public void OnMapStart()
+{
+	for(int i = 0; i < g_iTypeHandlers; ++i)
+	{
+		if(g_eTypeHandlers[i][fnMapStart] != INVALID_FUNCTION)
+		{
+			Call_StartFunction(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][fnMapStart]);
+			Call_Finish();
+		}
+	}
+}
+
+public void OnConfigsExecuted()
+{
+	// Connect to the database
+	if(g_hDatabase == INVALID_HANDLE)
+		SQL_TConnect(SQLCallback_Connect, "store");
+		
+	CreateTimer(30.0, Timer_DatabaseTimeout);
+}
+
+public void OnGameFrame()
+{
+	Trails_OnGameFrame();
+}
+
+public void OnEntityCreated(int entity, const char[] classname)
+{
+	Grenades_OnEntityCreated(entity, classname);
+}
+
+//////////////////////////////////////
+//		Global API FROM CORE		//
+//////////////////////////////////////
+public bool CG_APIStoreSetCredits(int client, int credits, const char[] reason, bool immed)
+{
+	if(!g_eClients[client][bLoaded] || g_eClients[client][bBan] || g_eClients[client][iCredits] == -1)
+		return false;
+
+	if(credits < 0)
+	{
+		int icredits = credits * -1;
+		
+		if(icredits > g_eClients[client][iCredits])
+			return false;
+		
+		Store_SetClientCredits(client, Store_GetClientCredits(client)-icredits, reason);
+		
+		if(immed)
+			Store_SaveClientAll(client);
+		
+		return true;
+	}
+	else
+	{
+		Store_SetClientCredits(client, Store_GetClientCredits(client)+credits, reason);
+		
+		if(immed)
+			Store_SaveClientAll(client);
+
+		return true;
+	}
+}
+
+public int CG_APIStoreGetCredits(int client)
+{
+	if(!g_eClients[client][bLoaded] || g_eClients[client][bBan] || g_eClients[client][iCredits] == -1)
+		return -1;
+	
+	return g_eClients[client][iCredits];
+}
+
+//////////////////////////////
+//			NATIVES			//
+//////////////////////////////
 public int Native_SaveClientAll(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
@@ -260,6 +373,9 @@ public int Native_HasClientGoddess(Handle myself, int numParams)
 	int formid = GetNativeCell(3);
 	
 	if(g_eClients[client][bBan])
+		return false;
+	
+	if(g_bGameModePR)
 		return false;
 	
 	if(g_eClients[client][iId] == 1)
@@ -358,88 +474,6 @@ public int Native_ResetPlayerSkin(Handle myself, int numParams)
 	if(client && IsClientInGame(client) && IsPlayerAlive(client))
 		Store_PreSetClientModel(client);
 }
-
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
-{
-	CreateNative("Store_RegisterHandler", Native_RegisterHandler);
-	CreateNative("Store_RegisterMenuHandler", Native_RegisterMenuHandler);
-	CreateNative("Store_SetDataIndex", Native_SetDataIndex);
-	CreateNative("Store_GetDataIndex", Native_GetDataIndex);
-	CreateNative("Store_GetEquippedItem", Native_GetEquippedItem);
-	CreateNative("Store_IsClientLoaded", Native_IsClientLoaded);
-	CreateNative("Store_DisplayPreviousMenu", Native_DisplayPreviousMenu);
-	CreateNative("Store_SetClientMenu", Native_SetClientMenu);
-	CreateNative("Store_GetClientCredits", Native_GetClientCredits);
-	CreateNative("Store_SetClientCredits", Native_SetClientCredits);
-	CreateNative("Store_IsItemInBoughtPackage", Native_IsItemInBoughtPackage);
-	CreateNative("Store_DisplayConfirmMenu", Native_DisplayConfirmMenu);
-	CreateNative("Store_ShouldConfirm", Native_ShouldConfirm);
-	CreateNative("Store_GiveItem", Native_GiveItem);
-	CreateNative("Store_RemoveItem", Native_RemoveItem);
-	CreateNative("Store_GetClientTarget", Native_GetClientTarget);
-	CreateNative("Store_GiveClientItem", Native_GiveClientItem);
-	CreateNative("Store_HasClientItem", Native_HasClientItem);
-	CreateNative("Store_IterateEquippedItems", Native_IterateEquippedItems);
-	CreateNative("Store_SaveClientAll", Native_SaveClientAll);
-	CreateNative("Store_GetClientID", Native_GetClientID);
-	CreateNative("Store_IsClientBanned", Native_IsClientBanned);
-	CreateNative("Store_HasClientPlayerSkin", Native_HasClientPlayerSkin);
-	CreateNative("Store_GetClientPlayerSkin", Native_GetClientPlayerSkin);
-	CreateNative("Store_HasClientGoddess", Native_HasClientGoddess);
-	CreateNative("Store_ResetPlayerSkin", Native_ResetPlayerSkin);
-
-	MarkNativeAsOptional("HideTrails_ShouldHide");
-	MarkNativeAsOptional("FPVMI_AddViewModelToClient");
-	MarkNativeAsOptional("FPVMI_AddWorldModelToClient");
-	MarkNativeAsOptional("FPVMI_AddDropModelToClient");
-	MarkNativeAsOptional("FPVMI_GetClientWorldModel");
-	MarkNativeAsOptional("FPVMI_GetClientViewModel");
-	MarkNativeAsOptional("FPVMI_GetClientDropModel");
-	MarkNativeAsOptional("FPVMI_SetClientModel");
-	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
-	MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
-	MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
-
-	return APLRes_Success;
-}
-
-//////////////////////////////////////
-//		REST OF PLUGIN FORWARDS		//
-//////////////////////////////////////
-public void OnMapStart()
-{
-	for(int i = 0; i < g_iTypeHandlers; ++i)
-	{
-		if(g_eTypeHandlers[i][fnMapStart] != INVALID_FUNCTION)
-		{
-			Call_StartFunction(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][fnMapStart]);
-			Call_Finish();
-		}
-	}
-}
-
-public void OnConfigsExecuted()
-{
-	// Connect to the database
-	if(g_hDatabase == INVALID_HANDLE)
-		SQL_TConnect(SQLCallback_Connect, "store");
-		
-	CreateTimer(30.0, Timer_DatabaseTimeout);
-}
-
-public void OnGameFrame()
-{
-	Trails_OnGameFrame();
-}
-
-public void OnEntityCreated(int entity, const char[] classname)
-{
-	Grenades_OnEntityCreated(entity, classname);
-}
-
-//////////////////////////////
-//			NATIVES			//
-//////////////////////////////
 
 public int Native_RegisterHandler(Handle plugin, int numParams)
 {
@@ -681,6 +715,10 @@ public int Native_HasClientItem(Handle myself, int numParams)
 {
 	int client = GetNativeCell(1);
 	int itemid = GetNativeCell(2);
+	
+	// Check if item is available?
+	if(itemid < 0)
+		return false;
 
 	// Can he even have it?	
 	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
@@ -1557,7 +1595,12 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
 
 			Store_LogMessage(client, g_eClients[client][iCredits], "本次进入服务器时的Credits");
-			Store_SaveClientData(client);
+			//Store_SaveClientData(client);
+			
+			if(g_eClients[client][bBan])
+			{
+				CreateTimer(30.0, Timer_ResetClientShare, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			}
 		}
 		else
 		{
@@ -1570,14 +1613,35 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			g_eClients[client][bLoaded] = true;
 			g_eClients[client][iItems] = 0;
 			
-			int m_iItemId = Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl");
-			Store_GiveItem(client, m_iItemId, GetTime(), GetTime()+604800, 300);
-			PrintToChat(client, "[\x0EPlaneptune\x01]  作为新玩家你收到了Planeptune女神的赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
+			if(g_bGameModePR)
+			{
+				Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"playerskin\", \"models/player/custom_player/maoling/haipa/haipa.mdl\", %d, %d, 300)", g_eClients[client][iId], GetTime(), GetTime()+604800);
+				SQL_TVoid(g_hDatabase, m_szQuery);
+			}
+			else
+			{
+				Store_GiveItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"), GetTime(), GetTime()+604800, 300);
+				PrintToChat(client, "[\x0EPlaneptune\x01]  作为新玩家你收到了Planeptune女神的赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
+			}
+			
 
 			if(g_eCvars[g_cvarStartCredits][aCache] > 0)
 				Store_LogMessage(client, g_eCvars[g_cvarStartCredits][aCache], "首次进服赠送");
 		}
 	}
+}
+
+public Action Timer_ResetClientShare(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	
+	if(!client || !IsClientInGame(client))
+		return Plugin_Stop;
+	
+	CG_GiveClientShare(client, CG_GetClientShare(client)*-1, "Store被ban");
+	PrintToChat(client, "[\x0EPlaneptune\x01]  你因为Store积分为负或Store被Ban导致你的Share被清空了");
+	
+	return Plugin_Stop;
 }
 
 public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, const char[] error, int userid)
@@ -1688,7 +1752,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 		}
 		g_eClients[client][bLoaded] = true;
 		
-		if(CG_GetLastseen(client) <= 1473004800)
+		if(!g_bGameModePR && IsClientInGame(client) && CG_GetLastseen(client) <= 1473004800)
 		{
 			if(!Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl")))
 			{
@@ -2032,6 +2096,8 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			//Store_SaveClientEquipment(target);
 
 			Chat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+			Command_Store(client, 0);
+			Chat(target, "你需要选择已购买的物品来装备");
 		}
 	}
 }

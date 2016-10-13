@@ -283,8 +283,6 @@ public Action CreditTimer(Handle timer)
 			StrCat(szFrom, 128, "\x10]");
 			StrCat(szReason, 128, "]");
 			
-			m_iCredits *= 2;
-			
 			Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
 			PrintToChat(client, "%s \x10你获得了\x04 %d Credits \x0A积分来自", PLUGIN_PREFIX_CREDITS, m_iCredits);

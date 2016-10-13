@@ -617,8 +617,104 @@ public Action Timer_FixPlayerArms(Handle timer, int userid)
 		if(GetClientTeam(client) != 3)
 			return Plugin_Stop;
 		
-	Store_PreSetClientModel(client);
+	ResetPlayerArms(client);
 	
+	return Plugin_Stop;
+}
+
+void ResetPlayerArms(int client)
+{
+	Handle pack;
+	CreateDataTimer(0.5, Timer_ResetPlayerArms, pack);
+	WritePackCell(pack, GetClientUserId(client));
+
+	int iAmmo[5];
+	char szWeapon[5][6][32];
+	
+	for(int x; x < 5; ++x)
+		for(int y; y < 6; ++y)
+			ResetPlayerWeapon(client, x, y, szWeapon, iAmmo[0], iAmmo[1], iAmmo[2], iAmmo[3], iAmmo[4]);
+
+	for(int i; i < 5; ++i)
+		for(int j; j < 6; ++j)
+			WritePackString(pack, szWeapon[i][j]);
+
+	for(int k; k < 5; ++k)
+		WritePackCell(pack, iAmmo[k]);
+
+	ResetPack(pack);
+}
+
+stock void ResetPlayerWeapon(int client, int x, int y, char[][][] szWeapon, int &a, int &b, int &c, int &d, int &e)
+{
+	int iWeapon = GetPlayerWeaponSlot(client, x);
+
+	if(IsValidEdict(iWeapon))
+	{
+		GetEdictClassname(iWeapon, szWeapon[x][y], 32);
+		
+		switch(GetEntProp(iWeapon, Prop_Send, "m_iItemDefinitionIndex"))
+		{
+			//HE[44][0] Flash[43][1] Smoke[45][2] Fire[46/48][3] Decoy[47][4]
+			case 44: a = GetEntProp(client, Prop_Send, "m_iAmmo", _, 14);
+			case 43: b = GetEntProp(client, Prop_Send, "m_iAmmo", _, 15);
+			case 45: c = GetEntProp(client, Prop_Send, "m_iAmmo", _, 16);
+			case 46: d = GetEntProp(client, Prop_Send, "m_iAmmo", _, 17);
+			case 48: d = GetEntProp(client, Prop_Send, "m_iAmmo", _, 17);
+			case 47: e = GetEntProp(client, Prop_Send, "m_iAmmo", _, 18);
+			case 60: strcopy(szWeapon[x][y], 32, "weapon_m4a1_silencer");
+			case 61: strcopy(szWeapon[x][y], 32, "weapon_usp_silencer");
+			case 63: strcopy(szWeapon[x][y], 32, "weapon_cz75a");
+			case 64: strcopy(szWeapon[x][y], 32, "weapon_revolver");
+		}
+
+		RemovePlayerItem(client, iWeapon);
+		AcceptEntityInput(iWeapon, "Kill");
+	}
+}
+
+public Action Timer_ResetPlayerArms(Handle timer, Handle pack)
+{
+	int client = GetClientOfUserId(ReadPackCell(pack));
+
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+		return Plugin_Stop;
+	
+	int iAmmo[5];
+	char szWeapon[5][6][32];
+	
+	for(int i; i < 5; ++i)
+		for(int j; j < 6; ++j)
+			ReadPackString(pack, szWeapon[i][j], 32);
+
+	for(int k; k < 5; ++k)
+		iAmmo[k] = ReadPackCell(pack);
+	
+	for(int slot; slot <= 4; ++slot)
+	{
+		for(int type; type <= 5; ++type)
+		{
+			int index = -1;
+			if(strlen(szWeapon[slot][type]) > 7)
+				index = GivePlayerItem(client, szWeapon[slot][type]);
+			
+			if(slot == 3 && index > MaxClients && IsValidEdict(index))
+			{
+				switch(GetEntProp(index, Prop_Send, "m_iItemDefinitionIndex"))
+				{
+					//HE[44][0] Flash[43][1] Smoke[45][2] Fire[46/48][3] Decoy[47][4]
+					case 44: SetEntProp(client, Prop_Send, "m_iAmmo", iAmmo[0], _, 14);
+					case 43: SetEntProp(client, Prop_Send, "m_iAmmo", iAmmo[1], _, 15);
+					case 45: SetEntProp(client, Prop_Send, "m_iAmmo", iAmmo[2], _, 16);
+					case 46: SetEntProp(client, Prop_Send, "m_iAmmo", iAmmo[3], _, 17);
+					case 48: SetEntProp(client, Prop_Send, "m_iAmmo", iAmmo[3], _, 17);
+					case 47: SetEntProp(client, Prop_Send, "m_iAmmo", iAmmo[4], _, 18);
+				}
+			}
+		}
+	}
+	
+
 	return Plugin_Stop;
 }
 
@@ -654,8 +750,8 @@ void Store_SetClientModel(int client, const char[] model, const int skin = 0, co
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
 
 	SetEntityModel(client, model);
-	SetEntProp(client, Prop_Send, "m_nSkin", skin);
-	SetEntProp(client, Prop_Data, "m_nSkin", skin);
+	//SetEntProp(client, Prop_Send, "m_nSkin", skin);
+	//SetEntProp(client, Prop_Data, "m_nSkin", skin);
 	
 	char currentmodel[128];
 	GetEntPropString(client, Prop_Send, "m_szArmsModel", currentmodel, 128);

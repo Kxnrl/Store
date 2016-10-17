@@ -6,7 +6,7 @@
 #define PLUGIN_NAME " Store Credits Controler "
 #define PLUGIN_AUTHOR "maoling ( xQy )"
 #define PLUGIN_DESCRIPTION ""
-#define PLUGIN_VERSION " 4.5.1rc2 "
+#define PLUGIN_VERSION " 4.5.2rc2 "
 #define PLUGIN_URL "http://steamcommunity.com/id/_xQy_/"
 #define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
 #define PLUGIN_PREFIX "[\x0EPlaneptune\x01]  "
@@ -154,7 +154,7 @@ public Action CreditTimer(Handle timer)
 			int ifaith = CG_GetClientFaith(client);
 			bool m_bGroupCreidts = false;
 			char szFrom[128], szReason[128];
-			Format(szFrom, 128, "\x0C国庆节双倍=>\x10[");
+			//Format(szFrom, 128, "\x0C国庆节双倍=>\x10[");
 			Format(szReason, 128, "store_credits[");
 
 			if(ifaith > 0)

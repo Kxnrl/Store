@@ -5,9 +5,9 @@
 //////////////////////////////
 
 #define PLUGIN_NAME "Store - The Resurrection"
-#define PLUGIN_AUTHOR "Zephyrus & maoling ( xQy )"
+#define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy) ~ that is me"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.2.2rc5 - 2016/10/13 10:31 - new syntax[5936] "
+#define PLUGIN_VERSION " 3.2.2rc6 - 2016/11/05 02:11 - new syntax[6000] "
 #define PLUGIN_URL ""
 
 //////////////////////////////

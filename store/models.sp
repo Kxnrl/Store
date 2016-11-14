@@ -33,10 +33,14 @@ public void Models_OnMapStart()
 		g_eCustomModel[i][iCacheIdV] = PrecacheModel2(g_eCustomModel[i][szModelV], true);
 		Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelV]);
 		
+		//LogMessage("PrecacheModel: %s", g_eCustomModel[i][szModelV]);
+		
 		if(!StrEqual(g_eCustomModel[i][szModelW], "none", false))
 		{
 			g_eCustomModel[i][iCacheIdW] = PrecacheModel2(g_eCustomModel[i][szModelW], true);
 			Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelW]);
+			
+			//LogMessage("PrecacheModel: %s", g_eCustomModel[i][szModelW]);
 			
 			if(g_eCustomModel[i][iCacheIdW] == 0)
 				g_eCustomModel[i][iCacheIdW] = -1;
@@ -48,6 +52,8 @@ public void Models_OnMapStart()
 			{
 				PrecacheModel2(g_eCustomModel[i][szModelD], true);
 				Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelD]);
+				
+				//LogMessage("PrecacheModel: %s", g_eCustomModel[i][szModelD]);
 			}
 		}
 	}

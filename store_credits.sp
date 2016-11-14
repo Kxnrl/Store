@@ -23,6 +23,7 @@
 #include <smlib>
 #include <sdktools>
 #include <sdkhooks>
+#tryinclude <cg_ze>
 
 #pragma newdecls required
 
@@ -36,11 +37,13 @@ Handle g_hDB = INVALID_HANDLE;
 bool g_bInOfficalGroup[MAXPLAYERS+1];
 bool g_bInMimiGameGroup[MAXPLAYERS+1];
 bool g_bInOpeatorGroup[MAXPLAYERS+1];
+bool g_bInZombieGroup[MAXPLAYERS+1];
 bool g_bIsCheck[MAXPLAYERS+1];
 
 #define CG_group_id 103582791438550612
 #define GB_group_id 103582791437825710
 #define OP_group_id 103582791442277011
+#define ZE_group_id 103582791456047719
 
 //////////////////////////////////
 //		PLUGIN DEFINITION		//
@@ -60,14 +63,14 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	//IntiDatabase();
-	RegAdminCmd("sm_boxtest", Command_BoxTest, ADMFLAG_ROOT);
+	//RegAdminCmd("sm_boxtest", Command_BoxTest, ADMFLAG_ROOT);
 	RegAdminCmd("sm_signtest", Command_SignTest, ADMFLAG_ROOT);
 }
 
 public void OnMapStart()
 {
-	if(!FindPluginByFile("rankme.smx") && !FindPluginByFile("warmod.smx"))
-		PrecacheModel("models/maoling/active/gtx/titan.mdl");
+	//if(!FindPluginByFile("rankme.smx") && !FindPluginByFile("warmod.smx"))
+	//	PrecacheModel("models/maoling/active/gtx/titan.mdl");
 
 	if(g_hTimer != INVALID_HANDLE)
 	{
@@ -75,16 +78,19 @@ public void OnMapStart()
 		g_hTimer = INVALID_HANDLE;
 	}
 	
+	g_hTimer = CreateTimer(300.0, CreditTimer);
+
+/*	
 	if(g_hRandom != INVALID_HANDLE)
 	{
 		KillTimer(g_hRandom);
 		g_hRandom = INVALID_HANDLE;
 	}
 	
-	g_hTimer = CreateTimer(300.0, CreditTimer);
-	
-	//if(!FindPluginByFile("deathmatch.smx") && !FindPluginByFile("warmod.smx"))
-	//	g_hRandom = CreateTimer(GetRandomFloat(300.0,600.0), RandomDrop);
+	if(!FindPluginByFile("deathmatch.smx") && !FindPluginByFile("warmod.smx"))
+		g_hRandom = CreateTimer(GetRandomFloat(300.0,600.0), RandomDrop);
+*/
+
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -96,16 +102,29 @@ public void OnClientDisconnect(int client)
 {
 	g_bInOfficalGroup[client] = false;
 	g_bInMimiGameGroup[client] = false;
+	g_bInZombieGroup[client] = false;
 	g_bInOpeatorGroup[client] = false;
 	g_bIsCheck[client] = false;
 }
 
-public int LookupPlayerGroups(int client)
+public int ZE_GetClientGroupStats(int client)
+{
+	if(g_bInZombieGroup[client])
+		return 2;
+	
+	if(g_bInOfficalGroup[client])
+		return 1;
+	
+	return 0;
+}
+
+public void LookupPlayerGroups(int client)
 {
 	g_bIsCheck[client] = true;
 	SteamWorks_GetUserGroupStatus(client, CG_group_id);
 	SteamWorks_GetUserGroupStatus(client, GB_group_id);
 	SteamWorks_GetUserGroupStatus(client, OP_group_id);
+	SteamWorks_GetUserGroupStatus(client, ZE_group_id);
 }
 
 public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember, bool isOfficer)
@@ -133,6 +152,9 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
 					g_bInMimiGameGroup[client] = true;
 				if(groupid == OP_group_id)
 					g_bInOpeatorGroup[client] = true;
+				if(groupid == ZE_group_id)
+					g_bInZombieGroup[client] = true;
+
 				break;
 			}
 		}
@@ -154,8 +176,8 @@ public Action CreditTimer(Handle timer)
 			int ifaith = CG_GetClientFaith(client);
 			bool m_bGroupCreidts = false;
 			char szFrom[128], szReason[128];
-			//Format(szFrom, 128, "\x0C国庆节双倍=>\x10[");
-			Format(szReason, 128, "store_credits[");
+			strcopy(szFrom, 128, "\x10[");
+			strcopy(szReason, 128, "store_credits[");
 
 			if(ifaith > 0)
 			{
@@ -176,91 +198,61 @@ public Action CreditTimer(Handle timer)
 				if(authid < 401)
 				{
 					m_iCredits += 3;
-					char auname[32];
-					PA_GetGroupName(client, auname, 32);
-					StrCat(szReason, 128, auname);
-					Format(auname, 32, "\x0A|\x0C%s", auname);
-					StrCat(szFrom, 128, auname);
 				}
 				else if(500 > authid >= 401)
 				{
-					if(PA_GetGroupID(client) == 401)
-						m_iCredits += 2;
-					else if(PA_GetGroupID(client) == 402)
-						m_iCredits += 3;
-					else if(PA_GetGroupID(client) == 403)
-						m_iCredits += 3;
-					else if(PA_GetGroupID(client) == 404)
-						m_iCredits += 4;
-					else if(PA_GetGroupID(client) == 405)
-						m_iCredits += 4;
-					
-					char auname[32];
-					PA_GetGroupName(client, auname, 32);
-					StrCat(szReason, 128, auname);
-					Format(auname, 32, "\x0A|\x0C%s", auname);
-					StrCat(szFrom, 128, auname);
+					switch(authid)
+					{
+						case 401: m_iCredits += 2;
+						case 402: m_iCredits += 2;
+						case 403: m_iCredits += 3;
+						case 404: m_iCredits += 3;
+						case 405: m_iCredits += 4;
+					}
 				}
 				else if(9000 > authid >= 500)
 				{
 					m_iCredits += 3;
-					char auname[32];
-					PA_GetGroupName(client, auname, 32);
-					StrCat(szReason, 128, auname);
-					Format(auname, 32, "\x0A|\x0C%s", auname);
-					StrCat(szFrom, 128, auname);
 				}
 				else if(9990 > authid >= 9101)
 				{
 					m_iCredits += 4;
-					char auname[32];
-					PA_GetGroupName(client, auname, 32);
-					StrCat(szReason, 128, auname);
-					Format(auname, 32, "\x0A|\x0C%s", auname);
-					StrCat(szFrom, 128, auname);
 				}
 				else if(authid > 9990)
 				{
 					m_iCredits += 5;
-					char auname[32];
-					PA_GetGroupName(client, auname, 32);
-					StrCat(szReason, 128, auname);
-					if(PA_GetGroupID(client) == 9999)
-						Format(auname, 32, "\x0A|\x0E%s", auname);
-					else
-						Format(auname, 32, "\x0A|\x0C%s", auname);
-					StrCat(szFrom, 128, auname);
 				}
+
+				char auname[32];
+				PA_GetGroupName(client, auname, 32);
+				StrCat(szReason, 128, auname);
+				if(authid == 9999)
+					Format(auname, 32, "\x0A|\x0E%s", auname);
+				else
+					Format(auname, 32, "\x0A|\x0C%s", auname);
+				StrCat(szFrom, 128, auname);
 			}
 			
-			if(VIP_IsClientVIP(client))
+			switch(VIP_IsClientVIP(client))
 			{
-				if(VIP_GetVipType(client) == 3)
+				case 3:
 				{
 					m_iCredits += 2;
 					StrCat(szFrom, 128, "\x0A|\x07永久VIP");
 					StrCat(szReason, 128, " SVIP ");
 				}
-				else if(VIP_GetVipType(client) == 2)
+				case 2:
 				{
 					m_iCredits += 2;
 					StrCat(szFrom, 128, "\x0A|\x07年费VIP");
 					StrCat(szReason, 128, " YVIP ");
 				}
-				else if(VIP_GetVipType(client) == 1)
+				case 1:
 				{
 					m_iCredits += 1;
 					StrCat(szFrom, 128, "\x0A|\x07月费VIP");
 					StrCat(szReason, 128, " MVIP ");
 				}
-			}
-
-			if(g_bInOfficalGroup[client] && !m_bGroupCreidts)
-			{				
-				m_bGroupCreidts = true;
-				m_iCredits += 2;
-				StrCat(szFrom, 128, "\x0A|\x06官方组");
-				StrCat(szReason, 128, "官方组");
 			}
 			
 			if(g_bInMimiGameGroup[client] && !m_bGroupCreidts)
@@ -270,14 +262,19 @@ public Action CreditTimer(Handle timer)
 				StrCat(szReason, 128, "娱乐挂壁");
 			}
 			
-			if(GetUserFlagBits(client) & ADMFLAG_BAN)
+			if(g_bInOfficalGroup[client] && !m_bGroupCreidts)
+			{				
+				m_bGroupCreidts = true;
+				m_iCredits += 2;
+				StrCat(szFrom, 128, "\x0A|\x06官方组");
+				StrCat(szReason, 128, "官方组");
+			}
+			
+			if(g_bInOpeatorGroup[client] && GetUserFlagBits(client) & ADMFLAG_BAN)
 			{
-				if(g_bInOpeatorGroup[client])
-				{
-					m_iCredits += 3;
-					StrCat(szFrom, 128, "\x0A|\x10OP");
-					StrCat(szReason, 128, "OP ");
-				}		
+				m_iCredits += 3;
+				StrCat(szFrom, 128, "\x0A|\x10OP");
+				StrCat(szReason, 128, "OP ");		
 			}
 			
 			StrCat(szFrom, 128, "\x10]");
@@ -317,7 +314,7 @@ public void CG_OnClientDailySign(int client)
 	Active_GiveSignCredits(client);
 	//Active_RandomStoreItem(client);
 }
-
+/*
 void IntiDatabase()
 {
 	char m_szError[128];
@@ -334,7 +331,7 @@ void IntiDatabase()
 		LogMessage("Not connecting to database: %s", m_szError);
 	}
 }
-
+*/
 void Active_GiveSignCredits(int client)
 {
 	int Credits = GetRandomInt(3, 300);
@@ -344,7 +341,7 @@ void Active_GiveSignCredits(int client)
 	PrintToChat(client,"%s \x10你获得了\x04%d \x0FCredits \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
 	PrintToChat(client,"%s \x10你获得了\x04%d \x0FShare \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits/3);
 }
-
+/*
 void Active_RandomStoreItem(int client)
 {
 	int m_iModelsID = GetRandomInt(1,24);
@@ -869,3 +866,4 @@ public void SQLCallback_ItemInsert(Handle owner, Handle hndl, const char[] error
 	PrintToChat(client, "%s 您已获得 \x04[%s - %s] \x07%s \x01(新物品获得,需要重新进入服务器)", PLUGIN_PREFIX, m_szName, m_szType, m_szTime);
 	PrintToChatAll("%s \x0C%N\x01打开了宝箱,获得了 \x04[%s - %s] \x07%s", PLUGIN_PREFIX, client, m_szName, m_szType, m_szTime);
 }
+*/

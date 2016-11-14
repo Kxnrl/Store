@@ -172,7 +172,7 @@ public Action SetWorldModel(Handle tmr, any ref)
 	
 	if(wpnid == INVALID_ENT_REFERENCE) return;
 	
-	char globalName[64];
+	char globalName[256];
 	Entity_GetGlobalName(wpnid, globalName, sizeof(globalName));
 	if(StrContains(globalName, "custom", false) != 0)
 	{
@@ -184,8 +184,10 @@ public Action SetWorldModel(Handle tmr, any ref)
 	decl String:bit[2][128];
 
 	ExplodeString(globalName, ";", bit, sizeof bit, sizeof bit[]);
-
-	if(!StrEqual(bit[1], "none")) SetEntityModel(wpnid, bit[1]);
+	if(!StrEqual(bit[1], "none"))
+	{
+		SetEntityModel(wpnid, bit[1]);
+	}
 	//SetEntProp(wpnid, Prop_Send, "m_hPrevOwner", -1);
 	//if(!StrEqual(bit[1], "none")) SetEntProp(wpnid, Prop_Send, "m_iWorldDroppedModelIndex", PrecacheModel(bit[1])); 
 	//if(!StrEqual(bit[1], "none")) SetEntPropString(wpnid, Prop_Data, "m_ModelName", bit[1]);
@@ -202,7 +204,7 @@ public Action:OnPostWeaponEquip(client, weapon)
 	decl String:classname[64];
 	if(!GetEdictClassname(weapon, classname, 64)) return;
 	
-	char globalName[64];
+	char globalName[256];
 	Entity_GetGlobalName(weapon, globalName, sizeof(globalName));
 	if(StrContains(globalName, "custom", false) == 0)
 	{
@@ -306,14 +308,14 @@ public void OnClientWeaponSwitchPost(int client, int wpnid)
 	if(StrContains(classname, "item", false) == 0) return;
 	
 	new model_index;
-	char globalName[64];
+	char globalName[256];
 	Entity_GetGlobalName(wpnid, globalName, sizeof(globalName));
 	if(StrContains(globalName, "custom", false) != 0)
 	{
 		return;
 	}
 	
-	ReplaceString(globalName, 64, "custom", "");
+	ReplaceString(globalName, 256, "custom", "");
 	
 	decl String:bit[2][128];
 
@@ -484,6 +486,8 @@ public Native_SetWeapon(Handle:plugin, argc)
 	SetTrieValue(trie_weapons[client], name, model_index);
 	SetTrieValue(trie_weapons[client], world, model_world);
 	SetTrieString(trie_weapons[client], drop, model_drop);
+	
+	//LogMessage("Drop Model: %s", model_drop);
 	
 	RefreshWeapon(client, name);
 	

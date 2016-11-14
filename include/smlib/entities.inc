@@ -265,7 +265,7 @@ stock Entity_GetGlobalName(entity, String:buffer[], size)
  */
 stock Entity_SetGlobalName(entity, const String:name[], any:...)
 {
-	decl String:format[128];
+	decl String:format[256];
 	VFormat(format, sizeof(format), name, 3);
 
 	return DispatchKeyValue(entity, "globalname", format);

@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy) ~ that is me"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.2.2rc6 - 2016/11/05 02:11 - new syntax[6000] "
+#define PLUGIN_VERSION " 3.2.3 - 2016/11/23 03:54 - new syntax[6002] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -226,7 +226,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_IsClientBanned", Native_IsClientBanned);
 	CreateNative("Store_HasClientPlayerSkin", Native_HasClientPlayerSkin);
 	CreateNative("Store_GetClientPlayerSkin", Native_GetClientPlayerSkin);
-	CreateNative("Store_HasClientGoddess", Native_HasClientGoddess);
 	CreateNative("Store_ResetPlayerSkin", Native_ResetPlayerSkin);
 
 	MarkNativeAsOptional("FPVMI_SetClientModel");
@@ -364,108 +363,6 @@ public int Native_GetClientPlayerSkin(Handle myself, int numParams)
 		else
 			SetNativeString(2, "none", GetNativeCell(3));
 	}
-}
-
-public int Native_HasClientGoddess(Handle myself, int numParams)
-{
-	int client = GetNativeCell(1);
-	int nation = GetNativeCell(2);
-	int formid = GetNativeCell(3);
-	
-	if(g_eClients[client][bBan])
-		return false;
-	
-	if(g_bGameModePR)
-		return false;
-	
-	if(g_eClients[client][iId] == 1)
-		return true;
-
-	if(nation == PURPLE)
-	{
-		if(formid == 0)
-		{
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune.mdl")))
-				return true;
-			
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune.mdl")))
-				return true;
-		}
-		else if(formid == 1)
-		{
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl")))
-				return true;
-			
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/hdd/faith.mdl")))
-				return true;
-		}
-		else if(formid == 2)
-		{
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple.mdl")))
-				return true;
-			
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/faith.mdl")))
-				return true;
-			
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_nothruster.mdl")))
-				return true;
-			
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/neptune/nextform/faith_nothruster.mdl")))
-				return true;
-		}
-	}
-	else if(nation == BLACK)
-	{
-		if(formid == 0)
-		{
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/noire/normal/noire.mdl")))
-				return true;
-		}
-		else if(formid == 1)
-		{
-			
-		}
-		else if(formid == 2)
-		{
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/noire/nextform/nextblack.mdl")))
-				return true;
-		}
-	}
-	else if(nation == WHITE)
-	{
-		if(formid == 0)
-		{
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/blanc/normal/blanc.mdl")))
-				return true;
-		}
-		else if(formid == 1)
-		{
-			
-		}
-		else if(formid == 2)
-		{
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/blanc/nextform/nextwhite.mdl")))
-				return true;
-		}
-	}
-	else if(nation == GREEN)
-	{
-		if(formid == 0)
-		{
-			
-		}
-		else if(formid == 1)
-		{
-			
-		}
-		else if(formid == 2)
-		{
-			if(Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/neptunia/vert/nextform/nextgreen.mdl")))
-				return true;
-		}
-	}
-	
-	return false;
 }
 
 public int Native_ResetPlayerSkin(Handle myself, int numParams)
@@ -1596,11 +1493,6 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 
 			Store_LogMessage(client, g_eClients[client][iCredits], "本次进入服务器时的Credits");
 			//Store_SaveClientData(client);
-			
-			if(g_eClients[client][bBan])
-			{
-				CreateTimer(30.0, Timer_ResetClientShare, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-			}
 		}
 		else
 		{
@@ -1629,19 +1521,6 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 				Store_LogMessage(client, g_eCvars[g_cvarStartCredits][aCache], "首次进服赠送");
 		}
 	}
-}
-
-public Action Timer_ResetClientShare(Handle timer, int userid)
-{
-	int client = GetClientOfUserId(userid);
-	
-	if(!client || !IsClientInGame(client))
-		return Plugin_Stop;
-	
-	CG_GiveClientShare(client, CG_GetClientShare(client)*-1, "Store被ban");
-	PrintToChat(client, "[\x0EPlaneptune\x01]  你因为Store积分为负或Store被Ban导致你的Share被清空了");
-	
-	return Plugin_Stop;
 }
 
 public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, const char[] error, int userid)

@@ -7,8 +7,8 @@ public OnPluginStart()
 	RegConsoleCmd("ctest", cmd_test);
 	
 	char m_szFile[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, m_szFile, 128, "configs/store/items.txt");
-	Handle m_hKV = CreateKeyValues("Store");
+	BuildPath(Path_SM, m_szFile, 128, "data/1.txt");
+	Handle m_hKV = CreateKeyValues("Phrases");
 	FileToKeyValues(m_hKV, m_szFile);
 	KeyValuesToFile(m_hKV, m_szFile);
 }
@@ -16,8 +16,8 @@ public OnPluginStart()
 public Action cmd_test(client, args)
 {
 	char m_szFile[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, m_szFile, 128, "configs/store/items.txt");
-	Handle kv = CreateKeyValues("Store");
+	BuildPath(Path_SM, m_szFile, 128, "data/1.txt");
+	Handle kv = CreateKeyValues("Phrases");
 	FileToKeyValues(kv, m_szFile);
 	
 	int id = 7;

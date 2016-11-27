@@ -78,7 +78,6 @@ native int Store_RemoveItem(int client, int itemid);
 native int Store_GetClientTarget(int client);
 native int Store_GiveClientItem(int client, int recipient, int itemid);
 native bool Store_HasClientItem(int client, int itemid);
-native bool Store_HasClientGoddess(int client, int nation, int formid);
 native int Store_IterateEquippedItems(int client, int &start, bool attributes = false);
 native void Store_SaveClientAll(int client);
 native int Store_GetClientID(int client);

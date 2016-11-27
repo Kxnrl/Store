@@ -9,7 +9,7 @@
 #define PLUGIN_VERSION " 4.5.2rc2 "
 #define PLUGIN_URL "http://steamcommunity.com/id/_xQy_/"
 #define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
-#define PLUGIN_PREFIX "[\x0EPlaneptune\x01]  "
+#define PLUGIN_PREFIX "[\x0CCG\x01]  "
 
 //////////////////////////////
 //		INCLUDES			//
@@ -173,17 +173,25 @@ public Action CreditTimer(Handle timer)
 		if(2 <= GetClientTeam(client) <= 3)
 		{
 			int m_iCredits = 0;
-			int ifaith = CG_GetClientFaith(client);
+			int iforce = CG_GetClientForce(client);
 			bool m_bGroupCreidts = false;
 			char szFrom[128], szReason[128];
 			strcopy(szFrom, 128, "\x10[");
 			strcopy(szReason, 128, "store_credits[");
 
-			if(ifaith > 0)
+			if(iforce > 0)
 			{
 				m_iCredits += 3;
-				StrCat(szFrom, 128, szFaith_CNAME[ifaith]);
-				StrCat(szReason, 128, szFaith_NAME[ifaith]);
+				if(iforce == 1)
+				{
+					StrCat(szFrom, 128, "\x03正义势力\x01");
+					StrCat(szReason, 128, "正义势力");
+				}
+				else if(iforce == 2)
+				{
+					StrCat(szFrom, 128, "\x02黑恶势力\x01");
+					StrCat(szReason, 128, "黑恶势力");
+				}
 			}
 			else
 			{
@@ -282,7 +290,7 @@ public Action CreditTimer(Handle timer)
 			
 			Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
-			PrintToChat(client, "%s \x10你获得了\x04 %d Credits \x0A积分来自", PLUGIN_PREFIX_CREDITS, m_iCredits);
+			PrintToChat(client, "%s \x10你获得了\x04 %d 信用点 \x0A积分来自", PLUGIN_PREFIX_CREDITS, m_iCredits);
 			PrintToChat(client, "  %s", szFrom);
 			
 			//LogMessage("client[%N] iCredits[%d]", client, m_iCredits);
@@ -304,13 +312,7 @@ public void CG_OnClientDailySign(int client)
 		PrintToChat(client, "%s 检测到你当前未加入\x0C官方组\x01  你无法获得签到奖励", PLUGIN_PREFIX);
 		return;	
 	}
-	
-	if(CG_GetClientFaith(client) <= 0)
-	{
-		PrintToChat(client, "%s 检测到你当前没有\x0EFaith\x01  你无法获得签到奖励", PLUGIN_PREFIX);
-		return;	
-	}
-	
+
 	Active_GiveSignCredits(client);
 	//Active_RandomStoreItem(client);
 }
@@ -336,10 +338,8 @@ void Active_GiveSignCredits(int client)
 {
 	int Credits = GetRandomInt(3, 300);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
-	CG_GiveClientShare(client, Credits/3, "签到");
-	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0FCredits\x01, \x04%d\x0FShare", PLUGIN_PREFIX, client, Credits, Credits/3);
-	PrintToChat(client,"%s \x10你获得了\x04%d \x0FCredits \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
-	PrintToChat(client,"%s \x10你获得了\x04%d \x0FShare \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits/3);
+	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01", PLUGIN_PREFIX, client, Credits);
+	PrintToChat(client,"%s \x10你获得了\x04%d \x0F信用点 \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
 }
 /*
 void Active_RandomStoreItem(int client)

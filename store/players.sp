@@ -3,7 +3,6 @@ enum PlayerSkin
 {
 	String:szModel[PLATFORM_MAX_PATH],
 	String:szArms[PLATFORM_MAX_PATH],
-	iSkin,
 	iTeam,
 	nModelIndex
 }
@@ -261,7 +260,6 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 	KvGetString(kv, "model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
 	KvGetString(kv, "arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
 
-	g_ePlayerSkins[g_iPlayerSkins][iSkin] = KvGetNum(kv, "skin");
 	g_ePlayerSkins[g_iPlayerSkins][iTeam] = KvGetNum(kv, "team");
 	
 	if(g_bGameModeTT || g_bGameModeJB)
@@ -354,7 +352,7 @@ public int PlayerSkins_Equip(int client, int id)
 	
 	if(g_eCvars[g_cvarSkinChangeInstant][aCache] && IsPlayerAlive(client) && (GetClientTeam(client) == g_ePlayerSkins[m_iData][iTeam]))
 	{
-		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][iSkin]);
+		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel]);
 	}
 	else
 	{
@@ -731,7 +729,7 @@ void Store_PreSetClientModel(int client)
 			GetClientAuthId(client, AuthId_Steam2, m_szAuth, 32, true);
 			LogError("Client[%N] StoreId[%d] SteamId[%s] Model[%s]", client, g_eClients[client][iId], m_szAuth, g_ePlayerSkins[m_iData][szModel]);
 		}
-		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][iSkin], g_ePlayerSkins[m_iData][szArms]);
+		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 	}
 	else if(g_eCvars[g_cvarSkinForceChange][aCache])
 	{
@@ -744,7 +742,7 @@ void Store_PreSetClientModel(int client)
 	}
 }
 
-void Store_SetClientModel(int client, const char[] model, const int skin = 0, const char[] arms = "null")
+void Store_SetClientModel(int client, const char[] model, const char[] arms = "null")
 {
 	if(!StrEqual(arms, "null"))
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);

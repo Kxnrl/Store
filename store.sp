@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy) ~ that is me"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.2.6rc4 - 2016/12/05 03:12 - new syntax[6005] "
+#define PLUGIN_VERSION " 3.2.6rc5 - 2016/12/05 03:12 - new syntax[6005] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -336,7 +336,7 @@ public int Native_IsClientBanned(Handle myself, int numParams)
 public int Native_HasClientPlayerSkin(Handle myself, int numParams)
 {
 	int client = GetNativeCell(1);
-	if(IsClientInGame(client) && IsPlayerAlive(client))
+	if(IsClientInGame(client))
 		return g_bHasPlayerskin[client];
 	else
 		return false;

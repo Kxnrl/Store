@@ -541,8 +541,8 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 		Store_RemoveClientNeon(client);
 		Store_RemoveClientPart(client);
 	}
-
-	g_bHasPlayerskin[client] = false;
+	
+	CreateTimer(0.1, Timer_PlayerDeathPost, GetClientUserId(client));
 	
 	if(!IsPlayerAlive(client))
 	{
@@ -556,6 +556,18 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 	}
 
 	return Plugin_Continue;
+}
+
+public Action Timer_PlayerDeathPost(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	
+	if(!client || !IsClientInGame(client))
+		return Plugin_Stop;
+
+	g_bHasPlayerskin[client] = false;
+
+	return Plugin_Stop;
 }
 
 public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)

@@ -18,7 +18,7 @@ Handle g_hCookieSounds;
 
 public void Sounds_OnPluginStart()
 {
-	if(g_bGameModePR)
+	if(g_bGameModePR || g_bGameModeHZ)
 		return;
 
 	Store_RegisterHandler("sound", "sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
@@ -42,7 +42,6 @@ public void Sound_OnMapStart()
 			Format(szPathStar, 256, "*%s", g_eSounds[i][szSound]);
 			AddToStringTable(FindStringTable("soundprecache"), szPathStar);
 			Downloader_AddFileToDownloadsTable(szPath);
-			//LogMessage("Precache %s", g_eSounds[i][szSound]);
 		}
 	}
 }
@@ -74,7 +73,6 @@ public int Sound_Config(Handle &kv, int itemid)
 	if(FileExists(szPath, true))
 	{
 		++g_iSounds;
-		//LogMessage("Load %s", g_eSounds[g_iSounds][szSound]);
 		return true;
 	}
 
@@ -160,6 +158,9 @@ public Action Command_Cheer(int client, int args)
 
 void StartSoundToAll(int client)
 {
+	if(g_bGameModePR || g_bGameModeHZ)
+		return;
+
 	int[] targets = new int[MaxClients];
 	int total = 0;
 	
@@ -177,7 +178,7 @@ void StartSoundToAll(int client)
 
 public void OnClientCookiesCached(int client)
 {
-	if(g_bGameModePR)
+	if(g_bGameModePR || g_bGameModeHZ)
 		return;
 	
 	char buff[4];

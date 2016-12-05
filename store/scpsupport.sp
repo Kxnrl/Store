@@ -116,24 +116,24 @@ public Action OnChatMessage(int &client, Handle recipients, char[] name, char[] 
 
 stock void ReplaceAllColors(char[] message)
 {
-	ReplaceString(message, 256, "white", "", false);
-	ReplaceString(message, 256, "default", "", false);
-	ReplaceString(message, 256, "teamcolor", "", false);
-	ReplaceString(message, 256, "darkred", "", false);
-	ReplaceString(message, 256, "pink", "", false);
-	ReplaceString(message, 256, "green", "", false);
-	ReplaceString(message, 256, "lightgreen", "", false);
-	ReplaceString(message, 256, "lime", "", false);
-	ReplaceString(message, 256, "lightred", "", false);
-	ReplaceString(message, 256, "grey", "", false);
-	ReplaceString(message, 256, "gray", "", false);
-	ReplaceString(message, 256, "yellow", "", false);
-	ReplaceString(message, 256, "orange", "", false);
-	ReplaceString(message, 256, "silver", "", false);
-	ReplaceString(message, 256, "lightblue", "", false);
-	ReplaceString(message, 256, "blue", "", false);
-	ReplaceString(message, 256, "purple", "", false);
-	ReplaceString(message, 256, "darkorange", "", false);
+	ReplaceString(message, 256, "{white}", "", false);
+	ReplaceString(message, 256, "{default}", "", false);
+	ReplaceString(message, 256, "{teamcolor}", "", false);
+	ReplaceString(message, 256, "{darkred}", "", false);
+	ReplaceString(message, 256, "{pink}", "", false);
+	ReplaceString(message, 256, "{green}", "", false);
+	ReplaceString(message, 256, "{lightgreen}", "", false);
+	ReplaceString(message, 256, "{lime}", "", false);
+	ReplaceString(message, 256, "{lightred}", "", false);
+	ReplaceString(message, 256, "{grey}", "", false);
+	ReplaceString(message, 256, "{gray}", "", false);
+	ReplaceString(message, 256, "{yellow}", "", false);
+	ReplaceString(message, 256, "{orange}", "", false);
+	ReplaceString(message, 256, "{silver}", "", false);
+	ReplaceString(message, 256, "{lightblue}", "", false);
+	ReplaceString(message, 256, "{blue}", "", false);
+	ReplaceString(message, 256, "{purple}", "", false);
+	ReplaceString(message, 256, "{darkorange}", "", false);
 }
 
 stock void GetColorAuthName(int client, char[] buffer, int maxLen)

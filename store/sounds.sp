@@ -165,7 +165,7 @@ void StartSoundToAll(int client)
 	
 	for(int i=1; i <= MaxClients; i++)
 		if(IsClientInGame(i))
-			if(!g_bClientDisable[client] || i == client)
+			if(!g_bClientDisable[i] || i == client)
 				targets[total++] = i;
 
 	char szPath[128];

@@ -80,11 +80,15 @@ public void Players_OnPluginStart()
 		return;
 	
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
-	Store_RegisterHandler("trail", "material", Trails_OnMapStart, Trails_Reset, Trails_Config, Trails_Equip, Trails_Remove, true);
 	Store_RegisterHandler("hat", "model", Hats_OnMapStart, Hats_Reset, Hats_Config, Hats_Equip, Hats_Remove, true);
-	Store_RegisterHandler("Aura", "Name", Aura_OnMapStart, Aura_Reset, Aura_Config, Aura_Equip, Aura_Remove, true);
-	Store_RegisterHandler("neon", "ID", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true); 
-	Store_RegisterHandler("Particles", "Name", Part_OnMapStart, Part_Reset, Part_Config, Part_Equip, Part_Remove, true); 
+	
+	if(!g_bGameModeHZ)
+	{
+		Store_RegisterHandler("trail", "material", Trails_OnMapStart, Trails_Reset, Trails_Config, Trails_Equip, Trails_Remove, true);
+		Store_RegisterHandler("Aura", "Name", Aura_OnMapStart, Aura_Reset, Aura_Config, Aura_Equip, Aura_Remove, true);
+		Store_RegisterHandler("neon", "ID", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true); 
+		Store_RegisterHandler("Particles", "Name", Part_OnMapStart, Part_Reset, Part_Config, Part_Equip, Part_Remove, true); 	
+	}
 
 	g_cvarSkinChangeInstant = RegisterConVar("sm_store_playerskin_instant", "0", "Defines whether the skin should be changed instantly or on next spawn.", TYPE_INT);
 	g_cvarSkinForceChange = RegisterConVar("sm_store_playerskin_force_default", "0", "If it's set to 1, default skins will be enforced.", TYPE_INT);
@@ -93,6 +97,7 @@ public void Players_OnPluginStart()
 	g_cvarPadding = RegisterConVar("sm_store_trails_padding", "30.0", "Space between two trails", TYPE_FLOAT);
 	g_cvarMaxColumns = RegisterConVar("sm_store_trails_columns", "3", "Number of columns before starting to increase altitude", TYPE_INT);
 	g_cvarTrailLife = RegisterConVar("sm_store_trails_life", "1.0", "Life of a trail in seconds", TYPE_FLOAT);
+	
 
 	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
 	HookEvent("player_death", Event_PlayerDeath, EventHookMode_Post);
@@ -481,22 +486,27 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
-	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3) || g_bGameModePR)
 		return Plugin_Stop;
 
-	CreateTimer(0.0, Timer_CreateTrails, GetClientUserId(client));
-	CreateTimer(0.1, Timer_SetClientHat, GetClientUserId(client));	
-	CreateTimer(1.0, Timer_SetClientAura, GetClientUserId(client));
-	CreateTimer(1.0, Timer_SetClientNeon, GetClientUserId(client));
-	CreateTimer(1.0, Timer_SetClientPart, GetClientUserId(client));
+	CreateTimer(0.1, Timer_SetClientHat, GetClientUserId(client));
+	
+	if(!g_bGameModeHZ)
+	{
+		CreateTimer(0.5, Timer_CreateTrails, GetClientUserId(client));
+		CreateTimer(1.0, Timer_SetClientAura, GetClientUserId(client));
+		CreateTimer(1.0, Timer_SetClientNeon, GetClientUserId(client));
+		CreateTimer(1.0, Timer_SetClientPart, GetClientUserId(client));
+	}
 
 	if(g_bGameModeZE)
 		if(GetClientTeam(client) != 3)
 			return Plugin_Stop;
 
 	Store_PreSetClientModel(client);
+	//PrintToChatAll("PlayerSpawn[%N]", client);
 	
-	CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
+	CreateTimer(0.5, Timer_SetPlayerArms, GetClientUserId(client));
 
 	return Plugin_Stop;
 }
@@ -518,22 +528,30 @@ public Action Command_Arms(int client, int args)
 
 public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast)
 {
+	if(g_bGameModePR)
+		return Plugin_Stop;
+
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
 	CheckClientTP(client);
 
-	Store_RemoveClientAura(client);
-	Store_RemoveClientNeon(client);
-	Store_RemoveClientPart(client);
-	
+	if(!g_bGameModePR)
+	{
+		Store_RemoveClientAura(client);
+		Store_RemoveClientNeon(client);
+		Store_RemoveClientPart(client);
+	}
+
 	g_bHasPlayerskin[client] = false;
 	
 	if(!IsPlayerAlive(client))
 	{
 		for(int i = 0; i < STORE_MAX_SLOTS; ++i)
 		{
-			RemoveTrail(client, i);
 			RemoveHat(client, i);
+
+			if(!g_bGameModePR)
+				RemoveTrail(client, i);
 		}
 	}
 
@@ -544,7 +562,7 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
-	if(!client || !IsClientInGame(client))
+	if(!client || !IsClientInGame(client) || g_bGameModePR || g_bGameModeHZ)
 		return Plugin_Continue;
 	
 	for(int i = 0; i < STORE_MAX_SLOTS; ++i)
@@ -572,7 +590,12 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
 
 public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast)
 {
+	if(g_bGameModePR || g_bGameModeHZ)
+		return Plugin_Stop;
+
 	CreateTimer(0.1, Timer_RoundStartDelay);
+	
+	return Plugin_Stop;
 }
 
 public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
@@ -600,6 +623,22 @@ public Action Timer_CreateTrails(Handle timer, int userid)
 		RemoveTrail(client, i);
 		CreateTrail(client, -1, i);
 	}
+
+	return Plugin_Stop;
+}
+
+public Action Timer_SetPlayerArms(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
+		return Plugin_Stop;
+	
+	if(g_bGameModeZE)
+		if(GetClientTeam(client) != 3)
+			return Plugin_Stop;
+		
+	Store_PreSetClientModel(client);
 
 	return Plugin_Stop;
 }
@@ -1249,7 +1288,7 @@ public Action Command_Hide(int client, int args)
 
 public Action Command_TP(int client, int args)
 {
-	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB) && !Store_IsWhiteList(client))
+	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB || g_bGameModePR || g_bGameModeHZ) && !Store_IsWhiteList(client))
 	{
 		PrintToChat(client, "[\x0EPlaneptune\x01]  当前模式不允许使用TP");
 		return Plugin_Handled;

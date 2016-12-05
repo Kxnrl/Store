@@ -106,5 +106,6 @@ public int VIP_Remove(int client)
 
 public void OnPluginStart()
 {
+	CG_OnServerLoaded();
 	Store_RegisterHandler("buyvip", "", VIP_OnMapStart, VIP_Reset, VIP_Config, VIP_Equip, VIP_Remove, false);
 }

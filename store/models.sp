@@ -111,7 +111,7 @@ void CheckingClientAccess(int client, int m_iData)
 		char m_szAuthId[32];
 		GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true);
 		
-		if(!StrEqual(m_szAuthId, "STEAM_1:1:44083262") && !StrEqual(m_szAuthId, "STEAM_1:0:51415764"))
+		if(!StrEqual(m_szAuthId, "STEAM_1:1:44083262") && !StrEqual(m_szAuthId, "STEAM_1:0:51415764") && !StrEqual(m_szAuthId, "STEAM_1:0:3339246"))
 		{
 			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
 			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");

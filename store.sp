@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy) ~ that is me"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.2.3 - 2016/11/23 03:54 - new syntax[6002] "
+#define PLUGIN_VERSION " 3.2.6rc4 - 2016/12/05 03:12 - new syntax[6005] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -101,6 +101,7 @@ bool g_bGameModeDR;
 bool g_bGameModeNJ;
 bool g_bGameModeHG;
 bool g_bGameModePR;
+bool g_bGameModeHZ;
 
 //////////////////////////////
 //			MODULES			//
@@ -1480,7 +1481,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			if(g_eClients[client][iId] == 1)
 			{
 				GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true);
-				if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_0:1:44083262"))
+				if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_1:0:3339246"))
 				{
 					KickClient(client, "STEAM AUTH ERROR");
 					return;
@@ -1548,7 +1549,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 		{
 			char m_szSteamID[32];
 			GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true);
-			if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_0:1:44083262"))
+			if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_1:0:3339246"))
 			{
 				KickClient(client, "STEAM AUTH ERROR");
 				return;
@@ -2452,16 +2453,14 @@ void CheckGameMode()
 		g_bGameModeNJ = true;
 	else if(FindPluginByFile("hg.smx"))
 		g_bGameModeHG = true;
+	else if(FindPluginByFile("public_ext.smx"))
+		g_bGameModeHZ = true;
 	else
 		g_bGameModePR = true;
 	
 	
 	// prevent conplie warning!
-	if(g_bGameModeTT || g_bGameModeDR || g_bGameModeHG || g_bGameModeJB || g_bGameModeKZ || g_bGameModeMG || g_bGameModeNJ || g_bGameModePR || g_bGameModeZE){}
-	
-	char temp[128];
-	Format(temp, 128, "%s%s%s%s", szFaith_NAME[1], szFaith_CNAME[1], szFaith_NATION[1], szFaith_CNATION[1]);
-	g_Share[0] = 0;
+	if(g_bGameModeTT || g_bGameModeDR || g_bGameModeHG || g_bGameModeJB || g_bGameModeKZ || g_bGameModeMG || g_bGameModeNJ || g_bGameModePR || g_bGameModeZE || g_bGameModeHZ){}
 }
 
 bool Store_IsWhiteList(int client)

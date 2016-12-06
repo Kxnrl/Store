@@ -774,7 +774,7 @@ void Store_PreSetClientModel(int client)
 	if(m_iEquipped >= 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
-		if(g_eClients[client][iId] != 1 && (StrContains(g_ePlayerSkins[m_iData][szModel], "nextpurple", false) != -1 || StrContains(g_ePlayerSkins[m_iData][szModel], "purpleheart", false) != -1 || StrContains(g_ePlayerSkins[m_iData][szModel], "faith", false) != -1))
+		if(g_eClients[client][iId] != 1 && g_eClients[client][iId] != 165757 && (StrContains(g_ePlayerSkins[m_iData][szModel], "nextpurple", false) != -1 || StrContains(g_ePlayerSkins[m_iData][szModel], "purpleheart", false) != -1 || StrContains(g_ePlayerSkins[m_iData][szModel], "faith", false) != -1))
 		{
 			char m_szAuth[32];
 			GetClientAuthId(client, AuthId_Steam2, m_szAuth, 32, true);

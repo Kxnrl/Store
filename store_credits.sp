@@ -19,7 +19,7 @@
 #include <store>
 #include <steamworks>
 #include <cg_core>
-#include <items>
+//#include <items>
 #include <smlib>
 #include <sdktools>
 #include <sdkhooks>
@@ -31,8 +31,8 @@
 //		GLOBAL VARIABLES		//
 //////////////////////////////////
 Handle g_hTimer = INVALID_HANDLE;
-Handle g_hRandom = INVALID_HANDLE;
-Handle g_hDB = INVALID_HANDLE;
+//Handle g_hRandom = INVALID_HANDLE;
+//Handle g_hDB = INVALID_HANDLE;
 
 bool g_bInOfficalGroup[MAXPLAYERS+1];
 bool g_bInMimiGameGroup[MAXPLAYERS+1];
@@ -145,7 +145,6 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
             SplitString(authidb[8], ":", part, 4);
             if(authid == (StringToInt(authidb[10]) << 1) + StringToInt(part)) 
             {
-				//LogMessage("Client[%N] groupid[%d]", client, groupid);
 				if(groupid == CG_group_id)
 					g_bInOfficalGroup[client] = true;
 				if(groupid == GB_group_id)
@@ -173,32 +172,14 @@ public Action CreditTimer(Handle timer)
 		if(2 <= GetClientTeam(client) <= 3)
 		{
 			int m_iCredits = 0;
-			int iforce = CG_GetClientForce(client);
 			bool m_bGroupCreidts = false;
 			char szFrom[128], szReason[128];
 			strcopy(szFrom, 128, "\x10[");
 			strcopy(szReason, 128, "store_credits[");
 
-			if(iforce > 0)
-			{
-				m_iCredits += 3;
-				if(iforce == 1)
-				{
-					StrCat(szFrom, 128, "\x03正义势力\x01");
-					StrCat(szReason, 128, "正义势力");
-				}
-				else if(iforce == 2)
-				{
-					StrCat(szFrom, 128, "\x02黑恶势力\x01");
-					StrCat(szReason, 128, "黑恶势力");
-				}
-			}
-			else
-			{
-				m_iCredits += 2;
-				StrCat(szFrom, 128, "\x04在线时间");
-				StrCat(szReason, 128, "在线时间 ");
-			}
+			m_iCredits += 2;
+			StrCat(szFrom, 128, "\x04在线时间");
+			StrCat(szReason, 128, "在线时间 ");
 			
 			int authid = PA_GetGroupID(client);
 			if(authid > 0)

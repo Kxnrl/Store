@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy) ~ that is me"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.2.6rc5 - 2016/12/05 03:12 - new syntax[6005] "
+#define PLUGIN_VERSION " 3.3 - 2016/12/07 01:39 - new syntax[60013] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -256,7 +256,7 @@ public void OnConfigsExecuted()
 {
 	// Connect to the database
 	if(g_hDatabase == INVALID_HANDLE)
-		SQL_TConnect(SQLCallback_Connect, "store");
+		SQL_TConnect(SQLCallback_Connect, "csgo");
 		
 	CreateTimer(30.0, Timer_DatabaseTimeout);
 }
@@ -732,7 +732,7 @@ public Action Command_Store(int client, int args)
 
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07积分为负\x01!");
+		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
 		return Plugin_Handled;
 	}	
 
@@ -753,7 +753,7 @@ public Action Command_Inventory(int client, int args)
 	
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07积分为负\x01!");
+		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
 		return Plugin_Handled;
 	}
 	
@@ -774,7 +774,7 @@ public Action Command_Credits(int client, int args)
 	
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07积分为负\x01!");
+		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
 		return Plugin_Handled;
 	}
 
@@ -1514,7 +1514,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			else
 			{
 				Store_GiveItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"), GetTime(), GetTime()+604800, 300);
-				PrintToChat(client, "[\x0EPlaneptune\x01]  作为新玩家你收到了Planeptune女神的赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
+				PrintToChat(client, "[\x0EPlaneptune\x01]  作为新玩家你收到了赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
 			}
 			
 
@@ -1641,7 +1641,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 			}
 			else
 			{
-				PrintToChat(client, "[\x0EPlaneptune\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了[\x046666Credits\x01]");
+				PrintToChat(client, "[\x0EPlaneptune\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了[\x046666信用点\x01]");
 				Store_SetClientCredits(client, Store_GetClientCredits(client)+6666, "老玩家回归");
 			}
 		}

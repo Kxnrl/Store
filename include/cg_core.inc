@@ -8,7 +8,6 @@ forward bool CG_APIStoreSetCredits(int client, int credits, const char[] reason,
 forward  int CG_APIStoreGetCredits(int client);
 
 native  int CG_GetServerID();
-native  int CG_GetClientForce(int client);
 native  int CG_GetOnlines(int client);
 native  int CG_GetLastseen(int client);
 native  int CG_GetPlayerID(int client);

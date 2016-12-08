@@ -62,7 +62,6 @@ enum Menu_Handler
 
 Handle g_hDatabase = INVALID_HANDLE;
 
-bool g_bItemSourceSQL = false;
 int g_cvarGiftEnabled = -1;
 int g_cvarConfirmation = -1;
 int g_cvarShowVIP = -1;
@@ -77,6 +76,9 @@ Item_Plan g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
 int g_iItems = 0;
 int g_iTypeHandlers = 0;
 int g_iMenuHandlers = 0;
+int g_iPackageHandler = -1;
+int g_iDatabaseRetries = 0;
+
 int g_iMenuBack[MAXPLAYERS+1];
 int g_iLastSelection[MAXPLAYERS+1];
 int g_iSelectedItem[MAXPLAYERS+1];
@@ -84,8 +86,7 @@ int g_iSelectedPlan[MAXPLAYERS+1];
 int g_iMenuClient[MAXPLAYERS+1];
 int g_iMenuNum[MAXPLAYERS+1];
 int g_iSpam[MAXPLAYERS+1];
-int g_iPackageHandler = -1;
-int g_iDatabaseRetries = 0;
+
 
 bool g_bInvMode[MAXPLAYERS+1];
 
@@ -99,6 +100,9 @@ bool g_bGameModeNJ;
 bool g_bGameModeHG;
 bool g_bGameModePR;
 bool g_bGameModeHZ;
+
+bool g_bItemSourceSQL = false;
+char g_bLogFile[128];
 
 //////////////////////////////
 //			MODULES			//
@@ -171,9 +175,6 @@ public void OnPluginStart()
 
 	// After every module was loaded we are ready to generate the cfg
 	AutoExecConfig(true, "NewStore");
-
-	// Read core.cfg for chat triggers
-	ReadCoreCFG();
 }
 
 public void OnAllPluginsLoaded()
@@ -2049,53 +2050,6 @@ public int Store_GetClientItemId(int client, int itemid)
 		
 	return -1;
 }
-
-public void ReadCoreCFG()
-{
-	char m_szFile[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, STRING(m_szFile), "configs/core.cfg");
-
-	Handle hParser = SMC_CreateParser();
-	char error[128];
-	int line = 0;
-	int col = 0;
-
-	SMC_SetReaders(hParser, Config_NewSection, Config_KeyValue, Config_EndSection);
-	SMC_SetParseEnd(hParser, Config_End);
-
-	SMCError result = SMC_ParseFile(hParser, m_szFile, line, col);
-	CloseHandle(hParser);
-
-	if(result != SMCError_Okay) 
-	{
-		SMC_GetErrorString(result, error, sizeof(error));
-		LogError("%s on line %d, col %d of %s", error, line, col, m_szFile);
-	}
-
-}
-
-public SMCResult Config_NewSection(Handle parser, const char[] section, bool quotes) 
-{
-    if(StrEqual(section, "Core"))
-    {
-        return SMCParse_Continue;
-    }
-    return SMCParse_Continue;
-}
-
-public SMCResult Config_KeyValue(Handle parser, const char[] key, const char[] value, bool key_quotes, bool value_quotes)
-{
-    return SMCParse_Continue;
-}
-
-public SMCResult Config_EndSection(Handle parser) 
-{
-    return SMCParse_Continue;
-}
-
-public void Config_End(Handle parser, bool halted, bool failed) 
-{
-}  
 
 public void Store_ReloadConfig()
 {

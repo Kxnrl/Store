@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy) ~ that is me"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3 - 2016/12/07 01:39 - new syntax[60013] "
+#define PLUGIN_VERSION " 3.3 - 2016/12/08 15:25 - new syntax[6013] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -62,10 +62,7 @@ enum Menu_Handler
 
 Handle g_hDatabase = INVALID_HANDLE;
 
-int g_cvarItemSource = -1;
-int g_cvarItemsTable = -1;
-int g_cvarStartCredits = -1;
-int g_cvarSellEnabled = -1;
+bool g_bItemSourceSQL = false;
 int g_cvarGiftEnabled = -1;
 int g_cvarConfirmation = -1;
 int g_cvarShowVIP = -1;
@@ -143,10 +140,6 @@ public void OnPluginStart()
 	CheckGameMode();
 
 	// Register ConVars
-	g_cvarItemSource = RegisterConVar("sm_store_item_source", "flatfile", "Source of the item list, can be set to flatfile and database, sm_store_items_table must be set if database is chosen (THIS IS HIGHLY EXPERIMENTAL AND MAY NOT WORK YET)", TYPE_STRING);
-	g_cvarItemsTable = RegisterConVar("sm_store_items_table", "store_menu", "Name of the items table", TYPE_STRING);
-	g_cvarStartCredits = RegisterConVar("sm_store_startcredits", "300", "Number of credits a client starts with", TYPE_INT);
-	g_cvarSellEnabled = RegisterConVar("sm_store_enable_selling", "1", "Enable/disable selling of already bought items.", TYPE_INT);
 	g_cvarGiftEnabled = RegisterConVar("sm_store_enable_gifting", "1", "Enable/disable gifting of already bought items. [1=everyone, 2=admins only]", TYPE_INT);
 	g_cvarConfirmation = RegisterConVar("sm_store_confirmation_windows", "1", "Enable/disable confirmation windows.", TYPE_INT);
 	g_cvarShowVIP = RegisterConVar("sm_store_show_vip_items", "1", "If you enable this VIP items will be shown in grey.", TYPE_INT);
@@ -825,11 +818,9 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 		{
 			if(!Store_IsItemInBoughtPackage(target, parent))
 			{
-				if(g_eCvars[g_cvarSellEnabled][aCache])
-				{
-					AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "sell_package", "%t", "Package Sell", RoundToFloor(g_eItems[parent][iPrice]*0.6));
-					++m_iPosition;
-				}
+				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "sell_package", "%t", "Package Sell", RoundToFloor(g_eItems[parent][iPrice]*0.6));
+				++m_iPosition;
+
 				if(g_eCvars[g_cvarGiftEnabled][aCache] == 1 && g_eItems[parent][bGiftable])
 				{
 					AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "gift_package", "%t", "Package Gift");
@@ -1099,8 +1090,7 @@ public int DisplayItemMenu(int client, int itemid)
 				m_iCredits = RoundToCeil(m_iCredits*float(m_iLeft)/float(m_iLength));
 			}
 
-			if(g_eCvars[g_cvarSellEnabled][aCache])
-				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "%t", "Item Sell", m_iCredits);
+			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "%t", "Item Sell", m_iCredits);
 			if(g_eCvars[g_cvarGiftEnabled][aCache] == 1 && g_eItems[itemid][bGiftable])
 				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "%t", "Item Gift");
 		}
@@ -1497,10 +1487,10 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 		}
 		else
 		{
-			Format(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', %d, %d, %d, '0')", g_eClients[client][szAuthId], g_eClients[client][szNameEscaped], g_eCvars[g_cvarStartCredits][aCache], m_iTime, m_iTime);
+			Format(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', 300, %d, %d, '0')", g_eClients[client][szAuthId], g_eClients[client][szNameEscaped], m_iTime, m_iTime);
 			SQL_TQuery(g_hDatabase, SQLCallback_InsertClient, m_szQuery, userid);
-			g_eClients[client][iCredits] = g_eCvars[g_cvarStartCredits][aCache];
-			g_eClients[client][iOriginalCredits] = g_eCvars[g_cvarStartCredits][aCache];
+			g_eClients[client][iCredits] = 300;
+			g_eClients[client][iOriginalCredits] = 300;
 			g_eClients[client][iDateOfJoin] = m_iTime;
 			g_eClients[client][iDateOfLastJoin] = m_iTime;
 			g_eClients[client][bLoaded] = true;
@@ -1516,10 +1506,8 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 				Store_GiveItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"), GetTime(), GetTime()+604800, 300);
 				PrintToChat(client, "[\x0EPlaneptune\x01]  作为新玩家你收到了赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
 			}
-			
 
-			if(g_eCvars[g_cvarStartCredits][aCache] > 0)
-				Store_LogMessage(client, g_eCvars[g_cvarStartCredits][aCache], "首次进服赠送");
+			Store_LogMessage(client, 300, "首次进服赠送");
 		}
 	}
 }
@@ -2122,10 +2110,10 @@ public void Store_ReloadConfig()
 		}
 	}
 
-	if(strcmp(g_eCvars[g_cvarItemSource][sCache], "database")==0)
+	if(g_bItemSourceSQL)
 	{
 		char m_szQuery[64];
-		Format(STRING(m_szQuery), "SELECT * FROM %s", g_eCvars[g_cvarItemsTable][sCache]);
+		Format(STRING(m_szQuery), "SELECT * FROM store_web");
 		SQL_TQuery(g_hDatabase, SQLCallback_ReloadConfig, m_szQuery);
 	}
 	else

@@ -5,9 +5,9 @@
 //////////////////////////////
 
 #define PLUGIN_NAME "Store - The Resurrection"
-#define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy) ~ that is me"
+#define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3 - 2016/12/08 15:25 - new syntax[6013] "
+#define PLUGIN_VERSION " 3.3.1rc2 - 2016/12/11 04:43 - new syntax[6018] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -61,6 +61,7 @@ enum Menu_Handler
 //////////////////////////////////
 
 Handle g_hDatabase = INVALID_HANDLE;
+Handle g_hKeyValue = INVALID_HANDLE;
 
 int g_cvarGiftEnabled = -1;
 int g_cvarConfirmation = -1;
@@ -101,8 +102,9 @@ bool g_bGameModeHG;
 bool g_bGameModePR;
 bool g_bGameModeHZ;
 
+bool g_bLateLoad;
 bool g_bItemSourceSQL = false;
-char g_bLogFile[128];
+char g_szLogFile[128];
 
 //////////////////////////////
 //			MODULES			//
@@ -227,6 +229,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
+	
+	g_bLateLoad = late;
 
 	return APLRes_Success;
 }
@@ -472,14 +476,18 @@ public int Native_GetClientCredits(Handle myself, int numParams)
 public int Native_SetClientCredits(Handle myself, int numParams)
 {
 	int client = GetNativeCell(1);
-	int m_iCredits = GetNativeCell(2);
-	char logMsg[128];
-	if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
-		Store_LogMessage(client, m_iCredits-g_eClients[client][iCredits], "未知来源");
-	else
-		Store_LogMessage(client, m_iCredits-g_eClients[client][iCredits], logMsg);
-	//PrintToChatAll("[STORE-DEBUG] LogMsg: %s", logMsg);
-	g_eClients[client][iCredits] = m_iCredits;
+	if(!IsFakeClient(client))
+	{
+		int m_iCredits = GetNativeCell(2);
+		char logMsg[128];
+		if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
+			Store_LogMessage(client, m_iCredits-g_eClients[client][iCredits], false, "未知来源");
+		else
+			Store_LogMessage(client, m_iCredits-g_eClients[client][iCredits], false, logMsg);
+		//PrintToChatAll("[STORE-DEBUG] LogMsg: %s", logMsg);
+		g_eClients[client][iCredits] = m_iCredits;
+	}
+
 	return 1;
 }
 
@@ -1074,7 +1082,29 @@ public int DisplayItemMenu(int client, int itemid)
 		else
 			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%t", "Item Unequip");
 	else
-		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%t", "Item Use");
+	{
+		
+		if(StrEqual(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "buyvip"))
+		{
+			switch(VIP_GetVipType(client))
+			{
+				case 3: AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "you are already vip", "svip");
+				case 2: AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "you are already vip", "yvip");
+				case 1: 
+				{
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "you are already vip", "mvip");
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "go to forum to buy vip");
+				}
+				case 0:
+				{
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%t", "buy monthly vip");
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "go to forum to buy vip");
+				}
+			}
+		}
+		else
+			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%t", "Item Use");
+	}
 		
 	if(!Store_IsItemInBoughtPackage(target, itemid))
 	{
@@ -1424,19 +1454,27 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
 		g_hDatabase = hndl;
 
 		// Do some housekeeping
+		SQL_SetCharset(g_hDatabase, "utf8");
+		
 		char m_szQuery[256];
 		Format(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
 		SQL_TVoid(g_hDatabase, m_szQuery);
-		SQL_SetCharset(g_hDatabase, "utf8");
 		
-		for(int client = 1; client <= MaxClients; ++client)
+		// if Loaded late.
+		if(g_bLateLoad)
 		{
-			if(!IsClientInGame(client))
-				continue;
+			for(int client = 1; client <= MaxClients; ++client)
+			{
+				if(!IsClientInGame(client))
+					continue;
 
-			OnClientConnected(client);
-			OnClientPostAdminCheck(client);
+				OnClientConnected(client);
+				OnClientPostAdminCheck(client);
+			}
 		}
+
+		// Build Log Path
+		BuildTempLogFile();
 	}
 }
 
@@ -1459,6 +1497,12 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 		strcopy(g_eClients[client][szAuthId], 32, m_szSteamID[8]);
 		GetClientName(client, g_eClients[client][szName], 64);
 		SQL_EscapeString(g_hDatabase, g_eClients[client][szName], g_eClients[client][szNameEscaped], 128);
+		if(KvJumpToKey(g_hKeyValue, m_szSteamID, true))
+		{
+			KvSetNum(g_hKeyValue, "Connect", GetTime());
+			KvRewind(g_hKeyValue);
+			KeyValuesToFile(g_hKeyValue, g_szLogFile);
+		}
 		
 		if(SQL_FetchRow(hndl))
 		{
@@ -1483,8 +1527,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			Format(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
 			SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
 
-			Store_LogMessage(client, g_eClients[client][iCredits], "本次进入服务器时的Credits");
-			//Store_SaveClientData(client);
+			Store_LogMessage(client, g_eClients[client][iCredits], true, "本次进入服务器时的Credits");
 		}
 		else
 		{
@@ -1508,7 +1551,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 				PrintToChat(client, "[\x0EPlaneptune\x01]  作为新玩家你收到了赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
 			}
 
-			Store_LogMessage(client, 300, "首次进服赠送");
+			Store_LogMessage(client, 300, true, "首次进服赠送");
 		}
 	}
 }
@@ -1817,7 +1860,7 @@ public void Store_SaveClientInventory(int client)
 	char m_szQuery[512];
 	char m_szType[16];
 	char m_szUniqueId[PLATFORM_MAX_PATH];
-	
+
 	for(int i = 0; i < g_eClients[client][iItems]; ++i)
 	{
 		strcopy(STRING(m_szType), g_eTypeHandlers[g_eItems[g_eClientItems[client][i][iUniqueId]][iHandler]][szType]);
@@ -1883,11 +1926,52 @@ public void Store_SaveClientData(int client)
 	g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
 
 	SQL_TVoid(g_hDatabase, m_szQuery);
+	
+	char m_szAuthId[32];
+	GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true);
+	if(KvJumpToKey(g_hKeyValue, m_szAuthId))
+	{
+		int connect = KvGetNum(g_hKeyValue, "Connect", 0);
+		
+		while(KvGotoFirstSubKey(g_hKeyValue, true))
+		{
+			char m_szReason[128];
+			KvGetSectionName(g_hKeyValue, m_szReason, 128);
+
+			if(StrEqual(m_szReason, "Connect"))
+			{
+				KvDeleteThis(g_hKeyValue);
+				KvGetSectionName(g_hKeyValue, m_szReason, 128);
+			}
+			
+			int credits = KvGetNum(g_hKeyValue, "Credits", 0);
+			int endtime = KvGetNum(g_hKeyValue, "LastTime", 0);
+
+			char m_szEreason[192];
+			SQL_EscapeString(g_hDatabase, m_szReason, m_szEreason, 192);
+			Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES((SELECT id FROM store_players WHERE authid = '%s' ORDER BY id ASC LIMIT 1), %d, \"%d_%s\", %d)", m_szAuthId[8], credits, connect, m_szEreason, endtime);
+			SQL_TVoid(g_hDatabase, m_szQuery);
+			
+			if(KvDeleteThis(g_hKeyValue))
+			{
+				char m_szAfter[32];
+				KvGetSectionName(g_hKeyValue, m_szAfter, 32);
+				if(StrContains(m_szAfter, "STEAM", false) != -1)
+					break;
+				else
+					KvGoBack(g_hKeyValue);
+			}
+		}
+
+		KvDeleteThis(g_hKeyValue);
+		KvRewind(g_hKeyValue);
+		KeyValuesToFile(g_hKeyValue, g_szLogFile);
+	}
 }
 
 public void Store_DisconnectClient(int client)
 {
-	Store_LogMessage(client, g_eClients[client][iCredits], "离开服务器时");
+	Store_LogMessage(client, g_eClients[client][iCredits], true, "离开服务器时");
 	g_eClients[client][iCredits] = -1;
 	g_eClients[client][iOriginalCredits] = -1;
 	g_eClients[client][iItems] = -1;
@@ -1949,20 +2033,12 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			g_eClientItems[target][m_iId][bDeleted] = false;
 			
 			g_eClients[target][iCredits] -= m_iPrice;
-
-		/*	char TIMELEFT[32];
-			if(g_eClientItems[target][m_iId][iDateOfExpiration] == 0)
-				Format(TIMELEFT, 32, "永久");
-			else
-				Format(TIMELEFT, 32, "%d天", (g_ePlans[itemid][plan][iTime]/86400));
-		*/
 		
-			Store_LogMessage(target, -m_iPrice, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+			Store_LogMessage(target, -m_iPrice, true, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
-			//购买回写
-			//Store_SaveClientData(target);
-			//Store_SaveClientInventory(target);
-			//Store_SaveClientEquipment(target);
+			// 购买回写
+			Store_SaveClientData(target);
+			Store_SaveClientInventory(target);
 
 			Chat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 			Command_Store(client, 0);
@@ -1997,13 +2073,13 @@ public int Store_SellItem(int client, int itemid)
 	g_eClients[client][iCredits] += m_iCredits;
 	Chat(client, "%t", "Chat Sold Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 	
-	Store_LogMessage(client, m_iCredits, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+	Store_LogMessage(client, m_iCredits, true, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
 	Store_RemoveItem(client, itemid);
 	
-	//Store_SaveClientData(client);
-	//Store_SaveClientInventory(client);
-	//Store_SaveClientEquipment(client);
+	Store_SaveClientData(client);
+	Store_SaveClientInventory(client);
+	Store_SaveClientEquipment(client);
 }
 
 public int Store_GiftItem(int client, int receiver, int item)
@@ -2032,8 +2108,8 @@ public int Store_GiftItem(int client, int receiver, int item)
 	Chat(client, "%t", "Chat Gift Item Sent", g_eClients[receiver][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
 	Chat(receiver, "%t", "Chat Gift Item Received", g_eClients[target][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
 
-	Store_LogMessage(client, 0, "赠送了 %s 给 %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
-	Store_LogMessage(receiver, 0, "收到了 %s 来自 %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);
+	Store_LogMessage(client, 0, true, "赠送了 %s 给 %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
+	Store_LogMessage(receiver, 0, true, "收到了 %s 来自 %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);
 	
 	Store_SaveClientInventory(target);
 	Store_SaveClientEquipment(target);
@@ -2078,7 +2154,6 @@ public void Store_ReloadConfig()
 		FileToKeyValues(m_hKV, m_szFile);
 		if (!KvGotoFirstSubKey(m_hKV))
 		{
-			
 			SetFailState("Failed to read configs/store/items.txt");
 		}
 		Store_WalkConfig(m_hKV);
@@ -2337,17 +2412,38 @@ bool Store_PackageHasClientItem(int client, int packageid, bool invmode = false)
 	return false;
 }
 
-void Store_LogMessage(int client, int credits, const char[] message, ...)
+void Store_LogMessage(int client, int credits, bool immediately, const char[] message, ...)
 {
+	if(!IsFakeClient(client))
+		return;
+
 	char m_szReason[256];
 	VFormat(STRING(m_szReason), message, 4);
 
+	if(!immediately)
+	{
+		StripQuotes(m_szReason);
+		
+		char m_szAuthId[32];
+		GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true);
 
-	char m_szQuery[512];
-	char EszReason[513];
-	SQL_EscapeString(g_hDatabase, m_szReason, EszReason, 513);
-	Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES(%d, %d, \"%s\", %d)", g_eClients[client][iId], credits, EszReason, GetTime());
-	SQL_TVoid(g_hDatabase, m_szQuery);
+		KvJumpToKey(g_hKeyValue, m_szAuthId, true);
+		KvJumpToKey(g_hKeyValue, m_szReason, true);
+
+		KvSetNum(g_hKeyValue, "Credits", KvGetNum(g_hKeyValue, "Credits", 0)+credits);
+		KvSetNum(g_hKeyValue, "LastTime", GetTime());
+
+		KvRewind(g_hKeyValue);
+
+		KeyValuesToFile(g_hKeyValue, g_szLogFile);
+	}
+	else
+	{
+		char m_szQuery[512], EszReason[513];
+		SQL_EscapeString(g_hDatabase, m_szReason, EszReason, 513);
+		Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES(%d, %d, \"%s\", %d)", g_eClients[client][iId], credits, EszReason, GetTime());
+		SQL_TVoid(g_hDatabase, m_szQuery);
+	}
 }
 
 int Store_GetLowestPrice(int itemid)
@@ -2476,4 +2572,60 @@ void SetThirdperson(int client, bool tp)
 	{
 		ClientCommand(client, "firstperson");
 	}
+}
+
+void BuildTempLogFile()
+{
+	BuildPath(Path_SM, g_szLogFile, 128, "data/store.log.kv.txt");
+	
+	if(g_hKeyValue != INVALID_HANDLE)
+		CloseHandle(g_hKeyValue);
+	
+	g_hKeyValue = CreateKeyValues("store_logs", "", "");
+/*	
+	FileToKeyValues(g_hKeyValue, g_szLogFile);
+
+	while(KvGotoFirstSubKey(g_hKeyValue, true))
+	{
+		char m_szAuthId[32];
+		KvGetSectionName(g_hKeyValue, m_szAuthId, 32);
+		int connect = KvGetNum(g_hKeyValue, "Connect", 0);
+		
+		while(KvGotoFirstSubKey(g_hKeyValue, true))
+		{
+			char m_szReason[128];
+			KvGetSectionName(g_hKeyValue, m_szReason, 128);
+
+			if(StrEqual(m_szReason, "Connect"))
+			{
+				KvDeleteThis(g_hKeyValue);
+				KvGetSectionName(g_hKeyValue, m_szReason, 128);
+			}
+			
+			int credits = KvGetNum(g_hKeyValue, "Credits", 0);
+			int endtime = KvGetNum(g_hKeyValue, "LastTime", 0);
+
+			char m_szEreason[192], m_szQuery[256];
+			SQL_EscapeString(g_hDatabase, m_szReason, m_szEreason, 192);
+			Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES((SELECT id FROM store_players WHERE authid = '%s' ORDER BY id ASC LIMIT 1), %d, \"%d_%s\", %d)", m_szAuthId[8], credits, endtime, m_szEreason, connect);
+			SQL_TVoid(g_hDatabase, m_szQuery);
+			
+			if(KvDeleteThis(g_hKeyValue))
+			{
+				char m_szAfter[32];
+				KvGetSectionName(g_hKeyValue, m_szAfter, 32);
+				if(StrContains(m_szAfter, "STEAM", false) == -1)
+					KvGoBack(g_hKeyValue);
+			}
+		}
+		
+		if(!KvGotoFirstSubKey(g_hKeyValue, true))
+			KvDeleteThis(g_hKeyValue);
+		
+		KvRewind(g_hKeyValue);
+	}
+
+	KvRewind(g_hKeyValue);
+*/
+	KeyValuesToFile(g_hKeyValue, g_szLogFile);
 }

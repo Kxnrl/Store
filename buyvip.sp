@@ -58,7 +58,7 @@ public void SQLCallback_BuyVIP(Handle db, Handle hndl, const char[] error, any u
 
 	if(!SQL_HasResultSet(hndl))
 	{
-		CPrintToChat(client, "\x04[Store] \x10购买VIP成功");
+		CPrintToChat(client, "\x04[Store]  \x10购买VIP成功");
 		Store_SaveClientAll(client);
 		VIP_SetClientVIP(client);
 	}
@@ -67,8 +67,8 @@ public void SQLCallback_BuyVIP(Handle db, Handle hndl, const char[] error, any u
 		int result = SQL_FetchInt(hndl, 0);
 		switch (result)
 		{
-			case 1: CPrintToChat(client, "\x04[Store] \x07Steam账号没有和论坛账号绑定,购买失败!");
-			case 2: CPrintToChat(client, "\x04[Store] \x10你已经是VIP了");
+			case 1: CPrintToChat(client, "\x04[Store]  \x07Steam账号没有和论坛账号绑定,购买失败!");
+			case 2: CPrintToChat(client, "\x04[Store]  \x10你已经是VIP了");
 		}
 		Store_SetClientCredits(client, Store_GetClientCredits(client) + 16888, "购买一个月VIP失败退款");
 	}
@@ -78,13 +78,13 @@ public int VIP_Equip(int client, int id)
 {
 	if(Store_GetClientCredits(client) < 16888)
 	{
-		CPrintToChat(client, "\x04[Store] \x07你的Credits不足!");
+		CPrintToChat(client, "\x04[Store]  \x07你的Credits不足!");
 		return -1;
 	}
 
 	if(VIP_IsClientVIP(client))
 	{
-		CPrintToChat(client, "\x04[Store] \x10你已经是VIP了");
+		CPrintToChat(client, "\x04[Store]  \x10你已经是VIP了");
 		return -1;
 	}
 

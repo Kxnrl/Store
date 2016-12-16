@@ -1,3 +1,5 @@
+#define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
+#define Arms_ZE_NewBee "models/weapons/t_arms_anarchist.mdl"
 
 enum PlayerSkin
 {
@@ -44,13 +46,6 @@ Neon g_eNeons[STORE_MAX_ITEMS][Neon];
 int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
 int g_iHats = 0;
 int g_iPlayerSkins = 0;
-int g_cvarSkinChangeInstant = -1;
-int g_cvarSkinForceChange = -1;
-int g_cvarSkinForceChangeCT = -1;
-int g_cvarSkinForceChangeTE = -1;
-int g_cvarPadding = -1;
-int g_cvarMaxColumns = -1;
-int g_cvarTrailLife = -1;
 int g_iTrailOwners[2048] = {-1};
 int g_iTrails = 0;
 int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
@@ -60,8 +55,6 @@ int g_iNeons = 0;
 int g_iClientNeon[MAXPLAYERS+1];
 int g_iParts = 0; 
 int g_iClientPart[MAXPLAYERS+1];
-bool g_bTEForcedSkin = false;
-bool g_bCTForcedSkin = false;
 bool g_bSpawnTrails[MAXPLAYERS+1];
 bool g_bHasPlayerskin[MAXPLAYERS+1];
 bool g_bHideMode[MAXPLAYERS+1];
@@ -88,16 +81,7 @@ public void Players_OnPluginStart()
 		Store_RegisterHandler("Aura", "Name", Aura_OnMapStart, Aura_Reset, Aura_Config, Aura_Equip, Aura_Remove, true);
 		Store_RegisterHandler("neon", "ID", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true); 
 		Store_RegisterHandler("Particles", "Name", Part_OnMapStart, Part_Reset, Part_Config, Part_Equip, Part_Remove, true); 	
-	}
-
-	g_cvarSkinChangeInstant = RegisterConVar("sm_store_playerskin_instant", "0", "Defines whether the skin should be changed instantly or on next spawn.", TYPE_INT);
-	g_cvarSkinForceChange = RegisterConVar("sm_store_playerskin_force_default", "0", "If it's set to 1, default skins will be enforced.", TYPE_INT);
-	g_cvarSkinForceChangeCT = RegisterConVar("sm_store_playerskin_default_ct", "", "Path of the default CT skin.", TYPE_STRING);
-	g_cvarSkinForceChangeTE = RegisterConVar("sm_store_playerskin_default_t", "", "Path of the default T skin.", TYPE_STRING);
-	g_cvarPadding = RegisterConVar("sm_store_trails_padding", "30.0", "Space between two trails", TYPE_FLOAT);
-	g_cvarMaxColumns = RegisterConVar("sm_store_trails_columns", "3", "Number of columns before starting to increase altitude", TYPE_INT);
-	g_cvarTrailLife = RegisterConVar("sm_store_trails_life", "1.0", "Life of a trail in seconds", TYPE_FLOAT);
-	
+	}	
 
 	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
 	HookEvent("player_death", Event_PlayerDeath, EventHookMode_Post);
@@ -127,24 +111,16 @@ public void PlayerSkins_OnMapStart()
 			Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
 		}
 	}
-
-	if(g_eCvars[g_cvarSkinForceChangeTE][sCache][0] != 0 && (FileExists(g_eCvars[g_cvarSkinForceChangeTE][sCache]) || FileExists(g_eCvars[g_cvarSkinForceChangeTE][sCache], true)))
+	
+	if(g_bGameModeZE)
 	{
-		g_bTEForcedSkin = true;
-		PrecacheModel2(g_eCvars[g_cvarSkinForceChangeTE][sCache], true);
-		Downloader_AddFileToDownloadsTable(g_eCvars[g_cvarSkinForceChangeTE][sCache]);
+		if(FileExists(Model_ZE_Newbee))
+		{
+			PrecacheModel2(Model_ZE_Newbee, true);
+			PrecacheModel2(Arms_ZE_NewBee, true);
+			Downloader_AddFileToDownloadsTable(Model_ZE_Newbee);
+		}
 	}
-	else
-		g_bTEForcedSkin = false;
-		
-	if(g_eCvars[g_cvarSkinForceChangeCT][sCache][0] != 0 && (FileExists(g_eCvars[g_cvarSkinForceChangeCT][sCache]) || FileExists(g_eCvars[g_cvarSkinForceChangeCT][sCache], true)))
-	{
-		g_bCTForcedSkin = true;
-		PrecacheModel2(g_eCvars[g_cvarSkinForceChangeCT][sCache], true);
-		Downloader_AddFileToDownloadsTable(g_eCvars[g_cvarSkinForceChangeCT][sCache]);
-	}
-	else
-		g_bCTForcedSkin = false;
 }
 
 public void Trails_OnMapStart()
@@ -353,17 +329,8 @@ public int Part_Config(Handle &kv, int itemid)
 
 public int PlayerSkins_Equip(int client, int id)
 {
-	int m_iData = Store_GetDataIndex(id);
-	
-	if(g_eCvars[g_cvarSkinChangeInstant][aCache] && IsPlayerAlive(client) && (GetClientTeam(client) == g_ePlayerSkins[m_iData][iTeam]))
-	{
-		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel]);
-	}
-	else
-	{
-		if(Store_IsClientLoaded(client))
-			Chat(client, "%t", "PlayerSkins Settings Changed");
-	}
+	if(Store_IsClientLoaded(client))
+		Chat(client, "%t", "PlayerSkins Settings Changed");
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
@@ -423,7 +390,7 @@ public int Part_Equip(int client, int id)
 
 public int PlayerSkins_Remove(int client, int id)
 {
-	if(Store_IsClientLoaded(client) && !g_eCvars[g_cvarSkinChangeInstant][aCache])
+	if(Store_IsClientLoaded(client))
 		Chat(client, "%t", "PlayerSkins Settings Changed");
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
@@ -774,22 +741,20 @@ void Store_PreSetClientModel(int client)
 	if(m_iEquipped >= 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
-		if(g_eClients[client][iId] != 1 && g_eClients[client][iId] != 165757 && (StrContains(g_ePlayerSkins[m_iData][szModel], "nextpurple", false) != -1 || StrContains(g_ePlayerSkins[m_iData][szModel], "purpleheart", false) != -1 || StrContains(g_ePlayerSkins[m_iData][szModel], "faith", false) != -1))
-		{
-			char m_szAuth[32];
-			GetClientAuthId(client, AuthId_Steam2, m_szAuth, 32, true);
-			LogError("Client[%N] StoreId[%d] SteamId[%s] Model[%s]", client, g_eClients[client][iId], m_szAuth, g_ePlayerSkins[m_iData][szModel]);
-		}
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 	}
-	else if(g_eCvars[g_cvarSkinForceChange][aCache])
+	else if(g_bGameModeZE)
 	{
-		int m_iTeam = GetClientTeam(client);
-
-		if(m_iTeam == 2 && g_bTEForcedSkin)
-			Store_SetClientModel(client, g_eCvars[g_cvarSkinForceChangeTE][sCache]);
-		else if(m_iTeam == 3 && g_bCTForcedSkin)
-			Store_SetClientModel(client, g_eCvars[g_cvarSkinForceChangeCT][sCache]);
+		int itemid = Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl");
+		if(Store_HasClientItem(client, itemid))
+		{
+			int m_iData = Store_GetDataIndex(itemid);
+			Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
+		}
+		else if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
+		{
+			Store_SetClientModel(client, Model_ZE_Newbee, Arms_ZE_NewBee);
+		}
 	}
 }
 
@@ -805,7 +770,10 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 	char currentmodel[128];
 	GetEntPropString(client, Prop_Send, "m_szArmsModel", currentmodel, 128);
 	
-	g_bHasPlayerskin[client] = true;
+	if(!g_bGameModeZE)
+		g_bHasPlayerskin[client] = true;
+	else if(!StrEqual(model, Model_ZE_Newbee))
+		g_bHasPlayerskin[client] = true;
 	
 	if(!StrEqual(arms, "null") && !StrEqual(currentmodel, arms))
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
@@ -857,7 +825,7 @@ int CreateTrail(int client, int itemid = -1, int slot = 0)
 		m_iColor[1] = g_eTrails[m_iData][iColor][1];
 		m_iColor[2] = g_eTrails[m_iData][iColor][2];
 		m_iColor[3] = g_eTrails[m_iData][iColor][3];
-		TE_SetupBeamFollow(g_iClientTrails[client][slot], g_eTrails[m_iData][iCacheID], 0, view_as<float>(g_eCvars[g_cvarTrailLife][aCache]), g_eTrails[m_iData][fWidth], g_eTrails[m_iData][fWidth], 10, m_iColor);
+		TE_SetupBeamFollow(g_iClientTrails[client][slot], g_eTrails[m_iData][iCacheID], 0, 1.0, g_eTrails[m_iData][fWidth], g_eTrails[m_iData][fWidth], 10, m_iColor);
 		TE_SendToAll();
 	}
 }
@@ -869,11 +837,11 @@ public int AttachTrail(int ent, int client, int current, int num)
 	float m_fTemp[3] = {0.0, 90.0, 0.0};
 	GetEntPropVector(client, Prop_Data, "m_angAbsRotation", m_fAngle);
 	SetEntPropVector(client, Prop_Data, "m_angAbsRotation", m_fTemp);
-	float m_fX = (view_as<float>(g_eCvars[g_cvarPadding][aCache])*((num-1)%g_eCvars[g_cvarMaxColumns][aCache]))/2-(view_as<float>(g_eCvars[g_cvarPadding][aCache])*(current%g_eCvars[g_cvarMaxColumns][aCache]));
+	float m_fX = (30.0*((num-1)%3))/2-(30.0*(current%3));
 	float m_fPosition[3];
 	m_fPosition[0] = m_fX;
 	m_fPosition[1] = 0.0;
-	m_fPosition[2]= 5.0+(current/g_eCvars[g_cvarMaxColumns][aCache])*view_as<float>(g_eCvars[g_cvarPadding][aCache]);
+	m_fPosition[2]= 5.0+(current/3)*30.0;
 	GetClientAbsOrigin(client, m_fOrigin);
 	AddVectors(m_fOrigin, m_fPosition, m_fOrigin);
 	TeleportEntity(ent, m_fOrigin, m_fTemp, NULL_VECTOR);
@@ -905,7 +873,7 @@ public void Trails_OnGameFrame()
 		if(GetVectorDistance(g_fLastPosition[i], m_fPosition) <= 5.0)
 		{
 			if(!g_bSpawnTrails[i])
-				if(m_fTime-g_fClientCounters[i] >= view_as<float>(g_eCvars[g_cvarTrailLife][aCache])/2)
+				if(m_fTime-g_fClientCounters[i] >= 1.0/2)
 					g_bSpawnTrails[i] = true;
 		}
 		else

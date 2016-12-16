@@ -894,16 +894,6 @@
 			"price"		"3000"
 			"type"		"playerskin"
 		}
-		"Adult Neptune(Normal)[Extended]"
-		{
-			"model"		"models/player/custom_player/maoling/neptunia/adult_neptune/normal/adult.mdl"
-			"arms"		"models/player/custom_player/maoling/neptunia/adult_neptune/normal/neptune_arms.mdl"
-			"team"		"3"
-			"flag"		"z"
-			"buyable"	"0"
-			"price"		"99999999"
-			"type"		"playerskin"
-		}
 		"PupleHeart"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl"
@@ -922,6 +912,14 @@
 			"buyable"	"0"
 			"giftable"	"0"
 			"price"		"3000"
+			"type"		"playerskin"
+		}
+		"Lax - Ice [For ZE Commander]"
+		{
+			"model"		"models/player/custom_player/kaesarLoL/lux_ice/lux_ice.mdl"
+			"arms"		"models/player/custom_player/kaesarLoL/lux_ice/lux_ice_arms.mdl"
+			"team"		"2"
+			"flag"		"z"
 			"type"		"playerskin"
 		}
 	}
@@ -3166,8 +3164,28 @@
 				"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_3_v.mdl"
 				"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_3_w.mdl"
 				"entity"		"weapon_knife"
-				"price"			"99999999"
-				"buyable"		"0"
+				"Plans"
+				{
+					"1天"
+					{
+						"price"		"666"
+						"time"		"86400"
+					}
+					"1周"
+					{
+						"price"		"3999"
+						"time"		"604800"
+					}
+					"1月"
+					{
+						"price"		"16888"
+						"time"		"2678400"
+					}
+					"无限制"
+					{
+						"price"		"88888"
+					}
+				}
 				"type"			"vwmodel" 
 				"slot"			"2"
 			}
@@ -3176,8 +3194,28 @@
 				"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_2_v.mdl"
 				"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_2_w.mdl"
 				"entity"		"weapon_knife"
-				"price"			"99999999"
-				"buyable"		"0"
+				"Plans"
+				{
+					"1天"
+					{
+						"price"		"666"
+						"time"		"86400"
+					}
+					"1周"
+					{
+						"price"		"3999"
+						"time"		"604800"
+					}
+					"1月"
+					{
+						"price"		"16888"
+						"time"		"2678400"
+					}
+					"无限制"
+					{
+						"price"		"88888"
+					}
+				}
 				"type"			"vwmodel" 
 				"slot"			"2"
 			}
@@ -3186,8 +3224,28 @@
 				"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_1_v.mdl"
 				"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_1_w.mdl"
 				"entity"		"weapon_knife"
-				"price"			"99999999"
-				"buyable"		"0"
+				"Plans"
+				{
+					"1天"
+					{
+						"price"		"666"
+						"time"		"86400"
+					}
+					"1周"
+					{
+						"price"		"3999"
+						"time"		"604800"
+					}
+					"1月"
+					{
+						"price"		"16888"
+						"time"		"2678400"
+					}
+					"无限制"
+					{
+						"price"		"88888"
+					}
+				}
 				"type"			"vwmodel" 
 				"slot"			"2"
 			}

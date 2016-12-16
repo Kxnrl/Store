@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3.1rc2 - 2016/12/11 04:43 - new syntax[6018] "
+#define PLUGIN_VERSION " 3.3.2r2 - 2016/12/14 05:43 - new syntax[6018] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -224,6 +224,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_HasClientPlayerSkin", Native_HasClientPlayerSkin);
 	CreateNative("Store_GetClientPlayerSkin", Native_GetClientPlayerSkin);
 	CreateNative("Store_ResetPlayerSkin", Native_ResetPlayerSkin);
+	CreateNative("Store_ResetPlayerArms", Native_ResetPlayerArms);
 
 	MarkNativeAsOptional("FPVMI_SetClientModel");
 	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
@@ -369,6 +370,13 @@ public int Native_ResetPlayerSkin(Handle myself, int numParams)
 	int client = GetNativeCell(1);
 	if(client && IsClientInGame(client) && IsPlayerAlive(client))
 		Store_PreSetClientModel(client);
+}
+
+public int Native_ResetPlayerArms(Handle myself, int numParams)
+{
+	int client = GetNativeCell(1);
+	if(client && IsClientInGame(client) && IsPlayerAlive(client))
+		CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
 }
 
 public int Native_RegisterHandler(Handle plugin, int numParams)
@@ -1680,24 +1688,6 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 	}
 }
 
-public void SQLCallback_RefreshCredits(Handle owner, Handle hndl, const char[] error, int userid)
-{
-	if(hndl==INVALID_HANDLE)
-		LogError("Error happened. Error: %s", error);
-	else
-	{
-		int client = GetClientOfUserId(userid);
-		if(!client)
-			return;
-			
-		if(SQL_FetchRow(hndl))
-		{
-			g_eClients[client][iCredits] = SQL_FetchInt(hndl, 3);
-			g_eClients[client][iOriginalCredits] = SQL_FetchInt(hndl, 3);
-		}
-	}
-}
-
 public void SQLCallback_InsertClient(Handle owner, Handle hndl, const char[] error, int userid)
 {
 	if(hndl==INVALID_HANDLE)
@@ -1786,38 +1776,6 @@ public void SQLCallback_ReloadConfig(Handle owner, Handle hndl, const char[] err
 			}
 			CloseHandle(m_hKV);
 		}
-	}
-}
-
-public void SQLCallback_ResetPlayer(Handle owner, Handle hndl, const char[] error, int userid)
-{
-	if(hndl==INVALID_HANDLE)
-		LogError("Error happened. Error: %s", error);
-	else
-	{
-		int client = GetClientOfUserId(userid);
-
-		if(SQL_GetRowCount(hndl))
-		{
-			SQL_FetchRow(hndl);
-			int id = SQL_FetchInt(hndl, 0);
-			char m_szAuthId[32];
-			SQL_FetchString(hndl, 1, STRING(m_szAuthId));
-
-			char m_szQuery[512];
-			Format(STRING(m_szQuery), "DELETE FROM store_players WHERE id=%d", id);
-			SQL_TVoid(g_hDatabase, m_szQuery);
-			Format(STRING(m_szQuery), "DELETE FROM store_items WHERE player_id=%d", id);
-			SQL_TVoid(g_hDatabase, m_szQuery);
-			Format(STRING(m_szQuery), "DELETE FROM store_equipment WHERE player_id=%d", id);
-			SQL_TVoid(g_hDatabase, m_szQuery);
-
-			ChatAll("%t", "Player Resetted", m_szAuthId);
-
-		}
-		else
-			if(client)
-				Chat(client, "%t", "Credit No Match");
 	}
 }
 
@@ -1946,10 +1904,11 @@ public void Store_SaveClientData(int client)
 			
 			int credits = KvGetNum(g_hKeyValue, "Credits", 0);
 			int endtime = KvGetNum(g_hKeyValue, "LastTime", 0);
+			int Counts = KvGetNum(g_hKeyValue, "Counts", 1);
 
 			char m_szEreason[192];
 			SQL_EscapeString(g_hDatabase, m_szReason, m_szEreason, 192);
-			Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES((SELECT id FROM store_players WHERE authid = '%s' ORDER BY id ASC LIMIT 1), %d, \"%d_%s\", %d)", m_szAuthId[8], credits, connect, m_szEreason, endtime);
+			Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES(%d, %d, \"%d_%d_%s\", %d)", g_eClients[client][iId], credits, connect, Counts, m_szEreason, endtime);
 			SQL_TVoid(g_hDatabase, m_szQuery);
 			
 			if(KvDeleteThis(g_hKeyValue))
@@ -1988,13 +1947,11 @@ int Store_GetItemId(char[] type, char[] uid, int start = -1)
 
 public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, int userid)
 {
-	int client;
-	if ((client = GetClientOfUserId(userid)) == 0)
-	{
+	int client = GetClientOfUserId(userid);
+	if(!client)
 		return;
-	}
-	
-	if (hndl == INVALID_HANDLE)
+
+	if(hndl == INVALID_HANDLE)
 	{
 		LogError("Error happened. Error: %s", error);
 	}
@@ -2022,7 +1979,7 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			
 			if(g_eClients[target][iCredits]<m_iPrice)
 				return;
-				
+
 			int m_iId = g_eClients[target][iItems]++;
 			g_eClientItems[target][m_iId][iId] = -1;
 			g_eClientItems[target][m_iId][iUniqueId] = itemid;
@@ -2031,18 +1988,17 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			g_eClientItems[target][m_iId][iPriceOfPurchase] = m_iPrice;
 			g_eClientItems[target][m_iId][bSynced] = false;
 			g_eClientItems[target][m_iId][bDeleted] = false;
-			
+
 			g_eClients[target][iCredits] -= m_iPrice;
-		
+
 			Store_LogMessage(target, -m_iPrice, true, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
 			// 购买回写
-			Store_SaveClientData(target);
-			Store_SaveClientInventory(target);
+			Store_SaveClientAll(target);
 
 			Chat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-			Command_Store(client, 0);
-			Chat(target, "你需要选择已购买的物品来装备");
+			Command_Store(target, 0);
+			Chat(target, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 		}
 	}
 }
@@ -2072,14 +2028,13 @@ public int Store_SellItem(int client, int itemid)
 
 	g_eClients[client][iCredits] += m_iCredits;
 	Chat(client, "%t", "Chat Sold Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+	Chat(client, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 	
 	Store_LogMessage(client, m_iCredits, true, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
 	Store_RemoveItem(client, itemid);
 	
-	Store_SaveClientData(client);
-	Store_SaveClientInventory(client);
-	Store_SaveClientEquipment(client);
+	Store_SaveClientAll(client);
 }
 
 public int Store_GiftItem(int client, int receiver, int item)
@@ -2111,9 +2066,8 @@ public int Store_GiftItem(int client, int receiver, int item)
 	Store_LogMessage(client, 0, true, "赠送了 %s 给 %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
 	Store_LogMessage(receiver, 0, true, "收到了 %s 来自 %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);
 	
-	Store_SaveClientInventory(target);
-	Store_SaveClientEquipment(target);
-	Store_SaveClientInventory(receiver);
+	Store_SaveClientAll(client);
+	Store_SaveClientAll(receiver);
 }
 
 public int Store_GetClientItemId(int client, int itemid)
@@ -2412,13 +2366,13 @@ bool Store_PackageHasClientItem(int client, int packageid, bool invmode = false)
 	return false;
 }
 
-void Store_LogMessage(int client, int credits, bool immediately, const char[] message, ...)
+void Store_LogMessage(int client, int credits, bool immediately = false, const char[] message, any ...)
 {
-	if(!IsFakeClient(client))
+	if(IsFakeClient(client))
 		return;
 
 	char m_szReason[256];
-	VFormat(STRING(m_szReason), message, 4);
+	VFormat(STRING(m_szReason), message, 5);
 
 	if(!immediately)
 	{
@@ -2432,6 +2386,7 @@ void Store_LogMessage(int client, int credits, bool immediately, const char[] me
 
 		KvSetNum(g_hKeyValue, "Credits", KvGetNum(g_hKeyValue, "Credits", 0)+credits);
 		KvSetNum(g_hKeyValue, "LastTime", GetTime());
+		KvSetNum(g_hKeyValue, "Counts", KvGetNum(g_hKeyValue, "Counts", 0)+1);
 
 		KvRewind(g_hKeyValue);
 

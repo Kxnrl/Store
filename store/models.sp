@@ -85,7 +85,6 @@ public int Models_Equip(int client, int id)
 {
 	int m_iData = Store_GetDataIndex(id);
 	FPVMI_SetClientModel(client, g_eCustomModel[m_iData][szEntity], g_eCustomModel[m_iData][iCacheIdV], g_eCustomModel[m_iData][iCacheIdW], g_eCustomModel[m_iData][szModelD]);
-	CheckingClientAccess(client, m_iData);
 	return g_eCustomModel[m_iData][iSlot];
 }
 
@@ -102,34 +101,4 @@ public int Models_Remove(int client, int id)
 		FPVMI_RemoveDropModelToClient(client, g_eCustomModel[m_iData][szEntity]);
 	}
 	return g_eCustomModel[m_iData][iSlot];
-}
-
-void CheckingClientAccess(int client, int m_iData)
-{
-	if(StrContains(g_eCustomModel[m_iData][szModelV], "neptune", false) != -1)
-	{
-		char m_szAuthId[32];
-		GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true);
-		
-		if(!StrEqual(m_szAuthId, "STEAM_1:1:44083262") && !StrEqual(m_szAuthId, "STEAM_1:0:51415764") && !StrEqual(m_szAuthId, "STEAM_1:0:3339246"))
-		{
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			PrintToChat(client, "[\x0EPlaneptune\x01]  You haven`t Access.");
-			CreateTimer(5.0, Timer_KickClient, GetClientUserId(client));
-		}
-	}
-}
-
-public Action Timer_KickClient(Handle timer, int userid)
-{
-	int client = GetClientOfUserId(userid);
-	if(!client || !IsClientInGame(client))
-		return Plugin_Stop;
-	
-	KickClient(client, "STEAM AUTH ERROR");
-	
-	return Plugin_Stop;
 }

@@ -112,8 +112,8 @@
 	"Chat Bought Item"
 	{
 		"#format" "{1:s},{2:t}"
-		"en" "You have bought a {HIGHLIGHT}{1} {2}{NORMAL}."
-		"chi" "你购买了 {HIGHLIGHT}{1} {2}{NORMAL}."
+		"en" "You have bought a {HIGHLIGHT}{1} {2}{NORMAL}, you need equip that."
+		"chi" "你购买了 {HIGHLIGHT}{1} {2}{NORMAL}, 你需要选择已购买的物品来装备."
 	}
 	
 	"Chat Sold Item"

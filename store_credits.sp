@@ -32,6 +32,9 @@ bool g_bInOpeatorGroup[MAXPLAYERS+1];
 bool g_bInZombieGroup[MAXPLAYERS+1];
 bool g_bIsCheck[MAXPLAYERS+1];
 
+int g_iNumPlayers;
+bool g_bNightfever;
+
 #define CG_group_id 103582791438550612
 #define GB_group_id 103582791437825710
 #define OP_group_id 103582791442277011
@@ -55,6 +58,24 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	RegAdminCmd("sm_signtest", Command_SignTest, ADMFLAG_ROOT);
+	
+	CreateTimer(120.0, TIMER_NIGHTFEVER, _, TIMER_REPEAT);
+}
+
+public Action TIMER_NIGHTFEVER(Handle timer)
+{
+	char time[16];
+	FormatTime(time, 16, "%H", GetTime());
+	int hour = StringToInt(time);
+	if(hour <= 8 || hour >= 23)
+		g_bNightfever = true;
+	else
+		g_bNightfever = false;
+	
+	if(g_bNightfever)
+	{
+		PrintToChatAll("[\x02NightFever\x01]   \x04当前为午夜党福利时间,在线获得的信用点+5");
+	}
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -64,7 +85,9 @@ public void OnClientPostAdminCheck(int client)
 	if(g_hTimer[client] != INVALID_HANDLE)
 		KillTimer(g_hTimer[client]);
 	
-	g_hTimer[client] = CreateTimer(300.0, CreditTimer, client, TIMER_REPEAT);
+	g_hTimer[client] = CreateTimer(180.0, CreditTimer, client, TIMER_REPEAT);
+	
+	g_iNumPlayers = GetClientCount(true);
 }
 
 public void OnClientDisconnect(int client)
@@ -79,6 +102,8 @@ public void OnClientDisconnect(int client)
 		KillTimer(g_hTimer[client]);
 	
 	g_hTimer[client] = INVALID_HANDLE;
+	
+	g_iNumPlayers = GetClientCount(true);
 }
 
 public int ZE_GetClientGroupStats(int client)
@@ -143,8 +168,17 @@ public Action CreditTimer(Handle timer, int client)
 	}
 	
 	if(!(2 <= GetClientTeam(client) <= 3))
+	{
+		PrintToChat(client, "%s  \x07观察者无法获得信用点", PLUGIN_PREFIX_CREDITS);
 		return Plugin_Continue;
+	}
 	
+	if(g_iNumPlayers < 6 && !FindPluginByFile("KZTimerGlobal.smx"))
+	{
+		PrintToChat(client, "%s  \x04玩家人数不足6人,不能获得在线奖励的信用点", PLUGIN_PREFIX_CREDITS);
+		return Plugin_Continue;
+	}
+
 	int m_iCredits = 0;
 	bool m_bGroupCreidts = false;
 	char szFrom[128], szReason[128];
@@ -231,8 +265,8 @@ public Action CreditTimer(Handle timer, int client)
 	if(g_bInOfficalGroup[client] && !m_bGroupCreidts)
 	{				
 		m_bGroupCreidts = true;
-		m_iCredits += 4;
-		StrCat(szFrom, 128, "\x0A|\x06官方组+4");
+		m_iCredits += 6;
+		StrCat(szFrom, 128, "\x0A|\x06官方组+6");
 		StrCat(szReason, 128, "官方组");
 	}
 	
@@ -240,12 +274,19 @@ public Action CreditTimer(Handle timer, int client)
 	{
 		m_iCredits += 3;
 		StrCat(szFrom, 128, "\x0A|\x10OP+3");
-		StrCat(szReason, 128, "OP ");		
+		StrCat(szReason, 128, "OP");		
+	}
+	
+	if(g_bNightfever)
+	{
+		m_iCredits += 5;
+		StrCat(szFrom, 128, "\x0A|\x02午夜党福利+5");
+		StrCat(szReason, 128, "午夜党福利");		
 	}
 	
 	StrCat(szFrom, 128, "\x10]");
 	StrCat(szReason, 128, "]");
-	
+
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
 	PrintToChat(client, "%s \x10你获得了\x04 %d 信用点 \x01[\x0A180s/次\x01]", PLUGIN_PREFIX_CREDITS, m_iCredits);
@@ -253,7 +294,7 @@ public Action CreditTimer(Handle timer, int client)
 	
 	if(!g_bInOfficalGroup[client])
 		PrintToChat(client, " \x04加入官方Steam组即可享受3倍在线积分");
-	
+
 	return Plugin_Continue;
 }
 
@@ -266,7 +307,7 @@ public void CG_OnClientDailySign(int client)
 {
 	if(!g_bInOfficalGroup[client])
 	{
-		PrintToChat(client, "%s 检测到你当前未加入\x0C官方组\x01  你无法获得签到奖励", PLUGIN_PREFIX);
+		PrintToChat(client, "%s  检测到你当前未加入\x0C官方组\x01  你无法获得签到奖励", PLUGIN_PREFIX);
 		return;	
 	}
 
@@ -275,7 +316,7 @@ public void CG_OnClientDailySign(int client)
 
 void Active_GiveSignCredits(int client)
 {
-	int Credits = GetRandomInt(3, 300);
+	int Credits = GetRandomInt(1, 500);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
 	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01", PLUGIN_PREFIX, client, Credits);
 	PrintToChat(client,"%s \x10你获得了\x04%d \x0F信用点 \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);

@@ -5413,7 +5413,7 @@
 			}
 			"xQy"
 			{
-				"tag"		"{green}[{purple}CTO of CG{green}] "
+				"tag"		"{green}[{purple}ちなつ{green}] "
 				"flag"		"z"
 				"price"		"5201314"
 				"type"		"nametag"

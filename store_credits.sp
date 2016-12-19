@@ -1,19 +1,3 @@
-#pragma semicolon 1
-
-//////////////////////////////
-//		DEFINITIONS 		//
-//////////////////////////////
-#define PLUGIN_NAME " Store Credits Controler "
-#define PLUGIN_AUTHOR "maoling ( xQy )"
-#define PLUGIN_DESCRIPTION ""
-#define PLUGIN_VERSION " 4.5.2rc2 "
-#define PLUGIN_URL "http://steamcommunity.com/id/_xQy_/"
-#define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
-#define PLUGIN_PREFIX "[\x0CCG\x01]  "
-
-//////////////////////////////
-//		INCLUDES			//
-//////////////////////////////
 #include <store>
 #include <steamworks>
 #include <cg_core>
@@ -21,9 +5,10 @@
 
 #pragma newdecls required
 
-//////////////////////////////////
-//		GLOBAL VARIABLES		//
-//////////////////////////////////
+#define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
+#define PLUGIN_PREFIX "[\x0CCG\x01]  "
+
+
 Handle g_hTimer[MAXPLAYERS+1];
 
 bool g_bInOfficalGroup[MAXPLAYERS+1];
@@ -35,26 +20,15 @@ bool g_bIsCheck[MAXPLAYERS+1];
 int g_iNumPlayers;
 bool g_bNightfever;
 
-#define CG_group_id 103582791438550612
-#define GB_group_id 103582791437825710
-#define OP_group_id 103582791442277011
-#define ZE_group_id 103582791456047719
-
-//////////////////////////////////
-//		PLUGIN DEFINITION		//
-//////////////////////////////////
 public Plugin myinfo =
 {
-	name = PLUGIN_NAME,
-	author = PLUGIN_AUTHOR,
-	description = PLUGIN_DESCRIPTION,
-	version = PLUGIN_VERSION,
-	url = PLUGIN_URL
+	name		= "Store Online Credits/Riffle",
+	author		= "maoling ( xQy )",
+	description = "",
+	version		= "1.0",
+	url			= "http://steamcommunity.com/id/_xQy_/"
 };
 
-//////////////////////////////
-//		PLUGIN FORWARDS		//
-//////////////////////////////
 public void OnPluginStart()
 {
 	RegAdminCmd("sm_signtest", Command_SignTest, ADMFLAG_ROOT);
@@ -73,9 +47,7 @@ public Action TIMER_NIGHTFEVER(Handle timer)
 		g_bNightfever = false;
 	
 	if(g_bNightfever)
-	{
 		PrintToChatAll("[\x02NightFever\x01]   \x04当前为午夜党福利时间,在线获得的信用点+5");
-	}
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -120,10 +92,10 @@ public int ZE_GetClientGroupStats(int client)
 public void LookupPlayerGroups(int client)
 {
 	g_bIsCheck[client] = true;
-	SteamWorks_GetUserGroupStatus(client, CG_group_id);
-	SteamWorks_GetUserGroupStatus(client, GB_group_id);
-	SteamWorks_GetUserGroupStatus(client, OP_group_id);
-	SteamWorks_GetUserGroupStatus(client, ZE_group_id);
+	SteamWorks_GetUserGroupStatus(client, 103582791438550612);
+	SteamWorks_GetUserGroupStatus(client, 103582791437825710);
+	SteamWorks_GetUserGroupStatus(client, 103582791442277011);
+	SteamWorks_GetUserGroupStatus(client, 103582791456047719);
 }
 
 public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember, bool isOfficer)
@@ -144,13 +116,13 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
             SplitString(authidb[8], ":", part, 4);
             if(authid == (StringToInt(authidb[10]) << 1) + StringToInt(part)) 
             {
-				if(groupid == CG_group_id)
+				if(groupid == 103582791438550612)
 					g_bInOfficalGroup[client] = true;
-				if(groupid == GB_group_id)
+				if(groupid == 103582791437825710)
 					g_bInMimiGameGroup[client] = true;
-				if(groupid == OP_group_id)
+				if(groupid == 103582791442277011)
 					g_bInOpeatorGroup[client] = true;
-				if(groupid == ZE_group_id)
+				if(groupid == 103582791456047719)
 					g_bInZombieGroup[client] = true;
 
 				break;
@@ -185,10 +157,10 @@ public Action CreditTimer(Handle timer, int client)
 	strcopy(szFrom, 128, "\x10[");
 	strcopy(szReason, 128, "store_credits[");
 	
-	m_iCredits += 2;
-	StrCat(szFrom, 128, "\x04在线时间+2");
+	m_iCredits += 1;
+	StrCat(szFrom, 128, "\x04在线时间+1");
 	StrCat(szReason, 128, "在线时间 ");
-	
+
 	int authid = PA_GetGroupID(client);
 	
 	if(authid > 0)
@@ -245,7 +217,7 @@ public Action CreditTimer(Handle timer, int client)
 		{
 			m_iCredits += 2;
 			StrCat(szFrom, 128, "\x0A|\x07年费VIP+2");
-			StrCat(szReason, 128, " YVIP ");
+			StrCat(szReason, 128, " AVIP ");
 		}
 		case 1:
 		{
@@ -265,16 +237,57 @@ public Action CreditTimer(Handle timer, int client)
 	if(g_bInOfficalGroup[client] && !m_bGroupCreidts)
 	{				
 		m_bGroupCreidts = true;
-		m_iCredits += 6;
-		StrCat(szFrom, 128, "\x0A|\x06官方组+6");
+		m_iCredits += 3;
+		StrCat(szFrom, 128, "\x0A|\x06官方组+3");
 		StrCat(szReason, 128, "官方组");
 	}
-	
+
 	if(g_bInOpeatorGroup[client] && GetUserFlagBits(client) & ADMFLAG_BAN)
 	{
 		m_iCredits += 3;
 		StrCat(szFrom, 128, "\x0A|\x10OP+3");
 		StrCat(szReason, 128, "OP");		
+	}
+	
+	int m_iVitality = CG_GetVitality(client);
+	if(m_iVitality)
+	{
+		StrCat(szReason, 128, "热度");	
+		if(100 > m_iVitality >= 60)
+		{
+			m_iCredits += 2;
+			StrCat(szFrom, 128, "\x0A|\x07热度+2");
+		}
+		else if(200 > m_iVitality >= 100)
+		{
+			m_iCredits += 3;
+			StrCat(szFrom, 128, "\x0A|\x07热度+3");
+		}
+		else if(400 > m_iVitality >= 200)
+		{
+			m_iCredits += 4;
+			StrCat(szFrom, 128, "\x0A|\x07热度+4");
+		}
+		else if(700 > m_iVitality >= 400)
+		{
+			m_iCredits += 5;
+			StrCat(szFrom, 128, "\x0A|\x07热度+5");
+		}
+		else if(m_iVitality >= 700)
+		{
+			m_iCredits += 6;
+			StrCat(szFrom, 128, "\x0A|\x07热度+6");
+		}
+		else if(m_iVitality == 1000)
+		{
+			m_iCredits += 10;
+			StrCat(szFrom, 128, "\x0A|\x07热度+10");
+		}
+		else
+		{
+			m_iCredits += 1;
+			StrCat(szFrom, 128, "\x0A|\x07热度+1");
+		}
 	}
 	
 	if(g_bNightfever)

@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3.2r2 - 2016/12/14 05:43 - new syntax[6018] "
+#define PLUGIN_VERSION " 3.3.2r4 - 2016/12/17 07:10 - new syntax[6018] "
 #define PLUGIN_URL ""
 
 //////////////////////////////

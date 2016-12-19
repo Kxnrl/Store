@@ -91,7 +91,15 @@ public Action OnChatMessage(int &client, Handle recipients, char[] name, char[] 
 		StrCat(STRING(m_szNameTag), g_szNameTags[m_iNameTag]);
 	}
 	else
-		StrCat(STRING(m_szNameTag), "{lightblue}[CG社区] {teamcolor}");
+	{
+		switch(VIP_GetVipType(client))
+		{
+			case 3: StrCat(STRING(m_szNameTag), "{purple}[SVIP] {teamcolor}");
+			case 2: StrCat(STRING(m_szNameTag), "{orange}[AVIP] {teamcolor}");
+			case 1: StrCat(STRING(m_szNameTag), "{silver}[MVIP] {teamcolor}");
+			case 0: StrCat(STRING(m_szNameTag), "{lightblue}[CG社区] {teamcolor}");
+		}
+	}
 
 	if(m_iEquippedNameColor >= 0)
 	{
@@ -140,47 +148,13 @@ stock void GetColorAuthName(int client, char[] buffer, int maxLen)
 {
 	int authorized = PA_GetGroupID(client);
 	PA_GetGroupName(client, buffer, maxLen);
-		
-	if(1 <= authorized < 400) 
-		Format(buffer, maxLen, "{default}[{blue}%s{default}]", buffer);
-	else if(authorized == 401) 
-		Format(buffer, maxLen, "{lightblue}[%s]", buffer);
-	else if(authorized == 402) 
-		Format(buffer, maxLen, "{lightred}[%s]", buffer);
-	else if(authorized == 403) 
-		Format(buffer, maxLen, "{darkred}[%s]", buffer);
-	else if(authorized == 404) 
-		Format(buffer, maxLen, "{darkorange}[%s]", buffer);
-	else if(authorized == 405) 
-		Format(buffer, maxLen, "{orange}[%s]", buffer);
-	else if(504 > authorized >= 501) 
-		Format(buffer, maxLen, "{default}[{blue}%s{default}]", buffer);
-	else if(authorized == 9000)
-		Format(buffer, maxLen, "{default}[{darkred}%s{default}]", buffer);
-	else if(authorized == 9001)
-		Format(buffer, maxLen, "{default}[{darkred}%s{default}]", buffer);
-	else if(9990 > authorized >= 9100)
-		Format(buffer, maxLen, "{default}[{blue}%s{default}]", buffer);
-	else if(authorized == 9992) 
-		Format(buffer, maxLen, "{green}[%s]", buffer);
-	else if(authorized == 9993) 
-		Format(buffer, maxLen, "{green}[%s]", buffer);
-	else if(authorized == 9994) 
-		Format(buffer, maxLen, "{green}[%s]", buffer);
-	else if(authorized == 9995) 
-		Format(buffer, maxLen, "{orange}[{lightred}%s{orange}]", buffer);
-	else if(authorized == 9996) 
-		Format(buffer, maxLen, "{green}[%s]", buffer);
-	else if(authorized == 9997) 
-		Format(buffer, maxLen, "{green}[%s]", buffer);
-	else if(authorized == 9998) 
-		Format(buffer, maxLen, "{green}[%s]", buffer);
-	else if(authorized == 9999) 
-		Format(buffer, maxLen, "{darkorange}[{purple}%s{darkorange}]", buffer);
-	else if(authorized == 9951) 
-		Format(buffer, maxLen, "{default}[{orange}%s{default}]", buffer);
-	else if(authorized == 9952) 
-		Format(buffer, maxLen, "{default}[{orange}%s{default}]", buffer);
-	else
+	
+	if(!authorized)
 		Format(buffer, maxLen, "{default}[{lightblue}%s{default}]", buffer);	
+	else if(9002 >= authorized >= 9000)
+		Format(buffer, maxLen, "{default}[{darkred}%s{default}]", buffer);
+	else if(authorized > 9990) 
+		Format(buffer, maxLen, "{green}[{purple}%s{green}]", buffer);
+	else 
+		Format(buffer, maxLen, "{yellow}[{blue}%s{yellow}]", buffer);
 }

@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3.2r4 - 2016/12/17 07:10 - new syntax[6018] "
+#define PLUGIN_VERSION " 3.3.3 - 2016/12/19 23:13 - new syntax[6018] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -88,7 +88,6 @@ int g_iMenuClient[MAXPLAYERS+1];
 int g_iMenuNum[MAXPLAYERS+1];
 int g_iSpam[MAXPLAYERS+1];
 
-
 bool g_bInvMode[MAXPLAYERS+1];
 
 bool g_bGameModeZE;
@@ -105,6 +104,7 @@ bool g_bGameModeHZ;
 bool g_bLateLoad;
 bool g_bItemSourceSQL = false;
 char g_szLogFile[128];
+char g_szTempole[128];
 
 //////////////////////////////
 //			MODULES			//
@@ -1986,19 +1986,23 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			g_eClientItems[target][m_iId][iDateOfPurchase] = GetTime();
 			g_eClientItems[target][m_iId][iDateOfExpiration] = (plan==-1?0:(g_ePlans[itemid][plan][iTime]?GetTime()+g_ePlans[itemid][plan][iTime]:0));
 			g_eClientItems[target][m_iId][iPriceOfPurchase] = m_iPrice;
-			g_eClientItems[target][m_iId][bSynced] = false;
+			g_eClientItems[target][m_iId][bSynced] = true; //false
 			g_eClientItems[target][m_iId][bDeleted] = false;
 
 			g_eClients[target][iCredits] -= m_iPrice;
 
 			Store_LogMessage(target, -m_iPrice, true, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+			LogToFileEx(g_szTempole, "%N 购买了 %s %s", target, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
-			// 购买回写
+			//购买回写
+			char m_szQuery[256];
+			Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[target][iId], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], g_eItems[itemid][szUniqueId], GetTime(), g_eClientItems[target][m_iId][iDateOfExpiration], g_eClientItems[target][m_iId][iPriceOfPurchase]);
+			SQL_TVoid(g_hDatabase, m_szQuery);
 			Store_SaveClientAll(target);
 
 			Chat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 			Command_Store(target, 0);
-			Chat(target, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
+			//Chat(target, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 		}
 	}
 }
@@ -2028,9 +2032,10 @@ public int Store_SellItem(int client, int itemid)
 
 	g_eClients[client][iCredits] += m_iCredits;
 	Chat(client, "%t", "Chat Sold Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-	Chat(client, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
+	//Chat(client, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 	
-	Store_LogMessage(client, m_iCredits, true, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+	Store_LogMessage(client, m_iCredits, false, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+	LogToFileEx(g_szTempole, "%N 卖掉了 %s %s", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
 	Store_RemoveItem(client, itemid);
 	
@@ -2532,6 +2537,7 @@ void SetThirdperson(int client, bool tp)
 void BuildTempLogFile()
 {
 	BuildPath(Path_SM, g_szLogFile, 128, "data/store.log.kv.txt");
+	BuildPath(Path_SM, g_szTempole, 128, "data/store.buy.sell.txt");
 	
 	if(g_hKeyValue != INVALID_HANDLE)
 		CloseHandle(g_hKeyValue);

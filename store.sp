@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3.3 - 2016/12/19 23:13 - new syntax[6018] "
+#define PLUGIN_VERSION " 3.3.3 - 2016/12/21 05:21 - new syntax[6018] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -122,11 +122,11 @@ char g_szTempole[128];
 
 public Plugin myinfo = 
 {
-	name = PLUGIN_NAME,
-	author = PLUGIN_AUTHOR,
-	description = PLUGIN_DESCRIPTION,
-	version = PLUGIN_VERSION,
-	url = PLUGIN_URL
+	name		= PLUGIN_NAME,
+	author		= PLUGIN_AUTHOR,
+	description	= PLUGIN_DESCRIPTION,
+	version		= PLUGIN_VERSION,
+	url			= PLUGIN_URL
 };
 
 //////////////////////////////
@@ -142,8 +142,6 @@ public void OnPluginStart()
 		g_eClients[i][iOriginalCredits] = 0;
 		g_eClients[i][iItems] = -1;
 	}
-	
-	CheckGameMode();
 
 	// Register ConVars
 	g_cvarGiftEnabled = RegisterConVar("sm_store_enable_gifting", "1", "Enable/disable gifting of already bought items. [1=everyone, 2=admins only]", TYPE_INT);
@@ -172,20 +170,21 @@ public void OnPluginStart()
 	Models_OnPluginStart();
 	Sounds_OnPluginStart();
 
-	// Load the config file
-	Store_ReloadConfig();
-
 	// After every module was loaded we are ready to generate the cfg
 	AutoExecConfig(true, "NewStore");
+	
+	if(g_bLateLoad)
+		CreateTimer(1.0, LoadConfig);
 }
 
-public void OnAllPluginsLoaded()
+public void CG_OnServerLoaded()
 {
 	CreateTimer(1.0, LoadConfig);
 }
 
 public Action LoadConfig(Handle timer)
 {
+	CheckGameMode();
 	Store_ReloadConfig();
 }
 
@@ -1992,17 +1991,17 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			g_eClients[target][iCredits] -= m_iPrice;
 
 			Store_LogMessage(target, -m_iPrice, true, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-			LogToFileEx(g_szTempole, "%N 购买了 %s %s", target, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+			LogToFileEx(g_szTempole, "%N 购买了 %s %s[%d]", target, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], m_iPrice);
 
 			//购买回写
-			char m_szQuery[256];
+			char m_szQuery[512];
 			Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[target][iId], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], g_eItems[itemid][szUniqueId], GetTime(), g_eClientItems[target][m_iId][iDateOfExpiration], g_eClientItems[target][m_iId][iPriceOfPurchase]);
 			SQL_TVoid(g_hDatabase, m_szQuery);
 			Store_SaveClientAll(target);
 
 			Chat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 			Command_Store(target, 0);
-			//Chat(target, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
+			Chat(target, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 		}
 	}
 }
@@ -2012,9 +2011,9 @@ int Store_BuyItem(int client)
 	int target = g_iMenuClient[client];
 	if(Store_HasClientItem(target, g_iSelectedItem[client]))
 		return;
-	char m_ccQuery[255];
-	Format(STRING(m_ccQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[target][iId]);
-	SQL_TQuery(g_hDatabase, SQLCallback_BuyItem, m_ccQuery, g_eClients[client][iUserId]);
+	char m_szQuery[255];
+	Format(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[target][iId]);
+	SQL_TQuery(g_hDatabase, SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
 }
 
 public int Store_SellItem(int client, int itemid)
@@ -2032,7 +2031,7 @@ public int Store_SellItem(int client, int itemid)
 
 	g_eClients[client][iCredits] += m_iCredits;
 	Chat(client, "%t", "Chat Sold Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-	//Chat(client, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
+	Chat(client, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 	
 	Store_LogMessage(client, m_iCredits, false, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 	LogToFileEx(g_szTempole, "%N 卖掉了 %s %s", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
@@ -2451,14 +2450,14 @@ void CheckGameMode()
 		g_bGameModeNJ = true;
 	else if(FindPluginByFile("hg.smx"))
 		g_bGameModeHG = true;
-	else if(FindPluginByFile("public_ext.smx"))
+	else if(FindPluginByFile("public_ext.smx") && CG_GetServerID() == 6)
 		g_bGameModeHZ = true;
 	else
 		g_bGameModePR = true;
 	
-	
 	// prevent conplie warning!
-	if(g_bGameModeTT || g_bGameModeDR || g_bGameModeHG || g_bGameModeJB || g_bGameModeKZ || g_bGameModeMG || g_bGameModeNJ || g_bGameModePR || g_bGameModeZE || g_bGameModeHZ){}
+	if(g_bGameModeTT || g_bGameModeDR || g_bGameModeHG || g_bGameModeJB || g_bGameModeKZ || g_bGameModeMG || g_bGameModeNJ || g_bGameModePR || g_bGameModeZE || g_bGameModeHZ)
+		PrintToServer("[Store]  Loaded Successful!");
 }
 
 bool Store_IsWhiteList(int client)
@@ -2538,55 +2537,11 @@ void BuildTempLogFile()
 {
 	BuildPath(Path_SM, g_szLogFile, 128, "data/store.log.kv.txt");
 	BuildPath(Path_SM, g_szTempole, 128, "data/store.buy.sell.txt");
-	
+
 	if(g_hKeyValue != INVALID_HANDLE)
 		CloseHandle(g_hKeyValue);
 	
 	g_hKeyValue = CreateKeyValues("store_logs", "", "");
-/*	
-	FileToKeyValues(g_hKeyValue, g_szLogFile);
 
-	while(KvGotoFirstSubKey(g_hKeyValue, true))
-	{
-		char m_szAuthId[32];
-		KvGetSectionName(g_hKeyValue, m_szAuthId, 32);
-		int connect = KvGetNum(g_hKeyValue, "Connect", 0);
-		
-		while(KvGotoFirstSubKey(g_hKeyValue, true))
-		{
-			char m_szReason[128];
-			KvGetSectionName(g_hKeyValue, m_szReason, 128);
-
-			if(StrEqual(m_szReason, "Connect"))
-			{
-				KvDeleteThis(g_hKeyValue);
-				KvGetSectionName(g_hKeyValue, m_szReason, 128);
-			}
-			
-			int credits = KvGetNum(g_hKeyValue, "Credits", 0);
-			int endtime = KvGetNum(g_hKeyValue, "LastTime", 0);
-
-			char m_szEreason[192], m_szQuery[256];
-			SQL_EscapeString(g_hDatabase, m_szReason, m_szEreason, 192);
-			Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES((SELECT id FROM store_players WHERE authid = '%s' ORDER BY id ASC LIMIT 1), %d, \"%d_%s\", %d)", m_szAuthId[8], credits, endtime, m_szEreason, connect);
-			SQL_TVoid(g_hDatabase, m_szQuery);
-			
-			if(KvDeleteThis(g_hKeyValue))
-			{
-				char m_szAfter[32];
-				KvGetSectionName(g_hKeyValue, m_szAfter, 32);
-				if(StrContains(m_szAfter, "STEAM", false) == -1)
-					KvGoBack(g_hKeyValue);
-			}
-		}
-		
-		if(!KvGotoFirstSubKey(g_hKeyValue, true))
-			KvDeleteThis(g_hKeyValue);
-		
-		KvRewind(g_hKeyValue);
-	}
-
-	KvRewind(g_hKeyValue);
-*/
 	KeyValuesToFile(g_hKeyValue, g_szLogFile);
 }

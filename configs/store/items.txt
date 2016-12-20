@@ -6408,12 +6408,12 @@
 	}
 	"VIP"
 	{
-		"购买VIP一个月 - 16888"
+		"购买VIP"
 		{
 			"type"		"buyvip"
 			"price"		"0"
 		}
-		"Buy Monthly VIP - 16888"
+		"Buy VIP"
 		{
 			"type"		"buyvip"
 			"price"		"0"

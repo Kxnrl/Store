@@ -64,10 +64,6 @@ enum Menu_Handler
 Handle g_hDatabase = INVALID_HANDLE;
 Handle g_hKeyValue = INVALID_HANDLE;
 
-int g_cvarGiftEnabled = -1;
-int g_cvarConfirmation = -1;
-int g_cvarShowVIP = -1;
-
 Store_Item g_eItems[STORE_MAX_ITEMS][Store_Item];
 Client g_eClients[MAXPLAYERS+1][Client];
 Client_Item g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
@@ -144,11 +140,6 @@ public void OnPluginStart()
 		g_eClients[i][iItems] = -1;
 	}
 
-	// Register ConVars
-	g_cvarGiftEnabled = RegisterConVar("sm_store_enable_gifting", "1", "Enable/disable gifting of already bought items. [1=everyone, 2=admins only]", TYPE_INT);
-	g_cvarConfirmation = RegisterConVar("sm_store_confirmation_windows", "1", "Enable/disable confirmation windows.", TYPE_INT);
-	g_cvarShowVIP = RegisterConVar("sm_store_show_vip_items", "1", "If you enable this VIP items will be shown in grey.", TYPE_INT);
-
 	// Register Commands
 	RegConsoleCmd("sm_store", Command_Store);
 	RegConsoleCmd("buyammo1", Command_Store);
@@ -213,6 +204,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_DisplayConfirmMenu", Native_DisplayConfirmMenu);
 	CreateNative("Store_ShouldConfirm", Native_ShouldConfirm);
 	CreateNative("Store_GiveItem", Native_GiveItem);
+	CreateNative("Store_GetItem", Native_GetItemId);
 	CreateNative("Store_RemoveItem", Native_RemoveItem);
 	CreateNative("Store_GetClientTarget", Native_GetClientTarget);
 	CreateNative("Store_GiveClientItem", Native_GiveClientItem);
@@ -314,6 +306,17 @@ public int CG_APIStoreGetCredits(int client)
 //////////////////////////////
 //			NATIVES			//
 //////////////////////////////
+public int Native_GetItemId(Handle myself, int numParams)
+{
+	char type[32], uid[256];
+	if(GetNativeString(1, type, 32) != SP_ERROR_NONE)
+		return -1;
+	if(GetNativeString(1, uid, 256) != SP_ERROR_NONE)
+		return -1;
+	
+	return Store_GetItemId(type, uid, -1);
+}
+
 public int Native_SaveClientAll(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
@@ -543,7 +546,7 @@ public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
 
 public int Native_ShouldConfirm(Handle myself, int numParams)
 {
-	return g_eCvars[g_cvarConfirmation][aCache];
+	return 1;
 }
 
 public int Native_GiveItem(Handle myself, int numParams)
@@ -838,7 +841,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "sell_package", "%t", "Package Sell", RoundToFloor(g_eItems[parent][iPrice]*0.6));
 				++m_iPosition;
 
-				if(g_eCvars[g_cvarGiftEnabled][aCache] == 1 && g_eItems[parent][bGiftable])
+				if(g_eItems[parent][bGiftable])
 				{
 					AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "gift_package", "%t", "Package Gift");
 					++m_iPosition;
@@ -861,7 +864,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 	
 	for(int i = 0; i < g_iItems; ++i)
 	{
-		if(g_eItems[i][iParent]==parent && (g_eCvars[g_cvarShowVIP][aCache] == 0 && GetClientPrivilege(target, g_eItems[i][iFlagBits], m_iFlags) || g_eCvars[g_cvarShowVIP][aCache]))
+		if(g_eItems[i][iParent]==parent)
 		{
 			int m_iPrice = Store_GetLowestPrice(i);
 
@@ -872,9 +875,9 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 					continue;
 
 				int m_iStyle = ITEMDRAW_DEFAULT;
-				if(g_eCvars[g_cvarShowVIP][aCache] && !GetClientPrivilege(target, g_eItems[i][iFlagBits], m_iFlags))
+				if(!GetClientPrivilege(target, g_eItems[i][iFlagBits], m_iFlags))
 					m_iStyle = ITEMDRAW_DISABLED;
-				
+
 				IntToString(i, STRING(m_szId));
 				if(g_eItems[i][iPrice] == -1 || Store_HasClientItem(target, i))
 					AddMenuItem(m_hMenu, m_szId, g_eItems[i][szName], m_iStyle);
@@ -898,7 +901,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 				else if(!g_bInvMode[client])
 				{				
 					int m_iStyle = ITEMDRAW_DEFAULT;
-					if((g_eItems[i][iPlans]==0 && g_eClients[target][iCredits]<m_iPrice) || (g_eCvars[g_cvarShowVIP][aCache] && !GetClientPrivilege(target, g_eItems[i][iFlagBits], m_iFlags)))
+					if((g_eItems[i][iPlans]==0 && g_eClients[target][iCredits]<m_iPrice) || !GetClientPrivilege(target, g_eItems[i][iFlagBits], m_iFlags))
 						m_iStyle = ITEMDRAW_DISABLED;
 					
 					if(!g_eItems[i][bBuyable])
@@ -962,18 +965,10 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 			// We are selling a package
 			if(strcmp(m_szId, "sell_package")==0)
 			{
-				if(g_eCvars[g_cvarConfirmation][aCache])
-				{
-					char m_szTitle[128];
-					Format(STRING(m_szTitle), "%t", "Confirm_Sell", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], RoundToFloor(g_eItems[g_iSelectedItem[client]][iPrice]*0.6));
-					Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 1);
-					return;
-				}
-				else
-				{
-					Store_SellItem(target, g_iSelectedItem[client]);
-					Store_DisplayPreviousMenu(client);
-				}
+				char m_szTitle[128];
+				Format(STRING(m_szTitle), "%t", "Confirm_Sell", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], RoundToFloor(g_eItems[g_iSelectedItem[client]][iPrice]*0.6));
+				Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 1);
+				return;
 			}
 			// We are gifting a package
 			else if(strcmp(m_szId, "gift_package")==0)
@@ -1011,15 +1006,12 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 						return;
 					}
 					else
-						if(g_eCvars[g_cvarConfirmation][aCache])
-						{
-							char m_szTitle[128];
-							Format(STRING(m_szTitle), "%t", "Confirm_Buy", g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
-							Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
-							return;
-						}
-						else
-							Store_BuyItem(client);
+					{
+						char m_szTitle[128];
+						Format(STRING(m_szTitle), "%t", "Confirm_Buy", g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+						Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
+						return;
+					}
 				}
 				
 				if(g_eItems[m_iId][iHandler] != g_iPackageHandler)
@@ -1130,7 +1122,7 @@ public int DisplayItemMenu(int client, int itemid)
 			}
 
 			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "%t", "Item Sell", m_iCredits);
-			if(g_eCvars[g_cvarGiftEnabled][aCache] == 1 && g_eItems[itemid][bGiftable])
+			if(g_eItems[itemid][bGiftable])
 				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "%t", "Item Gift");
 		}
 	}
@@ -1177,18 +1169,10 @@ public int MenuHandler_Plan(Handle menu, MenuAction action, int client, int para
 		g_iSelectedPlan[client]=param2;
 		g_iMenuNum[client]=5;
 
-		if(g_eCvars[g_cvarConfirmation][aCache])
-		{
-			char m_szTitle[128];
-			Format(STRING(m_szTitle), "%t", "Confirm_Buy", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType]);
-			Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
-			return;
-		}
-		else
-		{
-			Store_BuyItem(client);
-			DisplayItemMenu(client, g_iSelectedItem[client]);
-		}
+		char m_szTitle[128];
+		Format(STRING(m_szTitle), "%t", "Confirm_Buy", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType]);
+		Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
+		return;
 	}
 	else if(action==MenuAction_Cancel)
 		if (param2 == MenuCancel_ExitBack)
@@ -1247,29 +1231,21 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
 			// Player wants to sell this item
 			else if(m_iId == 1)
 			{
-				if(g_eCvars[g_cvarConfirmation][aCache])
+				int m_iCredits = RoundToFloor(Store_GetClientItemPrice(client, g_iSelectedItem[client])*0.6);
+				int uid = Store_GetClientItemId(client, g_iSelectedItem[client]);
+				if(g_eClientItems[client][uid][iDateOfExpiration] != 0)
 				{
-					int m_iCredits = RoundToFloor(Store_GetClientItemPrice(client, g_iSelectedItem[client])*0.6);
-					int uid = Store_GetClientItemId(client, g_iSelectedItem[client]);
-					if(g_eClientItems[client][uid][iDateOfExpiration] != 0)
-					{
-						int m_iLength = g_eClientItems[client][uid][iDateOfExpiration]-g_eClientItems[client][uid][iDateOfPurchase];
-						int m_iLeft = g_eClientItems[client][uid][iDateOfExpiration]-GetTime();
-						if(m_iLeft < 0)
-							m_iLeft = 0;
-						m_iCredits = RoundToCeil(m_iCredits*float(m_iLeft)/float(m_iLength));
-					}
+					int m_iLength = g_eClientItems[client][uid][iDateOfExpiration]-g_eClientItems[client][uid][iDateOfPurchase];
+					int m_iLeft = g_eClientItems[client][uid][iDateOfExpiration]-GetTime();
+					if(m_iLeft < 0)
+						m_iLeft = 0;
+					m_iCredits = RoundToCeil(m_iCredits*float(m_iLeft)/float(m_iLength));
+				}
 
-					char m_szTitle[128];
-					Format(STRING(m_szTitle), "%t", "Confirm_Sell", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], m_iCredits);
-					g_iMenuNum[client] = 2;
-					Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Item, 0);
-				}
-				else
-				{
-					Store_SellItem(target, g_iSelectedItem[client]);
-					Store_DisplayPreviousMenu(client);
-				}
+				char m_szTitle[128];
+				Format(STRING(m_szTitle), "%t", "Confirm_Sell", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], m_iCredits);
+				g_iMenuNum[client] = 2;
+				Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Item, 0);
 			}
 			// Player wants to gift this item
 			else if(m_iId == 2)
@@ -1367,16 +1343,9 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
 				
 			m_iItem = Store_GetClientItemId(target, g_iSelectedItem[client]);
 			
-			if(g_eCvars[g_cvarConfirmation][aCache])
-			{
-				char m_szTitle[128];
-				Format(STRING(m_szTitle), "%t", "Confirm_Gift", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], g_eClients[m_iReceiver][szName]);
-				Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Gift, m_iId);
-				return;
-			}
-			else
-				Store_GiftItem(target, m_iReceiver, m_iItem);
-			Store_DisplayPreviousMenu(client);
+			char m_szTitle[128];
+			Format(STRING(m_szTitle), "%t", "Confirm_Gift", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], g_eClients[m_iReceiver][szName]);
+			Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Gift, m_iId);
 		}
 	}
 	else if(action==MenuAction_Cancel)
@@ -1674,12 +1643,12 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 		{
 			if(!Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl")))
 			{
-				PrintToChat(client, "[\x0EPlaneptune\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了一个[\x04害怕/滑稽\x01](\x0C30天\x01)");
+				PrintToChat(client, "[\x0CCG\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了一个[\x04害怕/滑稽\x01](\x0C30天\x01)");
 				Store_GiveItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"), GetTime(), GetTime()+2592000, 300);
 			}
 			else
 			{
-				PrintToChat(client, "[\x0EPlaneptune\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了[\x046666信用点\x01]");
+				PrintToChat(client, "[\x0CCG\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了[\x046666信用点\x01]");
 				Store_SetClientCredits(client, Store_GetClientCredits(client)+6666, "老玩家回归");
 			}
 		}
@@ -2360,10 +2329,8 @@ int Store_GetEquippedItemFromHandler(int client, int handler, int slot = 0)
 bool Store_PackageHasClientItem(int client, int packageid, bool invmode = false)
 {
 	int m_iFlags = GetUserFlagBits(client);
-	if(!g_eCvars[g_cvarShowVIP][aCache] && !GetClientPrivilege(client, g_eItems[packageid][iFlagBits], m_iFlags))
-		return false;
 	for(int i =0;i<g_iItems;++i)
-		if(g_eItems[i][iParent] == packageid && (g_eCvars[g_cvarShowVIP][aCache] || GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags)) && (invmode && Store_HasClientItem(client, i) || !invmode))
+		if(g_eItems[i][iParent] == packageid && GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) && (invmode && Store_HasClientItem(client, i) || !invmode))
 			if((g_eItems[i][iHandler] == g_iPackageHandler && Store_PackageHasClientItem(client, i, invmode)) || g_eItems[i][iHandler] != g_iPackageHandler)
 				return true;
 	return false;

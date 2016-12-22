@@ -3,17 +3,12 @@ int g_iSprayPrecache[STORE_MAX_ITEMS] = {-1,...};
 int g_iSprayCache[MAXPLAYERS+1] = {-1,...};
 int g_iSprayLimit[MAXPLAYERS+1] = {0,...};
 int g_iSprays = 0;
-int g_cvarSprayLimit = -1;
-int g_cvarSprayDistance = -1;
 int g_iCGLOGO = -1;
 
 public void Sprays_OnPluginStart()
 {
 	if(g_bGameModePR)
 		return;
-
-	g_cvarSprayLimit = RegisterConVar("sm_store_spray_limit", "30", "Number of seconds between two sprays", TYPE_INT);
-	g_cvarSprayDistance = RegisterConVar("sm_store_spray_distance", "115", "Distance from wall to spray", TYPE_FLOAT);
 
 	Store_RegisterHandler("spray", "material", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
 	
@@ -118,15 +113,14 @@ public void Sprays_Create(int client)
 	GetPlayerEyeViewPoint(client, m_flView);
 	
 	float distance = GetVectorDistance(m_flEye, m_flView);
-	//PrintToChat(client, "distance_%f cvar1_%f cvar2_%d ", distance, g_eCvars[g_cvarSprayDistance][aCache], g_eCvars[g_cvarSprayLimit][aCache]);
 
-	if(distance > view_as<float>(g_eCvars[g_cvarSprayDistance][aCache]))
+	if(distance > 115.0)
 	{
-		PrintToChat(client, "\x01 \x04[Store]  \x01距离太远");
+		PrintToChat(client, "\x01 \x04[Store]  \x0喷漆距离太远");
 		if(PA_GetGroupID(client) == 9999)
 			g_iSprayLimit[client] = GetTime()+3;
 		else
-			g_iSprayLimit[client] = GetTime()+g_eCvars[g_cvarSprayLimit][aCache];
+			g_iSprayLimit[client] = GetTime()+30;
 		return;	
 	}
 
@@ -140,7 +134,7 @@ public void Sprays_Create(int client)
 	if(PA_GetGroupID(client) == 9999)
 		g_iSprayLimit[client] = GetTime()+3;
 	else
-		g_iSprayLimit[client] = GetTime()+g_eCvars[g_cvarSprayLimit][aCache];
+		g_iSprayLimit[client] = GetTime()+30;
 	
 	//PrintToChatAll("\x01 \x04[Store]   \x0C%N\x10 使用了喷漆 \x01[(bind t spray)来使用]", client);
 }

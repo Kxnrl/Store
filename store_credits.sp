@@ -252,7 +252,7 @@ public Action CreditTimer(Handle timer, int client)
 	int m_iVitality = CG_GetVitality(client);
 	if(m_iVitality)
 	{
-		StrCat(szReason, 128, "热度");	
+		StrCat(szReason, 128, " 热度");	
 		if(100 > m_iVitality >= 60)
 		{
 			m_iCredits += 2;
@@ -297,8 +297,10 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szReason, 128, "午夜党福利");		
 	}
 	
-	StrCat(szFrom, 128, "\x10]");
-	StrCat(szReason, 128, "]");
+	m_iCredits *= 2;
+	
+	StrCat(szFrom, 128, "\x0A|\x0C新年加倍\x10]");
+	StrCat(szReason, 128, " 新年加倍]");
 
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
@@ -329,8 +331,8 @@ public void CG_OnClientDailySign(int client)
 
 void Active_GiveSignCredits(int client)
 {
-	int Credits = GetRandomInt(1, 500);
+	int Credits = GetRandomInt(2, 600);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
-	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01", PLUGIN_PREFIX, client, Credits);
+	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01(\x0C新年加倍\x01)", PLUGIN_PREFIX, client, Credits);
 	PrintToChat(client,"%s \x10你获得了\x04%d \x0F信用点 \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
 }

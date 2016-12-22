@@ -1,42 +1,9 @@
 #define STRING(%1) %1, sizeof(%1)
-#define CVAR_LENGTH 128
-#define MAX_CVARS 128
 
 Handle g_hNormalTrie;
 Handle g_hCachedFiles;
 Handle g_hCachedNums;
 Handle g_hCustomFiles;
-
-enum CVAR_TYPE
-{
-	TYPE_INT = 0,
-	TYPE_FLOAT,
-	TYPE_STRING,
-	TYPE_FLAG
-}
-
-enum CVAR_CACHE
-{
-	Handle:hCvar,
-	CVAR_TYPE:eType,
-	any:aCache,
-	String:sCache[CVAR_LENGTH],
-	Function:fnCallback
-}
-
-CVAR_CACHE g_eCvars[MAX_CVARS][CVAR_CACHE];
-int g_iCvars = 0;
-
-stock int RegisterConVar(char[] name, char[] value, char[] description, CVAR_TYPE type, Function callback = INVALID_FUNCTION, int flags = 0, bool hasMin = false, float min = 0.0, bool hasMax = false, float max = 0.0)
-{
-	Handle cvar = CreateConVar(name, value, description, flags, hasMin, min, hasMax, max);
-	HookConVarChange(cvar, GlobalConVarChanged);
-	g_eCvars[g_iCvars][hCvar] = cvar;
-	g_eCvars[g_iCvars][eType] = type;
-	g_eCvars[g_iCvars][fnCallback] = callback;
-	CacheCvarValue(g_iCvars);
-	return g_iCvars++;
-}
 
 stock int PrecacheModel2(const char[] model, bool preload = false)
 {
@@ -320,36 +287,6 @@ public void CacheDirectory(const char[] directory)
 		}
 	}
 	CloseHandle(m_hDir);
-}
-
-
-public void GlobalConVarChanged(Handle convar, const char[] oldValue, const char[] newValue)
-{
-	for(int i = 0; i < g_iCvars; ++i)
-		if(g_eCvars[i][hCvar] == convar)
-		{
-			CacheCvarValue(i);
-
-			if(g_eCvars[i][fnCallback]!=INVALID_FUNCTION)
-			{
-				Call_StartFunction(INVALID_HANDLE, g_eCvars[i][fnCallback]);
-				Call_PushCell(i);
-				Call_Finish();
-			}
-		
-			return;
-		}
-}
-
-public int CacheCvarValue(int index)
-{
-	GetConVarString(g_eCvars[index][hCvar], g_eCvars[index][sCache], 192);
-	if(g_eCvars[index][eType]==TYPE_INT)
-		g_eCvars[index][aCache] = GetConVarInt(g_eCvars[index][hCvar]);
-	else if(g_eCvars[index][eType]==TYPE_FLOAT)
-		g_eCvars[index][aCache] = GetConVarFloat(g_eCvars[index][hCvar]);
-	else if(g_eCvars[index][eType]==TYPE_FLAG)
-		g_eCvars[index][aCache] = ReadFlagString(g_eCvars[index][sCache]);
 }
 
 stock bool FileExists2(const char[] file)

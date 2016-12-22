@@ -22,6 +22,8 @@ stock bool IsValidClient(int client)
 
 stock void ReplaceColorsCode(char[] buffer, int maxLen)
 {
+	ReplaceString(buffer, maxLen, "{NORMAL}", "\x01", false);
+	ReplaceString(buffer, maxLen, "{HIGHLIGHT}", "\x04", false);
 	ReplaceString(buffer, maxLen, "{normal}", "\x01", false);
 	ReplaceString(buffer, maxLen, "{default}", "\x01", false);
 	ReplaceString(buffer, maxLen, "{white}", "\x01", false);
@@ -186,15 +188,11 @@ stock void SetMenuTitleEx(Handle menu, const char[] fmt, any ...)
 	SetMenuTitle(menu, m_szBuffer);
 }
 
-stock bool AddMenuItemEx(Handle menu, int style, const char[] info, const char[] display, any ...)
+stock bool AddMenuItemEx(Handle menu, int style, char[] info, char[] display, any ...)
 {
-	char m_szBuffer[256];
-	VFormat(m_szBuffer, 256, display, 5);
-
-	if(GetEngineVersion() != Engine_CSGO)
-		ReplaceString(m_szBuffer, 256, "\n", " - ");
-
-	return AddMenuItem(menu, info, m_szBuffer, style);
+	char m_display[256];
+	VFormat(m_display, sizeof(m_display), display, 5);
+	return (AddMenuItem(menu, info, m_display, style)?true:false);
 }
 
 stock void tPrintHintTextToAll(const char[] szMessage, any ...)
@@ -258,7 +256,7 @@ stock void tPrintToChat(int client, const char[] szMessage, any ...)
 	SetGlobalTransTarget(client);
 	VFormat(szBuffer, 256, szMessage, 3);
 	ReplaceColorsCode(szBuffer, 256);
-	PrintToChat(client, szBuffer);
+	PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
 }
 
 stock void tPrintToChatAll(const char[] szMessage, any ...)
@@ -272,7 +270,7 @@ stock void tPrintToChatAll(const char[] szMessage, any ...)
 			SetGlobalTransTarget(i);			
 			VFormat(szBuffer, 256, szMessage, 2);
 			ReplaceColorsCode(szBuffer, 256);
-			PrintToChat(i, "%s", szBuffer);
+			PrintToChat(i, "[\x04Store\x01]  %s", szBuffer);
 		}
 	}
 }

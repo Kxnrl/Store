@@ -330,7 +330,7 @@ public int Part_Config(Handle &kv, int itemid)
 public int PlayerSkins_Equip(int client, int id)
 {
 	if(Store_IsClientLoaded(client))
-		Chat(client, "%t", "PlayerSkins Settings Changed");
+		tPrintToChat(client, "%t", "PlayerSkins Settings Changed");
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
@@ -391,7 +391,7 @@ public int Part_Equip(int client, int id)
 public int PlayerSkins_Remove(int client, int id)
 {
 	if(Store_IsClientLoaded(client))
-		Chat(client, "%t", "PlayerSkins Settings Changed");
+		tPrintToChat(client, "%t", "PlayerSkins Settings Changed");
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
 

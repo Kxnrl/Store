@@ -528,13 +528,6 @@ public bool TraceRayDontHitSelf(int entity, int mask, any data)
 	return true;
 }
 
-stock bool AddMenuItemEx(Handle menu, int style, char[] info, char[] display, any ...)
-{
-	char m_display[256];
-	VFormat(m_display, sizeof(m_display), display, 5);
-	return (AddMenuItem(menu, info, m_display, style)?true:false);
-}
-
 stock bool GetClientPrivilege(int client, int flag, int flags = -1)
 {
 	if(flags==-1)

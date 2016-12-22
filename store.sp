@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3.3 - 2016/12/21 05:21 - new syntax[6018] "
+#define PLUGIN_VERSION " 3.3.3 - 2016/12/24 04:45 - new syntax[6018] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -18,6 +18,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <cg_core>
+#include <maoling>
 #include <store>
 #include <store_stock>
 
@@ -735,7 +736,7 @@ public Action Command_Store(int client, int args)
 {	
 	if((g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1) || !g_eClients[client][bLoaded])
 	{
-		Chat(client, "%t", "Inventory hasnt been fetched");
+		tPrintToChat(client, "%t", "Inventory hasnt been fetched");
 		return Plugin_Handled;
 	}
 
@@ -756,7 +757,7 @@ public Action Command_Inventory(int client, int args)
 {	
 	if((g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1) || !g_eClients[client][bLoaded])
 	{
-		Chat(client, "%t", "Inventory hasnt been fetched");
+		tPrintToChat(client, "%t", "Inventory hasnt been fetched");
 		return Plugin_Handled;
 	}
 	
@@ -777,7 +778,7 @@ public Action Command_Credits(int client, int args)
 {	
 	if(g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1)
 	{
-		Chat(client, "%t", "Inventory hasnt been fetched");
+		tPrintToChat(client, "%t", "Inventory hasnt been fetched");
 		return Plugin_Handled;
 	}
 	
@@ -789,7 +790,7 @@ public Action Command_Credits(int client, int args)
 
 	if(g_iSpam[client]<GetTime())
 	{
-		ChatAll("%t", "Player Credits", g_eClients[client][szName], g_eClients[client][iCredits]);
+		tPrintToChatAll("%t", "Player Credits", g_eClients[client][szName], g_eClients[client][iCredits]);
 		g_iSpam[client] = GetTime()+30;
 	}
 	
@@ -1322,7 +1323,7 @@ public int DisplayPlayerMenu(int client)
 		CloseHandle(m_hMenu);
 		g_iMenuNum[client] = 1;
 		DisplayItemMenu(client, g_iSelectedItem[client]);
-		Chat(client, "%t", "Gift No Players");
+		tPrintToChat(client, "%t", "Gift No Players");
 	}
 	else
 		DisplayMenu(m_hMenu, client, 0);
@@ -1344,7 +1345,7 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
 			m_iReceiver = GetClientOfUserId(param2);
 			if(!m_iReceiver)
 			{
-				Chat(client, "%t", "Gift Player Left");
+				tPrintToChat(client, "%t", "Gift Player Left");
 				return;
 			}
 			Store_GiftItem(target, m_iReceiver, m_iItem);
@@ -1360,7 +1361,7 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
 			m_iReceiver = GetClientOfUserId(m_iId);
 			if(!m_iReceiver)
 			{
-				Chat(client, "%t", "Gift Player Left");
+				tPrintToChat(client, "%t", "Gift Player Left");
 				return;
 			}
 				
@@ -1540,13 +1541,13 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 		{
 			Format(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', 300, %d, %d, '0')", g_eClients[client][szAuthId], g_eClients[client][szNameEscaped], m_iTime, m_iTime);
 			SQL_TQuery(g_hDatabase, SQLCallback_InsertClient, m_szQuery, userid);
-			g_eClients[client][iCredits] = 300;
-			g_eClients[client][iOriginalCredits] = 300;
+			g_eClients[client][iCredits] = 0;
+			g_eClients[client][iOriginalCredits] = 0;
 			g_eClients[client][iDateOfJoin] = m_iTime;
 			g_eClients[client][iDateOfLastJoin] = m_iTime;
 			g_eClients[client][bLoaded] = true;
 			g_eClients[client][iItems] = 0;
-			
+
 			if(g_bGameModePR)
 			{
 				Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"playerskin\", \"models/player/custom_player/maoling/haipa/haipa.mdl\", %d, %d, 300)", g_eClients[client][iId], GetTime(), GetTime()+604800);
@@ -1555,10 +1556,8 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			else
 			{
 				Store_GiveItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"), GetTime(), GetTime()+604800, 300);
-				PrintToChat(client, "[\x0EPlaneptune\x01]  作为新玩家你收到了赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
+				PrintToChat(client, "[\x0CCG\x01]  作为新玩家你收到了赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
 			}
-
-			Store_LogMessage(client, 300, true, "首次进服赠送");
 		}
 	}
 }
@@ -1999,9 +1998,9 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			SQL_TVoid(g_hDatabase, m_szQuery);
 			Store_SaveClientAll(target);
 
-			Chat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+			tPrintToChat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 			Command_Store(target, 0);
-			Chat(target, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
+			tPrintToChat(target, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 		}
 	}
 }
@@ -2030,8 +2029,8 @@ public int Store_SellItem(int client, int itemid)
 	}
 
 	g_eClients[client][iCredits] += m_iCredits;
-	Chat(client, "%t", "Chat Sold Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-	Chat(client, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
+	tPrintToChat(client, "%t", "Chat Sold Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+	tPrintToChat(client, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 	
 	Store_LogMessage(client, m_iCredits, false, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 	LogToFileEx(g_szTempole, "%N 卖掉了 %s %s", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
@@ -2064,8 +2063,8 @@ public int Store_GiftItem(int client, int receiver, int item)
 	
 	++g_eClients[receiver][iItems];
 
-	Chat(client, "%t", "Chat Gift Item Sent", g_eClients[receiver][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
-	Chat(receiver, "%t", "Chat Gift Item Received", g_eClients[target][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+	tPrintToChat(client, "%t", "Chat Gift Item Sent", g_eClients[receiver][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+	tPrintToChat(receiver, "%t", "Chat Gift Item Received", g_eClients[target][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
 
 	Store_LogMessage(client, 0, true, "赠送了 %s 给 %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
 	Store_LogMessage(receiver, 0, true, "收到了 %s 来自 %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);

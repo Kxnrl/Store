@@ -57,7 +57,7 @@ public void OnClientPostAdminCheck(int client)
 	if(g_hTimer[client] != INVALID_HANDLE)
 		KillTimer(g_hTimer[client]);
 	
-	g_hTimer[client] = CreateTimer(180.0, CreditTimer, client, TIMER_REPEAT);
+	g_hTimer[client] = CreateTimer(300.0, CreditTimer, client, TIMER_REPEAT);
 	
 	g_iNumPlayers = GetClientCount(true);
 }
@@ -144,7 +144,7 @@ public Action CreditTimer(Handle timer, int client)
 		PrintToChat(client, "%s  \x07观察者无法获得信用点", PLUGIN_PREFIX_CREDITS);
 		return Plugin_Continue;
 	}
-	
+
 	if(g_iNumPlayers < 6 && !FindPluginByFile("KZTimerGlobal.smx"))
 	{
 		PrintToChat(client, "%s  \x04玩家人数不足6人,不能获得在线奖励的信用点", PLUGIN_PREFIX_CREDITS);
@@ -230,8 +230,17 @@ public Action CreditTimer(Handle timer, int client)
 	if(g_bInMimiGameGroup[client] && !m_bGroupCreidts)
 	{
 		m_iCredits += 2;
+		m_bGroupCreidts = true;
 		StrCat(szFrom, 128, "\x0A|\x06娱乐挂壁+2");
 		StrCat(szReason, 128, "娱乐挂壁");
+	}
+	
+	if(g_bInZombieGroup[client] && !m_bGroupCreidts)
+	{
+		m_iCredits += 2;
+		m_bGroupCreidts = true;
+		StrCat(szFrom, 128, "\x0A|\x06祈り~+2");
+		StrCat(szReason, 128, "祈り~");
 	}
 	
 	if(g_bInOfficalGroup[client] && !m_bGroupCreidts)
@@ -304,7 +313,7 @@ public Action CreditTimer(Handle timer, int client)
 
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
-	PrintToChat(client, "%s \x10你获得了\x04 %d 信用点 \x01[\x0A180s/次\x01]", PLUGIN_PREFIX_CREDITS, m_iCredits);
+	PrintToChat(client, "%s \x10你获得了\x04 %d 信用点", PLUGIN_PREFIX_CREDITS, m_iCredits);
 	PrintToChat(client, " \x0A积分来自%s", szFrom);
 	
 	if(!g_bInOfficalGroup[client])

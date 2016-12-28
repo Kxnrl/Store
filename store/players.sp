@@ -554,7 +554,7 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
 		Store_RemoveClientNeon(client);
 		Store_RemoveClientPart(client);
 	}
-	
+
 	if(!IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
 		return Plugin_Continue;
 
@@ -743,17 +743,19 @@ void Store_PreSetClientModel(int client)
 		int m_iData = Store_GetDataIndex(m_iEquipped);
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 	}
-	else if(g_bGameModeZE)
+	else
 	{
 		int itemid = Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl");
-		if(Store_HasClientItem(client, itemid))
+		if(Store_HasClientItem(client, itemid) && (g_bGameModeTT || g_bGameModeJB || ((g_bGameModeHZ || g_bGameModeMG) && GetClientTeam(client) == 2)))
 		{
 			int m_iData = Store_GetDataIndex(itemid);
 			Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
+			tPrintToChat(client, "\x04新年大头派对,现已为你自动装备滑稽");
 		}
-		else if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
+		else if(g_bGameModeZE)
 		{
-			Store_SetClientModel(client, Model_ZE_Newbee, Arms_ZE_NewBee);
+			if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
+				Store_SetClientModel(client, Model_ZE_Newbee, Arms_ZE_NewBee);
 		}
 	}
 }

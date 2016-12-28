@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3.3 - 2016/12/24 04:45 - new syntax[6018] "
+#define PLUGIN_VERSION " 3.3.4r1 - 2016/12/28 11:01 - new syntax[6018] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -161,9 +161,6 @@ public void OnPluginStart()
 	Sprays_OnPluginStart();
 	Models_OnPluginStart();
 	Sounds_OnPluginStart();
-
-	// After every module was loaded we are ready to generate the cfg
-	AutoExecConfig(true, "NewStore");
 	
 	if(g_bLateLoad)
 		CreateTimer(1.0, LoadConfig);

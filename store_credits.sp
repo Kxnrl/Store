@@ -229,7 +229,7 @@ public Action CreditTimer(Handle timer, int client)
 	
 	if(g_bInMimiGameGroup[client] && !m_bGroupCreidts)
 	{
-		m_iCredits += 2;
+		m_iCredits += 3;
 		m_bGroupCreidts = true;
 		StrCat(szFrom, 128, "\x0A|\x06娱乐挂壁+2");
 		StrCat(szReason, 128, "娱乐挂壁");
@@ -237,7 +237,7 @@ public Action CreditTimer(Handle timer, int client)
 	
 	if(g_bInZombieGroup[client] && !m_bGroupCreidts)
 	{
-		m_iCredits += 2;
+		m_iCredits += 3;
 		m_bGroupCreidts = true;
 		StrCat(szFrom, 128, "\x0A|\x06祈り~+2");
 		StrCat(szReason, 128, "祈り~");

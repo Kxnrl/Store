@@ -389,6 +389,14 @@
 			}
 			"type"		"playerskin"
 		}
+		"Re0.艾米莉亚(Emilia) [新年活动模型]"
+		{
+			"model"		"models/player/custom_player/maoling/re0/emilia/emilia.mdl"
+			"arms"		"models/player/custom_player/maoling/re0/emilia/emilia_arms.mdl"
+			"team"		"2"
+			"flag"		"z"
+			"type"		"playerskin"
+		}
 		"犬走椛(Momiji) - 内测专属"
 		{
 			"model"		"models/player/custom_player/maoling/touhou/momiji/momiji.mdl"

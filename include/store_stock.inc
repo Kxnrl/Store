@@ -17,7 +17,6 @@ stock int PrecacheModel2(const char[] model, bool preload = false)
 	return PrecacheModel(model, preload);
 }
 
-
 char g_szModelExts[][16] = {".phy", ".dx90.vtx", ".vtx", ".vvd", ".ani"};
 stock int Downloader_AddFileToDownloadsTable(const char[] filename)
 {
@@ -171,7 +170,6 @@ stock int Downloader_GetMaterialsFromVMT(const char[] vmt, char[][] materials, i
 	return m_iNum;
 }
 
-
 stock int Downloader_ParseMDL(const char[] model, char[] internal, int maxlen1, char[][] files, int maxsize, int maxlen2)
 {
 	if(!FileExists2(model))
@@ -223,7 +221,6 @@ stock int Downloader_ParseMDL(const char[] model, char[] internal, int maxlen1, 
 
 	return x_iNum;
 }
-
 
 stock Handle OpenFile2(const char[] file, const char[] mode)
 {

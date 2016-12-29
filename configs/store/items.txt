@@ -130,8 +130,8 @@
 		}
 		"蝶祈(Inori)"
 		{
-			"model"		"models/player/custom_player/maoling/guilty_crown/inori/inori.mdl"
-			"arms"		"models/player/custom_player/maoling/guilty_crown/inori/inori_arms.mdl"
+			"model"		"models/player/custom_player/maoling/guilty_crown/inori_v2/inori.mdl"
+			"arms"		"models/player/custom_player/maoling/guilty_crown/inori_v2/inori_arms.mdl"
 			"team"		"2"
 			"Plans"
 			{
@@ -391,10 +391,11 @@
 		}
 		"Re0.艾米莉亚(Emilia) [新年活动模型]"
 		{
-			"model"		"models/player/custom_player/maoling/re0/emilia/emilia.mdl"
-			"arms"		"models/player/custom_player/maoling/re0/emilia/emilia_arms.mdl"
+			"model"		"models/player/custom_player/maoling/re0/emilia_v2/emilia.mdl"
+			"arms"		"models/player/custom_player/maoling/re0/emilia_v2/emilia_arms.mdl"
 			"team"		"2"
-			"flag"		"z"
+			"price"		"99999"
+			"buyable"	"0"
 			"type"		"playerskin"
 		}
 		"犬走椛(Momiji) - 内测专属"
@@ -474,6 +475,35 @@
 			"buyable"		"0"
 			"giftable"		"0"
 			"price"		"3000"
+			"type"		"playerskin"
+		}
+		"蕾姆(Rem)"
+		{
+			"model"		"models/player/custom_player/maoling/re0/rem/rem.mdl"
+			"arms"		"models/player/custom_player/maoling/re0/rem/rem_arms.mdl"
+			"team"		"3"
+			"Plans"
+			{
+				"1天"
+				{
+					"price"		"599"
+					"time"		"86400"
+				}
+				"1周"
+				{
+					"price"		"3999"
+					"time"		"604800"
+				}
+				"1月"
+				{
+					"price"		"16888"
+					"time"		"2678400"
+				}
+				"无限制"
+				{
+					"price"		"68888"
+				}
+			}
 			"type"		"playerskin"
 		}
 		"優尼(Uni)"
@@ -3104,168 +3134,164 @@
 				}
 			}
 		}
-		"匕首模型/皮肤"
+		"武器模型/皮肤[仅支持装备在原版皮肤上]"
 		{
-			"龙神剑"
+			"Knife"
 			{
-				"model"			"models/maoling/weapon/overwatch/knife/genji/katana_v.mdl"
-				"worldmodel"	"models/maoling/weapon/overwatch/knife/genji/katana_w.mdl"
-				"entity"		"weapon_knife"
-				"Plans"
+				"龙神剑"
 				{
-					"1天"
+					"model"			"models/maoling/weapon/overwatch/knife/genji/katana_v.mdl"
+					"worldmodel"	"models/maoling/weapon/overwatch/knife/genji/katana_w.mdl"
+					"entity"		"weapon_knife"
+					"Plans"
 					{
-						"price"		"666"
-						"time"		"86400"
+						"1天"
+						{
+							"price"		"666"
+							"time"		"86400"
+						}
+						"1周"
+						{
+							"price"		"3999"
+							"time"		"604800"
+						}
+						"1月"
+						{
+							"price"		"16888"
+							"time"		"2678400"
+						}
+						"无限制"
+						{
+							"price"		"88888"
+						}
 					}
-					"1周"
-					{
-						"price"		"3999"
-						"time"		"604800"
-					}
-					"1月"
-					{
-						"price"		"16888"
-						"time"		"2678400"
-					}
-					"无限制"
-					{
-						"price"		"88888"
-					}
+					"type"	"vwmodel" 
+					"slot" "2"
 				}
-				"type"	"vwmodel" 
-				"slot" "2"
-			}
-			"Zero Sword"
-			{
-				"model"			"models/maoling/weapon/borderlands2/knife/zero/sword_v.mdl"
-				"worldmodel"	"models/maoling/weapon/borderlands2/knife/zero/sword_w.mdl"
-				"entity"		"weapon_knife"
-				"price"			"99999999"
-				"buyable"		"0"
-				"type"			"vwmodel" 
-				"slot"			"2"
-			}
-			"PurpleHeart`s Sword 4"
-			{
-				"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_4_v.mdl"
-				"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_4_w.mdl"
-				"entity"		"weapon_knife"
-				"price"			"99999999"
-				"buyable"		"0"
-				"type"			"vwmodel" 
-				"slot"			"2"
-			}
-			"Neptune AWP"
-			{
-				"model"			"models/maoling/weapon/neptunia/awp/neptune/awp.mdl"
-				"worldmodel"	"models/maoling/weapon/neptunia/awp/neptune/awp_w.mdl"
-				"dropmodel"		"models/maoling/weapon/neptunia/awp/neptune/awp_w_dropped.mdl"
-				"entity"		"weapon_awp"
-				"price"			"99999999"
-				"buyable"		"0"
-				"type"			"vwmodel" 
-				"slot"			"0"
-			}
-			"PurpleHeart`s Sword 3"
-			{
-				"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_3_v.mdl"
-				"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_3_w.mdl"
-				"entity"		"weapon_knife"
-				"Plans"
+				"Zero Sword"
 				{
-					"1天"
-					{
-						"price"		"666"
-						"time"		"86400"
-					}
-					"1周"
-					{
-						"price"		"3999"
-						"time"		"604800"
-					}
-					"1月"
-					{
-						"price"		"16888"
-						"time"		"2678400"
-					}
-					"无限制"
-					{
-						"price"		"88888"
-					}
+					"model"			"models/maoling/weapon/borderlands2/knife/zero/sword_v.mdl"
+					"worldmodel"	"models/maoling/weapon/borderlands2/knife/zero/sword_w.mdl"
+					"entity"		"weapon_knife"
+					"price"			"99999999"
+					"buyable"		"0"
+					"type"			"vwmodel" 
+					"slot"			"2"
 				}
-				"type"			"vwmodel" 
-				"slot"			"2"
-			}
-			"PurpleHeart`s Sword 2"
-			{
-				"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_2_v.mdl"
-				"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_2_w.mdl"
-				"entity"		"weapon_knife"
-				"Plans"
+				"PurpleHeart`s Sword 4"
 				{
-					"1天"
-					{
-						"price"		"666"
-						"time"		"86400"
-					}
-					"1周"
-					{
-						"price"		"3999"
-						"time"		"604800"
-					}
-					"1月"
-					{
-						"price"		"16888"
-						"time"		"2678400"
-					}
-					"无限制"
-					{
-						"price"		"88888"
-					}
+					"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_4_v.mdl"
+					"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_4_w.mdl"
+					"entity"		"weapon_knife"
+					"price"			"99999999"
+					"buyable"		"0"
+					"type"			"vwmodel" 
+					"slot"			"2"
 				}
-				"type"			"vwmodel" 
-				"slot"			"2"
-			}
-			"PurpleHeart`s Sword 1"
-			{
-				"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_1_v.mdl"
-				"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_1_w.mdl"
-				"entity"		"weapon_knife"
-				"Plans"
+				"PurpleHeart`s Sword 3"
 				{
-					"1天"
+					"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_3_v.mdl"
+					"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_3_w.mdl"
+					"entity"		"weapon_knife"
+					"Plans"
 					{
-						"price"		"666"
-						"time"		"86400"
+						"1月"
+						{
+							"price"		"16888"
+							"time"		"2678400"
+						}
+						"无限制"
+						{
+							"price"		"88888"
+						}
 					}
-					"1周"
-					{
-						"price"		"3999"
-						"time"		"604800"
-					}
-					"1月"
-					{
-						"price"		"16888"
-						"time"		"2678400"
-					}
-					"无限制"
-					{
-						"price"		"88888"
-					}
+					"type"			"vwmodel" 
+					"slot"			"2"
 				}
-				"type"			"vwmodel" 
-				"slot"			"2"
+				"PurpleHeart`s Sword 2"
+				{
+					"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_2_v.mdl"
+					"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_2_w.mdl"
+					"entity"		"weapon_knife"
+					"Plans"
+					{
+						"1月"
+						{
+							"price"		"16888"
+							"time"		"2678400"
+						}
+						"无限制"
+						{
+							"price"		"88888"
+						}
+					}
+					"type"			"vwmodel" 
+					"slot"			"2"
+				}
+				"PurpleHeart`s Sword 1"
+				{
+					"model"			"models/maoling/weapon/neptunia/knife/neptune/sword_1_v.mdl"
+					"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/sword_1_w.mdl"
+					"entity"		"weapon_knife"
+					"Plans"
+					{
+						"1月"
+						{
+							"price"		"16888"
+							"time"		"2678400"
+						}
+						"无限制"
+						{
+							"price"		"88888"
+						}
+					}
+					"type"			"vwmodel" 
+					"slot"			"2"
+				}
+				"NextPurple`s Sword"
+				{
+					"model"			"models/maoling/weapon/neptunia/knife/neptune/nextpurple_sword_v.mdl"
+					"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/nextpurple_sword_w.mdl"
+					"entity"		"weapon_knife"
+					"Plans"
+					{
+						"1月"
+						{
+							"price"		"16888"
+							"time"		"2678400"
+						}
+						"无限制"
+						{
+							"price"		"88888"
+						}
+					}
+					"type"			"vwmodel" 
+					"slot"			"2"
+				}
 			}
-			"NextPurple`s Sword"
+			"AWP"
 			{
-				"model"			"models/maoling/weapon/neptunia/knife/neptune/nextpurple_sword_v.mdl"
-				"worldmodel"	"models/maoling/weapon/neptunia/knife/neptune/nextpurple_sword_w.mdl"
-				"entity"		"weapon_knife"
-				"price"			"99999999"
-				"buyable"		"0"
-				"type"			"vwmodel" 
-				"slot"			"2"
+				"Neptune AWP"
+				{
+					"model"			"models/maoling/weapon/neptunia/awp/neptune/awp.mdl"
+					"worldmodel"	"models/maoling/weapon/neptunia/awp/neptune/awp_w.mdl"
+					"dropmodel"		"models/maoling/weapon/neptunia/awp/neptune/awp_w_dropped.mdl"
+					"entity"		"weapon_awp"
+					"Plans"
+					{
+						"1月"
+						{
+							"price"		"24999"
+							"time"		"2678400"
+						}
+						"无限制"
+						{
+							"price"		"99999"
+						}
+					}
+					"type"			"vwmodel" 
+					"slot"			"0"
+				}
 			}
 		}
 	}

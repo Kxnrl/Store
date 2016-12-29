@@ -7,7 +7,7 @@
 #define PLUGIN_NAME "Store - The Resurrection"
 #define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3.4r1 - 2016/12/28 11:01 - new syntax[6018] "
+#define PLUGIN_VERSION " 3.3.4r2 - 2016/12/30 02:43 - new syntax[6018] "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -199,14 +199,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_SetClientCredits", Native_SetClientCredits);
 	CreateNative("Store_IsItemInBoughtPackage", Native_IsItemInBoughtPackage);
 	CreateNative("Store_DisplayConfirmMenu", Native_DisplayConfirmMenu);
-	CreateNative("Store_ShouldConfirm", Native_ShouldConfirm);
 	CreateNative("Store_GiveItem", Native_GiveItem);
 	CreateNative("Store_GetItem", Native_GetItemId);
 	CreateNative("Store_RemoveItem", Native_RemoveItem);
 	CreateNative("Store_GetClientTarget", Native_GetClientTarget);
-	CreateNative("Store_GiveClientItem", Native_GiveClientItem);
 	CreateNative("Store_HasClientItem", Native_HasClientItem);
-	CreateNative("Store_IterateEquippedItems", Native_IterateEquippedItems);
+	CreateNative("Store_ExtClientItem", Native_ExtClientItem);
+	CreateNative("Store_GetItemExpiration", Native_GetItemExpiration);
 	CreateNative("Store_SaveClientAll", Native_SaveClientAll);
 	CreateNative("Store_GetClientID", Native_GetClientID);
 	CreateNative("Store_IsClientBanned", Native_IsClientBanned);
@@ -308,7 +307,7 @@ public int Native_GetItemId(Handle myself, int numParams)
 	char type[32], uid[256];
 	if(GetNativeString(1, type, 32) != SP_ERROR_NONE)
 		return -1;
-	if(GetNativeString(1, uid, 256) != SP_ERROR_NONE)
+	if(GetNativeString(2, uid, 256) != SP_ERROR_NONE)
 		return -1;
 	
 	return Store_GetItemId(type, uid, -1);
@@ -541,11 +540,6 @@ public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
 	DisplayMenu(m_hMenu, client, 0);
 }
 
-public int Native_ShouldConfirm(Handle myself, int numParams)
-{
-	return 1;
-}
-
 public int Native_GiveItem(Handle myself, int numParams)
 {
 	int client = GetNativeCell(1);
@@ -553,18 +547,29 @@ public int Native_GiveItem(Handle myself, int numParams)
 	int purchase = GetNativeCell(3);
 	int expiration = GetNativeCell(4);
 	int price = GetNativeCell(5);
+	
+	if(!Store_HasClientItem(client, itemid))
+	{
+		int m_iDateOfPurchase = (purchase==0?GetTime():purchase);
+		int m_iDateOfExpiration = expiration;
 
-	int m_iDateOfPurchase = (purchase==0?GetTime():purchase);
-	int m_iDateOfExpiration = expiration;
-
-	int m_iId = g_eClients[client][iItems]++;
-	g_eClientItems[client][m_iId][iId] = -1;
-	g_eClientItems[client][m_iId][iUniqueId] = itemid;
-	g_eClientItems[client][m_iId][iDateOfPurchase] = m_iDateOfPurchase;
-	g_eClientItems[client][m_iId][iDateOfExpiration] = m_iDateOfExpiration;
-	g_eClientItems[client][m_iId][iPriceOfPurchase] = price;
-	g_eClientItems[client][m_iId][bSynced] = false;
-	g_eClientItems[client][m_iId][bDeleted] = false;
+		int m_iId = g_eClients[client][iItems]++;
+		g_eClientItems[client][m_iId][iId] = -1;
+		g_eClientItems[client][m_iId][iUniqueId] = itemid;
+		g_eClientItems[client][m_iId][iDateOfPurchase] = m_iDateOfPurchase;
+		g_eClientItems[client][m_iId][iDateOfExpiration] = m_iDateOfExpiration;
+		g_eClientItems[client][m_iId][iPriceOfPurchase] = price;
+		g_eClientItems[client][m_iId][bSynced] = false;
+		g_eClientItems[client][m_iId][bDeleted] = false;
+	}
+	else
+	{
+		int exp = Store_GetItemExpiration(client, itemid);
+		if(exp > 0 && exp < expiration)
+		{
+			Store_ExtClientItem(client, itemid, expiration);
+		}
+	}
 }
 
 public int Native_RemoveItem(Handle myself, int numParams)
@@ -591,32 +596,30 @@ public int Native_GetClientTarget(Handle myself, int numParams)
 	return g_iMenuClient[GetNativeCell(1)];
 }
 
-public int Native_GiveClientItem(Handle myself, int numParams)
+public int Native_GetItemExpiration(Handle myself, int numParams)
 {
 	int client = GetNativeCell(1);
-	int receiver = GetNativeCell(2);
-	int itemid = GetNativeCell(3);
-
-	int item = Store_GetClientItemId(client, itemid);
-	if(item == -1)
-		return 1;
-
-	int m_iId = g_eClientItems[client][item][iUniqueId];
-	int target = g_iMenuClient[client];
-	g_eClientItems[client][item][bDeleted] = true;
-	Store_UnequipItem(client, m_iId);
-
-	g_eClientItems[receiver][g_eClients[receiver][iItems]][iId] = -1;
-	g_eClientItems[receiver][g_eClients[receiver][iItems]][iUniqueId] = m_iId;
-	g_eClientItems[receiver][g_eClients[receiver][iItems]][bSynced] = false;
-	g_eClientItems[receiver][g_eClients[receiver][iItems]][bDeleted] = false;
-	g_eClientItems[receiver][g_eClients[receiver][iItems]][iDateOfPurchase] = g_eClientItems[target][item][iDateOfPurchase];
-	g_eClientItems[receiver][g_eClients[receiver][iItems]][iDateOfExpiration] = g_eClientItems[target][item][iDateOfExpiration];
-	g_eClientItems[receiver][g_eClients[receiver][iItems]][iPriceOfPurchase] = g_eClientItems[target][item][iPriceOfPurchase];
+	int itemid = GetNativeCell(2);
 	
-	++g_eClients[receiver][iItems];
-
-	return 1;
+	// Check if item is available?
+	if(itemid < 0)
+		return -1;
+	
+	// Can he even have it?	
+	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
+		return -1;
+	
+	// Is the item free (available for everyone)?
+	if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+		return -1;
+	
+	for(int i = 0; i < g_eClients[client][iItems]; ++i)
+	{
+		if(g_eClientItems[client][i][iUniqueId] == itemid && !g_eClientItems[client][i][bDeleted])
+			return g_eClientItems[client][i][iDateOfExpiration];
+	}
+	
+	return -1;
 }
 
 public int Native_HasClientItem(Handle myself, int numParams)
@@ -653,22 +656,44 @@ public int Native_HasClientItem(Handle myself, int numParams)
 	return false;
 }
 
-public int Native_IterateEquippedItems(Handle myself, int numParams)
+public int Native_ExtClientItem(Handle myself, int numParams)
 {
 	int client = GetNativeCell(1);
-	int start = GetNativeCellRef(2);
-	bool attributes = GetNativeCell(3);
+	int itemid = GetNativeCell(2);
+	int expiration = GetNativeCell(3);
+	
+	// Check if item is available?
+	if(itemid < 0)
+		return false;
 
-	for(int i = start + 1; i < STORE_MAX_HANDLERS*STORE_MAX_SLOTS; ++i)
-	{
-		if(g_eClients[client][aEquipment][i] >= 0 && (attributes==false || (attributes && g_eItems[g_eClients[client][aEquipment][i]][hAttributes]!=INVALID_HANDLE)))
+	// Can he even have it?	
+	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
+		return false;
+
+	// Is the item free (available for everyone)?
+	if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+		return false;
+
+	// Check if the client actually has the item
+	for(int i = 0; i < g_eClients[client][iItems]; ++i)
+		if(g_eClientItems[client][i][iUniqueId] == itemid && !g_eClientItems[client][i][bDeleted])
 		{
-			SetNativeCellRef(2, i);
-			return g_eClients[client][aEquipment][i];
+			if(g_eClientItems[client][i][iDateOfExpiration] == 0)
+				return true;
+			
+			g_eClientItems[client][i][iDateOfExpiration] = expiration;
+			
+			if(g_eClientItems[client][i][iId]==-1 && !g_eClientItems[client][i][bSynced])
+				return true;
+
+			char m_szQuery[256];
+			Format(STRING(m_szQuery), "UPDATE `store_items` SET `date_of_expiration` = '%d' WHERE `id`=%d AND `player_id`=%d", expiration, g_eClientItems[client][i][iId], g_eClients[client][iId]);
+			SQL_TVoid(g_hDatabase, m_szQuery);
+
+			return true;
 		}
-	}
-		
-	return -1;
+
+	return false;
 }
 
 //////////////////////////////
@@ -1489,13 +1514,11 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			
 			if(g_eClients[client][iId] == 1)
 			{
-				GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true);
-				if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_1:0:3339246"))
+				if(GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true) && !StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_1:0:3339246"))
 				{
 					KickClient(client, "STEAM AUTH ERROR");
 					return;
 				}
-				PrintToConsole(client, "Store Checking Access.");
 			}
 
 			Format(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
@@ -1558,7 +1581,6 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 				KickClient(client, "STEAM AUTH ERROR");
 				return;
 			}
-			PrintToConsole(client, "Store Checking Access.");
 		}
 
 		if(!SQL_GetRowCount(hndl))
@@ -1635,20 +1657,6 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 				Store_UseItem(client, m_iUniqueId, true, SQL_FetchInt(hndl, 3));
 		}
 		g_eClients[client][bLoaded] = true;
-		
-		if(!g_bGameModePR && IsClientInGame(client) && CG_GetLastseen(client) <= 1473004800)
-		{
-			if(!Store_HasClientItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl")))
-			{
-				PrintToChat(client, "[\x0CCG\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了一个[\x04害怕/滑稽\x01](\x0C30天\x01)");
-				Store_GiveItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"), GetTime(), GetTime()+2592000, 300);
-			}
-			else
-			{
-				PrintToChat(client, "[\x0CCG\x01]  \x07>\x04>\x0C>\x01老玩家回归: \x10你获得了[\x046666信用点\x01]");
-				Store_SetClientCredits(client, Store_GetClientCredits(client)+6666, "老玩家回归");
-			}
-		}
 	}
 }
 

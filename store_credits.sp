@@ -1,13 +1,14 @@
 #include <store>
 #include <steamworks>
 #include <cg_core>
-#tryinclude <cg_ze>
+#include <cg_ze>
+#include <csc>
+#include <store.item>
 
 #pragma newdecls required
 
 #define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
 #define PLUGIN_PREFIX "[\x0CCG\x01]  "
-
 
 Handle g_hTimer[MAXPLAYERS+1];
 
@@ -25,18 +26,29 @@ public Plugin myinfo =
 	name		= "Store Online Credits/Riffle",
 	author		= "maoling ( xQy )",
 	description = "",
-	version		= "1.0",
+	version		= "1.1rc2",
 	url			= "http://steamcommunity.com/id/_xQy_/"
 };
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	MarkNativeAsOptional("CG_Broadcast");
+	return APLRes_Success;
+}
 
 public void OnPluginStart()
 {
 	RegAdminCmd("sm_signtest", Command_SignTest, ADMFLAG_ROOT);
 	
-	CreateTimer(120.0, TIMER_NIGHTFEVER, _, TIMER_REPEAT);
+	CreateTimer(120.0, Timer_Nightfever, _, TIMER_REPEAT);
 }
 
-public Action TIMER_NIGHTFEVER(Handle timer)
+public void OnMapStart()
+{
+	CreateTimer(300.0, Timer_RaffleItem, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_Nightfever(Handle timer)
 {
 	char time[16];
 	FormatTime(time, 16, "%H", GetTime());
@@ -48,6 +60,13 @@ public Action TIMER_NIGHTFEVER(Handle timer)
 	
 	if(g_bNightfever)
 		PrintToChatAll("[\x02NightFever\x01]   \x04当前为午夜党福利时间,在线获得的信用点+5");
+}
+
+public Action Timer_RaffleItem(Handle timer)
+{
+	for(int client = 1; client <= MaxClients; ++client)
+		if(IsClientInGame(client))
+			Active_RaffleLimitItem(client);
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -324,7 +343,12 @@ public Action CreditTimer(Handle timer, int client)
 
 public Action Command_SignTest(int client, int args)
 {
-	CG_OnClientDailySign(client);
+	if(PA_GetGroupID(client) == 9999)
+	{
+		Active_GiveSignCredits(client);
+		Active_GiveRandomItems(client);
+		Active_RaffleLimitItem(client);
+	}
 }
 
 public void CG_OnClientDailySign(int client)
@@ -336,6 +360,8 @@ public void CG_OnClientDailySign(int client)
 	}
 
 	Active_GiveSignCredits(client);
+	Active_GiveRandomItems(client);
+	//Active_RaffleLimitItem(client);
 }
 
 void Active_GiveSignCredits(int client)
@@ -344,4 +370,140 @@ void Active_GiveSignCredits(int client)
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
 	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01(\x0C新年加倍\x01)", PLUGIN_PREFIX, client, Credits);
 	PrintToChat(client,"%s \x10你获得了\x04%d \x0F信用点 \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
+}
+
+void Active_GiveRandomItems(int client)
+{
+	int id = GetRandomInt(1, 31);
+	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
+	if(itemid <= -1)
+	{
+		PrintToChat(client, "%s  当前服务器不能正常发放新春物品奖励", PLUGIN_PREFIX);
+		return;
+	}
+
+	int extt = GetRandomInt(1, 48);
+	
+	PrintToChatAll("%s  \x0C%N\x04签到获得了[%s-%s](%d小时)", PLUGIN_PREFIX, client, g_szItemNick[id], g_szItemName[id], extt);
+	PrintToChat(client, "%s  \x04你获得了[%s-%s](%d小时),可以在!store中查看", PLUGIN_PREFIX, g_szItemNick[id], g_szItemName[id], extt);
+	
+	if(Store_HasClientItem(client, itemid))
+	{
+		int exp = Store_GetItemExpiration(client, itemid);
+		Store_ExtClientItem(client, itemid, exp+(extt*3600));
+		if(exp == 0)
+			PrintToChat(client, "%s  \x04你已经有用此物品的永久使用权...", PLUGIN_PREFIX);
+	}
+	else
+		Store_GiveItem(client, itemid, GetTime(), GetTime()+(extt*3600), 30);
+}
+
+void Active_RaffleLimitItem(int client)
+{
+	char name[64], type[32], uid[128];
+	switch(GetRandomInt(1, 4))
+	{
+		case 1:
+		{
+			strcopy(name, 64, "普魯魯特(Pururut)[线下见面会专属]");
+			strcopy(type, 32, "playerskin");
+			strcopy(uid, 128, "models/player/custom_player/maoling/neptunia/pururut/normal/pururut.mdl");
+		}
+		case 2:
+		{
+			strcopy(name, 64, "Re0.艾米莉亚(Emilia)[新年活动专属]");
+			strcopy(type, 32, "playerskin");
+			strcopy(uid, 128, "models/player/custom_player/maoling/re0/emilia_v2/emilia.mdl");
+		}
+		case 3:
+		{
+			strcopy(name, 64, "夕立(Yuudachi)[周年庆专属]");
+			strcopy(type, 32, "playerskin");
+			strcopy(uid, 128, "models/player/custom_player/maoling/kantai_collection/yuudachi/yuudachi.mdl");
+		}
+	}
+	
+	int rdm = GetRandomInt(1, 100000), itemid = Store_GetItem(type, uid);
+	if(itemid <= 0) return;
+
+	if(rdm == 1228 || rdm == 416 || rdm == 1018)
+	{
+		if(Store_HasClientItem(client, itemid))
+			Store_ExtClientItem(client, itemid, 0);
+		else
+			Store_GiveItem(client, itemid, GetTime(), 0, 306);
+		
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(永久)", PLUGIN_PREFIX, client, name);
+		
+		char fmt[256];
+		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(永久)", client, name);
+		Boradcast(true, fmt);
+	}
+	else if(233 <= rdm <= 250)
+	{
+		if(Store_HasClientItem(client, itemid))
+			Store_ExtClientItem(client, itemid, GetTime()+31536000);
+		else
+			Store_GiveItem(client, itemid, GetTime(), GetTime()+31536000, 305);
+
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1年)", PLUGIN_PREFIX, client, name);
+		
+		char fmt[256];
+		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1年)", client, name);
+		Boradcast(true, fmt);
+	}
+	else if(600 <= rdm <= 666)
+	{
+		if(Store_HasClientItem(client, itemid))
+			Store_ExtClientItem(client, itemid, GetTime()+2592000);
+		else
+			Store_GiveItem(client, itemid, GetTime(), GetTime()+2592000, 304);
+
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1月)", PLUGIN_PREFIX, client, name);
+		
+		char fmt[256];
+		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1月)", client, name);
+		Boradcast(true, fmt);
+	}
+	else if(888 <= rdm <= 999)
+	{
+		if(Store_HasClientItem(client, itemid))
+			Store_ExtClientItem(client, itemid, GetTime()+604800);
+		else
+			Store_GiveItem(client, itemid, GetTime(), GetTime()+604800, 303);
+
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1周)", PLUGIN_PREFIX, client, name);
+		
+		char fmt[256];
+		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1周)", client, name);
+		Boradcast(true, fmt);
+	}
+	else if(1688 <= rdm <= 1888)
+	{
+		if(Store_HasClientItem(client, itemid))
+			Store_ExtClientItem(client, itemid, GetTime()+86400);
+		else
+			Store_GiveItem(client, itemid, GetTime(), GetTime()+86400, 302);
+
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1天)", PLUGIN_PREFIX, client, name);
+	}
+	else if(16888 <= rdm <= 18888)
+	{
+		if(Store_HasClientItem(client, itemid))
+			Store_ExtClientItem(client, itemid, GetTime()+7200);
+		else
+			Store_GiveItem(client, itemid, GetTime(), GetTime()+7200, 301);
+
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(2小时)", PLUGIN_PREFIX, client, name);
+	}
+	else
+		PrintToChat(client, "%s  \x05嗨呀,本轮抽奖你又没有抽中", PLUGIN_PREFIX);
+}
+
+stock void Boradcast(bool db, const char[] content)
+{
+	if(GetFeatureStatus(FeatureType_Native, "CG_Broadcast") != FeatureStatus_Available)
+		return;
+	
+	CG_Broadcast(db, content);
 }

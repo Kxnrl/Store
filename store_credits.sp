@@ -4,11 +4,13 @@
 #include <cg_ze>
 #include <csc>
 #include <store.item>
+#include <smlib/math>
 
 #pragma newdecls required
 
-#define PLUGIN_PREFIX_CREDITS "\x01 \x04[Store]  "
-#define PLUGIN_PREFIX "[\x0CCG\x01]  "
+#define PF_CREDITS "\x01 \x04[Store]  "
+#define PF_GLOBAL "[\x0CCG\x01]  "
+#define PF_ACTIVE "[\x10新年快乐\x01]  "
 
 Handle g_hTimer[MAXPLAYERS+1];
 
@@ -21,10 +23,12 @@ bool g_bIsCheck[MAXPLAYERS+1];
 int g_iNumPlayers;
 bool g_bNightfever;
 
+char logFile[128];
+
 public Plugin myinfo =
 {
 	name		= "Store Online Credits/Riffle",
-	author		= "maoling ( xQy )",
+	author		= "Kyle",
 	description = "",
 	version		= "1.1rc2",
 	url			= "http://steamcommunity.com/id/_xQy_/"
@@ -39,13 +43,21 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	RegAdminCmd("sm_signtest", Command_SignTest, ADMFLAG_ROOT);
-	
+	BuildPath(Path_SM, logFile, 128, "data/riffle.log");
 	CreateTimer(120.0, Timer_Nightfever, _, TIMER_REPEAT);
 }
 
 public void OnMapStart()
 {
-	CreateTimer(300.0, Timer_RaffleItem, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	if (
+		FindPluginByFile("zombiereloaded.smx") ||
+		FindPluginByFile("ct.smx") ||
+		FindPluginByFile("mg_stats.smx") ||
+		FindPluginByFile("sm_hosties.smx") ||
+		FindPluginByFile("KZTimerGlobal.smx") ||
+		FindPluginByFile("public_ext.smx")
+		)
+		CreateTimer(300.0, Timer_RaffleItem, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_Nightfever(Handle timer)
@@ -64,9 +76,14 @@ public Action Timer_Nightfever(Handle timer)
 
 public Action Timer_RaffleItem(Handle timer)
 {
+	if(g_iNumPlayers < 10 && !FindPluginByFile("KZTimerGlobal.smx")) return Plugin_Continue;
+	if(g_iNumPlayers <  6 &&  FindPluginByFile("KZTimerGlobal.smx")) return Plugin_Continue;
+	
 	for(int client = 1; client <= MaxClients; ++client)
 		if(IsClientInGame(client))
 			Active_RaffleLimitItem(client);
+		
+	return Plugin_Continue;
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -160,13 +177,13 @@ public Action CreditTimer(Handle timer, int client)
 	
 	if(!(2 <= GetClientTeam(client) <= 3))
 	{
-		PrintToChat(client, "%s  \x07观察者无法获得信用点", PLUGIN_PREFIX_CREDITS);
+		PrintToChat(client, "%s  \x07观察者无法获得信用点", PF_CREDITS);
 		return Plugin_Continue;
 	}
 
 	if(g_iNumPlayers < 6 && !FindPluginByFile("KZTimerGlobal.smx"))
 	{
-		PrintToChat(client, "%s  \x04玩家人数不足6人,不能获得在线奖励的信用点", PLUGIN_PREFIX_CREDITS);
+		PrintToChat(client, "%s  \x04玩家人数不足6人,不能获得在线奖励的信用点", PF_CREDITS);
 		return Plugin_Continue;
 	}
 
@@ -324,15 +341,10 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szFrom, 128, "\x0A|\x02午夜党福利+5");
 		StrCat(szReason, 128, "午夜党福利");		
 	}
-	
-	m_iCredits *= 2;
-	
-	StrCat(szFrom, 128, "\x0A|\x0C新年加倍\x10]");
-	StrCat(szReason, 128, " 新年加倍]");
 
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
-	PrintToChat(client, "%s \x10你获得了\x04 %d 信用点", PLUGIN_PREFIX_CREDITS, m_iCredits);
+	PrintToChat(client, "%s \x10你获得了\x04 %d 信用点", PF_CREDITS, m_iCredits);
 	PrintToChat(client, " \x0A积分来自%s", szFrom);
 	
 	if(!g_bInOfficalGroup[client])
@@ -355,7 +367,7 @@ public void CG_OnClientDailySign(int client)
 {
 	if(!g_bInOfficalGroup[client])
 	{
-		PrintToChat(client, "%s  检测到你当前未加入\x0C官方组\x01  你无法获得签到奖励", PLUGIN_PREFIX);
+		PrintToChat(client, "%s  检测到你当前未加入\x0C官方组\x01  你无法获得签到奖励", PF_GLOBAL);
 		return;	
 	}
 
@@ -366,33 +378,33 @@ public void CG_OnClientDailySign(int client)
 
 void Active_GiveSignCredits(int client)
 {
-	int Credits = GetRandomInt(2, 600);
+	int Credits = Math_GetRandomInt(2, 600);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
-	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01(\x0C新年加倍\x01)", PLUGIN_PREFIX, client, Credits);
-	PrintToChat(client,"%s \x10你获得了\x04%d \x0F信用点 \x10来自\x04[签到].", PLUGIN_PREFIX_CREDITS, Credits);
+	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01(\x0C新年加倍\x01)", PF_GLOBAL, client, Credits);
+	PrintToChat(client,"%s \x10你获得了\x04%d \x0F信用点 \x10来自\x04[签到].", PF_CREDITS, Credits);
 }
 
 void Active_GiveRandomItems(int client)
 {
-	int id = GetRandomInt(1, 31);
+	int id = Math_GetRandomInt(1, 31);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
 	if(itemid <= -1)
 	{
-		PrintToChat(client, "%s  当前服务器不能正常发放新春物品奖励", PLUGIN_PREFIX);
+		PrintToChat(client, "%s  当前服务器不能正常发放新春物品奖励", PF_ACTIVE);
 		return;
 	}
 
-	int extt = GetRandomInt(1, 48);
+	int extt = Math_GetRandomInt(1, 48);
 	
-	PrintToChatAll("%s  \x0C%N\x04签到获得了[%s-%s](%d小时)", PLUGIN_PREFIX, client, g_szItemNick[id], g_szItemName[id], extt);
-	PrintToChat(client, "%s  \x04你获得了[%s-%s](%d小时),可以在!store中查看", PLUGIN_PREFIX, g_szItemNick[id], g_szItemName[id], extt);
+	PrintToChatAll("%s  \x0C%N\x04签到获得了[%s-%s](%d小时)", PF_ACTIVE, client, g_szItemNick[id], g_szItemName[id], extt);
+	PrintToChat(client, "%s  \x04你获得了[%s-%s](%d小时),可以在!store中查看", PF_ACTIVE, g_szItemNick[id], g_szItemName[id], extt);
 	
 	if(Store_HasClientItem(client, itemid))
 	{
-		int exp = Store_GetItemExpiration(client, itemid);
-		Store_ExtClientItem(client, itemid, exp+(extt*3600));
-		if(exp == 0)
-			PrintToChat(client, "%s  \x04你已经有用此物品的永久使用权...", PLUGIN_PREFIX);
+		if(Store_GetItemExpiration(client, itemid) == 0)
+			PrintToChat(client, "%s  \x04你已经有用此物品的永久使用权...", PF_ACTIVE);
+		else
+			Store_ExtClientItem(client, itemid, extt*3600);
 	}
 	else
 		Store_GiveItem(client, itemid, GetTime(), GetTime()+(extt*3600), 30);
@@ -400,8 +412,13 @@ void Active_GiveRandomItems(int client)
 
 void Active_RaffleLimitItem(int client)
 {
+	if(GetClientTeam(client) <= 1)
+	{
+		PrintToChat(client, "%s  观察者无权参与本轮抽奖", PF_ACTIVE);
+		return;
+	}
 	char name[64], type[32], uid[128];
-	switch(GetRandomInt(1, 4))
+	switch(Math_GetRandomInt(1, 3))
 	{
 		case 1:
 		{
@@ -422,8 +439,8 @@ void Active_RaffleLimitItem(int client)
 			strcopy(uid, 128, "models/player/custom_player/maoling/kantai_collection/yuudachi/yuudachi.mdl");
 		}
 	}
-	
-	int rdm = GetRandomInt(1, 100000), itemid = Store_GetItem(type, uid);
+
+	int rdm = Math_GetRandomInt(0, 666666), itemid = Store_GetItem(type, uid);
 	if(itemid <= 0) return;
 
 	if(rdm == 1228 || rdm == 416 || rdm == 1018)
@@ -433,71 +450,83 @@ void Active_RaffleLimitItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), 0, 306);
 		
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(永久)", PLUGIN_PREFIX, client, name);
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(永久)", PF_ACTIVE, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(永久)", client, name);
 		Boradcast(true, fmt);
+		
+		LogToFileEx(logFile, " [%d]%N 抽中了 %s (永久)", rdm, client, name);
 	}
 	else if(233 <= rdm <= 250)
 	{
 		if(Store_HasClientItem(client, itemid))
-			Store_ExtClientItem(client, itemid, GetTime()+31536000);
+			Store_ExtClientItem(client, itemid, 31536000);
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+31536000, 305);
 
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1年)", PLUGIN_PREFIX, client, name);
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1年)", PF_ACTIVE, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1年)", client, name);
 		Boradcast(true, fmt);
+		
+		LogToFileEx(logFile, " [%d]%N 抽中了 %s (1年)", rdm, client, name);
 	}
 	else if(600 <= rdm <= 666)
 	{
 		if(Store_HasClientItem(client, itemid))
-			Store_ExtClientItem(client, itemid, GetTime()+2592000);
+			Store_ExtClientItem(client, itemid, 2592000);
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+2592000, 304);
 
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1月)", PLUGIN_PREFIX, client, name);
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1月)", PF_ACTIVE, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1月)", client, name);
 		Boradcast(true, fmt);
+		
+		LogToFileEx(logFile, " [%d]%N 抽中了 %s (1月)", rdm, client, name);
 	}
 	else if(888 <= rdm <= 999)
 	{
 		if(Store_HasClientItem(client, itemid))
-			Store_ExtClientItem(client, itemid, GetTime()+604800);
+			Store_ExtClientItem(client, itemid, 604800);
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+604800, 303);
 
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1周)", PLUGIN_PREFIX, client, name);
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1周)", PF_ACTIVE, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1周)", client, name);
 		Boradcast(true, fmt);
+		
+		LogToFileEx(logFile, " [%d]%N 抽中了 %s (1周)", rdm, client, name);
 	}
 	else if(1688 <= rdm <= 1888)
 	{
 		if(Store_HasClientItem(client, itemid))
-			Store_ExtClientItem(client, itemid, GetTime()+86400);
+			Store_ExtClientItem(client, itemid, 86400);
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+86400, 302);
 
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1天)", PLUGIN_PREFIX, client, name);
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1天)", PF_ACTIVE, client, name);
+		
+		LogToFileEx(logFile, " [%d]%N 抽中了 %s (1天)", rdm, client, name);
 	}
 	else if(16888 <= rdm <= 18888)
 	{
 		if(Store_HasClientItem(client, itemid))
-			Store_ExtClientItem(client, itemid, GetTime()+7200);
+			Store_ExtClientItem(client, itemid, 7200);
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+7200, 301);
 
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(2小时)", PLUGIN_PREFIX, client, name);
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(2小时)", PF_ACTIVE, client, name);
+		
+		LogToFileEx(logFile, " [%d]%N 抽中了 %s (2小时)", rdm, client, name);
 	}
 	else
-		PrintToChat(client, "%s  \x05嗨呀,本轮抽奖你又没有抽中", PLUGIN_PREFIX);
+		PrintToChat(client, "%s  \x05嗨呀,本轮抽奖你又没有抽中", PF_ACTIVE);
 }
 
 stock void Boradcast(bool db, const char[] content)

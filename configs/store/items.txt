@@ -60,6 +60,35 @@
 			}
 			"type"		"playerskin"
 		}
+		"拉姆(Ram)"
+		{
+			"model"		"models/player/custom_player/maoling/re0/ram/ram.mdl"
+			"arms"		"models/player/custom_player/maoling/re0/ram/ram_arms.mdl"
+			"team"		"2"
+			"Plans"
+			{
+				"1天"
+				{
+					"price"		"599"
+					"time"		"86400"
+				}
+				"1周"
+				{
+					"price"		"3999"
+					"time"		"604800"
+				}
+				"1月"
+				{
+					"price"		"16888"
+					"time"		"2678400"
+				}
+				"无限制"
+				{
+					"price"		"68888"
+				}
+			}
+			"type"		"playerskin"
+		}
 		"普魯魯特(Pururut) - 线下活动"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/pururut/normal/pururut.mdl"
@@ -937,6 +966,16 @@
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart_arms.mdl"
 			"team"		"2"
+			"buyable"	"0"
+			"giftable"	"0"
+			"price"		"3000"
+			"type"		"playerskin"
+		}
+		"CyberTech Miku"
+		{
+			"model"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku.mdl"
+			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku_arms.mdl"
+			"team"		"3"
 			"buyable"	"0"
 			"giftable"	"0"
 			"price"		"3000"

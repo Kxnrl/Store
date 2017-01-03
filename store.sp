@@ -5,9 +5,9 @@
 //////////////////////////////
 
 #define PLUGIN_NAME "Store - The Resurrection"
-#define PLUGIN_AUTHOR "Zephyrus | (maoling/Irelia/xQy)"
+#define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.3.4r2 - 2016/12/30 02:43 - new syntax[6018] "
+#define PLUGIN_VERSION " 3.4 - 2017/01/03 02:20 "
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -84,6 +84,7 @@ int g_iSelectedPlan[MAXPLAYERS+1];
 int g_iMenuClient[MAXPLAYERS+1];
 int g_iMenuNum[MAXPLAYERS+1];
 int g_iSpam[MAXPLAYERS+1];
+int g_iBuySellProtect[MAXPLAYERS+1];
 
 bool g_bInvMode[MAXPLAYERS+1];
 
@@ -99,7 +100,7 @@ bool g_bGameModePR;
 bool g_bGameModeHZ;
 
 bool g_bLateLoad;
-bool g_bItemSourceSQL = false;
+bool g_bConfLoad;
 char g_szLogFile[128];
 char g_szTempole[128];
 
@@ -161,9 +162,11 @@ public void OnPluginStart()
 	Sprays_OnPluginStart();
 	Models_OnPluginStart();
 	Sounds_OnPluginStart();
-	
-	if(g_bLateLoad)
-		CreateTimer(1.0, LoadConfig);
+}
+
+public void OnAllPluginsLoaded()
+{
+	CreateTimer(1.0, LoadConfig);
 }
 
 public void CG_OnServerLoaded()
@@ -173,6 +176,9 @@ public void CG_OnServerLoaded()
 
 public Action LoadConfig(Handle timer)
 {
+	if(g_bConfLoad)
+		return;
+
 	CheckGameMode();
 	Store_ReloadConfig();
 }
@@ -548,6 +554,8 @@ public int Native_GiveItem(Handle myself, int numParams)
 	int expiration = GetNativeCell(4);
 	int price = GetNativeCell(5);
 	
+	if(itemid < 0) return;
+	
 	if(!Store_HasClientItem(client, itemid))
 	{
 		int m_iDateOfPurchase = (purchase==0?GetTime():purchase);
@@ -567,7 +575,7 @@ public int Native_GiveItem(Handle myself, int numParams)
 		int exp = Store_GetItemExpiration(client, itemid);
 		if(exp > 0 && exp < expiration)
 		{
-			Store_ExtClientItem(client, itemid, expiration);
+			Store_ExtClientItem(client, itemid, expiration-exp);
 		}
 	}
 }
@@ -603,6 +611,9 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
 	
 	// Check if item is available?
 	if(itemid < 0)
+		return -1;
+	
+	if(!g_eClients[client][bLoaded])
 		return -1;
 	
 	// Can he even have it?	
@@ -660,34 +671,27 @@ public int Native_ExtClientItem(Handle myself, int numParams)
 {
 	int client = GetNativeCell(1);
 	int itemid = GetNativeCell(2);
-	int expiration = GetNativeCell(3);
+	int extime = GetNativeCell(3);
 	
-	// Check if item is available?
-	if(itemid < 0)
+	if(!g_eClients[client][bLoaded])
 		return false;
 
-	// Can he even have it?	
-	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
-		return false;
-
-	// Is the item free (available for everyone)?
-	if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
-		return false;
-
-	// Check if the client actually has the item
 	for(int i = 0; i < g_eClients[client][iItems]; ++i)
 		if(g_eClientItems[client][i][iUniqueId] == itemid && !g_eClientItems[client][i][bDeleted])
 		{
 			if(g_eClientItems[client][i][iDateOfExpiration] == 0)
 				return true;
-			
-			g_eClientItems[client][i][iDateOfExpiration] = expiration;
-			
+
+			if(extime == 0)
+				g_eClientItems[client][i][iDateOfExpiration] = 0;
+			else
+				g_eClientItems[client][i][iDateOfExpiration] += extime;
+
 			if(g_eClientItems[client][i][iId]==-1 && !g_eClientItems[client][i][bSynced])
 				return true;
 
 			char m_szQuery[256];
-			Format(STRING(m_szQuery), "UPDATE `store_items` SET `date_of_expiration` = '%d' WHERE `id`=%d AND `player_id`=%d", expiration, g_eClientItems[client][i][iId], g_eClients[client][iId]);
+			Format(STRING(m_szQuery), "UPDATE `store_items` SET `date_of_expiration` = '%d' WHERE `id`=%d AND `player_id`=%d", g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iId], g_eClients[client][iId]);
 			SQL_TVoid(g_hDatabase, m_szQuery);
 
 			return true;
@@ -703,6 +707,7 @@ public int Native_ExtClientItem(Handle myself, int numParams)
 public void OnClientConnected(int client)
 {
 	g_iSpam[client] = 0;
+	g_iBuySellProtect[client] = GetTime();
 	g_eClients[client][iUserId] = GetClientUserId(client);
 	g_eClients[client][iCredits] = -1;
 	g_eClients[client][iOriginalCredits] = 0;
@@ -1674,83 +1679,6 @@ public void SQLCallback_InsertClient(Handle owner, Handle hndl, const char[] err
 	}
 }
 
-public void SQLCallback_ReloadConfig(Handle owner, Handle hndl, const char[] error, int userid)
-{
-	if(hndl==INVALID_HANDLE)
-	{
-		SetFailState("Error happened reading the config table. The plugin cannot continue.", error);
-	}
-	else
-	{
-		char m_szType[64];
-		char m_szFlag[64];
-		char m_szInfo[2048];
-		char m_szKey[64];
-		char m_szValue[256];
-		
-		Handle m_hKV;
-		
-		bool m_bSuccess;
-		
-		int m_iLength;
-		int m_iHandler;
-		int m_iIndex = 0;
-	
-		while(SQL_FetchRow(hndl))
-		{
-			if(g_iItems == STORE_MAX_ITEMS)
-				return;
-				
-			if(!SQL_FetchInt(hndl, 7))
-				continue;
-			
-			g_eItems[g_iItems][iId] = SQL_FetchInt(hndl, 0);
-			g_eItems[g_iItems][iParent] = SQL_FetchInt(hndl, 1);
-			g_eItems[g_iItems][iPrice] = SQL_FetchInt(hndl, 2);
-			
-			IntToString(g_eItems[g_iItems][iId], g_eItems[g_iItems][szUniqueId], PLATFORM_MAX_PATH);
-			
-			SQL_FetchString(hndl, 3, STRING(m_szType));
-			m_iHandler = Store_GetTypeHandler(m_szType);
-			if(m_iHandler == -1)
-				continue;
-			
-			g_eItems[g_iItems][iHandler] = m_iHandler;
-			
-			SQL_FetchString(hndl, 4, STRING(m_szFlag));
-			g_eItems[g_iItems][iFlagBits] = ReadFlagString(m_szFlag);
-			
-			SQL_FetchString(hndl, 5, g_eItems[g_iItems][szName], ITEM_NAME_LENGTH);
-			SQL_FetchString(hndl, 6, STRING(m_szInfo));
-			
-			m_hKV = CreateKeyValues("Additional Info");
-			
-			m_iLength = strlen(m_szInfo);
-			while(m_iIndex != m_iLength)
-			{
-				m_iIndex += strcopy(m_szKey, StrContains(m_szInfo[m_iIndex], "="), m_szInfo[m_iIndex])+2;
-				m_iIndex += strcopy(m_szValue, StrContains(m_szInfo[m_iIndex], "\";"), m_szInfo[m_iIndex])+2; // \"
-				
-				KvJumpToKey(m_hKV, m_szKey, true);
-				KvSetString(m_hKV, m_szKey, m_szValue);
-				
-				m_bSuccess = true;
-				if(g_eTypeHandlers[m_iHandler][fnConfig]!=INVALID_FUNCTION)
-				{
-					Call_StartFunction(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][fnConfig]);
-					Call_PushCellRef(m_hKV);
-					Call_PushCell(g_iItems);
-					Call_Finish(m_bSuccess); 
-				}
-				
-				if(m_bSuccess)
-					++g_iItems;
-			}
-			CloseHandle(m_hKV);
-		}
-	}
-}
-
 //////////////////////////////
 //			STOCKS			//
 //////////////////////////////
@@ -1974,7 +1902,6 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 
 			tPrintToChat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 			Command_Store(target, 0);
-			tPrintToChat(target, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
 		}
 	}
 }
@@ -1984,13 +1911,25 @@ int Store_BuyItem(int client)
 	int target = g_iMenuClient[client];
 	if(Store_HasClientItem(target, g_iSelectedItem[client]))
 		return;
+	if(g_iBuySellProtect[client] > GetTime())
+	{
+		tPrintToChat(client, "数据保护已开启,请稍候再尝试购买商品...");
+		return;
+	}
+	g_iBuySellProtect[client] = GetTime()+60;
 	char m_szQuery[255];
 	Format(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[target][iId]);
 	SQL_TQuery(g_hDatabase, SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
 }
 
 public int Store_SellItem(int client, int itemid)
-{	
+{
+	if(g_iBuySellProtect[client] > GetTime())
+	{
+		tPrintToChat(client, "数据保护已开启,请稍候再尝试卖出物品...");
+		return;
+	}
+	g_iBuySellProtect[client] = GetTime()+60;
 	int m_iCredits = RoundToFloor(Store_GetClientItemPrice(client, itemid)*0.6);
 	int uid = Store_GetClientItemId(client, itemid);
 	if(g_eClientItems[client][uid][iDateOfExpiration] != 0)
@@ -2001,11 +1940,9 @@ public int Store_SellItem(int client, int itemid)
 			m_iLeft = 0;
 		m_iCredits = RoundToCeil(m_iCredits*float(m_iLeft)/float(m_iLength));
 	}
-
 	g_eClients[client][iCredits] += m_iCredits;
 	tPrintToChat(client, "%t", "Chat Sold Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-	tPrintToChat(client, "短时间内频繁购买/卖出有可能造成不可挽回的损失...");
-	
+
 	Store_LogMessage(client, m_iCredits, false, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 	LogToFileEx(g_szTempole, "%N 卖掉了 %s %s", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
@@ -2071,25 +2008,18 @@ public void Store_ReloadConfig()
 		}
 	}
 
-	if(g_bItemSourceSQL)
+	char m_szFile[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, STRING(m_szFile), "configs/store/items.txt");
+	Handle m_hKV = CreateKeyValues("Store");
+	FileToKeyValues(m_hKV, m_szFile);
+	if(!KvGotoFirstSubKey(m_hKV))
 	{
-		char m_szQuery[64];
-		Format(STRING(m_szQuery), "SELECT * FROM store_web");
-		SQL_TQuery(g_hDatabase, SQLCallback_ReloadConfig, m_szQuery);
+		SetFailState("Failed to read configs/store/items.txt");
 	}
-	else
-	{	
-		char m_szFile[PLATFORM_MAX_PATH];
-		BuildPath(Path_SM, STRING(m_szFile), "configs/store/items.txt");
-		Handle m_hKV = CreateKeyValues("Store");
-		FileToKeyValues(m_hKV, m_szFile);
-		if (!KvGotoFirstSubKey(m_hKV))
-		{
-			SetFailState("Failed to read configs/store/items.txt");
-		}
-		Store_WalkConfig(m_hKV);
-		CloseHandle(m_hKV);
-	}
+	Store_WalkConfig(m_hKV);
+	CloseHandle(m_hKV);
+	
+	g_bConfLoad = true;
 }
 
 void Store_WalkConfig(Handle &kv, int parent = -1)

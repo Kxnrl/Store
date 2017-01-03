@@ -1254,16 +1254,8 @@ public Action Command_Hide(int client, int args)
 	if(!IsClientInGame(client))
 		return Plugin_Handled;
 	
-	if(!g_bHideMode[client])
-	{
-		g_bHideMode[client] = true;
-		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hidetrail\x01' 你已\x04开启\x01屏蔽足迹和霓虹");
-	}
-	else
-	{
-		g_bHideMode[client] = false;
-		PrintToChat(client, "[\x0EPlaneptune\x01]   '\x04!hidetrail\x01' 你已\x07关闭\x01屏蔽足迹和霓虹");
-	}
+	g_bHideMode[client] = !g_bHideMode[client];
+	tPrintToChat(client, "'\x04!hidetrail\x01' 你已%s屏蔽足迹和霓虹", g_bHideMode[client] ? "\x04开启\x01" : "\x07关闭\x01");
 
 	return Plugin_Handled;
 }
@@ -1272,19 +1264,19 @@ public Action Command_TP(int client, int args)
 {
 	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB || g_bGameModePR || g_bGameModeHZ) && !Store_IsWhiteList(client))
 	{
-		PrintToChat(client, "[\x0EPlaneptune\x01]  当前模式不允许使用TP");
+		tPrintToChat(client, "当前模式不允许使用TP");
 		return Plugin_Handled;
 	}
 
 	if(!IsPlayerAlive(client))
 	{
-		PrintToChat(client, "[\x0EPlaneptune\x01]  你已经嗝屁了,还想开TP?");
+		tPrintToChat(client, "你已经嗝屁了,还想开TP?");
 		return Plugin_Handled;
 	}
 	
 	if(g_bMirror[client])
 	{
-		PrintToChat(client, "[\x0EPlaneptune\x01]  你已经开了SeeMe,还想开TP?");
+		tPrintToChat(client, "你已经开了SeeMe,还想开TP?");
 		return Plugin_Handled;
 	}
 
@@ -1299,13 +1291,13 @@ public Action Command_Mirror(int client, int args)
 {
 	if(!IsPlayerAlive(client))
 	{
-		PrintToChat(client, "[\x0EPlaneptune\x01]  你已经嗝屁了,还想开SeeMe?");
+		tPrintToChat(client, "你已经嗝屁了,还想开SeeMe?");
 		return Plugin_Handled;
 	}
 	
 	if(g_bThirdperson[client])
 	{
-		PrintToChat(client, "[\x0EPlaneptune\x01]  你已经开了TP,还想开SeeMe?");
+		tPrintToChat(client, "你已经开了TP,还想开SeeMe?");
 		return Plugin_Handled;
 	}
 	

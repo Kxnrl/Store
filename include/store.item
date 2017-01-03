@@ -120,7 +120,7 @@ char g_szItemName[227][64] =
 	"DJ",											// 97
 	"龙神剑",									// 98
 	"Zero Sword",								// 99
-	"PurpleHeart`s Sword 4",				// 100
+	"",				// 100
 	"Neptune AWP",							// 101
 	"PurpleHeart`s Sword 3",				// 102
 	"PurpleHeart`s Sword 2",				// 103
@@ -351,7 +351,7 @@ char g_szItemUid[227][128] =
 	"maoling/store/overwatch/lucio.mp3",                                                                                            // 97 
 	"models/maoling/weapon/overwatch/knife/genji/katana_v.mdl",                                                        // 98
 	"models/maoling/weapon/borderlands2/knife/zero/sword_v.mdl",                                                      // 99  
-	"models/maoling/weapon/neptunia/knife/neptune/sword_4_v.mdl",                                                   // 100
+	"",                                                   // 100
 	"models/maoling/weapon/neptunia/awp/neptune/awp.mdl",                                                             // 101
 	"models/maoling/weapon/neptunia/knife/neptune/sword_3_v.mdl",                                                   // 102
 	"models/maoling/weapon/neptunia/knife/neptune/sword_2_v.mdl",                                                   // 103
@@ -582,7 +582,7 @@ char g_szItemType[227][32] =
 	"sound",           // 97
 	"vwmodel" ,     // 98
 	"vwmodel" ,     // 99
-	"vwmodel" ,     // 100
+	"" ,     // 100
 	"vwmodel" ,     // 101
 	"vwmodel" ,     // 102
 	"vwmodel" ,     // 103
@@ -813,7 +813,7 @@ char g_szItemNick[227][32] =
 	"音频效果",             // 97
 	"匕首模型/皮肤",      // 98
 	"匕首模型/皮肤",      // 99
-	"匕首模型/皮肤",      // 100
+	"",      // 100
 	"匕首模型/皮肤",      // 101
 	"匕首模型/皮肤",      // 102
 	"匕首模型/皮肤",      // 103

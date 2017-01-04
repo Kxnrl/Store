@@ -219,7 +219,7 @@ void OpenBoxCase(int client, int iEntity)
 {
 	CreateTimer(0.0, Timer_RemoveEntity, iEntity);
 
-	int u = Math_GetRandomInt(1, 10000);
+	int u = Math_GetRandomInt(1, 6666);
 	if(u == 1228 || u == 416 || u == 1018)
 	{
 		RaffleLimitedItem(client);
@@ -262,7 +262,7 @@ void OpenBoxCase(int client, int iEntity)
 	if(extime >= 7)
 	{
 		char fmt[256];
-		Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F%s\x05(%d天)", client, g_szItemName[id], extime);
+		Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F[%s-%s]\x05(%d天)", client, g_szItemNick[id], g_szItemName[id], extime);
 		Boradcast(true, fmt);
 	}
 }

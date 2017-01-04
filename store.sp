@@ -1913,7 +1913,7 @@ int Store_BuyItem(int client)
 		return;
 	if(g_iBuySellProtect[client] > GetTime())
 	{
-		tPrintToChat(client, "数据保护已开启,请稍候再尝试购买商品...");
+		tPrintToChat(client, "数据保护已开启,请等待\x04%d秒\x01后再尝试购买商品...", g_iBuySellProtect[client]-GetTime());
 		return;
 	}
 	g_iBuySellProtect[client] = GetTime()+60;
@@ -1926,7 +1926,7 @@ public int Store_SellItem(int client, int itemid)
 {
 	if(g_iBuySellProtect[client] > GetTime())
 	{
-		tPrintToChat(client, "数据保护已开启,请稍候再尝试卖出物品...");
+		tPrintToChat(client, "数据保护已开启,请等待\x04%d秒\x01后再尝试卖出物品...", g_iBuySellProtect[client]-GetTime());
 		return;
 	}
 	g_iBuySellProtect[client] = GetTime()+60;

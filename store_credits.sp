@@ -440,7 +440,7 @@ void Active_RaffleLimitItem(int client)
 		}
 	}
 
-	int rdm = Math_GetRandomInt(0, 666666), itemid = Store_GetItem(type, uid);
+	int rdm = Math_GetRandomInt(0, 233333), itemid = Store_GetItem(type, uid);
 	if(itemid <= 0) return;
 
 	if(rdm == 1228 || rdm == 416 || rdm == 1018)

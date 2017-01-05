@@ -2,9 +2,12 @@
 #include <steamworks>
 #include <cg_core>
 #include <cg_ze>
-#include <csc>
 #include <store.item>
 #include <smlib/math>
+
+#undef REQUIRE_PLUGIN
+#include <csc>
+#include <sourcebans>
 
 #pragma newdecls required
 
@@ -37,6 +40,7 @@ public Plugin myinfo =
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	MarkNativeAsOptional("CG_Broadcast");
+	MarkNativeAsOptional("SBBanPlayer");
 	return APLRes_Success;
 }
 
@@ -128,10 +132,16 @@ public int ZE_GetClientGroupStats(int client)
 public void LookupPlayerGroups(int client)
 {
 	g_bIsCheck[client] = true;
+	
+	//Check CG Group
 	SteamWorks_GetUserGroupStatus(client, 103582791438550612);
 	SteamWorks_GetUserGroupStatus(client, 103582791437825710);
 	SteamWorks_GetUserGroupStatus(client, 103582791442277011);
 	SteamWorks_GetUserGroupStatus(client, 103582791456047719);
+	
+	//Check Blacklist
+	SteamWorks_GetUserGroupStatus(client, 103582791455638129);
+	SteamWorks_GetUserGroupStatus(client, 103582791455103762);
 }
 
 public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember, bool isOfficer)
@@ -160,6 +170,14 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
 					g_bInOpeatorGroup[client] = true;
 				if(groupid == 103582791456047719)
 					g_bInZombieGroup[client] = true;
+				if(groupid == 103582791455638129)
+				{
+					SBBanPlayer(0, client, 0, "CAT: 4=1作弊组封禁");
+				}
+				if(groupid == 103582791455103762)
+				{
+					SBBanPlayer(0, client, 0, "CAT: 天地会组成员");
+				}
 
 				break;
 			}
@@ -524,6 +542,12 @@ void Active_RaffleLimitItem(int client)
 		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(2小时)", PF_ACTIVE, client, name);
 		
 		LogToFileEx(logFile, " [%d]%N 抽中了 %s (2小时)", rdm, client, name);
+	}
+	else if(23333 <= rdm <= 25000)
+	{
+		int crd = Math_GetRandomInt(1, 300);
+		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%d信用点", PF_ACTIVE, client, crd);
+		Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, "新年活动-5分钟");
 	}
 	else
 		PrintToChat(client, "%s  \x05嗨呀,本轮抽奖你又没有抽中", PF_ACTIVE);

@@ -3,6 +3,7 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <maoling>
+#include <diamond>
 #include <cg_core>
 #include <smlib/clients>
 #include <smlib/math>
@@ -225,29 +226,38 @@ void OpenBoxCase(int client, int iEntity)
 		RaffleLimitedItem(client);
 		return;
 	}
+	if(2333 <= u <= 2400)
+	{
+		RaffleDiamods(client);
+		return;
+	}
+	if(2400 <= u <= 2500)
+	{
+		RaffleCredits(client);
+		return;
+	}
 
 	int id = Math_GetRandomInt(1, 226);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
-	if(Math_GetRandomInt(1, 100) >= 80 || itemid <= -1)
+	if(Math_GetRandomInt(1, 100) > 80 || itemid < 0)
 	{
 		PrintToChat(client, "%s  你的脸太黑了，居然什么都没有得到", PREFIX);
 		return;
 	}
-	
+
 	int extime = 0;
 	int rdm = Math_GetRandomInt(1, 99);
 	
 	if(rdm >= 95)
-		extime = 365;
+		extime = Math_GetRandomInt(31, 365);
 	else if(95 > rdm >= 75)
-		extime = 30;
+		extime = Math_GetRandomInt(8, 30);
 	else if(75 > rdm >= 40)
-		extime = 7;
+		extime = Math_GetRandomInt(2, 7);
 	else
 		extime = 1;
-	
+
 	PrintToChat(client, "%s  你获得了 \x04[%s-%s](%d天)...", PREFIX, g_szItemNick[id], g_szItemName[id], extime);
-	PrintToChatAll("%s  \x0C%N\x01打开了宝箱,获得了 \x04[%s-%s](%d天)", PREFIX, client, g_szItemNick[id], g_szItemName[id], extime);
 
 	if(Store_HasClientItem(client, itemid))
 	{
@@ -263,8 +273,10 @@ void OpenBoxCase(int client, int iEntity)
 	{
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F[%s-%s]\x05(%d天)", client, g_szItemNick[id], g_szItemName[id], extime);
-		Boradcast(true, fmt);
+		Boradcast((extime >= 30) ? true : false, fmt);
 	}
+
+	PrintToChatAll("%s  \x0C%N\x01打开了宝箱,获得了 \x04[%s-%s](%d天)", PREFIX, client, g_szItemNick[id], g_szItemName[id], extime);
 }
 
 public Action Timer_RemoveEntity(Handle timer, int iEntity)
@@ -397,7 +409,7 @@ void RaffleLimitedItem(int client)
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+86400, 302);
 
 		PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(1天)", PREFIX, client, name);
-		
+
 		LogToFileEx(logFile, " [%d]%N 打开宝箱获得了 %s (1天)", rdm, client, name);
 	}
 	else
@@ -411,6 +423,30 @@ void RaffleLimitedItem(int client)
 		
 		LogToFileEx(logFile, " [%d]%N 打开宝箱获得了 %s (2小时)", rdm, client, name);
 	}
+}
+
+void RaffleDiamods(int client)
+{
+	if(CG_GetDiscuzUID(client) < 1)
+	{
+		PrintToChat(client, "%s  你没有注册论坛会员,无法参与钻石活动", PREFIX);
+		return;
+	}
+	
+	int rdm = Math_GetRandomInt(5, 20);
+	PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%d钻石", PREFIX, client, rdm);
+	CG_SetClientDiamond(client, CG_GetClientDiamond(client)+rdm);
+	
+	char fmt[256];
+	Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F%d钻石", client, rdm);
+	Boradcast(false, fmt);
+}
+
+void RaffleCredits(int client)
+{
+	int rdm = Math_GetRandomInt(50, 300);
+	PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%d信用点", PREFIX, client, rdm);
+	Store_SetClientCredits(client, Store_GetClientCredits(client)+rdm, "新年活动-开宝箱");
 }
 
 stock void Boradcast(bool db, const char[] content)

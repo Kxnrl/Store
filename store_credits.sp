@@ -406,7 +406,7 @@ void Active_GiveRandomItems(int client)
 {
 	int id = Math_GetRandomInt(1, 31);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
-	if(itemid <= -1)
+	if(itemid <= 0)
 	{
 		PrintToChat(client, "%s  当前服务器不能正常发放新春物品奖励", PF_ACTIVE);
 		return;

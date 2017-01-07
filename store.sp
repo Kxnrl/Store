@@ -3,19 +3,15 @@
 //////////////////////////////
 //		DEFINITIONS			//
 //////////////////////////////
-
-#define PLUGIN_NAME "Store - The Resurrection"
+#define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION " 3.4 - 2017/01/03 02:20 "
+#define PLUGIN_VERSION "1.0 - 2017/01/08 07:09"
 #define PLUGIN_URL ""
 
 //////////////////////////////
 //			INCLUDES		//
 //////////////////////////////
-
-#include <sourcemod>
-#include <sdktools>
 #include <sdkhooks>
 #include <cg_core>
 #include <maoling>
@@ -154,18 +150,11 @@ public void OnPluginStart()
 
 	// Initiaze the fake package handler
 	g_iPackageHandler = Store_RegisterHandler("package", "", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
-
-	// Initialize the modules	
-	Players_OnPluginStart();
-	Grenades_OnPluginStart();
-	SCPSupport_OnPluginStart();
-	Sprays_OnPluginStart();
-	Models_OnPluginStart();
-	Sounds_OnPluginStart();
 }
 
 public void OnAllPluginsLoaded()
 {
+	CheckGameMode();
 	CreateTimer(1.0, LoadConfig);
 }
 
@@ -179,7 +168,6 @@ public Action LoadConfig(Handle timer)
 	if(g_bConfLoad)
 		return;
 
-	CheckGameMode();
 	Store_ReloadConfig();
 }
 
@@ -2336,29 +2324,67 @@ int Store_GetClientItemPrice(int client, int itemid)
 void CheckGameMode()
 {
 	if(FindPluginByFile("ct.smx"))
+	{
+		LogMessage("Current GameMode:  TTT");
 		g_bGameModeTT = true;
+	}
 	else if(FindPluginByFile("mg_stats.smx"))
+	{
+		LogMessage("Current GameMode:  MG");
 		g_bGameModeMG = true;
+	}
 	else if(FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("drapi_zombie_riot.smx"))
+	{
+		LogMessage("Current GameMode:  ZE");
 		g_bGameModeZE = true;
+	}
 	else if(FindPluginByFile("KZTimer.smx") || FindPluginByFile("KZTimerGlobal.smx"))
+	{
+		LogMessage("Current GameMode:  KZ");
 		g_bGameModeKZ = true;
+	}
 	else if(FindPluginByFile("sm_hosties.smx"))
+	{
+		LogMessage("Current GameMode:  JB");
 		g_bGameModeJB = true;
+	}
 	else if(FindPluginByFile("devzones_givecredits.smx"))
+	{
+		LogMessage("Current GameMode:  DR");
 		g_bGameModeDR = true;
+	}
 	else if(FindPluginByFile("ninja.smx"))
+	{
+		LogMessage("Current GameMode:  NJ");
 		g_bGameModeNJ = true;
+	}
 	else if(FindPluginByFile("hg.smx"))
+	{
+		LogMessage("Current GameMode:  HG");
 		g_bGameModeHG = true;
+	}
 	else if(FindPluginByFile("public_ext.smx") && CG_GetServerID() == 6)
+	{
+		LogMessage("Current GameMode:  HG");
 		g_bGameModeHZ = true;
+	}
 	else
+	{
+		LogMessage("Current GameMode:  Pure");
 		g_bGameModePR = true;
-	
+	}
+
 	// prevent conplie warning!
 	if(g_bGameModeTT || g_bGameModeDR || g_bGameModeHG || g_bGameModeJB || g_bGameModeKZ || g_bGameModeMG || g_bGameModeNJ || g_bGameModePR || g_bGameModeZE || g_bGameModeHZ)
-		PrintToServer("[Store]  Loaded Successful!");
+		LogMessage("Loaded Successful!");
+
+	// Initialize the modules	
+	Players_OnPluginStart();
+	Grenades_OnPluginStart();
+	SCPSupport_OnPluginStart();
+	Sprays_OnPluginStart();
+	Models_OnPluginStart();
+	Sounds_OnPluginStart();
 }
 
 bool Store_IsWhiteList(int client)

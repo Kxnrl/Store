@@ -195,17 +195,14 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 	
 	if(float(health) < damage)
 	{
-		if(attacker > 0 && attacker <= MaxClients)
-		{
-			int healthleft = health - RoundToCeil(damage);
-			
-			if(healthleft < 0)
-				healthleft = 0;
-			
-			PrintHintText(attacker, "宝箱剩余HP: %d / 100", healthleft);
+		int healthleft = health - RoundToCeil(damage);
+		
+		if(healthleft < 0)
+			healthleft = 0;
+		
+		PrintHintText(attacker, "宝箱剩余HP: %d / 100", healthleft);
 
-			OpenBoxCase(attacker, victim);
-		}
+		OpenBoxCase(attacker, victim);
 	}
 	else
 	{
@@ -246,13 +243,13 @@ void OpenBoxCase(int client, int iEntity)
 	}
 
 	int extime = 0;
-	int rdm = Math_GetRandomInt(1, 99);
+	int rdm = Math_GetRandomInt(1, 10000);
 	
-	if(rdm >= 95)
+	if(rdm >= 9900)
 		extime = Math_GetRandomInt(31, 365);
-	else if(95 > rdm >= 75)
+	else if(9900 > rdm >= 9000)
 		extime = Math_GetRandomInt(8, 30);
-	else if(75 > rdm >= 40)
+	else if(9000 > rdm >= 5000)
 		extime = Math_GetRandomInt(2, 7);
 	else
 		extime = 1;

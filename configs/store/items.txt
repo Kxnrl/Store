@@ -498,7 +498,7 @@
 		}
 		"桐子(Kirito) - 专属"
 		{
-			"model"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito_lhb.mdl"
+			"model"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito.mdl"
 			"arms"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito_arms.mdl"
 			"team"		"2"
 			"buyable"		"0"

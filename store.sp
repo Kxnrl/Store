@@ -2363,7 +2363,7 @@ void CheckGameMode()
 		LogMessage("Current GameMode:  HG");
 		g_bGameModeHG = true;
 	}
-	else if(FindPluginByFile("public_ext.smx") && CG_GetServerID() == 6)
+	else if(FindPluginByFile("public_ext.smx") && GetConVarInt(FindConVar("hostport")) == 27010)
 	{
 		LogMessage("Current GameMode:  HG");
 		g_bGameModeHZ = true;

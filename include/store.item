@@ -18,40 +18,40 @@
 //211-226 消息颜色
 
 
-char g_szItemName[227][64] = 
+char g_szItemName[225][64] = 
 {
 	"",
-	"妮普褆努.泳装(Neptune)",			// 1
-	"妮普褆努.夏日鮮黃(Neptune)",		// 2
+	"妮普褆努.泳装(Neptune)",					// 1
+	"妮普褆努.夏日鮮黃(Neptune)",				// 2
 	"布蘭(Blanc)",								// 3
 	"貝兒(Vert)",								// 4
 	"蝶祈(Inori)",								// 5
 	"香蕉人",									// 6
-	"夜刀神十香(Tohka)",					// 7
-	"时崎狂三(Kurumi)",						// 8
+	"夜刀神十香(Tohka)",						// 7
+	"时崎狂三(Kurumi)",							// 8
 	"蕾米莉亚(Remilia)",						// 9
 	"芙兰朵露(Flandre)",						// 10
-	"提露密努斯艾斯特(Terminus)",		// 11
-	"岛风(Shimakaze)",						// 12
+	"提露密努斯艾斯特(Terminus)",				// 11
+	"岛风(Shimakaze)",							// 12
 	"害怕(滑稽)",								// 13
 	"優尼(Uni)",								// 14
-	"大個子妮普褆努(Adult Neptune)",	// 15
-	"世嘉少女(HatsumiSega)",				// 16
+	"大個子妮普褆努(Adult Neptune)",			// 15
+	"世嘉少女(HatsumiSega)",					// 16
 	"諾娃(Noire)",								// 17
-	"四糸乃(Yoshino)",						// 18
-	"初音未来.TDA(Miku)",					// 19
-	"初音未来.和服(Miku)",					// 20
+	"四糸乃(Yoshino)",							// 18
+	"初音未来.TDA(Miku)",						// 19
+	"初音未来.和服(Miku)",						// 20
 	"小鸟游六花(Rikka)",						// 21
 	"黑岩射手(BRS)",							// 22
-	"天津风(Amatsukaze)",					// 23
+	"天津风(Amatsukaze)",						// 23
 	"南小鸟(kotori)",							// 24
 	"响(Hikibi)",								// 25
 	"弱音(Haku)",								// 26
 	"蕾姆(Rem)",								// 27
 	"拉姆(Ram)",                 				// 28 
-	"希斯(Historie) - 矿场",                  // 29
-	"北方栖姬(Hoppou) - 矿场",            // 30
-	"褆亞拉(Tiara) - 矿场",                    // 31 
+	"希斯(Historie) - 矿场",         	        // 29
+	"北方栖姬(Hoppou) - 矿场", 		 	 	    // 30
+	"褆亞拉(Tiara) - 矿场",   	                // 31 
 	"燕子翅膀",									// 32
 	"冰火之翼",									// 33
 	"精灵之翼",									// 34
@@ -86,7 +86,7 @@ char g_szItemName[227][64] =
 	"飞行墨镜",									// 63
 	"施瓦辛格",									// 64
 	"Hylian Shield",							// 65
-	"红色" ,										// 66
+	"红色" ,									// 66
 	"柠檬绿",									// 67
 	"蓝色",										// 68
 	"白杏色",									// 69
@@ -106,9 +106,9 @@ char g_szItemName[227][64] =
 	"矢车菊蓝色",								// 83
 	"橙子",										// 84
 	"Banana",									// 85
-	"Watermelon",							// 86
+	"Watermelon",								// 86
 	"互相伤害",									// 87
-	"呐!!" ,										// 88
+	"呐!!" ,									// 88
 	"害怕",										// 89
 	"友谊的小狗",								// 90
 	"50已到",									// 91
@@ -117,370 +117,366 @@ char g_szItemName[227][64] =
 	"狂鼠",										// 94
 	"麦爹",										// 95
 	"小美",										// 96
-	"DJ",											// 97
+	"DJ",										// 97
 	"龙神剑",									// 98
-	"Zero Sword",								// 99
-	"",				// 100
-	"Neptune AWP",							// 101
-	"PurpleHeart`s Sword 3",				// 102
-	"PurpleHeart`s Sword 2",				// 103
-	"PurpleHeart`s Sword 1",				// 104
-	"NextPurple`s Sword",					// 105
-	"Planeptune",								// 106
-	"滑稽",										// 107
-	"Doge",										// 108
-	"彩色箭头",									// 109
-	"305",										// 110
-	"钞票",										// 111
-	"闪电",										// 112
-	"皇冠",										// 113
-	"暴漫 Fuu 1",								// 114
-	"数码宝贝",									// 115
-	"精神球",									// 116
-	"彩虹",										// 117
-	"藤藤蛇",									// 118
-	"海绵宝宝",									// 119
-	"暴漫 Troll",								// 120
-	"Windows",								// 121
-	"太极",										// 122
-	"渐变粒子",									// 123
-	"火焰粒子",									// 124
-	"鞭炮",										// 125
-	"浪花",										// 126
-	"喷射粒子",									// 127
-	"绿色星火",									// 128
-	"星光",										// 129
-	"粉色尖刺",									// 130
-	"细菌孢",									// 131
-	"橙色星火",									// 132
-	"橙色旋风",									// 133
-	"红色尖刺黑洞",							// 134
-	"蓝紫尖刺",									// 135
-	"绿色尖刺黑洞",							// 136
-	"慢-星空",									// 137
-	"星空",										// 138
-	"粒子漩涡",									// 139
-	"青紫粒子漩涡",							// 140
-	"蓝色粒子漩涡",							// 141
-	"紫色尖刺漩涡",							// 142
-	"贵族蓝",									// 143
-	"白杏色",									// 144
-	"纯蓝",										// 145
-	"棕色",										// 146
-	"青色",										// 147
-	"深天蓝",									// 148
-	"深粉红",									// 149
-	"深红色",									// 150
-	"森林绿",									// 151
-	"米色",										// 152
-	"金色",										// 153
-	"纯绿",										// 154
-	"亮粉色",									// 155
-	"淡青色",									// 156
-	"亮菊黄",									// 157
-	"浅黄色",									// 158
-	"中紫罗兰红",								// 159
-	"橙色",										// 160
-	"苍麒麟色",									// 161
-	"桃肉色",									// 162
-	"紫色",										// 163
-	"天蓝色",									// 164
-	"巧克力色",									// 165
-	"春绿色",									// 166
-	"水绿色",									// 167
-	"蓟色",										// 168
-	" 绿宝石",									// 169
-	"矢车菊蓝",									// 170
-	"白烟",										// 171
-	"紫罗兰",									// 172
-	"[东山大法]",								// 173
-	"[比较萌的]",								// 174
-	"_(:з」∠)_",									// 175
-	"[抖S]",										// 176
-	"[萝莉]",										// 177
-	"[抖M]",										// 178
-	"[小学生]",									// 179
-	"[德玛西亚]",								// 180
-	"[工口]",										// 181
-	"[么么哒]",									// 182
-	"[本子狂魔]",								// 183
-	"[大地球]",									// 184
-	"[我最帅]",									// 185
-	"[薄荷味]",									// 186
-	"[公交车]",									// 187
-	"[老司机]",									// 188
-	"[HENTAI]",									// 189
-	"[TTT影帝]",								// 190
-	"[新机表]",									// 191
-	"[黑枪王子]",								// 192
-	"[暴动狂魔]",								// 193
-	"[跑男]",										// 194
-	"[咸鱼]",										// 195
-	"[路痴]",										// 196
-	"白色",										// 197
-	"深红色",									// 198
-	"粉色",										// 199
-	"绿色",										// 200
-	"亮绿",										// 201
-	"青色",										// 202
-	"淡红色",									// 203
-	"灰色",										// 204
-	"黄色",										// 205
-	"橙色",										// 206
-	"银色",										// 207
-	"淡蓝色",									// 208
-	"蓝色",										// 209
-	"紫色[Planeptune]",						// 210
-	"深橙色",									// 211
-	"白色",										// 212
-	"深红色",									// 213
-	"粉色",										// 214
-	"绿色",										// 215
-	"亮绿",										// 216
-	"青色",										// 217
-	"淡红色",									// 218
-	"灰色",										// 219
-	"黄色",										// 220
-	"橙色",										// 221
-	"银色",										// 222
-	"淡蓝色",									// 223
-	"蓝色",										// 224
-	"紫色[Planeptune]",						// 225
-	"深橙色",									// 226
+	"Neptune AWP",								// 99
+	"PurpleHeart`s Sword 3",					// 100
+	"PurpleHeart`s Sword 2",					// 101
+	"PurpleHeart`s Sword 1",					// 102
+	"NextPurple`s Sword",						// 103
+	"Planeptune",								// 104
+	"滑稽",										// 105
+	"Doge",										// 106
+	"彩色箭头",									// 107
+	"305",										// 108
+	"钞票",										// 109
+	"闪电",										// 110
+	"皇冠",										// 111
+	"暴漫 Fuu 1",								// 112
+	"数码宝贝",									// 113
+	"精神球",									// 114
+	"彩虹",										// 115
+	"藤藤蛇",									// 116
+	"海绵宝宝",									// 117
+	"暴漫 Troll",								// 118
+	"Windows",									// 119
+	"太极",										// 120
+	"渐变粒子",									// 121
+	"火焰粒子",									// 122
+	"鞭炮",										// 123
+	"浪花",										// 124
+	"喷射粒子",									// 125
+	"绿色星火",									// 126
+	"星光",										// 127
+	"粉色尖刺",									// 128
+	"细菌孢",									// 129
+	"橙色星火",									// 130
+	"橙色旋风",									// 131
+	"红色尖刺黑洞",								// 132
+	"蓝紫尖刺",									// 133
+	"绿色尖刺黑洞",								// 134
+	"慢-星空",									// 135
+	"星空",										// 136
+	"粒子漩涡",									// 137
+	"青紫粒子漩涡",								// 138
+	"蓝色粒子漩涡",								// 139
+	"紫色尖刺漩涡",								// 140
+	"贵族蓝",									// 141
+	"白杏色",									// 142
+	"纯蓝",										// 143
+	"棕色",										// 144
+	"青色",										// 145
+	"深天蓝",									// 146
+	"深粉红",									// 147
+	"深红色",									// 148
+	"森林绿",									// 149
+	"米色",										// 150
+	"金色",										// 151
+	"纯绿",										// 152
+	"亮粉色",									// 153
+	"淡青色",									// 154
+	"亮菊黄",									// 155
+	"浅黄色",									// 156
+	"中紫罗兰红",								// 157
+	"橙色",										// 158
+	"苍麒麟色",									// 159
+	"桃肉色",									// 160
+	"紫色",										// 161
+	"天蓝色",									// 162
+	"巧克力色",									// 163
+	"春绿色",									// 164
+	"水绿色",									// 165
+	"蓟色",										// 166
+	" 绿宝石",									// 167
+	"矢车菊蓝",									// 168
+	"白烟",										// 169
+	"紫罗兰",									// 170
+	"[东山大法]",								// 171
+	"[比较萌的]",								// 172
+	"_(:з」∠)_",								// 173
+	"[抖S]",									// 174
+	"[萝莉]",									// 175
+	"[抖M]",									// 176
+	"[小学生]",									// 177
+	"[德玛西亚]",								// 178
+	"[工口]",									// 179
+	"[么么哒]",									// 180
+	"[本子狂魔]",								// 181
+	"[大地球]",									// 182
+	"[我最帅]",									// 183
+	"[薄荷味]",									// 184
+	"[公交车]",									// 185
+	"[老司机]",									// 186
+	"[HENTAI]",									// 187
+	"[TTT影帝]",								// 188
+	"[新机表]",									// 189
+	"[黑枪王子]",								// 190
+	"[暴动狂魔]",								// 191
+	"[跑男]",									// 192
+	"[咸鱼]",									// 193
+	"[路痴]",									// 194
+	"白色",										// 195
+	"深红色",									// 196
+	"粉色",										// 197
+	"绿色",										// 198
+	"亮绿",										// 199
+	"青色",										// 200
+	"淡红色",									// 201
+	"灰色",										// 202
+	"黄色",										// 203
+	"橙色",										// 204
+	"银色",										// 205
+	"淡蓝色",									// 206
+	"蓝色",										// 207
+	"紫色[Planeptune]",							// 208
+	"深橙色",									// 209
+	"白色",										// 210
+	"深红色",									// 211
+	"粉色",										// 212
+	"绿色",										// 213
+	"亮绿",										// 214
+	"青色",										// 215
+	"淡红色",									// 216
+	"灰色",										// 217
+	"黄色",										// 218
+	"橙色",										// 219
+	"银色",										// 220
+	"淡蓝色",									// 221
+	"蓝色",										// 222
+	"紫色[Planeptune]",							// 223
+	"深橙色"									// 224
 }
 
-char g_szItemUid[227][128] = 
+char g_szItemUid[225][128] = 
 {
 	"",
-	"models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune.mdl",                             	 // 1
-	"models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune.mdl",                             // 2 
-	"models/player/custom_player/maoling/neptunia/blanc/normal/blanc.mdl",                                         // 3
-	"models/player/custom_player/maoling/neptunia/vert/normal/vert.mdl",                                             // 4
-	"models/player/custom_player/maoling/guilty_crown/inori_v2/inori.mdl",                                            // 5 
-	"models/player/custom_player/maoling/misc/banana_joe/banana_joe.mdl",                                         // 6
-	"models/player/custom_player/maoling/date_a_live/tohka/spirit/tohka.mdl",                                        // 7
-	"models/player/custom_player/maoling/date_a_live/kurumi/spirit/kurumi.mdl",                                     // 8
-	"models/player/custom_player/maoling/touhou/remilia_scarlet/remilia_scarlet.mdl",                              // 9 
-	"models/player/custom_player/maoling/touhou/flandre_scarlet/flandre_scarlet.mdl",                             // 10
+	"models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune.mdl",                       	 // 1
+	"models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune.mdl",                         // 2 
+	"models/player/custom_player/maoling/neptunia/blanc/normal/blanc.mdl",                               // 3
+	"models/player/custom_player/maoling/neptunia/vert/normal/vert.mdl",                                 // 4
+	"models/player/custom_player/maoling/guilty_crown/inori_v2/inori.mdl",                               // 5 
+	"models/player/custom_player/maoling/misc/banana_joe/banana_joe.mdl",             	                 // 6
+	"models/player/custom_player/maoling/date_a_live/tohka/spirit/tohka.mdl",                            // 7
+	"models/player/custom_player/maoling/date_a_live/kurumi/spirit/kurumi.mdl",                          // 8
+	"models/player/custom_player/maoling/touhou/remilia_scarlet/remilia_scarlet.mdl",                    // 9 
+	"models/player/custom_player/maoling/touhou/flandre_scarlet/flandre_scarlet.mdl",                    // 10
 	"models/player/custom_player/maoling/seirei_tsukai_no_blade_dance/terminus_est/terminus_est.mdl",    // 11
-	"models/player/custom_player/maoling/kantai_collection/shimakaze/shimakaze.mdl",                           // 12
-	"models/player/custom_player/maoling/haipa/haipa.mdl",                                                                 // 13
-	"models/player/custom_player/maoling/neptunia/uni/normal/uni.mdl",                                               // 14
-	"models/player/custom_player/maoling/neptunia/adult_neptune/normal/neptune.mdl",                        // 15
-	"models/player/custom_player/maoling/neptunia/hatsumi_sega/normal/sega_girl.mdl",                         // 16
-	"models/player/custom_player/maoling/neptunia/noire/normal/noire.mdl",                                         // 17
-	"models/player/custom_player/maoling/date_a_live/yoshino/spirit/yoshino.mdl",                                  // 18
-	"models/player/custom_player/maoling/vocaloid/hatsune_miku/tda/miku.mdl",                                    // 19 
-	"models/player/custom_player/maoling/vocaloid/hatsune_miku/magnet/miku.mdl",                             // 20
-	"models/player/custom_player/maoling/misc/rikka/rikka.mdl",                                                            // 21 
-	"models/player/custom_player/maoling/black_rock_shooter/brs/brs.mdl",                                            // 22
-	"models/player/custom_player/maoling/kantai_collection/amatsukaze/amatsukaze.mdl",                       // 23
-	"models/player/custom_player/maoling/lovelive/kotori/school/kotori.mdl",                                         // 24 
-	"models/player/custom_player/maoling/kantai_collection/hikibi/hikibi.mdl",                                         // 25
-	"models/player/custom_player/maoling/vocaloid/haku/uniform/haku.mdl",                                         // 26
-	"models/player/custom_player/maoling/re0/rem/rem.mdl",                 								              	// 27
-	"models/player/custom_player/maoling/re0/ram/ram.mdl",																// 28
-	"models/player/custom_player/maoling/neptunia/histoire/normal/histoire.mdl",                                    // 29
-	"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou.mdl",                                  // 30                                                                                                                                               // 30
-	"models/player/custom_player/maoling/fairyfancyf/tiara/tiara.mdl",                                                      // 31
-	"models/shop/perfectworld_wings01_v3.mdl",                                                                                  // 32 
-	"models/shop/perfectworld_wings01_v3.mdl",                                                                                  // 33
-	"models/shop/perfectworld_wings04_v3.mdl",                                                                                  // 34 
-	"models/shop/perfectworld_wings05_v3.mdl",                                                                                  // 35 
-	"models/shop/perfectworld_wings06_v3.mdl",                                                                                  // 36 
-	"models/shop/perfectworld_wings07_v3.mdl",                                                                                  // 37
-	"models/shop/perfectworld_wings08_v3.mdl",                                                                                  // 38 
-	"models/shop/perfectworld_wings09_v3.mdl",                                                                                  // 39  
-	"models/player/holiday/facemasks/facemask_chicken.mdl",                                                                // 40 
-	"models/player/holiday/facemasks/facemask_pumpkin.mdl",                                                              // 41
-	"models/vikinghelmet/vikinghelmet.mdl",                                                                                       // 42 
-	"models/sam/antlers.mdl",                                                                                                            // 43 
-	"models/astronauthelmet/astronauthelmet.mdl",                                                                              // 44
-	"models/gmod_tower/fedorahat.mdl",                                                                                            // 45 
-	"models/gmod_tower/pimphat.mdl",                                                                                              // 46 
-	"models/gmod_tower/seusshat.mdl",                                                                                              // 47 
-	"models/gmod_tower/sombrero.mdl",                                                                                            // 48
-	"models/gmod_tower/toetohat.mdl",                                                                                             // 49
-	"models/gmod_tower/witchhat.mdl",                                                                                              // 50
-	"models/gmod_tower/afro.mdl",                                                                                                    // 51
-	"models/gmod_tower/catears.mdl",                                                                                                // 52
-	"models/gmod_tower/tophat.mdl",                                                                                                // 53
-	"models/player/holiday/santahat.mdl",                                                                                            // 54
-	"models/gmod_tower/kfcbucket.mdl",                                                                                            // 55 
-	"models/pikahat/pikahat.mdl",                                                                                                       // 56
-	"models/anime_patron/animepatr.mdl",                                                                                          // 57
-	"models/duncehat/duncehat.mdl",                                                                                                 // 58 
-	"models/store/hats/uncle_sam_hat.mdl",                                                                                         // 59
-	"models/store/hats/daft_punk_v1.mdl",                                                                                            // 60 
-	"models/gmod_tower/starglasses.mdl",                                                                                           // 61
-	"models/gmod_tower/3dglasses.mdl",                                                                                            // 62
-	"models/gmod_tower/aviators.mdl",                                                                                               // 63 
-	"models/gmod_tower/klienerglasses.mdl",                                                                                       // 64 
-	"models/store/hats/hylian_shield.mdl",                                                                                            // 65
-	"grenadetrail_laserbeam_hongse",                                                                                                   // 66 
-	"grenadetrail_laserbeam_ningmenglv",                                                                                             // 67 
-	"grenadetrail_laserbeam_lanse",                                                                                                      // 68
-	"grenadetrail_laserbeam_baixingse",                                                                                                // 69
-	"grenadetrail_laserbeam_shenfenhong",                                                                                           // 70  
-	"grenadetrail_laserbeam_shenhongse",                                                                                            // 71
-	"grenadetrail_laserbeam_mise",                                                                                                      // 72
-	"grenadetrail_laserbeam_tuhaojin",                                                                                                  // 73 
-	"grenadetrail_laserbeam_liangjuhuang",                                                                                           // 74
-	"grenadetrail_laserbeam_ziluolanhong",                                                                                           // 75
-	"grenadetrail_laserbeam_chengse",                                                                                                 // 76
-	"grenadetrail_laserbeam_cangqilinse",                                                                                              // 77 
-	"grenadetrail_laserbeam_taorouse",                                                                                                 // 78 
-	"grenadetrail_laserbeam_zise",                                                                                                        // 79 
-	"grenadetrail_laserbeam_qiaokelise",                                                                                               // 80 
-	"grenadetrail_laserbeam_shuiyase",                                                                                                 // 81
-	"grenadetrail_laserbeam_jise",                                                                                                        // 82
-	"grenadetrail_laserbeam_shichejulanse",                                                                                           // 83  
-	"models/props/cs_italy/orange.mdl",                                                                                               // 84 
-	"models/props/cs_italy/bananna.mdl",                                                                                             // 85
-	"models/props_junk/watermelon01.mdl",                                                                                         // 86 
-	"materials/maoling/sprays/laia.vmt",                                                                                                // 87 
-	"materials/maoling/sprays/na.vmt",                                                                                                 // 88 
-	"materials/maoling/sprays/cghaipa.vmt",                                                                                          // 89 
-	"materials/maoling/sprays/slaydog.vmt",                                                                                          // 90 
-	"materials/maoling/sprays/50highnoon.vmt",                                                                                   // 91
-	"maoling/store/overwatch/genji.mp3",                                                                                            // 92 
-	"maoling/store/overwatch/hanzo.mp3",                                                                                          // 93
-	"maoling/store/overwatch/junkrat.mp3",                                                                                         // 94
-	"maoling/store/overwatch/mccree.mp3",                                                                                        // 95
-	"maoling/store/overwatch/mei.mp3",                                                                                             // 96
-	"maoling/store/overwatch/lucio.mp3",                                                                                            // 97 
-	"models/maoling/weapon/overwatch/knife/genji/katana_v.mdl",                                                        // 98
-	"models/maoling/weapon/borderlands2/knife/zero/sword_v.mdl",                                                      // 99  
-	"",                                                   // 100
-	"models/maoling/weapon/neptunia/awp/neptune/awp.mdl",                                                             // 101
-	"models/maoling/weapon/neptunia/knife/neptune/sword_3_v.mdl",                                                   // 102
-	"models/maoling/weapon/neptunia/knife/neptune/sword_2_v.mdl",                                                   // 103
-	"models/maoling/weapon/neptunia/knife/neptune/sword_1_v.mdl",                                                    // 104
-	"models/maoling/weapon/neptunia/knife/neptune/nextpurple_sword_v.mdl",                                       // 105 
-	"materials/maoling/trails/planeptune.vmt",                                                                                       // 106 
-	"materials/maoling/trails/huaji.vmt",                                                                                                // 107 
-	"materials/maoling/trails/doge.vmt",                                                                                               // 108 
-	"materials/sprites/store/trails/arrowrainbow.vmt",                                                                              // 109 
-	"materials/sprites/store/trails/awesome.vmt",                                                                                   // 110
-	"materials/sprites/store/trails/banknote.vmt",                                                                                   // 111 
-	"materials/sprites/store/trails/bluelightning.vmt",                                                                              // 112
-	"materials/sprites/store/trails/crown.vmt",                                                                                        // 113 
-	"materials/sprites/store/trails/fuu1.vmt",                                                                                           // 114 
-	"materials/sprites/store/trails/pokeball.vmt",                                                                                     // 115 
-	"materials/sprites/store/trails/psychball.vmt",                                                                                    // 116
-	"materials/sprites/store/trails/rainbow.vmt",                                                                                     // 117
-	"materials/sprites/store/trails/smugleaf.vmt",                                                                                    // 118 
-	"materials/sprites/store/trails/spongebob.vmt",                                                                                 // 119 
-	"materials/sprites/store/trails/trollface.vmt",                                                                                     // 120
-	"materials/sprites/store/trails/windows.vmt",                                                                                    // 121
-	"materials/sprites/store/trails/yingyang2.vmt",                                                                                  // 122
-	"Trail",                                                                                                                                        // 123 
-	"Trail5",                                                                                                                                      // 124
-	"Trail2",                                                                                                                                      // 125
-	"Trail3",                                                                                                                                      // 126
-	"Trail4",                                                                                                                                      // 127
-	"Trail7",                                                                                                                                      // 128
-	"Trail8",                                                                                                                                      // 129
-	"Trail9",                                                                                                                                      // 130
-	"Trail10",                                                                                                                                     // 131 
-	"Trail11",                                                                                                                                     // 132
-	"Aura1",                                                                                                                                      // 133
-	"Aura2",                                                                                                                                      // 134 
-	"Aura3",                                                                                                                                      // 135 
-	"Aura4",                                                                                                                                      // 136 
-	"Aura5",                                                                                                                                      // 137 
-	"Aura6",                                                                                                                                      // 138 
-	"Aura7",                                                                                                                                      // 139 
-	"Aura8",                                                                                                                                      // 140 
-	"Aura9",                                                                                                                                      // 141 
-	"Aura10",                                                                                                                                    // 142
-	"1",                                                                                                                                            // 143
-	"2",                                                                                                                                            // 144 
-	"3",                                                                                                                                            // 145 
-	"4",                                                                                                                                            // 146 
-	"5",                                                                                                                                            // 147 
-	"6",                                                                                                                                            // 148 
-	"7",                                                                                                                                            // 149
-	"8",                                                                                                                                            // 150 
-	"9",                                                                                                                                            // 151 
-	"10",                                                                                                                                           // 152 
-	"11",                                                                                                                                           // 153
-	"12",                                                                                                                                           // 154 
-	"13",                                                                                                                                           // 155 
-	"14",                                                                                                                                           // 156 
-	"15",                                                                                                                                           // 157 
-	"16",                                                                                                                                           // 158 
-	"17",                                                                                                                                           // 159 
-	"18",                                                                                                                                           // 160 
-	"19",                                                                                                                                           // 161 
-	"20",                                                                                                                                          // 162
-	"21",                                                                                                                                           // 163 
-	"22",                                                                                                                                          // 164
-	"23",                                                                                                                                          // 165
-	"24",                                                                                                                                          // 166
-	"25",                                                                                                                                          // 167
-	"26",                                                                                                                                          // 168
-	"27",                                                                                                                                          // 169
-	"28",                                                                                                                                          // 170
-	"29",                                                                                                                                          // 171 
-	"30",                                                                                                                                          // 172
-	"{lightred}[东山大法]{teamcolor} ",                                                                                                  // 173 
-	"{lightred}[比较萌的]{teamcolor} ",                                                                                                  // 174 
-	"{lightblue}_(:з」∠)_{teamcolor}",                                                                                                   // 175
-	"{lightblue}[抖S]{teamcolor}",                                                                                                         // 176
-	"{lightred}[萝莉]{teamcolor} ",                                                                                                        // 177 
-	"{lightblue}[抖M]{teamcolor}",                                                                                                        // 178 
-	"{lightblue}[小学生]{teamcolor}",                                                                                                    // 179
-	"{lightblue}[德玛西亚]{teamcolor}",                                                                                                 // 180
-	"{lightblue}[工口]{teamcolor}",                                                                                                       // 181
-	"{lightblue}[么么哒]{teamcolor}",                                                                                                    // 182
-	"{lightblue}[本子狂魔]{teamcolor}",                                                                                                 // 183
-	"{lightred}[大地球]{teamcolor} ",                                                                                                     // 184 
-	"{lightred}[我最帅]{teamcolor} ",                                                                                                     // 185 
-	"{lightred}[薄荷味]{teamcolor} ",                                                                                                     // 186 
-	"{lightred}[公交车]{teamcolor} ",                                                                                                     // 187 
-	"{lightred}[老司机]{teamcolor} ",                                                                                                     // 188 
-	"{lightred}[HENTAI]{teamcolor} ",                                                                                                   // 189
-	"{lightred}[TTT影帝]{teamcolor} ",                                                                                                   // 190 
-	"{lightred}[新机表]{teamcolor} ",                                                                                                     // 191 
-	"{lightred}[黑枪王子]{teamcolor} ",                                                                                                  // 192 
-	"{lightred}[暴动狂魔]{teamcolor} ",                                                                                                  // 193 
-	"{lightred}[跑男]{teamcolor} ",                                                                                                        // 194 
-	"{lightred}[咸鱼]{teamcolor} ",                                                                                                        // 195 
-	"{lightred}[路痴]{teamcolor} ",                                                                                                        // 196 
-	"{white}",                                                                                                                                    // 197
-	"{darkred}",                                                                                                                                 // 198
-	"{pink}",                                                                                                                                      // 199 
-	"{green}",                                                                                                                                    // 200 
-	"{lightgreen}",                                                                                                                              // 201 
-	"{lime}",                                                                                                                                      // 202 
-	"{lightred}",                                                                                                                                 // 203
-	"{gray}",                                                                                                                                      // 204 
-	"{yellow}",                                                                                                                                   // 205 
-	"{orange}",                                                                                                                                  // 206 
-	"{silver}",                                                                                                                                     // 207 
-	"{lightblue}",                                                                                                                                // 208 
-	"{blue}",                                                                                                                                      // 209 
-	"{purple}",                                                                                                                                   // 210 
-	"{darkorange}",                                                                                                                            // 211
-	"{white}",                                                                                                                                    // 212
-	"{darkred}",                                                                                                                                 // 213
-	"{pink}",                                                                                                                                      // 214 
-	"{green}",                                                                                                                                    // 215 
-	"{lightgreen}",                                                                                                                              // 216 
-	"{lime}",                                                                                                                                      // 217 
-	"{lightred}",                                                                                                                                 // 218
-	"{gray}",                                                                                                                                      // 219 
-	"{yellow}",                                                                                                                                   // 220 
-	"{orange}",                                                                                                                                  // 221 
-	"{silver}",                                                                                                                                    // 222
-	"{lightblue}",                                                                                                                               // 223
-	"{blue}",                                                                                                                                     // 224
-	"{purple}",                                                                                                                                  // 225  
-	"{darkorange}",                                                                                                                           // 226 
+	"models/player/custom_player/maoling/kantai_collection/shimakaze/shimakaze.mdl",                   	 // 12
+	"models/player/custom_player/maoling/haipa/haipa.mdl",                                               // 13
+	"models/player/custom_player/maoling/neptunia/uni/normal/uni.mdl",                                   // 14
+	"models/player/custom_player/maoling/neptunia/adult_neptune/normal/neptune.mdl",                     // 15
+	"models/player/custom_player/maoling/neptunia/hatsumi_sega/normal/sega_girl.mdl",                    // 16
+	"models/player/custom_player/maoling/neptunia/noire/normal/noire.mdl",                               // 17
+	"models/player/custom_player/maoling/date_a_live/yoshino/spirit/yoshino.mdl",                        // 18
+	"models/player/custom_player/maoling/vocaloid/hatsune_miku/tda/miku.mdl",                            // 19 
+	"models/player/custom_player/maoling/vocaloid/hatsune_miku/magnet/miku.mdl",                         // 20
+	"models/player/custom_player/maoling/misc/rikka/rikka.mdl",                                          // 21 
+	"models/player/custom_player/maoling/black_rock_shooter/brs/brs.mdl",                                // 22
+	"models/player/custom_player/maoling/kantai_collection/amatsukaze/amatsukaze.mdl",                   // 23
+	"models/player/custom_player/maoling/lovelive/kotori/school/kotori.mdl",                             // 24 
+	"models/player/custom_player/maoling/kantai_collection/hikibi/hikibi.mdl",                           // 25
+	"models/player/custom_player/maoling/vocaloid/haku/uniform/haku.mdl",                                // 26
+	"models/player/custom_player/maoling/re0/rem/rem.mdl",                 					          	 // 27
+	"models/player/custom_player/maoling/re0/ram/ram.mdl",												 // 28
+	"models/player/custom_player/maoling/neptunia/histoire/normal/histoire.mdl",                         // 29
+	"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou.mdl",                           // 30                                                                                                                                               // 30
+	"models/player/custom_player/maoling/fairyfancyf/tiara/tiara.mdl",                                   // 31
+	"models/shop/perfectworld_wings01_v3.mdl",                                                           // 32 
+	"models/shop/perfectworld_wings01_v3.mdl",                                                           // 33
+	"models/shop/perfectworld_wings04_v3.mdl",                                                           // 34 
+	"models/shop/perfectworld_wings05_v3.mdl",                                                           // 35 
+	"models/shop/perfectworld_wings06_v3.mdl",                                                           // 36 
+	"models/shop/perfectworld_wings07_v3.mdl",                                                           // 37
+	"models/shop/perfectworld_wings08_v3.mdl",                                                           // 38 
+	"models/shop/perfectworld_wings09_v3.mdl",                                                           // 39  
+	"models/player/holiday/facemasks/facemask_chicken.mdl",                                              // 40 
+	"models/player/holiday/facemasks/facemask_pumpkin.mdl",                                              // 41
+	"models/vikinghelmet/vikinghelmet.mdl",                                                              // 42 
+	"models/sam/antlers.mdl",                                                                            // 43 
+	"models/astronauthelmet/astronauthelmet.mdl",                                                        // 44
+	"models/gmod_tower/fedorahat.mdl",                                                                   // 45 
+	"models/gmod_tower/pimphat.mdl",                                                                     // 46 
+	"models/gmod_tower/seusshat.mdl",                                                                    // 47 
+	"models/gmod_tower/sombrero.mdl",                                                                  	 // 48
+	"models/gmod_tower/toetohat.mdl",                                                                    // 49
+	"models/gmod_tower/witchhat.mdl",                                                                    // 50
+	"models/gmod_tower/afro.mdl",                                                                        // 51
+	"models/gmod_tower/catears.mdl",                                                                     // 52
+	"models/gmod_tower/tophat.mdl",                                                                      // 53
+	"models/player/holiday/santahat.mdl",                                                                // 54
+	"models/gmod_tower/kfcbucket.mdl",                                                                   // 55 
+	"models/pikahat/pikahat.mdl",                                                                        // 56
+	"models/anime_patron/animepatr.mdl",                                                                 // 57
+	"models/duncehat/duncehat.mdl",                                                                      // 58 
+	"models/store/hats/uncle_sam_hat.mdl",                                                               // 59
+	"models/store/hats/daft_punk_v1.mdl",                                                                // 60 
+	"models/gmod_tower/starglasses.mdl",                                                                 // 61
+	"models/gmod_tower/3dglasses.mdl",                                                                   // 62
+	"models/gmod_tower/aviators.mdl",                                                                    // 63 
+	"models/gmod_tower/klienerglasses.mdl",                                                              // 64 
+	"models/store/hats/hylian_shield.mdl",                                                               // 65
+	"grenadetrail_laserbeam_hongse",                                                                     // 66 
+	"grenadetrail_laserbeam_ningmenglv",                                                                 // 67 
+	"grenadetrail_laserbeam_lanse",                                                                      // 68
+	"grenadetrail_laserbeam_baixingse",                                                                  // 69
+	"grenadetrail_laserbeam_shenfenhong",                                                                // 70  
+	"grenadetrail_laserbeam_shenhongse",                                                                 // 71
+	"grenadetrail_laserbeam_mise",                                                                       // 72
+	"grenadetrail_laserbeam_tuhaojin",                                                                   // 73 
+	"grenadetrail_laserbeam_liangjuhuang",                                                               // 74
+	"grenadetrail_laserbeam_ziluolanhong",                                                          	 // 75
+	"grenadetrail_laserbeam_chengse",                                                               	 // 76
+	"grenadetrail_laserbeam_cangqilinse",                                                           	 // 77 
+	"grenadetrail_laserbeam_taorouse",                                                              	 // 78 
+	"grenadetrail_laserbeam_zise",                                                                  	 // 79 
+	"grenadetrail_laserbeam_qiaokelise",                                                            	 // 80 
+	"grenadetrail_laserbeam_shuiyase",                                                              	 // 81
+	"grenadetrail_laserbeam_jise",                                                                  	 // 82
+	"grenadetrail_laserbeam_shichejulanse",                                                         	 // 83  
+	"models/props/cs_italy/orange.mdl",                                                             	 // 84 
+	"models/props/cs_italy/bananna.mdl",                                                            	 // 85
+	"models/props_junk/watermelon01.mdl",                                                                // 86 
+	"materials/maoling/sprays/laia.vmt",                                                                 // 87 
+	"materials/maoling/sprays/na.vmt",                                                                   // 88 
+	"materials/maoling/sprays/cghaipa.vmt",                                                              // 89 
+	"materials/maoling/sprays/slaydog.vmt",                                                              // 90 
+	"materials/maoling/sprays/50highnoon.vmt",                                                           // 91
+	"maoling/store/overwatch/genji.mp3",                                                                 // 92 
+	"maoling/store/overwatch/hanzo.mp3",                                                                 // 93
+	"maoling/store/overwatch/junkrat.mp3",                                                               // 94
+	"maoling/store/overwatch/mccree.mp3",                                                              	 // 95
+	"maoling/store/overwatch/mei.mp3",                                                                   // 96
+	"maoling/store/overwatch/lucio.mp3",                                                                 // 97 
+	"models/maoling/weapon/overwatch/knife/genji/katana_v.mdl",                                          // 98
+	"models/maoling/weapon/neptunia/awp/neptune/awp.mdl",                                                // 99  
+	"models/maoling/weapon/neptunia/knife/neptune/sword_3_v.mdl",                                        // 100
+	"models/maoling/weapon/neptunia/knife/neptune/sword_2_v.mdl",                                        // 101
+	"models/maoling/weapon/neptunia/knife/neptune/sword_1_v.mdl",                                        // 102
+	"models/maoling/weapon/neptunia/knife/neptune/nextpurple_sword_v.mdl",                               // 103
+	"materials/maoling/trails/planeptune.vmt",                                                           // 104
+	"materials/maoling/trails/huaji.vmt",                                                                // 105 
+	"materials/maoling/trails/doge.vmt",                                                                 // 106 
+	"materials/sprites/store/trails/arrowrainbow.vmt",                                                   // 107 
+	"materials/sprites/store/trails/awesome.vmt",                                                        // 108 
+	"materials/sprites/store/trails/banknote.vmt",                                                       // 109 
+	"materials/sprites/store/trails/bluelightning.vmt",                                                  // 110
+	"materials/sprites/store/trails/crown.vmt",                                                          // 111 
+	"materials/sprites/store/trails/fuu1.vmt",                                                           // 112
+	"materials/sprites/store/trails/pokeball.vmt",                                                       // 113 
+	"materials/sprites/store/trails/psychball.vmt",                                                      // 114 
+	"materials/sprites/store/trails/rainbow.vmt",                                                        // 115 
+	"materials/sprites/store/trails/smugleaf.vmt",                                                       // 116
+	"materials/sprites/store/trails/spongebob.vmt",                                                      // 117
+	"materials/sprites/store/trails/trollface.vmt",                                                      // 118 
+	"materials/sprites/store/trails/windows.vmt",                                                        // 119 
+	"materials/sprites/store/trails/yingyang2.vmt",                                                      // 120
+	"Trail",                                                                                             // 121
+	"Trail5",                                                                                            // 122
+	"Trail2",                                                                                            // 123 
+	"Trail3",                                                                                            // 124
+	"Trail4",                                                                                            // 125
+	"Trail7",                                                                                            // 126
+	"Trail8",                                                                                            // 127
+	"Trail9",                                                                                            // 128
+	"Trail10",                                                                                           // 129
+	"Trail11",                                                                                           // 130
+	"Aura1",                                                                                             // 131 
+	"Aura2",                                                                                             // 132
+	"Aura3",                                                                                             // 133
+	"Aura4",                                                                                             // 134 
+	"Aura5",                                                                                             // 135 
+	"Aura6",                                                                                             // 136 
+	"Aura7",                                                                                             // 137 
+	"Aura8",                                                                                             // 138 
+	"Aura9",                                                                                             // 139 
+	"Aura10",                                                                                            // 140 
+	"1",                                                                                                 // 141 
+	"2",                                                                                                 // 142
+	"3",                                                                                                 // 143
+	"4",                                                                                                 // 144 
+	"5",                                                                                                 // 145 
+	"6",                                                                                                 // 146 
+	"7",                                                                                                 // 147 
+	"8",                                                                                                 // 148 
+	"9",                                                                                                 // 149
+	"10",                                                                                                // 150 
+	"11",                                                                                                // 151 
+	"12",                                                                                                // 152 
+	"13",                                                                                                // 153
+	"14",                                                                                                // 154 
+	"15",                                                                                                // 155 
+	"16",                                                                                                // 156 
+	"17",                                                                                                // 157 
+	"18",                                                                                                // 158 
+	"19",                                                                                                // 159 
+	"20",                                                                                                // 160 
+	"21",                                                                                                // 161 
+	"22",                                                                                                // 162
+	"23",                                                                                                // 163 
+	"24",                                                                                                // 164
+	"25",                                                                                                // 165
+	"26",                                                                                                // 166
+	"27",                                                                                                // 167
+	"28",                                                                                                // 168
+	"29",                                                                                                // 169
+	"30",                                                                                                // 170
+	"{lightred}[东山大法]{teamcolor} ",                                                                  // 171 
+	"{lightred}[比较萌的]{teamcolor} ",                                                                  // 172
+	"{lightblue}_(:з」∠)_{teamcolor}",                                                                   // 173 
+	"{lightblue}[抖S]{teamcolor}",                                                                       // 174 
+	"{lightred}[萝莉]{teamcolor} ",                                                                      // 175
+	"{lightblue}[抖M]{teamcolor}",                                                                       // 176
+	"{lightblue}[小学生]{teamcolor}",                                                                    // 177 
+	"{lightblue}[德玛西亚]{teamcolor}",                                                                  // 178 
+	"{lightblue}[工口]{teamcolor}",                                                                      // 179
+	"{lightblue}[么么哒]{teamcolor}",                                                              	     // 180
+	"{lightblue}[本子狂魔]{teamcolor}",                                                                  // 181
+	"{lightred}[大地球]{teamcolor} ",                                                                    // 182
+	"{lightred}[我最帅]{teamcolor} ",                                                                  	 // 183
+	"{lightred}[薄荷味]{teamcolor} ",                                                                    // 184 
+	"{lightred}[公交车]{teamcolor} ",                                                                    // 185 
+	"{lightred}[老司机]{teamcolor} ",                                                                    // 186 
+	"{lightred}[HENTAI]{teamcolor} ",                                                                    // 187 
+	"{lightred}[TTT影帝]{teamcolor} ",                                                                   // 188 
+	"{lightred}[新机表]{teamcolor} ",                                                                  	 // 189
+	"{lightred}[黑枪王子]{teamcolor} ",                                                                  // 190 
+	"{lightred}[暴动狂魔]{teamcolor} ",                                                                  // 191 
+	"{lightred}[跑男]{teamcolor} ",                                                                      // 192 
+	"{lightred}[咸鱼]{teamcolor} ",                                                                      // 193 
+	"{lightred}[路痴]{teamcolor} ",                                                                      // 194 
+	"{white}",                                                                                           // 195 
+	"{darkred}",                                                                                         // 196 
+	"{pink}",                                                                                            // 197
+	"{green}",                                                                                        	 // 198
+	"{lightgreen}",                                                                                      // 199 
+	"{lime}",                                                                                            // 200 
+	"{lightred}",                                                                                      	 // 201 
+	"{gray}",                                                                                            // 202 
+	"{yellow}",                                                                                          // 203
+	"{orange}",                                                                                          // 204 
+	"{silver}",                                                                                          // 205 
+	"{lightblue}",                                                                                     	 // 206 
+	"{blue}",                                                                                            // 207 
+	"{purple}",                                                                                          // 208 
+	"{darkorange}",                                                                                      // 209 
+	"{white}",                                                                                           // 210 
+	"{darkred}",                                                                                   		 // 211
+	"{pink}",                                                                                            // 212
+	"{green}",                                                                                         	 // 213
+	"{lightgreen}",                                                                                      // 214 
+	"{lime}",                                                                                            // 215 
+	"{lightred}",                                                                                      	 // 216 
+	"{gray}",                                                                                            // 217 
+	"{yellow}",                                                                                          // 218
+	"{orange}",                                                                                          // 219 
+	"{silver}",                                                                                          // 220 
+	"{lightblue}",                                                                                     	 // 221 
+	"{blue}",                                                                                            // 222
+	"{purple}",                                                                                        	 // 223
+	"{darkorange}"                                                                                      // 224
 }
 
-char g_szItemType[227][32] = 
+char g_szItemType[225][32] = 
 {
 	"",
 	"playerskin",       // 1
@@ -548,24 +544,24 @@ char g_szItemType[227][32] =
 	"hat",                 // 63  
 	"hat",                 // 64  
 	"hat",                 // 65  
-	"grenadetrail" ,    // 66 
-	"grenadetrail",     // 67  
-	"grenadetrail",     // 68  
-	"grenadetrail",     // 69  
-	"grenadetrail",     // 70  
-	"grenadetrail",     // 71   
-	"grenadetrail",     // 72  
-	"grenadetrail",     // 73  
-	"grenadetrail",     // 74  
-	"grenadetrail",     // 75  
-	"grenadetrail",     // 76 
-	"grenadetrail",     // 77   
-	"grenadetrail",     // 78  
-	"grenadetrail",     // 79  
-	"grenadetrail",     // 80  
-	"grenadetrail",     // 81  
-	"grenadetrail",     // 82 
-	"grenadetrail",     // 83  
+	"grenadetrail" ,   	 // 66 
+	"grenadetrail",    	 // 67  
+	"grenadetrail",    	 // 68  
+	"grenadetrail",    	 // 69  
+	"grenadetrail",    	 // 70  
+	"grenadetrail",    	 // 71   
+	"grenadetrail",    	 // 72  
+	"grenadetrail",    	 // 73  
+	"grenadetrail",    	 // 74  
+	"grenadetrail",    	 // 75  
+	"grenadetrail",    	 // 76 
+	"grenadetrail",    	 // 77   
+	"grenadetrail",    	 // 78  
+	"grenadetrail",    	 // 79  
+	"grenadetrail",    	 // 80  
+	"grenadetrail",    	 // 81  
+	"grenadetrail",    	 // 82 
+	"grenadetrail",    	 // 83  
 	"grenadeskin",    // 84
 	"grenadeskin",    // 85
 	"grenadeskin",    // 86
@@ -580,14 +576,14 @@ char g_szItemType[227][32] =
 	"sound",           // 95
 	"sound",           // 96
 	"sound",           // 97
-	"vwmodel" ,     // 98
-	"vwmodel" ,     // 99
-	"" ,     // 100
-	"vwmodel" ,     // 101
-	"vwmodel" ,     // 102
-	"vwmodel" ,     // 103
-	"vwmodel" ,     // 104
-	"vwmodel" ,     // 105
+	"vwmodel",     // 98
+	"vwmodel",      		// 99
+	"vwmodel",      		// 100
+	"vwmodel",     // 101
+	"vwmodel",     // 102
+	"vwmodel",     // 103
+	"trail",        // 104
+	"trail",        // 105
 	"trail",              // 106 
 	"trail",              // 107 
 	"trail",              // 108 
@@ -603,8 +599,8 @@ char g_szItemType[227][32] =
 	"trail",              // 118 
 	"trail",              // 119 
 	"trail",              // 120 
-	"trail",              // 121 
-	"trail",              // 122 
+	"Particles",          // 121 
+	"Particles",          // 122 
 	"Particles",        // 123 
 	"Particles",        // 124 
 	"Particles",        // 125 
@@ -613,8 +609,8 @@ char g_szItemType[227][32] =
 	"Particles",        // 128 
 	"Particles",        // 129 
 	"Particles",        // 130 
-	"Particles",        // 131 
-	"Particles",        // 132 
+	"Aura",             // 131 
+	"Aura",             // 132 
 	"Aura",             // 133 
 	"Aura",             // 134 
 	"Aura",             // 135 
@@ -623,8 +619,8 @@ char g_szItemType[227][32] =
 	"Aura",             // 138 
 	"Aura",             // 139 
 	"Aura",             // 140 
-	"Aura",             // 141 
-	"Aura",             // 142 
+	"neon",             // 141 
+	"neon",             // 142 
 	"neon",            // 143 
 	"neon",            // 144 
 	"neon",            // 145 
@@ -653,8 +649,8 @@ char g_szItemType[227][32] =
 	"neon",            // 168 
 	"neon",            // 169 
 	"neon",            // 170 
-	"neon",            // 171 
-	"neon",            // 172 
+	"nametag",         // 171 
+	"nametag",         // 172 
 	"nametag",       // 173 
 	"nametag",       // 174 
 	"nametag",       // 175 
@@ -677,8 +673,8 @@ char g_szItemType[227][32] =
 	"nametag",       // 192 
 	"nametag",       // 193 
 	"nametag",       // 194 
-	"nametag",       // 195 
-	"nametag",       // 196 
+	"namecolor",     // 195 
+	"namecolor",     // 196 
 	"namecolor",    // 197 
 	"namecolor",    // 198 
 	"namecolor",    // 199 
@@ -692,8 +688,8 @@ char g_szItemType[227][32] =
 	"namecolor",    // 207 
 	"namecolor",    // 208 
 	"namecolor",    // 209 
-	"namecolor",    // 210 
-	"namecolor",    // 211 
+	"msgcolor",     // 210 
+	"msgcolor",     // 211 
 	"msgcolor",      // 212 
 	"msgcolor",      // 213 
 	"msgcolor",      // 214 
@@ -706,12 +702,10 @@ char g_szItemType[227][32] =
 	"msgcolor",      // 221 
 	"msgcolor",      // 222
 	"msgcolor",      // 223
-	"msgcolor",      // 224
-	"msgcolor",      // 225
-	"msgcolor",      // 226
+	"msgcolor"      // 224
 }
 
-char g_szItemNick[227][32] = 
+char g_szItemNick[225][32] = 
 {
 	"",
 	"人物皮肤",              // 1
@@ -812,13 +806,13 @@ char g_szItemNick[227][32] =
 	"音频效果",             // 96
 	"音频效果",             // 97
 	"匕首模型/皮肤",      // 98
-	"匕首模型/皮肤",      // 99
-	"",      // 100
+	"匕首模型/皮肤",       // 99
+	"匕首模型/皮肤",       // 100
 	"匕首模型/皮肤",      // 101
 	"匕首模型/皮肤",      // 102
 	"匕首模型/皮肤",      // 103
-	"匕首模型/皮肤",      // 104
-	"匕首模型/皮肤",      // 105
+	"普通足迹",           // 104
+	"普通足迹",           // 105
 	"普通足迹",             // 106
 	"普通足迹",             // 107
 	"普通足迹",             // 108
@@ -834,8 +828,8 @@ char g_szItemNick[227][32] =
 	"普通足迹",             // 118
 	"普通足迹",             // 119
 	"普通足迹",             // 120
-	"普通足迹",             // 121
-	"普通足迹",             // 122
+	"粒子足迹",             // 121
+	"粒子足迹",             // 122
 	"粒子足迹",             // 123
 	"粒子足迹",             // 124
 	"粒子足迹",             // 125
@@ -844,8 +838,8 @@ char g_szItemNick[227][32] =
 	"粒子足迹",             // 128
 	"粒子足迹",             // 129
 	"粒子足迹",             // 130
-	"粒子足迹",             // 131
-	"粒子足迹",             // 132
+	"光环",                 // 131
+	"光环",                 // 132
 	"光环",                   // 133
 	"光环",                   // 134
 	"光环",                   // 135
@@ -854,8 +848,8 @@ char g_szItemNick[227][32] =
 	"光环",                   // 138
 	"光环",                   // 139
 	"光环",                   // 140
-	"光环",                   // 141
-	"光环",                   // 142
+	"霓虹",                   // 141
+	"霓虹",                   // 142
 	"霓虹",                   // 143
 	"霓虹",                   // 144
 	"霓虹",                   // 145
@@ -884,8 +878,8 @@ char g_szItemNick[227][32] =
 	"霓虹",                   // 168
 	"霓虹",                   // 169
 	"霓虹",                   // 170
-	"霓虹",                   // 171
-	"霓虹",                   // 172
+	"名字标签",               // 171
+	"名字标签",               // 172
 	"名字标签",             // 173
 	"名字标签",             // 174
 	"名字标签",             // 175
@@ -908,8 +902,8 @@ char g_szItemNick[227][32] =
 	"名字标签",             // 192
 	"名字标签",             // 193
 	"名字标签",             // 194
-	"名字标签",             // 195
-	"名字标签",             // 196
+	"名字颜色",             // 195
+	"名字颜色",             // 196
 	"名字颜色",             // 197
 	"名字颜色",             // 198
 	"名字颜色",             // 199
@@ -923,8 +917,8 @@ char g_szItemNick[227][32] =
 	"名字颜色",             // 207
 	"名字颜色",             // 208
 	"名字颜色",             // 209
-	"名字颜色",             // 210
-	"名字颜色",             // 211
+	"消息颜色",             // 210
+	"消息颜色",             // 211
 	"消息颜色",             // 212
 	"消息颜色",             // 213
 	"消息颜色",             // 214
@@ -937,7 +931,5 @@ char g_szItemNick[227][32] =
 	"消息颜色",             // 221
 	"消息颜色",             // 222
 	"消息颜色",             // 223
-	"消息颜色",             // 224
-	"消息颜色",             // 225
-	"消息颜色",             // 226
+	"消息颜色"             // 224
 }

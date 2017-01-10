@@ -147,8 +147,8 @@ stock int CreateBox(float DropPos[3])
 	ActivateEntity(iEntity);
 
 	SetEntProp(iEntity, Prop_Data, "m_takedamage", 2);
-	SetEntProp(iEntity, Prop_Data, "m_iMaxHealth", 100);
-	SetEntProp(iEntity, Prop_Data, "m_iHealth", 100);
+	SetEntProp(iEntity, Prop_Data, "m_iMaxHealth", 500);
+	SetEntProp(iEntity, Prop_Data, "m_iHealth", 500);
 	TeleportEntity(iEntity, DropPos, NULL_VECTOR, NULL_VECTOR);
 
 	SDKHook(iEntity, SDKHook_OnTakeDamage, OnTakeDamage);
@@ -169,51 +169,36 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			return Plugin_Handled;
 	}
 
-	if(IsValidEdict(weapon))
-	{
-		char szWeapon[32];
-		GetEdictClassname(weapon, szWeapon, 32);
-		if(StrContains(szWeapon, "knife", false) == -1)
-		{
-			PrintCenterText(attacker, "你非法破坏活动宝箱\n 你已经被天谴");
-			PrintToChatAll("%s  \x02%N\x07因为非法破坏活动宝箱,已遭到天谴", PREFIX, attacker);
-
-			if(FindPluginByFile("zombiereloaded.smx"))
-			{
-				SlapPlayer(attacker, 10);
-				return Plugin_Continue;
-			}	
-			else
-			{
-				ForcePlayerSuicide(attacker);
-				return Plugin_Handled;
-			}
-		}
-	}
-
 	int health = GetEntProp(victim, Prop_Data, "m_iHealth");
-	
+
 	if(float(health) < damage)
 	{
-		int healthleft = health - RoundToCeil(damage);
-		
-		if(healthleft < 0)
-			healthleft = 0;
-		
-		PrintHintText(attacker, "宝箱剩余HP: %d / 100", healthleft);
+		PrintCenterText(attacker, "开箱成功");
 
-		OpenBoxCase(attacker, victim);
+		if(IsValidEdict(weapon))
+		{
+			char classname[32];
+			GetEdictClassname(weapon, classname, 32);
+			if(StrContains(classname, "knife") != -1)
+				OpenBoxCase(attacker, victim, true);
+			else
+				OpenBoxCase(attacker, victim, false);
+		}
+		else
+			OpenBoxCase(attacker, victim, false);
+		
+		return Plugin_Handled;
 	}
 	else
 	{
 		int healthleft = health - RoundToCeil(damage);
-		PrintHintText(attacker, "宝箱剩余HP: %d / 100", healthleft);
+		PrintHintText(attacker, "宝箱剩余HP: %d / 500\n刀子划开中奖率比武器射击要高...", healthleft);
 	}
 
 	return Plugin_Continue;
 }
 
-void OpenBoxCase(int client, int iEntity)
+void OpenBoxCase(int client, int iEntity, bool knife)
 {
 	CreateTimer(0.0, Timer_RemoveEntity, iEntity);
 
@@ -234,9 +219,12 @@ void OpenBoxCase(int client, int iEntity)
 		return;
 	}
 
-	int id = Math_GetRandomInt(1, 226);
+	int casex = 35;
+	if(knife) casex = 50;
+
+	int id = Math_GetRandomInt(1, 224);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
-	if(Math_GetRandomInt(1, 100) > 80 || itemid < 0)
+	if(Math_GetRandomInt(1, 100) >= casex || itemid < 0)
 	{
 		PrintToChat(client, "%s  你的脸太黑了，居然什么都没有得到", PREFIX);
 		return;
@@ -353,7 +341,7 @@ void RaffleLimitedItem(int client)
 		
 		LogToFileEx(logFile, " [%d]%N 打开宝箱获得了 %s (永久)", rdm, client, name);
 	}
-	else if(233 <= rdm <= 288)
+	else if(268 <= rdm <= 288)
 	{
 		if(Store_HasClientItem(client, itemid))
 			Store_ExtClientItem(client, itemid, 31536000);

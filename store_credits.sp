@@ -7,7 +7,6 @@
 
 #undef REQUIRE_PLUGIN
 #include <csc>
-#include <sourcebans>
 
 #pragma newdecls required
 
@@ -40,7 +39,6 @@ public Plugin myinfo =
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	MarkNativeAsOptional("CG_Broadcast");
-	MarkNativeAsOptional("SBBanPlayer");
 	return APLRes_Success;
 }
 
@@ -170,15 +168,6 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
 					g_bInOpeatorGroup[client] = true;
 				if(groupid == 103582791456047719)
 					g_bInZombieGroup[client] = true;
-				if(groupid == 103582791455638129)
-				{
-					SBBanPlayer(0, client, 0, "CAT: 4=1作弊组封禁");
-				}
-				if(groupid == 103582791455103762)
-				{
-					SBBanPlayer(0, client, 0, "CAT: 天地会组成员");
-				}
-
 				break;
 			}
 		}
@@ -359,6 +348,9 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szFrom, 128, "\x0A|\x02午夜党福利+5");
 		StrCat(szReason, 128, "午夜党福利");		
 	}
+	
+	StrCat(szFrom, 128, "\x10]");
+	StrCat(szReason, 128, "]");
 
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 

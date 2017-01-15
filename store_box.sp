@@ -168,25 +168,34 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		if(StrEqual(entityclass, "hegrenade_projectile") || StrEqual(entityclass, "inferno"))
 			return Plugin_Handled;
 	}
+	
+	if(!IsValidEdict(weapon))
+		return Plugin_Handled;
 
 	int health = GetEntProp(victim, Prop_Data, "m_iHealth");
 
 	if(float(health) < damage)
 	{
-		PrintCenterText(attacker, "开箱成功");
-
-		if(IsValidEdict(weapon))
+		char classname[32];
+		GetEdictClassname(weapon, classname, 32);
+		
+		if(StrEqual(classname, "weapon_mag7") || StrEqual(classname, "weapon_nova") || StrEqual(classname, "weapon_sawedoff") || StrEqual(classname, "weapon_xm1014"))
 		{
-			char classname[32];
-			GetEdictClassname(weapon, classname, 32);
-			if(StrContains(classname, "knife") != -1)
-				OpenBoxCase(attacker, victim, true);
-			else
-				OpenBoxCase(attacker, victim, false);
+			if(IsPlayerAlive(attacker))
+			{
+				tPrintToChatAll("%s  \x02%N\x07使用霰弹枪开箱遭遇天谴", PREFIX, attacker);
+				ForcePlayerSuicide(attacker);
+			}
+			return Plugin_Handled;
 		}
+
+		PrintCenterText(attacker, "开箱成功");
+		
+		if(StrContains(classname, "knife") != -1)
+			OpenBoxCase(attacker, victim, true);
 		else
 			OpenBoxCase(attacker, victim, false);
-		
+
 		return Plugin_Handled;
 	}
 	else
@@ -219,8 +228,8 @@ void OpenBoxCase(int client, int iEntity, bool knife)
 		return;
 	}
 
-	int casex = 35;
-	if(knife) casex = 50;
+	int casex = 50;
+	if(knife) casex = 65;
 
 	int id = Math_GetRandomInt(1, 224);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
@@ -273,10 +282,17 @@ public Action Timer_RemoveEntity(Handle timer, int iEntity)
 		if(iEnt != -1)
 		{
 			float fPos[3];
-			GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", fPos); //GetClientAbsOrigin(iEntity, fPos);
+			GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", fPos);
 			
 			SetEntProp(iEnt, Prop_Data, "m_spawnflags", 6146);
-			SetEntProp(iEnt, Prop_Data, "m_iMagnitude", Math_GetRandomInt(2,10));
+			int damage = Math_GetRandomInt(2,10);
+			if(FindPluginByFile("ct.smx"))
+				damage *= 10;
+			else if(FindPluginByFile("zombiereloaded.smx"))
+				damage *= 5;
+			else if(FindPluginByFile("mg_stats.smx"))
+				damage *= 5;
+			SetEntProp(iEnt, Prop_Data, "m_iMagnitude", damage);
 			SetEntProp(iEnt, Prop_Data, "m_iRadiusOverride", 200);
 			
 			DispatchSpawn(iEnt);
@@ -290,7 +306,7 @@ public Action Timer_RemoveEntity(Handle timer, int iEntity)
 			
 			char szSound[32];
 			Format(szSound, 32, "weapons/hegrenade/explode%d.wav", Math_GetRandomInt(3, 5));
-			EmitSoundToAll(szSound);
+			EmitSoundToAll(szSound, iEntity);
 		}
 
 		SDKUnhook(iEntity, SDKHook_OnTakeDamage, OnTakeDamage);

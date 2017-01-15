@@ -86,7 +86,7 @@ char g_szItemName[225][64] =
 	"飞行墨镜",									// 63
 	"施瓦辛格",									// 64
 	"Hylian Shield",							// 65
-	"红色" ,									// 66
+	"红色",										// 66
 	"柠檬绿",									// 67
 	"蓝色",										// 68
 	"白杏色",									// 69
@@ -108,7 +108,7 @@ char g_szItemName[225][64] =
 	"Banana",									// 85
 	"Watermelon",								// 86
 	"互相伤害",									// 87
-	"呐!!" ,									// 88
+	"呐!!",										// 88
 	"害怕",										// 89
 	"友谊的小狗",								// 90
 	"50已到",									// 91
@@ -244,7 +244,7 @@ char g_szItemName[225][64] =
 	"淡蓝色",									// 221
 	"蓝色",										// 222
 	"紫色[Planeptune]",							// 223
-	"深橙色"									// 224
+	"深橙色",									// 224
 }
 
 char g_szItemUid[225][128] = 
@@ -279,7 +279,7 @@ char g_szItemUid[225][128] =
 	"models/player/custom_player/maoling/re0/rem/rem.mdl",                 					          	 // 27
 	"models/player/custom_player/maoling/re0/ram/ram.mdl",												 // 28
 	"models/player/custom_player/maoling/neptunia/histoire/normal/histoire.mdl",                         // 29
-	"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou.mdl",                           // 30                                                                                                                                               // 30
+	"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou.mdl",                           // 30
 	"models/player/custom_player/maoling/fairyfancyf/tiara/tiara.mdl",                                   // 31
 	"models/shop/perfectworld_wings01_v3.mdl",                                                           // 32 
 	"models/shop/perfectworld_wings01_v3.mdl",                                                           // 33
@@ -473,7 +473,7 @@ char g_szItemUid[225][128] =
 	"{lightblue}",                                                                                     	 // 221 
 	"{blue}",                                                                                            // 222
 	"{purple}",                                                                                        	 // 223
-	"{darkorange}"                                                                                      // 224
+	"{darkorange}",                                                                                      // 224
 }
 
 char g_szItemType[225][32] = 
@@ -518,8 +518,8 @@ char g_szItemType[225][32] =
 	"hat",                 // 37  
 	"hat",                 // 38  
 	"hat",                 // 39  
-	"hat" ,                // 40  
-	"hat" ,                // 41   
+	"hat",                // 40  
+	"hat",                // 41   
 	"hat",                 // 42  
 	"hat",                 // 43  
 	"hat",                 // 44  
@@ -539,12 +539,12 @@ char g_szItemType[225][32] =
 	"hat",                 // 58  
 	"hat",                 // 59  
 	"hat",                 // 60  
-	"hat" ,                // 61   
+	"hat",                // 61   
 	"hat",                 // 62  
 	"hat",                 // 63  
 	"hat",                 // 64  
 	"hat",                 // 65  
-	"grenadetrail" ,   	 // 66 
+	"grenadetrail",   	 // 66 
 	"grenadetrail",    	 // 67  
 	"grenadetrail",    	 // 68  
 	"grenadetrail",    	 // 69  
@@ -702,7 +702,7 @@ char g_szItemType[225][32] =
 	"msgcolor",      // 221 
 	"msgcolor",      // 222
 	"msgcolor",      // 223
-	"msgcolor"      // 224
+	"msgcolor",      // 224
 }
 
 char g_szItemNick[225][32] = 
@@ -931,5 +931,5 @@ char g_szItemNick[225][32] =
 	"消息颜色",             // 221
 	"消息颜色",             // 222
 	"消息颜色",             // 223
-	"消息颜色"             // 224
+	"消息颜色",             // 224
 }

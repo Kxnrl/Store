@@ -27,7 +27,6 @@ public int Part_Equip(int client, int id)
 {
 	g_szPartClient[client] = g_szPartName[Store_GetDataIndex(id)];
 
-	Store_RemoveClientPart(client);
 	Store_SetClientPart(client);
 
 	return 0;

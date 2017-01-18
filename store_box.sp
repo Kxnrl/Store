@@ -91,7 +91,7 @@ public Action Timer_DropBox(Handle timer)
 		for(int x = 0; x < total; ++x)
 			CreateBoxCase();
 		
-		PrintToChatAll("%s  猫灵服务器内洒了\x04%d\x01个宝箱", PREFIX, total);
+		PrintToChatAll("%s  猫灵在服务器内洒了\x04%d\x01个宝箱", PREFIX, total);
 	}
 	else
 		PrintToChatAll("%s  服务器当前人数不足,本轮宝箱取消", PREFIX);
@@ -161,6 +161,9 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 	if(attacker > MaxClients || attacker < 1 || !IsClientInGame(attacker) || !IsPlayerAlive(attacker) || victim == attacker)
 		return Plugin_Handled;
 	
+	if(!IsValidEntity(victim))
+		return Plugin_Handled;
+	
 	if(IsValidEdict(inflictor))
 	{
 		char entityclass[32];
@@ -190,7 +193,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		}
 
 		PrintCenterText(attacker, "开箱成功");
-		
+
 		if(StrContains(classname, "knife") != -1)
 			OpenBoxCase(attacker, victim, true);
 		else
@@ -209,7 +212,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 
 void OpenBoxCase(int client, int iEntity, bool knife)
 {
-	CreateTimer(0.0, Timer_RemoveEntity, iEntity);
+	RemoveEntity(iEntity);
 
 	int u = Math_GetRandomInt(1, 6666);
 	if(u == 1228 || u == 416 || u == 1018)
@@ -273,7 +276,7 @@ void OpenBoxCase(int client, int iEntity, bool knife)
 	PrintToChatAll("%s  \x0C%N\x01打开了宝箱,获得了 \x04[%s-%s](%d天)", PREFIX, client, g_szItemNick[id], g_szItemName[id], extime);
 }
 
-public Action Timer_RemoveEntity(Handle timer, int iEntity)
+void RemoveEntity(int iEntity)
 {
 	if(IsValidEntity(iEntity))
 	{

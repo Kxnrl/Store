@@ -52,8 +52,7 @@ public void Aura_Reset()
 public int Aura_Equip(int client, int id) 
 {
 	g_szAuraClient[client] = g_szAuraName[Store_GetDataIndex(id)];
-	
-	Store_RemoveClientAura(client);
+
 	Store_SetClientAura(client);
 
 	return 0; 

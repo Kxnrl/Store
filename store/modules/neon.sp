@@ -17,7 +17,6 @@ public int Neon_Config(Handle &kv, int itemid)
 	g_eNeons[g_iNeons][iBright] = KvGetNum(kv, "brightness");
 	g_eNeons[g_iNeons][iDistance] = KvGetNum(kv, "distance");
 	g_eNeons[g_iNeons][iFade] = KvGetNum(kv, "distancefade");
-	if(g_bGameModeZE) g_eNeons[g_iNeons][iDistance] *= 2;
 	++g_iNeons;
 	return true; 
 }
@@ -41,10 +40,7 @@ public void Neon_Reset()
 
 public int Neon_Equip(int client, int id)
 {
-	if(g_iClientNeon[client] != 0)
-		Store_RemoveClientNeon(client);
-
-	Store_SetClientNeon(client);
+	RequestFrame(NeonEquipDelay, client);
 	return 0;
 }
 
@@ -63,15 +59,20 @@ public Action Hook_SetTransmit_Neon(int ent, int client)
 	return !(g_bHideMode[client]) ? Plugin_Continue : Plugin_Handled;
 }
 
+void NeonEquipDelay(int client)
+{
+	Store_SetClientNeon(client);
+}
+
 void Store_RemoveClientNeon(int client)
 {
 	if(g_iClientNeon[client] != 0)
 	{
-		if(IsValidEntity(g_iClientNeon[client]))
-			SDKUnhook(g_iClientNeon[client], SDKHook_SetTransmit, Hook_SetTransmit_Neon);
-
 		if(IsValidEdict(g_iClientNeon[client]))
+		{
+			SDKUnhook(g_iClientNeon[client], SDKHook_SetTransmit, Hook_SetTransmit_Neon);
 			AcceptEntityInput(g_iClientNeon[client], "Kill");
+		}
 
 		g_iClientNeon[client] = 0;
 	}

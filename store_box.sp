@@ -232,7 +232,7 @@ void OpenBoxCase(int client, int iEntity, bool knife)
 	}
 
 	int casex = 50;
-	if(knife) casex = 65;
+	if(knife) casex = 75;
 
 	int id = Math_GetRandomInt(1, 224);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
@@ -272,8 +272,8 @@ void OpenBoxCase(int client, int iEntity, bool knife)
 		Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F[%s-%s]\x05(%d天)", client, g_szItemNick[id], g_szItemName[id], extime);
 		Boradcast((extime >= 30) ? true : false, fmt);
 	}
-
-	PrintToChatAll("%s  \x0C%N\x01打开了宝箱,获得了 \x04[%s-%s](%d天)", PREFIX, client, g_szItemNick[id], g_szItemName[id], extime);
+	else
+		PrintToChatAll("%s  \x0C%N\x01打开了宝箱,获得了 \x04[%s-%s](%d天)", PREFIX, client, g_szItemNick[id], g_szItemName[id], extime);
 }
 
 void RemoveEntity(int iEntity)
@@ -352,7 +352,7 @@ void RaffleLimitedItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), 0, 306);
 		
-		PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(永久)", PREFIX, client, name);
+		//PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(永久)", PREFIX, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F%s\x05(永久)", client, name);
@@ -367,7 +367,7 @@ void RaffleLimitedItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+31536000, 305);
 
-		PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(1年)", PREFIX, client, name);
+		//PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(1年)", PREFIX, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F%s\x05(1年)", client, name);
@@ -382,7 +382,7 @@ void RaffleLimitedItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+2592000, 304);
 
-		PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(1月)", PREFIX, client, name);
+		//PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(1月)", PREFIX, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F%s\x05(1月)", client, name);
@@ -397,7 +397,7 @@ void RaffleLimitedItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+604800, 303);
 
-		PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(1周)", PREFIX, client, name);
+		//PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%s\x05(1周)", PREFIX, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04打开宝箱获得了\x0F%s\x05(1周)", client, name);
@@ -437,7 +437,7 @@ void RaffleDiamods(int client)
 		return;
 	}
 	
-	int rdm = Math_GetRandomInt(5, 20);
+	int rdm = Math_GetRandomInt(1, 15);
 	PrintToChatAll("%s  \x0C%N\x04打开宝箱获得了\x0F%d钻石", PREFIX, client, rdm);
 	CG_SetClientDiamond(client, CG_GetClientDiamond(client)+rdm);
 	

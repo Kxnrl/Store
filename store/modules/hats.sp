@@ -5,7 +5,6 @@ enum Hat
 	Float:fPosition[3],
 	Float:fAngles[3],
 	bool:bBonemerge,
-	iTeam,
 	iSlot
 }
 
@@ -23,7 +22,6 @@ public int Hats_Config(Handle &kv, int itemid)
 	KvGetVector(kv, "angles", m_fTemp);
 	g_eHats[g_iHats][fAngles] = m_fTemp;
 	g_eHats[g_iHats][bBonemerge] = (KvGetNum(kv, "bonemerge", 0)?true:false);
-	g_eHats[g_iHats][iTeam] = KvGetNum(kv, "team", 0);
 	g_eHats[g_iHats][iSlot] = KvGetNum(kv, "slot");
 	KvGetString(kv, "attachment", g_eHats[g_iHats][szAttachment], 64, "forward");
 	
@@ -86,9 +84,8 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 	if(m_iEquipped >= 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
-		int m_iTeam = GetClientTeam(client);
 		
-		if(g_eHats[m_iData][iTeam] != 0 && m_iTeam!=g_eHats[m_iData][iTeam])
+		if(g_bGameModeZE && GetClientTeam(client) == 2)
 			return;
 		
 		// Calculate the final position and angles for the hat

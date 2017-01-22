@@ -460,7 +460,7 @@ void Active_RaffleLimitItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), 0, 306);
 		
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(永久)", PF_ACTIVE, client, name);
+		//PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(永久)", PF_ACTIVE, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(永久)", client, name);
@@ -475,7 +475,7 @@ void Active_RaffleLimitItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+31536000, 305);
 
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1年)", PF_ACTIVE, client, name);
+		//PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1年)", PF_ACTIVE, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1年)", client, name);
@@ -490,7 +490,7 @@ void Active_RaffleLimitItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+2592000, 304);
 
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1月)", PF_ACTIVE, client, name);
+		//PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1月)", PF_ACTIVE, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1月)", client, name);
@@ -505,7 +505,7 @@ void Active_RaffleLimitItem(int client)
 		else
 			Store_GiveItem(client, itemid, GetTime(), GetTime()+604800, 303);
 
-		PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1周)", PF_ACTIVE, client, name);
+		//PrintToChatAll("%s  \x0C%N\x04在本轮抽奖中抽中了\x0F%s\x05(1周)", PF_ACTIVE, client, name);
 		
 		char fmt[256];
 		Format(fmt, 256, "\x0C%N\x04抽奖中抽中了\x0F%s\x05(1周)", client, name);

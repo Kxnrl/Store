@@ -15,19 +15,19 @@ void Players_OnPluginStart()
 		return;
 	
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
-	Store_RegisterHandler("hat", "model", Hats_OnMapStart, Hats_Reset, Hats_Config, Hats_Equip, Hats_Remove, true);
 	
 	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Pre);
 	HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
-	HookEvent("player_team", Event_PlayerTeam, EventHookMode_Post);
-	HookEvent("round_end", Event_RoundEnd, EventHookMode_Post);
 
 	RegConsoleCmd("sm_tp", Command_TP, "Toggle TP Mode");
 	RegConsoleCmd("sm_seeme", Command_Mirror, "Toggle Mirror Mode");
 
 	RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
+	
+	if(!g_bGameModeKZ)
+		Store_RegisterHandler("hat", "model", Hats_OnMapStart, Hats_Reset, Hats_Config, Hats_Equip, Hats_Remove, true);
 
-	if(g_bGameModeHZ || g_bGameModeZE)
+	if(g_bGameModeHZ || g_bGameModeZE || g_bGameModeKZ)
 		return;
 
 	Store_RegisterHandler("trail", "material", Trails_OnMapStart, Trails_Reset, Trails_Config, Trails_Equip, Trails_Remove, true);
@@ -47,7 +47,7 @@ void Players_OnClientConnected(int client)
 	g_bMirror[client] = false;
 }
 
-public void Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
+public void CG_OnRoundEnd(int winner)
 {
 	for(int client = 1; client <= MaxClients; ++client)
 	{
@@ -80,6 +80,11 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
 	CheckClientTP(client);
+	
+	RequestFrame(OnClientDeath, client);
+	
+	if(g_bGameModeKZ)
+		return Plugin_Continue;
 
 	if(!g_bGameModeHZ && !g_bGameModeZE)
 	{
@@ -95,20 +100,20 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 		if(!g_bGameModeHZ && !g_bGameModeZE)
 			Store_RemoveClientTrail(client, i);
 	}
-
-	RequestFrame(OnClientDeath, client);
 	
 	return Plugin_Continue;
 }
 
-public void Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
+public void CG_OnClientTeam(int client)
 {
-	RequestFrame(OnClientTeam, GetClientOfUserId(GetEventInt(event, "userid")));
+	if(g_bGameModePR)
+		return;
+	RequestFrame(OnClientTeam, client);
 }
 
 public void OnClientSpawn(int client)
 {
-	if(!IsClientInGame(client) || !IsPlayerAlive(client))
+	if(!IsClientInGame(client) || !IsPlayerAlive(client) || g_bGameModeKZ)
 		return;
 
 	if(!g_bGameModeHZ && !g_bGameModeZE)
@@ -129,7 +134,7 @@ public void OnClientDeath(int client)
 
 public void OnClientTeam(int client)
 {
-	if(!IsClientInGame(client))
+	if(g_bGameModePR || g_bGameModeKZ || !IsClientInGame(client))
 		return;
 
 	if(!IsPlayerAlive(client))
@@ -162,7 +167,7 @@ public Action Command_Hide(int client, int args)
 
 public Action Command_TP(int client, int args)
 {
-	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB || g_bGameModePR || g_bGameModeHZ) && !Store_IsWhiteList(client))
+	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB || g_bGameModePR || g_bGameModeHZ) && CG_GetClientGId(client) != 9999)
 	{
 		tPrintToChat(client, "当前模式不允许使用TP");
 		return Plugin_Handled;

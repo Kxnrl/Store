@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.0rc2 - 2017/01/21 08:06"
+#define PLUGIN_VERSION "1.0rc8 - 2017/02/05 05:59"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -83,6 +83,7 @@ int g_iSpam[MAXPLAYERS+1];
 int g_iBuySellProtect[MAXPLAYERS+1];
 
 bool g_bInvMode[MAXPLAYERS+1];
+bool g_bMenuBGM[MAXPLAYERS+1];
 
 bool g_bGameModeZE;
 bool g_bGameModeTT;
@@ -96,7 +97,6 @@ bool g_bGameModePR;
 bool g_bGameModeHZ;
 
 bool g_bLateLoad;
-bool g_bConfLoad;
 char g_szLogFile[128];
 char g_szTempole[128];
 
@@ -130,7 +130,7 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	// Setting default values
-	for(int i = 1;i <= MaxClients; ++i)
+	for(int i = 1; i <= MaxClients; ++i)
 	{
 		g_eClients[i][iCredits] = -1;
 		g_eClients[i][iOriginalCredits] = 0;
@@ -147,6 +147,12 @@ public void OnPluginStart()
 
 	// Load the translations file
 	LoadTranslations("store.phrases");
+	
+	// Connect to the database
+	if(g_hDatabase == INVALID_HANDLE)
+		SQL_TConnect(SQLCallback_Connect, "csgo");
+		
+	CreateTimer(30.0, Timer_DatabaseTimeout);
 
 	// Initiaze the fake package handler
 	g_iPackageHandler = Store_RegisterHandler("package", "", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
@@ -158,16 +164,8 @@ public void OnAllPluginsLoaded()
 	CreateTimer(1.0, LoadConfig);
 }
 
-public void CG_OnServerLoaded()
-{
-	CreateTimer(1.0, LoadConfig);
-}
-
 public Action LoadConfig(Handle timer)
 {
-	if(g_bConfLoad)
-		return;
-
 	Store_ReloadConfig();
 }
 
@@ -231,15 +229,6 @@ public void OnMapStart()
 			Call_Finish();
 		}
 	}
-}
-
-public void OnConfigsExecuted()
-{
-	// Connect to the database
-	if(g_hDatabase == INVALID_HANDLE)
-		SQL_TConnect(SQLCallback_Connect, "csgo");
-		
-	CreateTimer(30.0, Timer_DatabaseTimeout);
 }
 
 public void OnGameFrame()
@@ -485,7 +474,7 @@ public int Native_SetClientCredits(Handle myself, int numParams)
 			Store_LogMessage(client, m_iCredits-g_eClients[client][iCredits], false, "未知来源");
 		else
 			Store_LogMessage(client, m_iCredits-g_eClients[client][iCredits], false, logMsg);
-		//PrintToChatAll("[STORE-DEBUG] LogMsg: %s", logMsg);
+
 		g_eClients[client][iCredits] = m_iCredits;
 	}
 
@@ -529,8 +518,8 @@ public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
 	char m_szData[11];
 	Format(STRING(m_szCallback), "%d.%d", plugin, callback);
 	IntToString(data, STRING(m_szData));
-	AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szCallback, "%t", "Confirm_Yes");
-	AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szData, "%t", "Confirm_No");
+	AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szCallback, "%T", "Confirm_Yes", client);
+	AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szData, "%T", "Confirm_No", client);
 	DisplayMenu(m_hMenu, client, 0);
 }
 
@@ -701,6 +690,7 @@ public void OnClientConnected(int client)
 	g_eClients[client][iOriginalCredits] = 0;
 	g_eClients[client][iItems] = -1;
 	g_eClients[client][bLoaded] = false;
+	g_bMenuBGM[client] = false;
 	
 	for(int i = 0; i < STORE_MAX_HANDLERS; ++i)
 	{
@@ -751,7 +741,10 @@ public void OnClientSettingsChanged(int client)
 //			COMMANDS	 		//
 //////////////////////////////////
 public Action Command_Store(int client, int args)
-{	
+{
+	if(!IsClientInGame(client))
+		return Plugin_Handled;
+	
 	if((g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1) || !g_eClients[client][bLoaded])
 	{
 		tPrintToChat(client, "%t", "Inventory hasnt been fetched");
@@ -760,7 +753,7 @@ public Action Command_Store(int client, int args)
 
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
+		tPrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
 		return Plugin_Handled;
 	}	
 
@@ -781,7 +774,7 @@ public Action Command_Inventory(int client, int args)
 	
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
+		tPrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
 		return Plugin_Handled;
 	}
 	
@@ -802,7 +795,7 @@ public Action Command_Credits(int client, int args)
 	
 	if(g_eClients[client][bBan])
 	{
-		PrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
+		tPrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
 		return Plugin_Handled;
 	}
 
@@ -832,15 +825,15 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 	{
 		SetMenuExitBackButton(m_hMenu, true);
 		if(client == target)
-			SetMenuTitle(m_hMenu, "%s\n%t", g_eItems[parent][szName], "Title Credits", g_eClients[target][iCredits]);
+			SetMenuTitle(m_hMenu, "%s\n%T", g_eItems[parent][szName], "Title Credits", client, g_eClients[target][iCredits]);
 		else
-			SetMenuTitle(m_hMenu, "%N\n%s\n%t", target, g_eItems[parent][szName], "Title Credits", g_eClients[target][iCredits]);
+			SetMenuTitle(m_hMenu, "%N\n%s\n%T", target, g_eItems[parent][szName], "Title Credits", client, g_eClients[target][iCredits]);
 		g_iMenuBack[client] = g_eItems[parent][iParent];
 	}
 	else if(client == target)
-		SetMenuTitle(m_hMenu, "%t\n%t", "Title Store", "Title Credits", g_eClients[target][iCredits]);
+		SetMenuTitle(m_hMenu, "%T\n%T", "Title Store", client, "Title Credits", client, g_eClients[target][iCredits]);
 	else
-		SetMenuTitle(m_hMenu, "%N\n%t\n%t", target, "Title Store", "Title Credits", g_eClients[target][iCredits]);
+		SetMenuTitle(m_hMenu, "%N\n%T\n%T", target, "Title Store", client, "Title Credits", client, g_eClients[target][iCredits]);
 	
 	char m_szId[11];
 	int m_iFlags = GetUserFlagBits(target);
@@ -853,12 +846,12 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 		{
 			if(!Store_IsItemInBoughtPackage(target, parent))
 			{
-				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "sell_package", "%t", "Package Sell", RoundToFloor(g_eItems[parent][iPrice]*0.6));
+				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "sell_package", "%T", "Package Sell", client, RoundToFloor(g_eItems[parent][iPrice]*0.6));
 				++m_iPosition;
 
 				if(g_eItems[parent][bGiftable])
 				{
-					AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "gift_package", "%t", "Package Gift");
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "gift_package", "%T", "Package Gift", client);
 					++m_iPosition;
 				}
 
@@ -897,9 +890,9 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 				if(g_eItems[i][iPrice] == -1 || Store_HasClientItem(target, i))
 					AddMenuItem(m_hMenu, m_szId, g_eItems[i][szName], m_iStyle);
 				else if(!g_bInvMode[client] && g_eItems[i][iPlans]==0 && g_eItems[i][bBuyable])
-					InsertMenuItemEx(m_hMenu, m_iPosition, (m_iPrice<=g_eClients[target][iCredits]?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED), m_szId, "%t", "Item Available", g_eItems[i][szName], g_eItems[i][iPrice]);
+					InsertMenuItemEx(m_hMenu, m_iPosition, (m_iPrice<=g_eClients[target][iCredits]?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED), m_szId, "%T", "Item Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
 				else if(!g_bInvMode[client])
-					InsertMenuItemEx(m_hMenu, m_iPosition, (m_iPrice<=g_eClients[target][iCredits]?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED), m_szId, "%t", "Item Plan Available", g_eItems[i][szName]);
+					InsertMenuItemEx(m_hMenu, m_iPosition, (m_iPrice<=g_eClients[target][iCredits]?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED), m_szId, "%T", "Item Plan Available", client, g_eItems[i][szName]);
 				++m_iPosition;
 			}
 			// This is a normal item
@@ -909,9 +902,9 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 				if(Store_HasClientItem(target, i))
 				{
 					if(Store_IsEquipped(target, i))
-						InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%t", "Item Equipped", g_eItems[i][szName]);
+						InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Equipped", client, g_eItems[i][szName]);
 					else
-						InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%t", "Item Bought", g_eItems[i][szName]);
+						InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Bought", client, g_eItems[i][szName]);
 				}
 				else if(!g_bInvMode[client])
 				{				
@@ -923,9 +916,9 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 						continue;
 
 					if(g_eItems[i][iPlans]==0)
-						AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%t", "Item Available", g_eItems[i][szName], g_eItems[i][iPrice]);
+						AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
 					else
-						AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%t", "Item Plan Available", g_eItems[i][szName], g_eItems[i][iPrice]);
+						AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Plan Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
 				}
 			}
 		}
@@ -935,6 +928,12 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 		DisplayMenu(m_hMenu, client, 0);
 	else
 		DisplayMenuAtItem(m_hMenu, client, (last/GetMenuPagination(m_hMenu))*GetMenuPagination(m_hMenu), 0);
+	
+	if(!g_bMenuBGM[client])
+	{
+		g_bMenuBGM[client] = true;
+		CG_ShowHiddenMotd(client, "https://csgogamers.com/music/store.php?volume=85");
+	}
 }
 
 public int MenuHandler_Store(Handle menu, MenuAction action, int client, int param2)
@@ -1057,8 +1056,13 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 		}
 	}
 	else if(action==MenuAction_Cancel)
-		if (param2 == MenuCancel_ExitBack)
+		if(param2 == MenuCancel_ExitBack)
 			Store_DisplayPreviousMenu(client);
+		else if(IsClientInGame(client) && g_bMenuBGM[client])
+		{
+			CG_RemoveMotd(client);
+			g_bMenuBGM[client] = false;
+		}
 }
 
 public int DisplayItemMenu(int client, int itemid)
@@ -1093,32 +1097,32 @@ public int DisplayItemMenu(int client, int itemid)
 	
 	if(g_eTypeHandlers[g_eItems[itemid][iHandler]][bEquipable])
 		if(!m_bEquipped)
-			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%t", "Item Equip");
+			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Item Equip", client);
 		else
-			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%t", "Item Unequip");
+			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%T", "Item Unequip", client);
 	else
 	{
 		
 		if(StrEqual(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "buyvip"))
 		{
-			switch(VIP_GetVipType(client))
+			switch(CG_GetClientVip(client))
 			{
-				case 3: AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "you are already vip", "svip");
-				case 2: AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "you are already vip", "yvip");
+				case 3: AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "you are already vip", client, "svip");
+				case 2: AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "you are already vip", client, "yvip");
 				case 1: 
 				{
-					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "you are already vip", "mvip");
-					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "go to forum to buy vip");
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "you are already vip", client, "mvip");
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "go to forum to buy vip", client);
 				}
 				case 0:
 				{
-					AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%t", "buy monthly vip");
-					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%t", "go to forum to buy vip");
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "buy monthly vip", client);
+					AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "go to forum to buy vip", client);
 				}
 			}
 		}
 		else
-			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%t", "Item Use");
+			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Item Use", client);
 	}
 		
 	if(!Store_IsItemInBoughtPackage(target, itemid))
@@ -1136,9 +1140,9 @@ public int DisplayItemMenu(int client, int itemid)
 				m_iCredits = RoundToCeil(m_iCredits*float(m_iLeft)/float(m_iLength));
 			}
 
-			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "%t", "Item Sell", m_iCredits);
+			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "%T", "Item Sell", client, m_iCredits);
 			if(g_eItems[itemid][bGiftable])
-				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "%t", "Item Gift");
+				AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "%T", "Item Gift", client);
 		}
 	}
 
@@ -1164,11 +1168,11 @@ public int DisplayPlanMenu(int client, int itemid)
 	Handle m_hMenu = CreateMenu(MenuHandler_Plan);
 	SetMenuExitBackButton(m_hMenu, true);
 	
-	SetMenuTitle(m_hMenu, "%s\n%t", g_eItems[itemid][szName], "Title Credits", g_eClients[target][iCredits]);
+	SetMenuTitle(m_hMenu, "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[target][iCredits]);
 	
 	for(int i = 0; i < g_eItems[itemid][iPlans]; ++i)
 	{
-		AddMenuItemEx(m_hMenu, (g_eClients[target][iCredits]>=g_ePlans[itemid][i][iPrice]?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED), "", "%t",  "Item Available", g_ePlans[itemid][i][szName], g_ePlans[itemid][i][iPrice]);
+		AddMenuItemEx(m_hMenu, (g_eClients[target][iCredits]>=g_ePlans[itemid][i][iPrice]?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED), "", "%T",  "Item Available", client, g_ePlans[itemid][i][szName], g_ePlans[itemid][i][iPrice]);
 	}
 	
 	DisplayMenu(m_hMenu, client, 0);
@@ -1289,7 +1293,7 @@ public int DisplayPlayerMenu(int client)
 	int m_iCount = 0;
 	Handle m_hMenu = CreateMenu(MenuHandler_Gift);
 	SetMenuExitBackButton(m_hMenu, true);
-	SetMenuTitle(m_hMenu, "%t\n%t", "Title Gift", "Title Credits", g_eClients[client][iCredits]);
+	SetMenuTitle(m_hMenu, "%T\n%T", "Title Gift", client, "Title Credits", client, g_eClients[client][iCredits]);
 	
 	char m_szID[11];
 	int m_iFlags;
@@ -1355,7 +1359,7 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
 				tPrintToChat(client, "%t", "Gift Player Left");
 				return;
 			}
-				
+
 			m_iItem = Store_GetClientItemId(target, g_iSelectedItem[client]);
 			
 			char m_szTitle[128];
@@ -1507,9 +1511,10 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			
 			if(g_eClients[client][iId] == 1)
 			{
-				if(GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true) && !StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_1:0:3339246"))
+				GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32);
+				if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262"))
 				{
-					KickClient(client, "STEAM AUTH ERROR");
+					CreateTimer(3.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 					return;
 				}
 			}
@@ -1529,17 +1534,6 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			g_eClients[client][iDateOfLastJoin] = m_iTime;
 			g_eClients[client][bLoaded] = true;
 			g_eClients[client][iItems] = 0;
-
-			if(g_bGameModePR)
-			{
-				Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"playerskin\", \"models/player/custom_player/maoling/haipa/haipa.mdl\", %d, %d, 300)", g_eClients[client][iId], GetTime(), GetTime()+604800);
-				SQL_TVoid(g_hDatabase, m_szQuery);
-			}
-			else
-			{
-				Store_GiveItem(client, Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"), GetTime(), GetTime()+604800, 300);
-				PrintToChat(client, "[\x0CCG\x01]  作为新玩家你收到了赠礼[\x04害怕/滑稽\x01](\x0C7天\x01)");
-			}
 		}
 	}
 }
@@ -1554,10 +1548,6 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 		if(!client)
 			return;
 
-		char m_szQuery[512];
-		Format(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-		SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
-
 		if(g_eClients[client][bBan])
 		{
 			g_eClients[client][bLoaded] = true;
@@ -1569,9 +1559,9 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 		{
 			char m_szSteamID[32];
 			GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true);
-			if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262") && !StrEqual(m_szSteamID, "STEAM_1:0:3339246"))
+			if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262"))
 			{
-				KickClient(client, "STEAM AUTH ERROR");
+				CreateTimer(3.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 				return;
 			}
 		}
@@ -1582,6 +1572,10 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 			g_eClients[client][iItems] = 0;
 			return;
 		}
+		
+		char m_szQuery[512];
+		Format(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+		SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
 
 		char m_szUniqueId[PLATFORM_MAX_PATH];
 		char m_szType[16];
@@ -1599,6 +1593,10 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 			
 			SQL_FetchString(hndl, 2, STRING(m_szType));
 			SQL_FetchString(hndl, 3, STRING(m_szUniqueId));
+			
+			if(StrContains(m_szUniqueId, "cybertech") != -1 && CG_GetClientId(client) != 1)
+				CreateTimer(20.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+
 			while((m_iUniqueId = Store_GetItemId(m_szType, m_szUniqueId, m_iUniqueId))!=-1)
 			{
 				g_eClientItems[client][i][iId] = SQL_FetchInt(hndl, 0);
@@ -1629,12 +1627,6 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 		char m_szUniqueId[PLATFORM_MAX_PATH];
 		char m_szType[16];
 		int m_iUniqueId;
-		
-		if(g_eClients[client][bBan])
-		{
-			g_eClients[client][bLoaded] = true;
-			return;
-		}
 
 		while(SQL_FetchRow(hndl))
 		{
@@ -1717,7 +1709,8 @@ public void Store_SaveClientInventory(int client)
 			g_eClientItems[client][i][bSynced] = true;
 			Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[client][iId], m_szType, m_szUniqueId, g_eClientItems[client][i][iDateOfPurchase], g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iPriceOfPurchase]);
 			SQL_TVoid(g_hDatabase, m_szQuery);
-		} else if(g_eClientItems[client][i][bSynced] && g_eClientItems[client][i][bDeleted])
+		}
+		else if(g_eClientItems[client][i][bSynced] && g_eClientItems[client][i][bDeleted])
 		{
 			// Might have been synced already but ID wasn't acquired
 			if(g_eClientItems[client][i][iId]==-1)
@@ -1725,6 +1718,7 @@ public void Store_SaveClientInventory(int client)
 			else
 				Format(STRING(m_szQuery), "DELETE FROM store_items WHERE `id`=%d", g_eClientItems[client][i][iId]);
 			SQL_TVoid(g_hDatabase, m_szQuery);
+			g_eClientItems[client][i][bDeleted] = false;
 		}
 	}
 }
@@ -1935,7 +1929,7 @@ public int Store_SellItem(int client, int itemid)
 	LogToFileEx(g_szTempole, "%N 卖掉了 %s %s", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
 	Store_RemoveItem(client, itemid);
-	
+
 	Store_SaveClientAll(client);
 }
 
@@ -2006,8 +2000,8 @@ public void Store_ReloadConfig()
 	}
 	Store_WalkConfig(m_hKV);
 	CloseHandle(m_hKV);
-	
-	g_bConfLoad = true;
+
+	OnMapStart();
 }
 
 void Store_WalkConfig(Handle &kv, int parent = -1)
@@ -2387,17 +2381,6 @@ void CheckGameMode()
 	Sounds_OnPluginStart();
 }
 
-bool Store_IsWhiteList(int client)
-{
-	if(g_eClients[client][iId] == 1)
-		return true;
-	
-	if(g_eClients[client][iId] == 157809)
-		return true;
-	
-	return false;
-}
-
 bool Store_IsPlayerTP(int client)
 {
 	if(g_bThirdperson[client])
@@ -2471,4 +2454,15 @@ void BuildTempLogFile()
 	g_hKeyValue = CreateKeyValues("store_logs", "", "");
 
 	KeyValuesToFile(g_hKeyValue, g_szLogFile);
+}
+
+public Action Timer_KickClient(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(client);
+	if(!client || !IsClientConnected(client))
+		return Plugin_Stop;
+	
+	KickClient(client, "STEAM AUTH ERROR");
+	
+	return Plugin_Stop;
 }

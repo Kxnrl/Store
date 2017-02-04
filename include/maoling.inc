@@ -256,7 +256,7 @@ stock void tPrintToChat(int client, const char[] szMessage, any ...)
 	SetGlobalTransTarget(client);
 	VFormat(szBuffer, 256, szMessage, 3);
 	ReplaceColorsCode(szBuffer, 256);
-	PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
+	PrintToChat(client, "[\x10Store\x01]  %s", szBuffer);
 }
 
 stock void tPrintToChatAll(const char[] szMessage, any ...)
@@ -270,7 +270,7 @@ stock void tPrintToChatAll(const char[] szMessage, any ...)
 			SetGlobalTransTarget(i);			
 			VFormat(szBuffer, 256, szMessage, 2);
 			ReplaceColorsCode(szBuffer, 256);
-			PrintToChat(i, "[\x04Store\x01]  %s", szBuffer);
+			PrintToChat(i, "[\x10Store\x01]  %s", szBuffer);
 		}
 	}
 }

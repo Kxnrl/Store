@@ -623,6 +623,35 @@
 			}
 			"type"		"playerskin"
 		}
+		"Peter Animation Helper"
+		{
+			"model"		"models/player/custom_player/maoling/misc/peter/peter_v2.mdl"
+			"arms"		"models/player/custom_player/maoling/misc/peter/peter_arms_v2.mdl"
+			"team"		"3"
+			"Plans"
+			{
+				"1天"
+				{
+					"price"		"599"
+					"time"		"86400"
+				}
+				"1周"
+				{
+					"price"		"3999"
+					"time"		"604800"
+				}
+				"1月"
+				{
+					"price"		"16888"
+					"time"		"2678400"
+				}
+				"无限制"
+				{
+					"price"		"68888"
+				}
+			}
+			"type"		"playerskin"
+		}
 		"希斯(Historie) - 矿场"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/histoire/normal/histoire.mdl"
@@ -969,6 +998,7 @@
 			"team"		"2"
 			"buyable"	"0"
 			"giftable"	"0"
+			"flag"		"z"
 			"price"		"3000"
 			"type"		"playerskin"
 		}
@@ -979,6 +1009,7 @@
 			"team"		"3"
 			"buyable"	"0"
 			"giftable"	"0"
+			"flag"		"z"
 			"price"		"3000"
 			"type"		"playerskin"
 		}
@@ -989,15 +1020,8 @@
 			"team"		"3"
 			"buyable"	"0"
 			"giftable"	"0"
-			"price"		"3000"
-			"type"		"playerskin"
-		}
-		"Lax - Ice [For ZE Commander]"
-		{
-			"model"		"models/player/custom_player/kaesarLoL/lux_ice/lux_ice.mdl"
-			"arms"		"models/player/custom_player/kaesarLoL/lux_ice/lux_ice_arms.mdl"
-			"team"		"2"
 			"flag"		"z"
+			"price"		"3000"
 			"type"		"playerskin"
 		}
 	}
@@ -3329,6 +3353,22 @@
 							"price"		"99999"
 						}
 					}
+					"type"			"vwmodel" 
+					"slot"			"0"
+				}
+			}
+			"Deagle"
+			{
+				"Vocaloid Deagle"
+				{
+					"model"			"models/maoling/weapon/vocaloid/deagle/deagle.mdl"
+					"worldmodel"	"models/maoling/weapon/vocaloid/deagle/deagle_w.mdl"
+					"dropmodel"		"models/maoling/weapon/vocaloid/deagle/deagle_w_dropped.mdl"
+					"entity"		"weapon_deagle"
+					"buyable"		"0"
+					"giftable"		"0"
+					"flag"			"z"
+					"price"			"99999"
 					"type"			"vwmodel" 
 					"slot"			"0"
 				}

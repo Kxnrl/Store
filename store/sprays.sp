@@ -117,7 +117,7 @@ public void Sprays_Create(int client)
 	if(distance > 115.0)
 	{
 		PrintToChat(client, "\x01 \x04[Store]  \x0喷漆距离太远");
-		if(PA_GetGroupID(client) == 9999)
+		if(CG_GetClientGId(client) == 9999)
 			g_iSprayLimit[client] = GetTime()+3;
 		else
 			g_iSprayLimit[client] = GetTime()+30;
@@ -128,10 +128,8 @@ public void Sprays_Create(int client)
 	TE_WriteVector("m_vecOrigin",m_flView);
 	TE_WriteNum("m_nIndex", g_iSprayPrecache[g_iSprayCache[client]]);
 	TE_SendToAll();
-
-	//EmitSoundToAll("player/sprayer.wav", client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8);
 	
-	if(PA_GetGroupID(client) == 9999)
+	if(CG_GetClientGId(client) == 9999)
 		g_iSprayLimit[client] = GetTime()+3;
 	else
 		g_iSprayLimit[client] = GetTime()+30;

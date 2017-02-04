@@ -112,16 +112,19 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 		m_fHatOrigin[1] += m_fRight[1]*m_fOffset[0]+m_fForward[1]*m_fOffset[1]+m_fUp[1]*m_fOffset[2];
 		m_fHatOrigin[2] += m_fRight[2]*m_fOffset[0]+m_fForward[2]*m_fOffset[1]+m_fUp[2]*m_fOffset[2];
 		
+		if(!IsModelPrecached(g_eHats[m_iData][szModel]))
+			PrecacheModel2(g_eHats[m_iData][szModel], true);
+
 		// Create the hat entity
 		int m_iEnt = CreateEntityByName("prop_dynamic_override");
 		DispatchKeyValue(m_iEnt, "model", g_eHats[m_iData][szModel]);
 		DispatchKeyValue(m_iEnt, "spawnflags", "256");
 		DispatchKeyValue(m_iEnt, "solid", "0");
 		SetEntPropEnt(m_iEnt, Prop_Send, "m_hOwnerEntity", client);
-		
+
 		if(g_eHats[m_iData][bBonemerge])
 			Bonemerge(m_iEnt);
-		
+
 		DispatchSpawn(m_iEnt);	
 		AcceptEntityInput(m_iEnt, "TurnOn", m_iEnt, m_iEnt, 0);
 		

@@ -60,7 +60,7 @@ public void SQLCallback_BuyVIP(Handle db, Handle hndl, const char[] error, any u
 	{
 		CPrintToChat(client, "\x04[Store]  \x10购买VIP成功");
 		Store_SaveClientAll(client);
-		VIP_SetClientVIP(client);
+		CG_SetClientVIP(client);
 	}
 	else if(SQL_FetchRow(hndl))
 	{
@@ -82,7 +82,7 @@ public int VIP_Equip(int client, int id)
 		return -1;
 	}
 
-	if(VIP_IsClientVIP(client))
+	if(CG_IsClientVIP(client))
 	{
 		CPrintToChat(client, "\x04[Store]  \x10你已经是VIP了");
 		return -1;

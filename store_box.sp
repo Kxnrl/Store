@@ -31,7 +31,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	RegAdminCmd("sm_boxtest", Command_BoxTest, ADMFLAG_ROOT);
-	HookEvent("round_end", Event_RoundEnd, EventHookMode_Post);
 	BuildPath(Path_SM, logFile, 128, "data/riffle.log");
 }
 
@@ -56,7 +55,7 @@ public void OnMapStart()
 	CreateTimer(305.0, Timer_DropBox, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast)
+public void CG_OnRoundEnd(int winner)
 {
 	CreateTimer(GetConVarFloat(FindConVar("mp_round_restart_delay"))-2.0, Timer_Remove, _, TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -234,7 +233,7 @@ void OpenBoxCase(int client, int iEntity, bool knife)
 	int casex = 50;
 	if(knife) casex = 75;
 
-	int id = Math_GetRandomInt(1, 224);
+	int id = Math_GetRandomInt(1, 219);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
 	if(Math_GetRandomInt(1, 100) >= casex || itemid < 0)
 	{
@@ -431,7 +430,7 @@ void RaffleLimitedItem(int client)
 
 void RaffleDiamods(int client)
 {
-	if(CG_GetDiscuzUID(client) < 1)
+	if(CG_GetClientUId(client) < 1)
 	{
 		PrintToChat(client, "%s  你没有注册论坛会员,无法参与钻石活动", PREFIX);
 		return;

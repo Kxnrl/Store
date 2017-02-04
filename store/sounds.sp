@@ -146,7 +146,7 @@ public Action Command_Cheer(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	if(PA_GetGroupID(client) == 9999)
+	if(CG_GetClientGId(client) == 9999)
 		g_iSoundSpam[client] = GetTime() + 5;
 	else
 		g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]][iCooldown];
@@ -173,7 +173,7 @@ void StartSoundToAll(int client)
 	Format(szPath, 128, "*%s", g_eSounds[g_iSoundClient[client]][szSound]);
 	EmitSound(targets, total, szPath, SOUND_FROM_PLAYER, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]][fVolume]);
 
-	PrintToChatAll("\x01 \x04%N\x01使用音效[\x0C%s\x01] (!crpb开关屏蔽)", client, g_eSounds[g_iSoundClient[client]][szName]);
+	tPrintToChatAll("\x01 \x04%N\x01使用音效[\x0C%s\x01] (!crpb开关屏蔽)", client, g_eSounds[g_iSoundClient[client]][szName]);
 }
 
 public void OnClientCookiesCached(int client)

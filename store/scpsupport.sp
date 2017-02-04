@@ -92,7 +92,7 @@ public Action OnChatMessage(int &client, Handle recipients, char[] name, char[] 
 	}
 	else
 	{
-		switch(VIP_GetVipType(client))
+		switch(CG_GetClientVip(client))
 		{
 			case 3: StrCat(STRING(m_szNameTag), "{purple}[SVIP] {teamcolor}");
 			case 2: StrCat(STRING(m_szNameTag), "{orange}[AVIP] {teamcolor}");
@@ -146,8 +146,8 @@ stock void ReplaceAllColors(char[] message)
 
 stock void GetColorAuthName(int client, char[] buffer, int maxLen)
 {
-	int authorized = PA_GetGroupID(client);
-	PA_GetGroupName(client, buffer, maxLen);
+	int authorized = CG_GetClientGId(client);
+	CG_GetClientGName(client, buffer, maxLen);
 	
 	if(!authorized)
 		Format(buffer, maxLen, "{default}[{lightblue}%s{default}]", buffer);	

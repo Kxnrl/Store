@@ -69,14 +69,16 @@ public void PlayerSkins_Reset()
 
 public int PlayerSkins_Equip(int client, int id)
 {
-	tPrintToChat(client, "%t", "PlayerSkins Settings Changed");
+	if(IsClientInGame(client))
+		tPrintToChat(client, "%t", "PlayerSkins Settings Changed");
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
 
 public int PlayerSkins_Remove(int client, int id)
 {
-	tPrintToChat(client, "%t", "PlayerSkins Settings Changed");
+	if(IsClientInGame(client))
+		tPrintToChat(client, "%t", "PlayerSkins Settings Changed");
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
@@ -88,22 +90,48 @@ void Store_PreSetClientModel(int client)
 	if(m_iEquipped >= 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
+		if(StrContains(g_ePlayerSkins[m_iData][szModel], "cybertech") != -1 && CG_GetClientId(client) != 1)
+			CreateTimer(5.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 	}
 	else
 	{
-		int itemid = Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl");
-		if(Store_HasClientItem(client, itemid) && (g_bGameModeTT || g_bGameModeJB || ((g_bGameModeHZ || g_bGameModeMG) && GetClientTeam(client) == 2)))
+		if(g_bGameModeZE || g_bGameModeTT)
 		{
-			int m_iData = Store_GetDataIndex(itemid);
+			int m_iData;
+			switch(GetRandomInt(2, 3))
+			{
+				case 2:
+				{
+					m_iData = Store_GetDataIndex(Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"));
+					Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
+					tPrintToChat(client, "\x04新年大头派对,现已为你自动装备滑稽");
+				}
+				case 3:
+				{
+					m_iData = Store_GetDataIndex(Store_GetItemId("playerskin", "models/player/custom_player/maoling/misc/peter/peter_v2.mdl"));
+					Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
+					tPrintToChat(client, "\x04新年大头派对,现已为你自动装备皮特");
+				}
+			}
+		}
+		else if(GetClientTeam(client) == 2)
+		{
+			int m_iData = Store_GetDataIndex(Store_GetItemId("playerskin", "models/player/custom_player/maoling/haipa/haipa.mdl"));
 			Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 			tPrintToChat(client, "\x04新年大头派对,现已为你自动装备滑稽");
 		}
-		else if(g_bGameModeZE)
+		else if(GetClientTeam(client) == 3)
 		{
-			if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
-				Store_SetClientModel(client, Model_ZE_Newbee, Arms_ZE_NewBee);
+			int m_iData = Store_GetDataIndex(Store_GetItemId("playerskin", "models/player/custom_player/maoling/misc/peter/peter_v2.mdl"));
+			Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
+			tPrintToChat(client, "\x04新年大头派对,现已为你自动装备皮特");
 		}
+		//else if(g_bGameModeZE)
+		//{
+		//	if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
+		//		Store_SetClientModel(client, Model_ZE_Newbee, Arms_ZE_NewBee);
+		//}
 	}
 }
 
@@ -111,6 +139,9 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 {
 	if(!StrEqual(arms, "null"))
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
+	
+	if(!IsModelPrecached(model))
+		PrecacheModel2(model, true);
 
 	SetEntityModel(client, model);
 
@@ -123,7 +154,11 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 		g_bHasPlayerskin[client] = true;
 	
 	if(!StrEqual(arms, "null") && !StrEqual(currentmodel, arms))
+	{
+		if(!IsModelPrecached(arms))
+			PrecacheModel2(arms, true);
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
+	}
 	
 	Store_SetClientHat(client);
 }

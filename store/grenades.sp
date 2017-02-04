@@ -27,7 +27,7 @@ char g_szSlots[16][64];
 
 public void Grenades_OnPluginStart()
 {
-	if(g_bGameModePR)
+	if(g_bGameModePR || g_bGameModeKZ)
 		return;
 
 	Store_RegisterHandler("grenadetrail", "material", GrenadeTrails_OnMapStart, GrenadeTrails_Reset, GrenadeTrails_Config, GrenadeTrails_Equip, GrenadeTrails_Remove, true);
@@ -162,20 +162,17 @@ public void Grenades_OnEntitySpawnedPost(int entity)
 	
 	m_iEquipped = Store_GetEquippedItem(client, "grenadeskin", m_iSlot);
 	
-	//PrintToChatAll("grenadeskin:m_iSlot=%d  m_iEquipped=%d", m_iSlot, m_iEquipped);
-	
 	if(m_iEquipped >= 0)
 	{
 		m_iData = Store_GetDataIndex(m_iEquipped);
-		//PrintToChatAll("m_iData: %d  classname: %s  weapon: %s szModel: %s", m_iData, m_szClassname, g_eGrenadeSkins[m_iData][szWeapon], g_eGrenadeSkins[m_iData][szModel]);
+		if(!IsModelPrecached(g_eGrenadeSkins[m_iData][szModel]))
+			PrecacheModel2(g_eGrenadeSkins[m_iData][szModel], true);
 		SetEntityModel(entity, g_eGrenadeSkins[m_iData][szModel]);
 	}
 
 	m_iEquipped = 0;
 	m_iData = 0;
 	m_iEquipped = Store_GetEquippedItem(client, "grenadetrail", 0);
-	
-	//PrintToChatAll("grenadetrail:m_iEquipped = %d", m_iEquipped);
 	
 	if(m_iEquipped >= 0)
 	{

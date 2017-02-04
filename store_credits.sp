@@ -204,7 +204,7 @@ public Action CreditTimer(Handle timer, int client)
 	StrCat(szFrom, 128, "\x04在线时间+1");
 	StrCat(szReason, 128, "在线时间 ");
 
-	int authid = PA_GetGroupID(client);
+	int authid = CG_GetClientGId(client);
 	
 	if(authid > 0)
 	{
@@ -239,7 +239,7 @@ public Action CreditTimer(Handle timer, int client)
 
 		m_iCredits += m_iPlus;
 		char auname[32];
-		PA_GetGroupName(client, auname, 32);
+		CG_GetClientGName(client, auname, 32);
 		StrCat(szReason, 128, auname);
 		if(authid == 9999)
 			Format(auname, 32, "\x0A|\x0E%s+%d", auname, m_iPlus);
@@ -248,7 +248,7 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szFrom, 128, auname);
 	}
 	
-	switch(VIP_GetVipType(client))
+	switch(CG_GetClientVip(client))
 	{
 		case 3:
 		{
@@ -301,7 +301,7 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szReason, 128, "OP");		
 	}
 	
-	int m_iVitality = CG_GetVitality(client);
+	int m_iVitality = CG_GetClientVitality(client);
 	if(m_iVitality)
 	{
 		StrCat(szReason, 128, " 热度");	
@@ -365,7 +365,7 @@ public Action CreditTimer(Handle timer, int client)
 
 public Action Command_SignTest(int client, int args)
 {
-	if(PA_GetGroupID(client) == 9999)
+	if(CG_GetClientGId(client) == 9999)
 	{
 		Active_GiveSignCredits(client);
 		Active_GiveRandomItems(client);
@@ -396,7 +396,7 @@ void Active_GiveSignCredits(int client)
 
 void Active_GiveRandomItems(int client)
 {
-	int id = Math_GetRandomInt(1, 31);
+	int id = Math_GetRandomInt(1, 29);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
 	if(itemid <= 0)
 	{
@@ -405,7 +405,7 @@ void Active_GiveRandomItems(int client)
 	}
 
 	int extt = Math_GetRandomInt(1, 48);
-	
+
 	PrintToChatAll("%s  \x0C%N\x04签到获得了[%s-%s](%d小时)", PF_ACTIVE, client, g_szItemNick[id], g_szItemName[id], extt);
 	PrintToChat(client, "%s  \x04你获得了[%s-%s](%d小时),可以在!store中查看", PF_ACTIVE, g_szItemNick[id], g_szItemName[id], extt);
 	

@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.0rc8 - 2017/02/05 05:59"
+#define PLUGIN_VERSION "1.0rc8 - 2017/02/05 03:14"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -1718,7 +1718,7 @@ public void Store_SaveClientInventory(int client)
 			else
 				Format(STRING(m_szQuery), "DELETE FROM store_items WHERE `id`=%d", g_eClientItems[client][i][iId]);
 			SQL_TVoid(g_hDatabase, m_szQuery);
-			g_eClientItems[client][i][bDeleted] = false;
+			g_eClientItems[client][i][bSynced] = false;
 		}
 	}
 }
@@ -1868,7 +1868,7 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			g_eClientItems[target][m_iId][iDateOfPurchase] = GetTime();
 			g_eClientItems[target][m_iId][iDateOfExpiration] = (plan==-1?0:(g_ePlans[itemid][plan][iTime]?GetTime()+g_ePlans[itemid][plan][iTime]:0));
 			g_eClientItems[target][m_iId][iPriceOfPurchase] = m_iPrice;
-			g_eClientItems[target][m_iId][bSynced] = true; //false
+			g_eClientItems[target][m_iId][bSynced] = false; //true
 			g_eClientItems[target][m_iId][bDeleted] = false;
 
 			g_eClients[target][iCredits] -= m_iPrice;
@@ -1877,9 +1877,9 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			LogToFileEx(g_szTempole, "%N 购买了 %s %s[%d]", target, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], m_iPrice);
 
 			//购买回写
-			char m_szQuery[512];
-			Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[target][iId], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], g_eItems[itemid][szUniqueId], GetTime(), g_eClientItems[target][m_iId][iDateOfExpiration], g_eClientItems[target][m_iId][iPriceOfPurchase]);
-			SQL_TVoid(g_hDatabase, m_szQuery);
+			//char m_szQuery[512];
+			//Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[target][iId], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], g_eItems[itemid][szUniqueId], GetTime(), g_eClientItems[target][m_iId][iDateOfExpiration], g_eClientItems[target][m_iId][iPriceOfPurchase]);
+			//SQL_TVoid(g_hDatabase, m_szQuery);
 			Store_SaveClientAll(target);
 
 			tPrintToChat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
@@ -1953,7 +1953,7 @@ public int Store_GiftItem(int client, int receiver, int item)
 	g_eClientItems[receiver][g_eClients[receiver][iItems]][iDateOfPurchase] = g_eClientItems[target][item][iDateOfPurchase];
 	g_eClientItems[receiver][g_eClients[receiver][iItems]][iDateOfExpiration] = g_eClientItems[target][item][iDateOfExpiration];
 	g_eClientItems[receiver][g_eClients[receiver][iItems]][iPriceOfPurchase] = g_eClientItems[target][item][iPriceOfPurchase];
-	
+
 	++g_eClients[receiver][iItems];
 
 	tPrintToChat(client, "%t", "Chat Gift Item Sent", g_eClients[receiver][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
@@ -1973,7 +1973,7 @@ public int Store_GetClientItemId(int client, int itemid)
 		if(g_eClientItems[client][i][iUniqueId] == itemid && !g_eClientItems[client][i][bDeleted])
 			return i;
 	}
-		
+
 	return -1;
 }
 
@@ -2013,7 +2013,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 	do
 	{
 		if(g_iItems == STORE_MAX_ITEMS)
-				continue;
+			continue;
 		if (KvGetNum(kv, "enabled", 1) && KvGetNum(kv, "type", -1) == -1 && KvGotoFirstSubKey(kv))
 		{
 			KvGoBack(kv);

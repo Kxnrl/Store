@@ -21,9 +21,9 @@ void Players_OnPluginStart()
 
 	RegConsoleCmd("sm_tp", Command_TP, "Toggle TP Mode");
 	RegConsoleCmd("sm_seeme", Command_Mirror, "Toggle Mirror Mode");
-
+	RegConsoleCmd("sm_arm", Command_Arm, "Draw Player Arms");
 	RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
-	
+
 	if(!g_bGameModeKZ)
 		Store_RegisterHandler("hat", "model", Hats_OnMapStart, Hats_Reset, Hats_Config, Hats_Equip, Hats_Remove, true);
 
@@ -226,6 +226,16 @@ public Action Command_Mirror(int client, int args)
 		SendConVarValue(client, FindConVar("mp_forcecamera"), valor);
 		g_bMirror[client] = false;
 	}
+	return Plugin_Handled;
+}
+
+public Action Command_Arm(int client, int args)
+{
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+		return Plugin_Handled;
+	
+	SetEntProp(client, Prop_Send, "m_bDrawViewmodel", true);
+	
 	return Plugin_Handled;
 }
 

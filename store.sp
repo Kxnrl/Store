@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.1 - 2017/02/06 04:27"
+#define PLUGIN_VERSION "1.2 - 2017/02/07 04:09"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -21,7 +21,7 @@
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
 #include <clientprefs>
-#include <scp>
+#include <chat-processor>
 #include <fpvm_interface>
 
 //////////////////////////////
@@ -105,7 +105,7 @@ char g_szTempole[128];
 //////////////////////////////
 #include "store/players.sp"
 #include "store/grenades.sp"
-#include "store/scpsupport.sp"
+#include "store/cpsupport.sp"
 #include "store/sprays.sp"
 #include "store/models.sp"
 #include "store/sounds.sp"
@@ -2359,7 +2359,7 @@ void CheckGameMode()
 	}
 	else if(FindPluginByFile("public_ext.smx") && GetConVarInt(FindConVar("hostport")) == 27010)
 	{
-		LogMessage("Current GameMode:  HG");
+		LogMessage("Current GameMode:  HZ");
 		g_bGameModeHZ = true;
 	}
 	else
@@ -2375,7 +2375,7 @@ void CheckGameMode()
 	// Initialize the modules	
 	Players_OnPluginStart();
 	Grenades_OnPluginStart();
-	SCPSupport_OnPluginStart();
+	CPSupport_OnPluginStart();
 	Sprays_OnPluginStart();
 	Models_OnPluginStart();
 	Sounds_OnPluginStart();

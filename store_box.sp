@@ -117,6 +117,9 @@ stock void RemoveAllBox()
 int CreateBoxCase()
 {
 	int client = Client_GetRandom(CLIENTFILTER_ALIVE);
+	if(client < 1)
+		return -1;
+
 	float m_fPos[3];
 	GetClientAbsOrigin(client, m_fPos);
 	m_fPos[0] += GetRandomFloat(-100.0, 100.0);

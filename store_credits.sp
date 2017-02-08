@@ -138,8 +138,8 @@ public void LookupPlayerGroups(int client)
 	SteamWorks_GetUserGroupStatus(client, 103582791456047719);
 	
 	//Check Blacklist
-	SteamWorks_GetUserGroupStatus(client, 103582791455638129);
-	SteamWorks_GetUserGroupStatus(client, 103582791455103762);
+	//SteamWorks_GetUserGroupStatus(client, 103582791455638129);
+	//SteamWorks_GetUserGroupStatus(client, 103582791455103762);
 }
 
 public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember, bool isOfficer)

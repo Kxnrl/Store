@@ -2,11 +2,11 @@
 #include <steamworks>
 #include <cg_core>
 #include <cg_ze>
-#include <store.item>
+//#include <store.item>
 #include <smlib/math>
 
-#undef REQUIRE_PLUGIN
-#include <csc>
+//#undef REQUIRE_PLUGIN
+//#include <csc>
 
 #pragma newdecls required
 
@@ -23,9 +23,9 @@ bool g_bInZombieGroup[MAXPLAYERS+1];
 bool g_bIsCheck[MAXPLAYERS+1];
 
 int g_iNumPlayers;
-bool g_bNightfever;
+//bool g_bNightfever;
 
-char logFile[128];
+//char logFile[128];
 
 public Plugin myinfo =
 {
@@ -45,21 +45,21 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	RegAdminCmd("sm_signtest", Command_SignTest, ADMFLAG_ROOT);
-	BuildPath(Path_SM, logFile, 128, "data/riffle.log");
-	CreateTimer(120.0, Timer_Nightfever, _, TIMER_REPEAT);
+	//BuildPath(Path_SM, logFile, 128, "data/riffle.log");
+	//CreateTimer(120.0, Timer_Nightfever, _, TIMER_REPEAT);
 }
-
+/*
 public void OnMapStart()
 {
-	if (
-		FindPluginByFile("zombiereloaded.smx") ||
-		FindPluginByFile("ct.smx") ||
-		FindPluginByFile("mg_stats.smx") ||
-		FindPluginByFile("sm_hosties.smx") ||
-		FindPluginByFile("KZTimerGlobal.smx") ||
-		FindPluginByFile("public_ext.smx")
-		)
-		CreateTimer(300.0, Timer_RaffleItem, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	//if (
+	//	FindPluginByFile("zombiereloaded.smx") ||
+	//	FindPluginByFile("ct.smx") ||
+	//	FindPluginByFile("mg_stats.smx") ||
+	//	FindPluginByFile("sm_hosties.smx") ||
+	//	FindPluginByFile("KZTimerGlobal.smx") ||
+	//	FindPluginByFile("public_ext.smx")
+	//	)
+	//	CreateTimer(300.0, Timer_RaffleItem, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_Nightfever(Handle timer)
@@ -87,7 +87,7 @@ public Action Timer_RaffleItem(Handle timer)
 		
 	return Plugin_Continue;
 }
-
+*/
 public void OnClientPostAdminCheck(int client)
 {
 	LookupPlayerGroups(client);
@@ -341,14 +341,14 @@ public Action CreditTimer(Handle timer, int client)
 			StrCat(szFrom, 128, "\x0A|\x07热度+1");
 		}
 	}
-	
+/*	
 	if(g_bNightfever)
 	{
 		m_iCredits += 5;
 		StrCat(szFrom, 128, "\x0A|\x02午夜党福利+5");
 		StrCat(szReason, 128, "午夜党福利");		
 	}
-	
+*/	
 	StrCat(szFrom, 128, "\x10]");
 	StrCat(szReason, 128, "]");
 
@@ -368,8 +368,8 @@ public Action Command_SignTest(int client, int args)
 	if(CG_GetClientGId(client) == 9999)
 	{
 		Active_GiveSignCredits(client);
-		Active_GiveRandomItems(client);
-		Active_RaffleLimitItem(client);
+		//Active_GiveRandomItems(client);
+		//Active_RaffleLimitItem(client);
 	}
 }
 
@@ -382,19 +382,18 @@ public void CG_OnClientDailySign(int client)
 	}
 
 	Active_GiveSignCredits(client);
-	Active_GiveRandomItems(client);
+	//Active_GiveRandomItems(client);
 	//Active_RaffleLimitItem(client);
 }
 
 void Active_GiveSignCredits(int client)
 {
-	int Credits = Math_GetRandomInt(2, 600);
+	int Credits = Math_GetRandomInt(1, 300);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
-	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01(\x0C新年加倍\x01)", PF_GLOBAL, client, Credits);
-	PrintToChat(client,"%s \x10你获得了\x04%d \x0F信用点 \x10来自\x04[签到].", PF_CREDITS, Credits);
+	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01", PF_GLOBAL, client, Credits);
 }
-
-void Active_GiveRandomItems(int client)
+/*
+stock void Active_GiveRandomItems(int client)
 {
 	int id = Math_GetRandomInt(1, 29);
 	int itemid = Store_GetItem(g_szItemType[id], g_szItemUid[id]);
@@ -420,7 +419,7 @@ void Active_GiveRandomItems(int client)
 		Store_GiveItem(client, itemid, GetTime(), GetTime()+(extt*3600), 30);
 }
 
-void Active_RaffleLimitItem(int client)
+stock void Active_RaffleLimitItem(int client)
 {
 	if(GetClientTeam(client) <= 1)
 	{
@@ -551,4 +550,4 @@ stock void Boradcast(bool db, const char[] content)
 		return;
 	
 	CG_Broadcast(db, content);
-}
+}*/

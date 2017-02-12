@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.2 - 2017/02/07 04:09"
+#define PLUGIN_VERSION "1.2.1 - 2017/02/11 06:19"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -2319,58 +2319,54 @@ void CheckGameMode()
 {
 	if(FindPluginByFile("ct.smx"))
 	{
-		LogMessage("Current GameMode:  TTT");
+		LogMessage("Loaded Successful!  Current GameMode:  TTT");
 		g_bGameModeTT = true;
 	}
 	else if(FindPluginByFile("mg_stats.smx"))
 	{
-		LogMessage("Current GameMode:  MG");
+		LogMessage("Loaded Successful!  Current GameMode:  MG");
 		g_bGameModeMG = true;
 	}
 	else if(FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("drapi_zombie_riot.smx"))
 	{
-		LogMessage("Current GameMode:  ZE");
+		LogMessage("Loaded Successful!  Current GameMode:  ZE");
 		g_bGameModeZE = true;
 	}
 	else if(FindPluginByFile("KZTimer.smx") || FindPluginByFile("KZTimerGlobal.smx"))
 	{
-		LogMessage("Current GameMode:  KZ");
+		LogMessage("Loaded Successful!  Current GameMode:  KZ");
 		g_bGameModeKZ = true;
 	}
 	else if(FindPluginByFile("sm_hosties.smx"))
 	{
-		LogMessage("Current GameMode:  JB");
+		LogMessage("Loaded Successful!  Current GameMode:  JB");
 		g_bGameModeJB = true;
 	}
 	else if(FindPluginByFile("devzones_givecredits.smx"))
 	{
-		LogMessage("Current GameMode:  DR");
+		LogMessage("Loaded Successful!  Current GameMode:  DR");
 		g_bGameModeDR = true;
 	}
 	else if(FindPluginByFile("ninja.smx"))
 	{
-		LogMessage("Current GameMode:  NJ");
+		LogMessage("Loaded Successful!  Current GameMode:  NJ");
 		g_bGameModeNJ = true;
 	}
 	else if(FindPluginByFile("hg.smx"))
 	{
-		LogMessage("Current GameMode:  HG");
+		LogMessage("Loaded Successful!  Current GameMode:  HG");
 		g_bGameModeHG = true;
 	}
-	else if(FindPluginByFile("public_ext.smx") && GetConVarInt(FindConVar("hostport")) == 27010)
+	else if(FindPluginByFile("public_ext.smx"))
 	{
-		LogMessage("Current GameMode:  HZ");
+		LogMessage("Loaded Successful!  Current GameMode:  HZ");
 		g_bGameModeHZ = true;
 	}
 	else
 	{
-		LogMessage("Current GameMode:  Pure");
+		LogMessage("Loaded Successful!  Current GameMode:  Pure");
 		g_bGameModePR = true;
 	}
-
-	// prevent conplie warning!
-	if(g_bGameModeTT || g_bGameModeDR || g_bGameModeHG || g_bGameModeJB || g_bGameModeKZ || g_bGameModeMG || g_bGameModeNJ || g_bGameModePR || g_bGameModeZE || g_bGameModeHZ)
-		LogMessage("Loaded Successful!");
 
 	// Initialize the modules	
 	Players_OnPluginStart();

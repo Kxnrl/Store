@@ -94,7 +94,7 @@ void Store_PreSetClientModel(int client)
 			CreateTimer(5.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 	}
-	else
+	else if(!g_bGameModeHZ)
 	{
 		if(g_bGameModeZE || g_bGameModeTT)
 		{
@@ -196,6 +196,66 @@ public Action Timer_FixPlayerArms(Handle timer, int userid)
 
 void ResetPlayerArms(int client)
 {
+	float delay = 2.0;
+	if(g_eClients[client][iId] == 1) delay = 0.1;
+	
+	ResetClientWeaponBySlot(client, 0, delay);
+	ResetClientWeaponBySlot(client, 1, delay);
+	while(ResetClientWeaponBySlot(client, 2, delay)){}
+	while(ResetClientWeaponBySlot(client, 3, delay)){}
+	while(ResetClientWeaponBySlot(client, 4, delay)){}
+}
+
+public Action Timer_GiveWeapon(Handle timer, Handle pack)
+{
+	ResetPack(pack);
+	int client = ReadPackCell(pack);
+	if(!IsClientInGame(client) || !IsPlayerAlive(client))
+		return Plugin_Stop;
+	
+	char weapon[32];
+	ReadPackString(pack, weapon, 32);
+
+	GivePlayerItem(client, weapon);
+	
+	return Plugin_Stop;
+}
+
+bool ResetClientWeaponBySlot(int client, int slot, float giveDelay)
+{
+	int weapon = GetPlayerWeaponSlot(client, slot);
+
+	if(weapon == -1 || !IsValidEdict(weapon))
+		return false;
+
+	char classname[32];
+	GetWeaponClassname(weapon, classname, 32);
+	RemovePlayerItem(client, weapon);
+	AcceptEntityInput(weapon, "Kill");
+
+	Handle hPack;
+	CreateDataTimer(giveDelay, Timer_GiveWeapon, hPack, TIMER_FLAG_NO_MAPCHANGE);
+	WritePackCell(hPack, client);
+	WritePackString(hPack, classname);
+
+	return true;
+}
+
+stock void GetWeaponClassname(int weapon, char[] classname, int maxLen)
+{
+	GetEdictClassname(weapon, classname, maxLen);
+	switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
+	{
+		case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
+		case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
+		case 63: strcopy(classname, maxLen, "weapon_cz75a");
+		case 64: strcopy(classname, maxLen, "weapon_revolver");
+	}
+}
+
+/*
+void ResetPlayerArms(int client)
+{
 	Handle pack;
 	CreateDataTimer(0.5, Timer_ResetPlayerArms, pack);
 	WritePackCell(pack, GetClientUserId(client));
@@ -288,3 +348,4 @@ public Action Timer_ResetPlayerArms(Handle timer, Handle pack)
 
 	return Plugin_Stop;
 }
+*/

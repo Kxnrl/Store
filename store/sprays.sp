@@ -116,7 +116,7 @@ public void Sprays_Create(int client)
 
 	if(distance > 115.0)
 	{
-		PrintToChat(client, "\x01 \x04[Store]  \x0喷漆距离太远");
+		PrintToChat(client, "\x01 \x04[Store]  \x07喷漆距离太远");
 		if(CG_GetClientGId(client) == 9999)
 			g_iSprayLimit[client] = GetTime()+3;
 		else

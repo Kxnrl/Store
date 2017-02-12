@@ -147,7 +147,7 @@ public void OnClientTeam(int client)
 			Store_RemoveClientHats(client, i);
 	}
 
-	if(g_bGameModeMG && IsPlayerAlive(client))
+	if((g_bGameModeMG || g_bGameModeNJ) && IsPlayerAlive(client))
 	{
 		Store_PreSetClientModel(client);
 		CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));

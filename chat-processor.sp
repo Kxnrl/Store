@@ -12,18 +12,16 @@ public Plugin myinfo =
 	name		= "Chat-Processor",
 	author		= "Keith Warren (Drixevel) & Kyle",
 	description = "",
-	version		= "2.2 > CG Edition ver.2 - Include CSC",
+	version		= "2.4 > CG Edition ver.2 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
 public void OnPluginStart()
 {
-	LoadTranslations("common.phrases");
-
+	g_tMsgFmt = CreateTrie();
+	
 	AddCommandListener(Command_Say, "say");
 	AddCommandListener(Command_Say, "say_team");
-
-	g_tMsgFmt = CreateTrie();
 
 	g_fwdOnChatMessage = CreateGlobalForward("CP_OnChatMessage", ET_Hook, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
 	g_fwdOnChatMessagePost = CreateGlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
@@ -37,7 +35,7 @@ public void OnAllPluginsLoaded()
 
 	if(MsgId != INVALID_MESSAGE_ID)
 	{
-		g_bProto = GetUserMessageType() == UM_Protobuf;
+		g_bProto = (GetUserMessageType() == UM_Protobuf) ? true : false;
 		HookUserMessage(MsgId, OnSayText2, true);
 		LogMessage("Hooking 'SayText2' chat messages, mode '%s'", g_bProto ? "Protobuf" : "non-pb");
 	}
@@ -45,10 +43,14 @@ public void OnAllPluginsLoaded()
 		SetFailState("Error loading the plugin, both chat hooks are unavailable. (SayText2)");
 }
 
+public void OnClientConnected(int client)
+{
+	g_bNewChat[client] = false;
+}
+
 public Action Command_Say(int client, const char[] command, int argc)
 {
 	g_bNewChat[client] = true;
-	return Plugin_Continue;
 }
 
 public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int playersNum, bool reliable, bool init)
@@ -56,6 +58,11 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 	int m_iSender = g_bProto ? PbReadInt(msg, "ent_idx") : BfReadByte(msg);
 	if(m_iSender <= 0)
 		return Plugin_Continue;
+	
+	if(g_bNewChat[m_iSender])
+		g_bNewChat[m_iSender] = false;
+	else
+		return Plugin_Handled;
 
 	bool m_bChat = g_bProto ? PbReadBool(msg, "chat") : view_as<bool>(BfReadByte(msg));
 
@@ -63,11 +70,6 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 
 	if(g_bProto)
 	{
-		if(!g_bNewChat[m_iSender])
-			return Plugin_Stop;
-		else
-			g_bNewChat[m_iSender] = false;
-		
 		PbReadString(msg, "msg_name", m_szFlag, 32);
 		PbReadString(msg, "params", m_szName, 128, 0);
 		PbReadString(msg, "params", m_szMsg, 256, 1);
@@ -122,40 +124,33 @@ public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int pl
 		return Plugin_Continue;
 	}
 
-	if(!StrEqual(m_szFlag, m_szFlagCopy) && !GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, sizeof(m_szFmt)))
+	if(!StrEqual(m_szFlag, m_szFlagCopy) && !GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, 256))
 		return Plugin_Continue;
 
-	switch(iResults)
+	if(iResults == Plugin_Changed)
 	{
-		case Plugin_Continue, Plugin_Stop:
-		{
-			CloseHandle(m_hRecipients);
-			return iResults;
-		}
-		case Plugin_Changed, Plugin_Handled:
-		{
-			if(StrEqual(m_szNameCopy, m_szName))
-				Format(m_szName, sizeof(m_szName), "\x03%s", m_szName);
+		if(StrEqual(m_szNameCopy, m_szName))
+			Format(m_szName, 128, "\x03%s", m_szName);
 
-			Handle hPack = CreateDataPack();
-			WritePackCell(hPack, m_iSender);
-			WritePackCell(hPack, m_hRecipients);
-			WritePackString(hPack, m_szName);
-			WritePackString(hPack, m_szMsg);
-			WritePackString(hPack, m_szFlag);
-			WritePackCell(hPack, m_bProcessColors);
-			WritePackCell(hPack, m_bRemoveColors);
+		Handle hPack = CreateDataPack();
+		WritePackCell(hPack, m_iSender);
+		WritePackCell(hPack, m_hRecipients);
+		WritePackString(hPack, m_szName);
+		WritePackString(hPack, m_szMsg);
+		WritePackString(hPack, m_szFlag);
+		WritePackCell(hPack, m_bProcessColors);
+		WritePackCell(hPack, m_bRemoveColors);
 
-			WritePackString(hPack, m_szFmt);
-			WritePackCell(hPack, m_bChat);
-			WritePackCell(hPack, iResults);
+		WritePackString(hPack, m_szFmt);
+		WritePackCell(hPack, m_bChat);
+		WritePackCell(hPack, iResults);
 
-			RequestFrame(Frame_OnChatMessage_SayText2, hPack);
-			return Plugin_Handled;
-		}
+		RequestFrame(Frame_OnChatMessage_SayText2, hPack);
+		return Plugin_Handled;
 	}
 
-	return Plugin_Continue;
+	CloseHandle(m_hRecipients);
+	return iResults;
 }
 
 public void Frame_OnChatMessage_SayText2(Handle data)
@@ -326,8 +321,8 @@ stock void ReplaceAllColors(char[] message, int maxLen)
 	ReplaceString(message, maxLen, "{teamcolor}", "\x03", false);
 	ReplaceString(message, maxLen, "{pink}", "\x03", false);
 	ReplaceString(message, maxLen, "{green}", "\x04", false);
-	ReplaceString(message, maxLen, "{HIGHLIGHT}", "\x04", false);
-	ReplaceString(message, maxLen, "{lime}", "\x05", false);
+	ReplaceString(message, maxLen, "{highlight}", "\x04", false);
+	ReplaceString(message, maxLen, "{yellow}", "\x05", false);
 	ReplaceString(message, maxLen, "{lightgreen}", "\x05", false);
 	ReplaceString(message, maxLen, "{lime}", "\x06", false);
 	ReplaceString(message, maxLen, "{lightred}", "\x07", false);
@@ -335,7 +330,6 @@ stock void ReplaceAllColors(char[] message, int maxLen)
 	ReplaceString(message, maxLen, "{gray}", "\x08", false);
 	ReplaceString(message, maxLen, "{grey}", "\x08", false);
 	ReplaceString(message, maxLen, "{olive}", "\x09", false);
-	ReplaceString(message, maxLen, "{yellow}", "\x05", false);
 	ReplaceString(message, maxLen, "{orange}", "\x10", false);
 	ReplaceString(message, maxLen, "{silver}", "\x0A", false);
 	ReplaceString(message, maxLen, "{lightblue}", "\x0B", false);

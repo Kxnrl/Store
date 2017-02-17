@@ -88,7 +88,6 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 		if(g_bGameModeZE && GetClientTeam(client) == 2)
 			return;
 		
-		// Calculate the final position and angles for the hat
 		float m_fHatOrigin[3];
 		float m_fHatAngles[3];
 		float m_fForward[3];
@@ -115,7 +114,6 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 		if(!IsModelPrecached(g_eHats[m_iData][szModel]))
 			PrecacheModel2(g_eHats[m_iData][szModel], true);
 
-		// Create the hat entity
 		int m_iEnt = CreateEntityByName("prop_dynamic_override");
 		DispatchKeyValue(m_iEnt, "model", g_eHats[m_iData][szModel]);
 		DispatchKeyValue(m_iEnt, "spawnflags", "256");
@@ -127,14 +125,11 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 
 		DispatchSpawn(m_iEnt);	
 		AcceptEntityInput(m_iEnt, "TurnOn", m_iEnt, m_iEnt, 0);
-		
-		// Save the entity index
+
 		g_iClientHats[client][g_eHats[m_iData][iSlot]]=m_iEnt;
 		
-		// We don't want the client to see his own hat
 		SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
 		
-		// Teleport the hat to the right position and attach it
 		TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR); 
 		
 		SetVariantString("!activator");

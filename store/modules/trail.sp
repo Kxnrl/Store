@@ -137,8 +137,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
 			AttachTrail(g_iClientTrails[client][slot], client, m_iCurrent, m_iNumEquipped);	
 			SDKHook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Trail);
 		}
-			
-		//Ugh...
+
 		int m_iColor[4];
 		m_iColor[0] = g_eTrails[m_iData][iColor][0];
 		m_iColor[1] = g_eTrails[m_iData][iColor][1];

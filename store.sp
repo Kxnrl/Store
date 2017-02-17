@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.2.1 - 2017/02/11 06:19"
+#define PLUGIN_VERSION "1.2.2 - 2017/02/17 03:21"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -83,7 +83,6 @@ int g_iSpam[MAXPLAYERS+1];
 int g_iBuySellProtect[MAXPLAYERS+1];
 
 bool g_bInvMode[MAXPLAYERS+1];
-bool g_bMenuBGM[MAXPLAYERS+1];
 
 bool g_bGameModeZE;
 bool g_bGameModeTT;
@@ -690,7 +689,6 @@ public void OnClientConnected(int client)
 	g_eClients[client][iOriginalCredits] = 0;
 	g_eClients[client][iItems] = -1;
 	g_eClients[client][bLoaded] = false;
-	g_bMenuBGM[client] = false;
 	
 	for(int i = 0; i < STORE_MAX_HANDLERS; ++i)
 	{
@@ -928,12 +926,6 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 		DisplayMenu(m_hMenu, client, 0);
 	else
 		DisplayMenuAtItem(m_hMenu, client, (last/GetMenuPagination(m_hMenu))*GetMenuPagination(m_hMenu), 0);
-	
-	if(!g_bMenuBGM[client])
-	{
-		g_bMenuBGM[client] = true;
-		CG_ShowHiddenMotd(client, "https://csgogamers.com/music/store.php?volume=85");
-	}
 }
 
 public int MenuHandler_Store(Handle menu, MenuAction action, int client, int param2)
@@ -1058,11 +1050,6 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 	else if(action==MenuAction_Cancel)
 		if(param2 == MenuCancel_ExitBack)
 			Store_DisplayPreviousMenu(client);
-		else if(IsClientInGame(client) && g_bMenuBGM[client])
-		{
-			CG_RemoveMotd(client);
-			g_bMenuBGM[client] = false;
-		}
 }
 
 public int DisplayItemMenu(int client, int itemid)

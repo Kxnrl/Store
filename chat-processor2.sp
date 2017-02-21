@@ -1,19 +1,18 @@
 #pragma newdecls required
-#include <sdktools>
+#include <maoling>
 
-UserMsg MsgId;
 Handle g_tMsgFmt;
 Handle g_fwdOnChatMessage;
 Handle g_fwdOnChatMessagePost;
 bool g_bProto;
-bool g_bChat[MAXPLAYERS+1];
+float g_fChat[MAXPLAYERS+1];
 
 public Plugin myinfo =
 {
 	name		= "Chat-Processor",
-	author		= "Kyle",
+	author		= "Keith Warren (Drixevel) & Kyle",
 	description = "",
-	version		= "2.5 > CG Edition ver.2 - Include CSC",
+	version		= "2.4 > CG Edition ver.2 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
@@ -21,21 +20,24 @@ public void OnPluginStart()
 {
 	g_tMsgFmt = CreateTrie();
 	
-	AddCommandListener(Command_Say, "say");
-	AddCommandListener(Command_Say, "say_team");
+	//AddCommandListener(Command_Say, "say");
+	//AddCommandListener(Command_Say, "say_team");
 
 	g_fwdOnChatMessage = CreateGlobalForward("CP_OnChatMessage", ET_Hook, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
 	g_fwdOnChatMessagePost = CreateGlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
+}
 
-	if((MsgId = GetUserMessageId("SayText2")) != INVALID_MESSAGE_ID)
+public void OnAllPluginsLoaded()
+{
+	GenerateMessageFormats();
+
+	UserMsg MsgId = GetUserMessageId("SayText2");
+
+	if(MsgId != INVALID_MESSAGE_ID)
 	{
-		if(GetUserMessageType() == UM_Protobuf)
-			g_bProto = true;
+		g_bProto = (GetUserMessageType() == UM_Protobuf) ? true : false;
 		HookUserMessage(MsgId, OnSayText2, true);
-		if(!GenerateMessageFormats())
-			SetFailState("Error loading Chat Format");
-		else
-			LogMessage("Hooking 'SayText2' chat messages, mode '%s'", g_bProto ? "Protobuf" : "BitBuf");
+		LogMessage("Hooking 'SayText2' chat messages, mode '%s'", g_bProto ? "Protobuf" : "non-pb");
 	}
 	else
 		SetFailState("Error loading the plugin, both chat hooks are unavailable. (SayText2)");
@@ -43,31 +45,22 @@ public void OnPluginStart()
 
 public void OnClientConnected(int client)
 {
-	g_bChat[client] = false;
+	g_fChat[client] = 0.0;
 }
-
+/*
 public Action Command_Say(int client, const char[] command, int argc)
 {
-	g_bChat[client] = true;
-	CreateTimer(0.1, Timer_Say, client);
+	g_bNewChat[client] = true;
 }
-
-public Action Timer_Say(Handle timer, int client)
-{
-	g_bChat[client] = false;
-}
-
-public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int playersNum, bool reliable, bool init)
+*/
+public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int playersNum, bool reliable, bool init)
 {
 	int m_iSender = g_bProto ? PbReadInt(msg, "ent_idx") : BfReadByte(msg);
-	
 	if(m_iSender <= 0)
 		return Plugin_Continue;
 	
-	if(!g_bChat[m_iSender])
+	if(g_fChat[m_iSender] > GetGameTime())
 		return Plugin_Handled;
-	
-	g_bChat[m_iSender] = false;
 
 	bool m_bChat = g_bProto ? PbReadBool(msg, "chat") : view_as<bool>(BfReadByte(msg));
 
@@ -92,14 +85,11 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 	RemoveAllColors(m_szName, 128);
 	RemoveAllColors(m_szMsg, 256);
 
-	ArrayList m_hRecipients = CreateArray();
-	//LogMessage("Before total %d", playersNum);
+	Handle m_hRecipients = CreateArray();
+
 	for(int i = 0; i < playersNum; i++)
 		if(FindValueInArray(m_hRecipients, players[i]) == -1)
-		{
 			PushArrayCell(m_hRecipients, players[i]);
-			//LogMessage("PushArrayCell %d.%N", i, players[i]);
-		}
 
 	if(FindValueInArray(m_hRecipients, m_iSender) == -1)
 		PushArrayCell(m_hRecipients, m_iSender);
@@ -131,39 +121,38 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 		ThrowNativeError(error, "Forward has failed to fire.");
 		return Plugin_Continue;
 	}
-	else if(iResults == Plugin_Continue)
-	{
-		CloseHandle(m_hRecipients);
-		return Plugin_Continue;
-	}
-	else if(iResults >= Plugin_Handled)
-	{
-		CloseHandle(m_hRecipients);
-		return Plugin_Handled;
-	}
 
 	if(!StrEqual(m_szFlag, m_szFlagCopy) && !GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, 256))
 		return Plugin_Continue;
 
-	if(StrEqual(m_szNameCopy, m_szName))
-		Format(m_szName, 128, "\x03%s", m_szName);
+	if(iResults == Plugin_Changed)
+	{
+		if(StrEqual(m_szNameCopy, m_szName))
+			Format(m_szName, 128, "\x03%s", m_szName);
 
-	Handle hPack = CreateDataPack();
-	WritePackCell(hPack, m_iSender);
-	WritePackCell(hPack, m_hRecipients);
-	WritePackString(hPack, m_szName);
-	WritePackString(hPack, m_szMsg);
-	WritePackString(hPack, m_szFlag);
-	WritePackCell(hPack, m_bProcessColors);
-	WritePackCell(hPack, m_bRemoveColors);
+		Handle hPack = CreateDataPack();
+		WritePackCell(hPack, m_iSender);
+		WritePackCell(hPack, m_hRecipients);
+		WritePackString(hPack, m_szName);
+		WritePackString(hPack, m_szMsg);
+		WritePackString(hPack, m_szFlag);
+		WritePackCell(hPack, m_bProcessColors);
+		WritePackCell(hPack, m_bRemoveColors);
 
-	WritePackString(hPack, m_szFmt);
-	WritePackCell(hPack, m_bChat);
-	WritePackCell(hPack, iResults);
+		WritePackString(hPack, m_szFmt);
+		WritePackCell(hPack, m_bChat);
+		WritePackCell(hPack, iResults);
 
-	RequestFrame(Frame_OnChatMessage_SayText2, hPack);
-	
-	return Plugin_Handled;
+		RequestFrame(Frame_OnChatMessage_SayText2, hPack);
+		g_fChat[m_iSender] = GetGameTime()+0.5;
+		return Plugin_Handled;
+	}
+
+	if(iResults > Plugin_Handled)
+		iResults = Plugin_Handled;
+
+	CloseHandle(m_hRecipients);
+	return iResults;
 }
 
 public void Frame_OnChatMessage_SayText2(Handle data)
@@ -171,7 +160,7 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 	ResetPack(data);
 
 	int m_iSender = ReadPackCell(data);
-	Handle m_hRecipients = view_as<Handle>(ReadPackCell(data));
+	Handle m_hRecipients = ReadPackCell(data);
 
 	char m_szName[128];
 	ReadPackString(data, m_szName, 128);
@@ -210,25 +199,15 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 	ReplaceAllColors(m_szBuffer, 512);
 
 	if(iResults == Plugin_Changed)
-	{/*
+	{
 		if(g_bProto)
 		{
-			//for(int i = 0; i < GetArraySize(m_hRecipients); i++)
-			//{
-			//	int client = GetArrayCell(m_hRecipients, i);
-			//	if(IsClientInGame(client))
-			//		PrintToChat(client, m_szBuffer);
-			//		//SayText2(client, m_szBuffer, m_iSender, m_bChat);
-			//}
-			Handle bf = StartMessageEx(MsgId, iRecipients, iNumRecipients, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
-			PbSetInt(bf, "ent_idx", m_iSender);
-			PbSetBool(bf, "chat", m_bChat);
-			PbSetString(bf, "msg_name", m_szBuffer);
-			PbAddString(bf, "params", "");
-			PbAddString(bf, "params", "");
-			PbAddString(bf, "params", "");
-			PbAddString(bf, "params", "");
-			EndMessage();
+			for(int i = 0; i < GetArraySize(m_hRecipients); i++)
+			{
+				int client = GetArrayCell(m_hRecipients, i);
+				if(IsClientInGame(client))
+					SayText2(client, m_szBuffer, m_iSender, m_bChat);
+			}
 		}
 		else
 		{
@@ -238,89 +217,8 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 				if(IsClientInGame(client))
 					PrintToChat(client, m_szBuffer);
 			}
-		}*/
-	}
-
-	int target_list[MAXPLAYERS+1], target_count;
-	bool m_bChatAll = GetChatType(m_szFlag);
-
-	if(IsPlayerAlive(m_iSender))
-	{
-		if(m_bChatAll)
-		{
-			for(int i = 1; i<= MaxClients; ++i)
-				if(IsClientInGame(i) && !IsFakeClient(i) )
-					target_list[target_count++] = i;
-		}
-		else
-		{
-			for(int i = 1; i<= MaxClients; ++i)
-				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(m_iSender))
-					target_list[target_count++] = i;
 		}
 	}
-	else
-	{
-		switch(GetConVarInt(FindConVar("sv_deadtalk")))
-		{
-			case 0:
-			{
-				if(!m_bChatAll)
-				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(m_iSender))
-							target_list[target_count++] = i;
-				}
-				else
-				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i))
-							target_list[target_count++] = i;
-				}
-			}
-			case 1:
-			{
-				if(!m_bChatAll)
-				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(m_iSender))
-							target_list[target_count++] = i;
-				}
-				else
-				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i))
-							target_list[target_count++] = i;
-				}
-
-			}
-			case 2:
-			{
-				if(!m_bChatAll)
-				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(m_iSender))
-							target_list[target_count++] = i;
-				}
-				else
-				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsFakeClient(i))
-							target_list[target_count++] = i;
-				}
-			}
-		}
-	}
-
-	Handle bf = StartMessageEx(MsgId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
-	PbSetInt(bf, "ent_idx", m_iSender);
-	PbSetBool(bf, "chat", m_bChat);
-	PbSetString(bf, "msg_name", m_szBuffer);
-	PbAddString(bf, "params", "");
-	PbAddString(bf, "params", "");
-	PbAddString(bf, "params", "");
-	PbAddString(bf, "params", "");
-	EndMessage();
 
 	Call_StartForward(g_fwdOnChatMessagePost);
 	Call_PushCell(m_iSender);
@@ -458,29 +356,8 @@ stock void SayText2(int client, char[] message, int author, bool chat = true)
 	else
 	{
 		BfWriteByte(hMsg, author);
-		BfWriteByte(hMsg, chat);
+		BfWriteByte(hMsg, true);
 		BfWriteString(hMsg, message);
 	}
 	EndMessage();
-}
-
-stock bool GetChatType(const char[] flag)
-{
-/*	if(StrEqual(flag, "Cstrike_Chat_All") || StrEqual(flag, "Cstrike_Chat_AllDead") || StrEqual(flag, "Cstrike_Chat_AllSpec"))
-		return CHAT_ALL;
-	if(StrEqual(flag, "Cstrike_Chat_CT_Loc") || StrEqual(flag, "Cstrike_Chat_CT"))
-		return CHAT_TEAM;
-	if(StrEqual(flag, "Cstrike_Chat_CT_Dead"))
-		return 4;
-	if(StrEqual(flag, "Cstrike_Chat_T_Loc") || StrEqual(flag, "Cstrike_Chat_T"))
-		return 5;
-	if(StrEqual(flag, "Cstrike_Chat_T_Dead"))
-		return 6;
-	if(StrEqual(flag, "Cstrike_Chat_Spec"))
-		return 7;
-*/
-	if(StrContains(flag, "_All") != -1)
-		return true;
-
-	return false;
 }

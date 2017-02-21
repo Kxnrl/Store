@@ -94,9 +94,10 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 
 	if(m_iEquippedNameColor >= 0)
 		strcopy(STRING(m_szNameColor), g_szNameColors[Store_GetDataIndex(m_iEquippedNameColor)]);
+	
+	ReplaceString(name, 128, "[未注册]", "", false);
 
 	Format(name, 128, "%s%s%s", m_szNameTag, m_szNameColor, name);
-
 
 	if(m_iEquippedMsgColor >= 0)
 		Format(message, 256, "%s%s", g_szMessageColors[Store_GetDataIndex(m_iEquippedMsgColor)], message);

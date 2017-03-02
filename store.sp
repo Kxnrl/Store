@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.2.2 - 2017/02/21 01:46"
+#define PLUGIN_VERSION "1.2.2rc - 2017/03/02 05:33"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -745,13 +745,13 @@ public Action Command_Store(int client, int args)
 	
 	if((g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1) || !g_eClients[client][bLoaded])
 	{
-		tPrintToChat(client, "%t", "Inventory hasnt been fetched");
+		tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
 		return Plugin_Handled;
 	}
 
 	if(g_eClients[client][bBan])
 	{
-		tPrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
+		tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
 		return Plugin_Handled;
 	}	
 
@@ -766,15 +766,15 @@ public Action Command_Inventory(int client, int args)
 {	
 	if((g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1) || !g_eClients[client][bLoaded])
 	{
-		tPrintToChat(client, "%t", "Inventory hasnt been fetched");
+		tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
 		return Plugin_Handled;
 	}
 	
 	if(g_eClients[client][bBan])
 	{
-		tPrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
+		tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
 		return Plugin_Handled;
-	}
+	}	
 	
 	g_bInvMode[client] = true;
 	g_iMenuClient[client]=client;
@@ -787,15 +787,15 @@ public Action Command_Credits(int client, int args)
 {	
 	if(g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1)
 	{
-		tPrintToChat(client, "%t", "Inventory hasnt been fetched");
+		tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
 		return Plugin_Handled;
 	}
 	
 	if(g_eClients[client][bBan])
 	{
-		tPrintToChat(client,"[\x02CAT\x01]  你的Store信用为\x02不可信\x01或\x07信用点为负\x01!");
+		tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
 		return Plugin_Handled;
-	}
+	}	
 
 	if(g_iSpam[client]<GetTime())
 	{
@@ -972,7 +972,7 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 			if(strcmp(m_szId, "sell_package")==0)
 			{
 				char m_szTitle[128];
-				Format(STRING(m_szTitle), "%t", "Confirm_Sell", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], RoundToFloor(g_eItems[g_iSelectedItem[client]][iPrice]*0.6));
+				Format(STRING(m_szTitle), "%T", "Confirm_Sell", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], RoundToFloor(g_eItems[g_iSelectedItem[client]][iPrice]*0.6));
 				Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 1);
 				return;
 			}
@@ -1014,7 +1014,7 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 					else
 					{
 						char m_szTitle[128];
-						Format(STRING(m_szTitle), "%t", "Confirm_Buy", g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+						Format(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
 						Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
 						return;
 					}
@@ -1067,9 +1067,9 @@ public int DisplayItemMenu(int client, int itemid)
 	char m_szTitle[256];
 	int idx = 0;
 	if(m_bEquipped)
-		idx = Format(STRING(m_szTitle), "%t\n%t", "Item Equipped", g_eItems[itemid][szName], "Title Credits", g_eClients[target][iCredits]);
+		idx = Format(STRING(m_szTitle), "%T\n%T", "Item Equipped", client, g_eItems[itemid][szName], "Title Credits", client, g_eClients[target][iCredits]);
 	else
-		idx = Format(STRING(m_szTitle), "%s\n%t", g_eItems[itemid][szName], "Title Credits", g_eClients[target][iCredits]);
+		idx = Format(STRING(m_szTitle), "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[target][iCredits]);
 
 	int m_iExpiration = Store_GetExpiration(target, itemid);
 	if(m_iExpiration != 0)
@@ -1077,7 +1077,7 @@ public int DisplayItemMenu(int client, int itemid)
 		m_iExpiration = m_iExpiration-GetTime();
 		int m_iDays = m_iExpiration/(24*60*60);
 		int m_iHours = (m_iExpiration-m_iDays*24*60*60)/(60*60);
-		Format(m_szTitle[idx-1], sizeof(m_szTitle)-idx-1, "\n%t", "Title Expiration", m_iDays, m_iHours);
+		Format(m_szTitle[idx-1], sizeof(m_szTitle)-idx-1, "\n%T", "Title Expiration", client, m_iDays, m_iHours);
 	}
 	
 	SetMenuTitle(m_hMenu, m_szTitle);
@@ -1176,7 +1176,7 @@ public int MenuHandler_Plan(Handle menu, MenuAction action, int client, int para
 		g_iMenuNum[client]=5;
 
 		char m_szTitle[128];
-		Format(STRING(m_szTitle), "%t", "Confirm_Buy", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType]);
+		Format(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType]);
 		Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
 		return;
 	}
@@ -1249,7 +1249,7 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
 				}
 
 				char m_szTitle[128];
-				Format(STRING(m_szTitle), "%t", "Confirm_Sell", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], m_iCredits);
+				Format(STRING(m_szTitle), "%T", "Confirm_Sell", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], m_iCredits);
 				g_iMenuNum[client] = 2;
 				Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Item, 0);
 			}
@@ -1305,7 +1305,7 @@ public int DisplayPlayerMenu(int client)
 		CloseHandle(m_hMenu);
 		g_iMenuNum[client] = 1;
 		DisplayItemMenu(client, g_iSelectedItem[client]);
-		tPrintToChat(client, "%t", "Gift No Players");
+		tPrintToChat(client, "%T", "Gift No Players", client);
 	}
 	else
 		DisplayMenu(m_hMenu, client, 0);
@@ -1327,7 +1327,7 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
 			m_iReceiver = GetClientOfUserId(param2);
 			if(!m_iReceiver)
 			{
-				tPrintToChat(client, "%t", "Gift Player Left");
+				tPrintToChat(client, "%T", "Gift Player Left", client);
 				return;
 			}
 			Store_GiftItem(target, m_iReceiver, m_iItem);
@@ -1343,14 +1343,14 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
 			m_iReceiver = GetClientOfUserId(m_iId);
 			if(!m_iReceiver)
 			{
-				tPrintToChat(client, "%t", "Gift Player Left");
+				tPrintToChat(client, "%T", "Gift Player Left", client);
 				return;
 			}
 
 			m_iItem = Store_GetClientItemId(target, g_iSelectedItem[client]);
 			
 			char m_szTitle[128];
-			Format(STRING(m_szTitle), "%t", "Confirm_Gift", g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], g_eClients[m_iReceiver][szName]);
+			Format(STRING(m_szTitle), "%T", "Confirm_Gift", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], g_eClients[m_iReceiver][szName]);
 			Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Gift, m_iId);
 		}
 	}
@@ -1869,7 +1869,7 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			//SQL_TVoid(g_hDatabase, m_szQuery);
 			Store_SaveClientAll(target);
 
-			tPrintToChat(target, "%t", "Chat Bought Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+			tPrintToChat(target, "%T", "Chat Bought Item", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 			Command_Store(target, 0);
 		}
 	}
@@ -1910,7 +1910,7 @@ public int Store_SellItem(int client, int itemid)
 		m_iCredits = RoundToCeil(m_iCredits*float(m_iLeft)/float(m_iLength));
 	}
 	g_eClients[client][iCredits] += m_iCredits;
-	tPrintToChat(client, "%t", "Chat Sold Item", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+	tPrintToChat(client, "%T", "Chat Sold Item", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
 	Store_LogMessage(client, m_iCredits, false, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 	LogToFileEx(g_szTempole, "%N 卖掉了 %s %s", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
@@ -1943,8 +1943,8 @@ public int Store_GiftItem(int client, int receiver, int item)
 
 	++g_eClients[receiver][iItems];
 
-	tPrintToChat(client, "%t", "Chat Gift Item Sent", g_eClients[receiver][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
-	tPrintToChat(receiver, "%t", "Chat Gift Item Received", g_eClients[target][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+	tPrintToChat(client, "%T", "Chat Gift Item Sent", client, g_eClients[receiver][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+	tPrintToChat(receiver, "%T", "Chat Gift Item Received", receiver, g_eClients[target][szName], g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
 
 	Store_LogMessage(client, 0, true, "赠送了 %s 给 %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
 	Store_LogMessage(receiver, 0, true, "收到了 %s 来自 %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);

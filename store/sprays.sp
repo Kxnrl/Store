@@ -31,8 +31,6 @@ public void Sprays_OnMapStart()
 			Downloader_AddFileToDownloadsTable(g_szSprays[i]);
 		}
 	}
-
-	//PrecacheSound("player/sprayer.wav", true);
 }
 
 public void Sprays_OnClientConnected(int client)
@@ -45,9 +43,9 @@ public Action Command_Spray(int client, int args)
 	if(g_iSprayCache[client] == -1)
 	{
 		if(g_iCGLOGO != -1)
-			PrintToChat(client, "\x01 \x04[Store]  \x01你没有装备喷漆,当前为你装备CG喷漆");
+			tPrintToChat(client, "%T", "spray auto equip", client);
 		else
-			PrintToChat(client, "\x01 \x04[Store]  \x01你没有装备喷漆");
+			tPrintToChat(client, "%T", "spray no equip", client);
 		
 		g_iSprayCache[client] = g_iCGLOGO;
 		
@@ -56,7 +54,7 @@ public Action Command_Spray(int client, int args)
 	
 	if(g_iSprayLimit[client] > GetTime())
 	{
-		PrintToChat(client, "\x01 \x04[Store]  \x01喷漆功能正在冷却");
+		tPrintToChat(client, "%T", "spray cooldown", client);
 		return Plugin_Handled;
 	}
 	
@@ -75,12 +73,12 @@ public int Sprays_Config(Handle &kv, int itemid)
 {
 	Store_SetDataIndex(itemid, g_iSprays);
 	KvGetString(kv, "material", g_szSprays[g_iSprays], 256);
-	
-	if(StrContains(g_szSprays[g_iSprays], "cglogo2", false) != -1)
-		g_iCGLOGO = g_iSprays;
 
 	if(FileExists(g_szSprays[g_iSprays], true))
 	{
+		if(StrContains(g_szSprays[g_iSprays], "cglogo2", false) != -1)
+			g_iCGLOGO = g_iSprays;
+
 		++g_iSprays;
 		return true;
 	}
@@ -105,6 +103,8 @@ public void Sprays_Create(int client)
 {
 	if(!IsPlayerAlive(client))
 		return;
+	
+	g_iSprayLimit[client] = GetTime()+30;
 
 	float m_flEye[3];
 	GetClientEyePosition(client, m_flEye);
@@ -116,11 +116,7 @@ public void Sprays_Create(int client)
 
 	if(distance > 115.0)
 	{
-		PrintToChat(client, "\x01 \x04[Store]  \x07喷漆距离太远");
-		if(CG_GetClientGId(client) == 9999)
-			g_iSprayLimit[client] = GetTime()+3;
-		else
-			g_iSprayLimit[client] = GetTime()+30;
+		tPrintToChat(client, "%T", "spray distance", client);
 		return;	
 	}
 
@@ -128,13 +124,6 @@ public void Sprays_Create(int client)
 	TE_WriteVector("m_vecOrigin",m_flView);
 	TE_WriteNum("m_nIndex", g_iSprayPrecache[g_iSprayCache[client]]);
 	TE_SendToAll();
-	
-	if(CG_GetClientGId(client) == 9999)
-		g_iSprayLimit[client] = GetTime()+3;
-	else
-		g_iSprayLimit[client] = GetTime()+30;
-	
-	//PrintToChatAll("\x01 \x04[Store]   \x0C%N\x10 使用了喷漆 \x01[(bind t spray)来使用]", client);
 }
 
 stock void GetPlayerEyeViewPoint(int client, float m_fPosition[3])

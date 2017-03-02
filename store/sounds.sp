@@ -1,4 +1,3 @@
-
 enum Sound
 {
 	String:szName[128],
@@ -136,13 +135,13 @@ public Action Command_Cheer(int client, int args)
 	
 	if(g_iSoundSpam[client] > GetTime())
 	{
-		PrintToChat(client, "\x01 \x04[Store]  音效功能正在冷却");
+		tPrintToChat(client, "%T", "sound cooldown", client);
 		return Plugin_Handled;
 	}
 	
 	if(g_iSoundClient[client] < 0)
 	{
-		PrintToChat(client, "\x01 \x04[Store]  你还没有打开音效功能,请在Store装备");
+		tPrintToChat(client, "%T", "sound no equip", client);
 		return Plugin_Handled;
 	}
 	
@@ -173,7 +172,7 @@ void StartSoundToAll(int client)
 	Format(szPath, 128, "*%s", g_eSounds[g_iSoundClient[client]][szSound]);
 	EmitSound(targets, total, szPath, SOUND_FROM_PLAYER, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]][fVolume]);
 
-	tPrintToChatAll("\x01 \x04%N\x01使用音效[\x0C%s\x01] (!crpb开关屏蔽)", client, g_eSounds[g_iSoundClient[client]][szName]);
+	tPrintToChatAll("%t", "sound to all", client, g_eSounds[g_iSoundClient[client]][szName]);
 }
 
 public void OnClientCookiesCached(int client)
@@ -194,12 +193,12 @@ public Action Command_Silence(int client, int args)
 	{
 		g_bClientDisable[client] = false;
 		SetClientCookie(client, g_hCookieSounds, "0");
-		PrintToChat(client, "\x01 \x04[Store]  \x01你已经\x07关闭屏蔽音效功能");
+		tPrintToChat(client, "%T", "sound setting", client, "off");
 	}
 	else
 	{
 		g_bClientDisable[client] = true;
 		SetClientCookie(client, g_hCookieSounds, "1");
-		PrintToChat(client, "\x01 \x04[Store]  \x01你已经\x04开启屏蔽音效功能");
+		tPrintToChat(client, "%T", "sound off", client, "on");
 	}
 }

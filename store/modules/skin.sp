@@ -70,7 +70,7 @@ public void PlayerSkins_Reset()
 public int PlayerSkins_Equip(int client, int id)
 {
 	if(IsClientInGame(client))
-		tPrintToChat(client, "%t", "PlayerSkins Settings Changed");
+		tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
@@ -78,7 +78,7 @@ public int PlayerSkins_Equip(int client, int id)
 public int PlayerSkins_Remove(int client, int id)
 {
 	if(IsClientInGame(client))
-		tPrintToChat(client, "%t", "PlayerSkins Settings Changed");
+		tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }

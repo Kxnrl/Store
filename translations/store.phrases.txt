@@ -505,4 +505,103 @@
 		"en" "Permanent/Annual VIP ? \n    visit https://csgogamers.com"
 		"chi" "购买年费/永久VIP\n    请登录https://csgogamers.com"
 	}
+	
+	"cat banned"
+	{
+		"en" "{darkred}You got a CAT ban..."
+		"chi" "你的Store信用为{darkred}不可信{normal}或{red}信用点为负{normal}!"
+	}
+	
+	"spray auto equip"
+	{
+		"en" "You are not equipped spray. Auto-Equip CG Spray."
+		"chi" "你没有装备喷漆,当前为你装备CG喷漆"
+	}
+	
+	"spray no equip"
+	{
+		"en" "You are not equipped spray."
+		"chi" "你没有装备喷漆"
+	}
+	
+	"spray cooldown"
+	{
+		"en" "Spray is cooling down..."
+		"chi" "喷漆功能正在冷却"
+	}
+	
+	"spray distance"
+	{
+		"en" "too far away"
+		"chi" "喷漆距离太远"
+	}
+	
+	"sound cooldown"
+	{
+		"en" "Sound effects is cooling down..."
+		"chi" "音效功能正在冷却"
+	}
+	
+	"sound no equip"
+	{
+		"en" "You are not equipped sound effects."
+		"chi" "你还没有打开音效功能,请在Store装备"
+	}
+	
+	"sound to all"
+	{
+		"#format" "{1:N},{2:s}"
+		"en" "{green}{1}{normal} used [{blue}{2}{normal}] (!crpb block it)"
+		"chi" "{green}{1}{normal}使用音效[{blue}{2}{normal}] (!crpb开关屏蔽)"
+	}
+	
+	"on"
+	{
+		"en" "{green}ON{normal}"
+		"chi" "{green}开启{normal}"
+	}
+	
+	"off"
+	{
+		"en" "{red}OFF{normal}"
+		"chi" "{red}关闭{normal}"
+	}
+	
+	"sound setting"
+	{
+		"#format" "{1:t}"
+		"en" "Block sound effects {1} now"
+		"chi" "你已经{1}屏蔽音效功能"
+	}
+	
+	"hide setting"
+	{
+		"#format" "{1:t}"
+		"en" "Hide trails and neon {1} now"
+		"chi" "你已{1}屏蔽足迹和霓虹"
+	}
+	
+	"tp not allow"
+	{
+		"en" "This Game Mode, TP mode is not allow"
+		"chi" "当前模式不允许使用TP"
+	}
+	
+	"tp dead"
+	{
+		"en" "You are dead"
+		"chi" "你已经嗝屁了,还想开TP?"
+	}
+	
+	"tp seeme"
+	{
+		"en" "You are in SeeMe mode!"
+		"chi" "你已经开了SeeMe,还想开TP?"
+	}
+	
+	"seeme tp"
+	{
+		"en" "You are in TP mode!"
+		"chi" "你已经开了TP,还想开SeeMe?"
+	}
 }

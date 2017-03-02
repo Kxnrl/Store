@@ -64,6 +64,9 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
+	if(IsFakeClient(client))
+		return Plugin_Continue;
+	
 	RequestFrame(OnClientSpawn, client);
 
 	if(g_bGameModeZE && GetClientTeam(client) == 2)
@@ -78,6 +81,9 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	
+	if(IsFakeClient(client))
+		return  Plugin_Continue;
 	
 	CheckClientTP(client);
 	
@@ -106,7 +112,7 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 
 public void CG_OnClientTeam(int client)
 {
-	if(g_bGameModePR)
+	if(g_bGameModePR || IsFakeClient(client))
 		return;
 	RequestFrame(OnClientTeam, client);
 }
@@ -160,28 +166,28 @@ public Action Command_Hide(int client, int args)
 		return Plugin_Handled;
 	
 	g_bHideMode[client] = !g_bHideMode[client];
-	tPrintToChat(client, "'\x04!hidetrail\x01' 你已%s屏蔽足迹和霓虹", g_bHideMode[client] ? "\x04开启\x01" : "\x07关闭\x01");
+	tPrintToChat(client, "%T", "hide setting", client, g_bHideMode[client] ? "on" : "off");
 
 	return Plugin_Handled;
 }
 
 public Action Command_TP(int client, int args)
 {
-	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB || g_bGameModePR || g_bGameModeHZ) && CG_GetClientGId(client) != 9999)
+	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB || g_bGameModePR || g_bGameModeHZ) && g_eClients[client][iId] != 1)
 	{
-		tPrintToChat(client, "当前模式不允许使用TP");
+		tPrintToChat(client, "%T", "tp not allow", client);
 		return Plugin_Handled;
 	}
 
 	if(!IsPlayerAlive(client))
 	{
-		tPrintToChat(client, "你已经嗝屁了,还想开TP?");
+		tPrintToChat(client, "%T", "tp dead", client);
 		return Plugin_Handled;
 	}
 	
 	if(g_bMirror[client])
 	{
-		tPrintToChat(client, "你已经开了SeeMe,还想开TP?");
+		tPrintToChat(client, "%T", "tp seeme", client);
 		return Plugin_Handled;
 	}
 
@@ -196,13 +202,13 @@ public Action Command_Mirror(int client, int args)
 {
 	if(!IsPlayerAlive(client))
 	{
-		tPrintToChat(client, "你已经嗝屁了,还想开SeeMe?");
+		tPrintToChat(client, "%T", "tp dead", client);
 		return Plugin_Handled;
 	}
 	
 	if(g_bThirdperson[client])
 	{
-		tPrintToChat(client, "你已经开了TP,还想开SeeMe?");
+		tPrintToChat(client, "%T", "seeme tp", client);
 		return Plugin_Handled;
 	}
 	

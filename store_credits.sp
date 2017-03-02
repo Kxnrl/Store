@@ -211,7 +211,7 @@ public Action CreditTimer(Handle timer, int client)
 		int m_iPlus = 0;
 		if(authid < 401)
 		{
-			m_iPlus += 3;
+			m_iPlus += 2;
 		}
 		else if(500 > authid >= 401)
 		{
@@ -226,15 +226,11 @@ public Action CreditTimer(Handle timer, int client)
 		}
 		else if(9000 > authid >= 500)
 		{
+			m_iPlus += 2;
+		}
+		else if(authid >= 9101)
+		{
 			m_iPlus += 3;
-		}
-		else if(9990 > authid >= 9101)
-		{
-			m_iPlus += 4;
-		}
-		else if(authid > 9990)
-		{
-			m_iPlus += 5;
 		}
 
 		m_iCredits += m_iPlus;
@@ -258,18 +254,12 @@ public Action CreditTimer(Handle timer, int client)
 		}
 		case 2:
 		{
-			m_iCredits += 2;
-			StrCat(szFrom, 128, "\x0A|\x07年费VIP+2");
+			m_iCredits += 1;
+			StrCat(szFrom, 128, "\x0A|\x07年费VIP+1");
 			StrCat(szReason, 128, " AVIP ");
 		}
-		case 1:
-		{
-			m_iCredits += 1;
-			StrCat(szFrom, 128, "\x0A|\x07月费VIP+1");
-			StrCat(szReason, 128, " MVIP ");
-		}
 	}
-	
+
 	if(g_bInMimiGameGroup[client] && !m_bGroupCreidts)
 	{
 		m_iCredits += 3;
@@ -305,40 +295,30 @@ public Action CreditTimer(Handle timer, int client)
 	if(m_iVitality)
 	{
 		StrCat(szReason, 128, " 热度");	
-		if(100 > m_iVitality >= 60)
+		if(200 > m_iVitality >= 100)
+		{
+			m_iCredits += 1;
+			StrCat(szFrom, 128, "\x0A|\x07热度+1");
+		}
+		else if(400 > m_iVitality >= 200)
 		{
 			m_iCredits += 2;
 			StrCat(szFrom, 128, "\x0A|\x07热度+2");
 		}
-		else if(200 > m_iVitality >= 100)
+		else if(700 > m_iVitality >= 400)
 		{
 			m_iCredits += 3;
 			StrCat(szFrom, 128, "\x0A|\x07热度+3");
 		}
-		else if(400 > m_iVitality >= 200)
+		else if(m_iVitality >= 700)
 		{
 			m_iCredits += 4;
 			StrCat(szFrom, 128, "\x0A|\x07热度+4");
 		}
-		else if(700 > m_iVitality >= 400)
+		else if(m_iVitality == 1000)
 		{
 			m_iCredits += 5;
 			StrCat(szFrom, 128, "\x0A|\x07热度+5");
-		}
-		else if(m_iVitality >= 700)
-		{
-			m_iCredits += 6;
-			StrCat(szFrom, 128, "\x0A|\x07热度+6");
-		}
-		else if(m_iVitality == 1000)
-		{
-			m_iCredits += 10;
-			StrCat(szFrom, 128, "\x0A|\x07热度+10");
-		}
-		else
-		{
-			m_iCredits += 1;
-			StrCat(szFrom, 128, "\x0A|\x07热度+1");
 		}
 	}
 /*	

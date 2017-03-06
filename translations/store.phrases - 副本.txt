@@ -1,0 +1,621 @@
+﻿"Phrases"
+{
+	"You dont have permission"
+	{
+		"en" "You don't have permission to access this."
+		"chi" "你没有权限进行本操作."
+	}
+	
+	"Inventory hasnt been fetched"
+	{
+		"en" "Please wait. Your inventory hasn't been fetched yet."
+		"chi" "你的库存正在载入中,请稍后."
+	}
+	
+	"Item Bought"
+	{
+		"#format" "{1:s}"
+		"en" "{1}"
+		"chi" "{1}"
+	}
+	
+	"Item Available"
+	{
+		"#format" "{1:s},{2:d}"
+		"en" "{1} ({2})"
+		"chi" "{1} ({2})"
+	}
+
+	"Item Plan Available"
+	{
+		"#format" "{1:s}"
+		"en" "{1} (More Info)"
+		"chi" "{1} (查看详细)"
+	}
+	
+	"Item Equipped"
+	{
+		"#format" "{1:s}"
+		"en" "{1} [EQUIPPED]"
+		"chi" "{1} [已装备]"
+	}
+	
+	"Item Equip"
+	{
+		"en" "Equip this item"
+		"chi" "装备该物品"
+	}
+	
+	"Item Unequip"
+	{
+		"en" "Unequip"
+		"chi" "卸下该物品"
+	}
+	
+	"Item Use"
+	{
+		"en" "Use this item"
+		"chi" "使用该物品"
+	}
+	
+	"Item Sell"
+	{
+		"#format" "{1:d}"
+		"en" "Sell for {1}"
+		"chi" "以 {1} Credits的价格出售该物品"
+	}
+	
+	"Item Gift"
+	{
+		"en" "Gift this item"
+		"chi" "赠送该物品"
+	}
+	
+	"Title Store"
+	{
+		"en" "Store Menu"
+		"chi" "商店菜单"
+	}
+	
+	"Title Credits"
+	{
+		"#format" "{1:d}"
+		"en" "Credits: {1}"
+		"chi" "信用点: {1}  充值请登录论坛"
+	}
+	
+	"Title Expiration"
+	{
+		"#format" "{1:d},{2:d}"
+		"en" "Expires in {1}d {2}h"
+		"chi" "使用时间剩余: {1}天{2}小时"
+	}
+
+	"Title Gift"
+	{
+		"en" "Choose a player to send gift to"
+		"chi" "选择欲赠送物品的玩家"
+	}
+	
+	"Gift Player Left"
+	{
+		"en" "Selected player has already left the game."
+		"chi" "你选择的玩家已离开游戏."
+	}
+	
+	"Gift No Players"
+	{
+		"en" "There's noone you can gift this item to."
+		"chi" "没有可赠送物品的玩家."
+	}
+	
+	"Chat Bought Item"
+	{
+		"#format" "{1:s},{2:t}"
+		"en" "You have bought a {HIGHLIGHT}{1} {2}{NORMAL}, you need equip that."
+		"chi" "你购买了 {HIGHLIGHT}{1} {2}{NORMAL}, 你需要选择已购买的物品来装备."
+	}
+	
+	"Chat Sold Item"
+	{
+		"#format" "{1:s},{2:t}"
+		"en" "You have sold a {HIGHLIGHT}{1} {2}{NORMAL}."
+		"chi" "你卖掉了 {HIGHLIGHT}{1} {2}{NORMAL}."
+	}
+	
+	"Chat Gift Item Sent"
+	{
+		"#format" "{1:s},{2:s},{3:t}"
+		"en" "You have sent {HIGHLIGHT}{1}{NORMAL} a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
+		"chi" "你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL} 给玩家 {HIGHLIGHT}{1}{NORMAL}."
+	}
+	
+	"Chat Gift Item Received"
+	{
+		"#format" "{1:s},{2:s},{3:t}"
+		"en" "{HIGHLIGHT}{1}{NORMAL} has sent you a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
+		"chi" "玩家 {HIGHLIGHT}{1}{NORMAL} 给你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL}."
+	}
+	
+	"Credit Gift Disabled"
+	{
+		"en" "Credit gifting is disabled on this server."
+		"chi" "赠送物品功能已被禁用."
+	}
+	
+	"Credit Invalid Amount"
+	{
+		"en" "Invalid amount of credits entered."
+		"chi" "Credits余额无效."
+	}
+	
+	"Credit Not Enough"
+	{
+		"en" "You don't have enough credits to buy this."
+		"chi" "Credits余额不足,无法购买."
+	}
+
+	"Credit Too Many Matches"
+	{
+		"en" "More than one client were found."
+		"chi" "搜索到多个匹配的客户端."
+	}
+	
+	"Credit No Match"
+	{
+		"en" "No player was found."
+		"chi" "查无此户."
+	}
+	
+	"Credit Gift Sent"
+	{
+		"#format" "{1:d},{2:s}"
+		"en" "You have sent {HIGHLIGHT}{1}{NORMAL} credits to {HIGHLIGHT}{2}{NORMAL}.
+		"chi" "你赠送了 {HIGHLIGHT}{1}{NORMAL} 信用点给玩家 {HIGHLIGHT}{2}{NORMAL}."
+	}
+	
+	"Credit Gift Received"
+	{
+		"#format" "{1:d},{2:s}"
+		"en" "{HIGHLIGHT}{2}{NORMAL} has sent you {HIGHLIGHT}{1}{NORMAL} credits."
+		"chi" "玩家 {HIGHLIGHT}{2}{NORMAL} 给你赠送了 {HIGHLIGHT}{1}{NORMAL} 信用点."
+	}
+	
+	"Package Sell"
+	{
+		"#format" "{1:d}"
+		"en" "Sell this package for {1}"
+		"chi" "以 {1} Credits的价格出售该套装"
+	}
+	
+	"Package Gift"
+	{
+		"en" "Gift this package"
+		"chi" "赠送该套装"
+	}
+	
+	"PlayerSkins Settings Changed"
+	{
+		"en" "Your new settings will be applied on next spawn."
+		"chi" "你的设置将在下次重生时生效."
+	}
+	
+	"Confirm_Yes"
+	{
+		"en" "Yes"
+		"chi" "是"
+	}
+	
+	"Confirm_No"
+	{
+		"en" "No"
+		"chi" "否"
+	}
+	
+	"Confirm_Buy"
+	{
+		"#format" "{1:s},{2:t}"
+		"en" "Are you sure you want to buy {1} {2}?"
+		"chi" "你是否要购买物品 {1} {2}?"
+	}
+	
+	"Confirm_Sell"
+	{
+		"#format" "{1:s},{2:t},{3:d}"
+		"en" "Are you sure you want to sell {1} {2} for {3}?"
+		"chi" "你是否要卖掉物品 {1} {2}?"
+	}
+	
+	"Confirm_Gift"
+	{
+		"#format" "{1:s},{2:t},{3:s}"
+		"en" "Are you sure you want to gift {1} {2} to {3}?"
+		"chi" "你是否要赠送物品 {1} {2} 给玩家 {3}?"
+	}
+	
+	"Gift_Handing"
+	{
+		"#format" "{1:d}"
+		"en" "Handing Fee: {1} Credits"
+		"chi" "手续费: {1} 信用点"
+	}
+	
+	"Chat Not Enough Handing Fee"
+	{
+		"#format" "{1:d}"
+		"en" "You have not enough handing fee, Request: {red}{1}{normal} Credits"
+		"chi" "你的信用点余额不足以支付手续费! 手续费: {red}{1}{normal} 信用点"
+	}
+
+	"Confirm_Gift_Drop"
+	{
+		"#format" "{1:s},{2:t}"
+		"en" "Are you sure you want to drop {1} {2} as a gift?"
+		"chi" "你是否要将物品 {1} {2} 作为礼物投出?"
+	}
+	
+	"Override Enabled"
+	{
+		"en" "Your current skin doesn't support hats. Your skin will be changed."
+		"chi" "你当前的人物模型不能使用帽子,系统已改变你的人物模型."
+	}
+	
+	"Override Disabled"
+	{
+		"en" "Your skin doesn't support hats. Your equipped hat will be disabled."
+		"chi" "你当前的人物模型不能使用帽子,系统已卸下你的帽子."
+	}
+
+	"Credits Given"
+	{
+		"#format" "{1:s}{2:d}"
+		"en" "{1} has been given {2} credits."
+		"chi" "{1} 收到了 {2} 信用点."
+	}
+
+	"Betting Won"
+	{
+		"#format" "{1:d}"
+		"en" "Your bet was successful. You won {1} credits."
+		"chi" "你赢得了这次赌注 {1} 信用点."
+	}
+
+	"Betting Lost"
+	{
+		"#format" "{1:d}"
+		"en" "You lost {1} credits on the bet."
+		"chi" "你输掉了这次赌注,失去 {1} 信用点."
+	}
+
+	"Betting Invalid Team"
+	{
+		"en" "Invalid team identifier specified."
+		"chi" "选择的队伍无效."
+	}
+
+	"Betting Placed"
+	{
+		"#format" "{1:d}"
+		"en" "You have successfully placed a bet of {1} credits."
+		"chi" "你成功下了一笔 {1} Credits的赌注."
+	}
+
+	"Betting Already Placed"
+	{
+		"en" "You have already placed your bet for the round."
+		"chi" "你已经下过本局的赌注了."
+	}
+
+	"Betting Period Over"
+	{
+		"en" "The betting period is over for this round."
+		"chi" "本局下注时间已结束下注时间已结束,请等下局."
+	}
+	
+	"Player Resetted"
+	{
+		"#format" "{1:s}"
+		"en" "{1} has been resetted."
+		"chi" "{1} 的库存已被重置."
+	}
+
+	"Player Credits"
+	{
+		"#format" "{1:s},{2:d}"
+		"en" "{HIGHLIGHT}{1}{NORMAL} has {HIGHLIGHT}{2}{NORMAL} credits."
+		"chi" "{HIGHLIGHT}{1}{NORMAL} 现在拥有 {HIGHLIGHT}{2}{NORMAL} 信用点."
+	}
+
+	"Credits Earned For Killing"
+	{
+		"#format" "{1:d},{2:s}"
+		"en" "You earned {HIGHLIGHT}{1}{NORMAL} credits for killing {HIGHLIGHT}{2}{NORMAL}."
+		"chi" "你击杀敌人 {HIGHLIGHT}{2}{NORMAL} 获得 {HIGHLIGHT}{1}{NORMAL} 信用点."
+	}
+
+	"Credits Earned For Playing"
+	{
+		"#format" "{1:d}"
+		"en" "You earned {HIGHLIGHT}{1}{NORMAL} credits for playing on the server."
+		"chi" "你获得 {HIGHLIGHT}{1}{NORMAL} 信用点 来自{lightred}[在线时间]"
+	}
+
+	"Drop Gift"
+	{
+		"en" "Drop as gift"
+		"chi" "作为礼物投出"
+	}
+
+	"Gift Item Picked"
+	{
+		"#format" "{1:s},{2:t}"
+		"en" "You picked up a {HIGHLIGHT}{1} {2}{NORMAL}."
+		"chi" "你拾起了物品 {HIGHLIGHT}{1} {2}{NORMAL}."
+	}
+
+	"Gift Credit Picked"
+	{
+		"#format" "{1:d}"
+		"en" "You picked up {HIGHLIGHT}{1} credits{NORMAL}."
+		"chi" "你拾起了 {HIGHLIGHT} {1} Credits{NORMAL}."
+	}
+
+	"Credit Gift Dropped"
+	{
+		"#format" "{1:d}"
+		"en" "You dropped {HIGHLIGHT}{1} credits{NORMAL} as a gift."
+		"chi" "你投出了 {HIGHLIGHT}{1} Credits{NORMAL} 作为礼物."
+	}
+
+	"Must be Alive"
+	{
+		"en" "You must be alive to use this."
+		"chi" "你必须在存活状态才能使用这个."
+	}
+
+	"TF Wrong Class"
+	{
+		"en" "This item was meant to be used with a different player class."
+		"chi" "该物品只能被其他类型的玩家使用."
+	}
+
+	"Help_Back"
+	{
+		"en" "Back"
+		"chi" "返回."
+	}
+
+	"Help_Exit"
+	{
+		"en" "Exit"
+		"chi" "退出."
+	}
+
+	// Item type names for chat messages
+	
+	"hat"
+	{
+		"en" "hat"
+		"chi" "人物装饰品"
+	}
+	
+	"playerskin"
+	{
+		"en" "player skin"
+		"chi" "人物模型"
+	}
+	
+	"trail"
+	{
+		"en" "trail"
+		"chi" "足迹"
+	}
+
+	"grenadeskin"
+	{
+		"en" "grenade skin"
+		"chi" "手雷模型"
+	}
+	
+	"grenadetrail"
+	{
+		"en" "grenade trail"
+		"chi" "手雷轨迹"
+	}
+
+	"nametag"
+	{
+		"en" "name tag"
+		"chi" "名字标签"
+	}
+
+	"namecolor"
+	{
+		"en" "name color"
+		"chi" "名字颜色"
+	}
+
+	"msgcolor"
+	{
+		"en" "message color"
+		"chi" "聊天消息颜色"
+	}
+	
+	"sound"
+	{
+		"en" "sound"
+		"chi" "音效"
+	}
+	
+	"neon"
+	{
+		"en" "neon"
+		"chi" "霓虹"
+	}
+
+	"particle"
+	{
+		"en" "particle"
+		"chi" "粒子效果"
+	}
+
+	"Particles"
+	{
+		"chi" "粒子足迹"
+		"en" "Particles"
+	}
+
+	"Aura"
+	{
+		"chi" "光环"
+		"en" "Aura"
+	}
+
+	"spray"
+	{
+		"en" "spray"
+		"chi" "喷漆"
+	}
+	
+	"vwmodel"
+	{
+		"en" "weapon model"
+		"chi" "武器模型/皮肤"
+	}
+	
+	"you are already vip"
+	{
+		"#format" "{1:t}"
+		"en" "You are already {1}"
+		"chi" "你已经是{1}了"
+	}
+	
+	"buy monthly vip"
+	{
+		"en" "Buy monthly VIP"
+		"chi" "购买月费VIP\n    购买年费/永久VIP请登录论坛"
+	}
+	
+	"svip"
+	{
+		"en" "Permanent VIP"
+		"chi" "永久VIP"
+	}
+	
+	"yvip"
+	{
+		"en" "Annual VIP"
+		"chi" "年费VIP"
+	}
+	
+	"mvip"
+	{
+		"en" "monthly VIP"
+		"chi" "月费VIP"
+	}
+	
+	"go to forum to buy vip"
+	{
+		"en" "Permanent/Annual VIP ? \n    visit https://csgogamers.com"
+		"chi" "购买年费/永久VIP\n    请登录https://csgogamers.com"
+	}
+	
+	"cat banned"
+	{
+		"en" "{darkred}You got a CAT ban..."
+		"chi" "你的Store信用为{darkred}不可信{normal}或{red}信用点为负{normal}!"
+	}
+	
+	"spray auto equip"
+	{
+		"en" "You are not equipped spray. Auto-Equip CG Spray."
+		"chi" "你没有装备喷漆,当前为你装备CG喷漆"
+	}
+	
+	"spray no equip"
+	{
+		"en" "You are not equipped spray."
+		"chi" "你没有装备喷漆"
+	}
+	
+	"spray cooldown"
+	{
+		"en" "Spray is cooling down..."
+		"chi" "喷漆功能正在冷却"
+	}
+	
+	"spray distance"
+	{
+		"en" "too far away"
+		"chi" "喷漆距离太远"
+	}
+	
+	"sound cooldown"
+	{
+		"en" "Sound effects is cooling down..."
+		"chi" "音效功能正在冷却"
+	}
+	
+	"sound no equip"
+	{
+		"en" "You are not equipped sound effects."
+		"chi" "你还没有打开音效功能,请在Store装备"
+	}
+	
+	"sound to all"
+	{
+		"#format" "{1:N},{2:s}"
+		"en" "{green}{1}{normal} used [{blue}{2}{normal}] (!crpb block it)"
+		"chi" "{green}{1}{normal}使用音效[{blue}{2}{normal}] (!crpb开关屏蔽)"
+	}
+	
+	"on"
+	{
+		"en" "{green}ON{normal}"
+		"chi" "{green}开启{normal}"
+	}
+	
+	"off"
+	{
+		"en" "{red}OFF{normal}"
+		"chi" "{red}关闭{normal}"
+	}
+	
+	"sound setting"
+	{
+		"#format" "{1:t}"
+		"en" "Block sound effects {1} now"
+		"chi" "你已经{1}屏蔽音效功能"
+	}
+	
+	"hide setting"
+	{
+		"#format" "{1:t}"
+		"en" "Hide trails and neon {1} now"
+		"chi" "你已{1}屏蔽足迹和霓虹"
+	}
+	
+	"tp not allow"
+	{
+		"en" "This Game Mode, TP mode is not allow"
+		"chi" "当前模式不允许使用TP"
+	}
+	
+	"tp dead"
+	{
+		"en" "You are dead"
+		"chi" "你已经嗝屁了,还想开TP?"
+	}
+	
+	"tp seeme"
+	{
+		"en" "You are in SeeMe mode!"
+		"chi" "你已经开了SeeMe,还想开TP?"
+	}
+	
+	"seeme tp"
+	{
+		"en" "You are in TP mode!"
+		"chi" "你已经开了TP,还想开SeeMe?"
+	}
+}

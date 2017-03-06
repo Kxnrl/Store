@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.2.2rc - 2017/03/02 05:33"
+#define PLUGIN_VERSION "1.2.2rc3 - 2017/03/06 06:44"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -1350,7 +1350,7 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
 			m_iItem = Store_GetClientItemId(target, g_iSelectedItem[client]);
 			
 			char m_szTitle[128];
-			Format(STRING(m_szTitle), "%T", "Confirm_Gift", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], g_eClients[m_iReceiver][szName]);
+			Format(STRING(m_szTitle), "%T\n%T", "Confirm_Gift", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], g_eClients[m_iReceiver][szName], "Gift_Handing", client, g_eClientItems[client][m_iItem][iPriceOfPurchase]/2);
 			Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Gift, m_iId);
 		}
 	}
@@ -1930,6 +1930,21 @@ public int Store_GiftItem(int client, int receiver, int item)
 		return;
 	}
 	
+	if(g_eClients[client][iCredits] < g_eClientItems[client][item][iPriceOfPurchase]/2)
+	{
+		tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_eClientItems[client][item][iPriceOfPurchase]/2);
+		return;
+	}
+	
+	if(g_eClientItems[client][item][iPriceOfPurchase] == 30)
+	{
+		tPrintToChat(client, " \x02UNKNOWN ERROR\x01 :  \x07%d", GetRandomInt(100000, 999999));
+		return;
+	}
+
+	int handingF = Store_GetClientCredits(client)-g_eClientItems[client][item][iPriceOfPurchase]/2;
+	Store_SetClientCredits(client, handingF, "赠送物品_手续费");
+
 	g_eClientItems[client][item][bDeleted] = true;
 	Store_UnequipItem(client, m_iId);
 

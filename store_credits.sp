@@ -16,6 +16,7 @@
 
 Handle g_hTimer[MAXPLAYERS+1];
 
+bool g_bInBlackGroup[MAXPLAYERS+1];
 bool g_bInOfficalGroup[MAXPLAYERS+1];
 bool g_bInMimiGameGroup[MAXPLAYERS+1];
 bool g_bInOpeatorGroup[MAXPLAYERS+1];
@@ -102,6 +103,7 @@ public void OnClientPostAdminCheck(int client)
 
 public void OnClientDisconnect(int client)
 {
+	g_bInBlackGroup[client] = false;
 	g_bInOfficalGroup[client] = false;
 	g_bInMimiGameGroup[client] = false;
 	g_bInZombieGroup[client] = false;
@@ -118,6 +120,9 @@ public void OnClientDisconnect(int client)
 
 public int ZE_GetClientGroupStats(int client)
 {
+	if(g_bInBlackGroup[client])
+		return -1;
+	
 	if(g_bInZombieGroup[client])
 		return 2;
 	
@@ -138,8 +143,8 @@ public void LookupPlayerGroups(int client)
 	SteamWorks_GetUserGroupStatus(client, 103582791456047719);
 	
 	//Check Blacklist
-	//SteamWorks_GetUserGroupStatus(client, 103582791455638129);
-	//SteamWorks_GetUserGroupStatus(client, 103582791455103762);
+	SteamWorks_GetUserGroupStatus(client, 103582791440276886); //bolilingmeng
+	SteamWorks_GetUserGroupStatus(client, 103582791439793469); //qinli802011
 }
 
 public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember, bool isOfficer)
@@ -168,10 +173,42 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
 					g_bInOpeatorGroup[client] = true;
 				if(groupid == 103582791456047719)
 					g_bInZombieGroup[client] = true;
+				if(groupid == 103582791440276886)
+				{
+					g_bInBlackGroup[client] = true;
+					CreateTimer(3.0, Timer_HUD_1, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+				}
+				if(groupid == 103582791439793469)
+				{
+					g_bInBlackGroup[client] = true;
+					CreateTimer(3.0, Timer_HUD_2, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+				}
 				break;
 			}
 		}
 	}
+}
+
+public Action Timer_HUD_1(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if(!client || !IsClientInGame(client))
+		return Plugin_Stop;
+	
+	PrintCenterText(client, "系统检测到你加入了[博麗靈夢]组\n你在服务器内将受到一定限制");
+	
+	return Plugin_Continue;
+}
+
+public Action Timer_HUD_2(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if(!client || !IsClientInGame(client))
+		return Plugin_Stop;
+	
+	PrintCenterText(client, "系统检测到你加入了[琴レーン Kotori]组\n你在服务器内将受到一定限制");
+
+	return Plugin_Continue;
 }
 
 public Action CreditTimer(Handle timer, int client)

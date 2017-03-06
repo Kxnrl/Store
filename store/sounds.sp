@@ -97,19 +97,22 @@ public void Sound_OnClientConnected(int client)
 	g_bClientDisable[client] = false;
 }
 
-public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
+public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
 {
 	if(client <= 0)
-		return Plugin_Continue;
+		return;
+	
+	if(!IsClientInGame(client))
+		return;
 	
 	if(g_iSoundClient[client] < 0)
-		return Plugin_Continue;
+		return;
 	
 	if(sArgs[0] == '!' || sArgs[0] == '/')
-		return Plugin_Continue;
+		return;
 	
 	if(g_iSoundSpam[client] > GetTime())
-			return Plugin_Continue;
+			return;
 	
 	if  ( 
 			StrContains(sArgs, "cheer", false) != -1 ||
@@ -121,16 +124,15 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 		{
 			g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]][iCooldown];
 			StartSoundToAll(client);
-			
-			return Plugin_Stop;
 		}
-
-	return Plugin_Continue;
 }
 
 public Action Command_Cheer(int client, int args)
 {
 	if(client <= 0)
+		return Plugin_Handled;
+	
+	if(!IsClientInGame(client))
 		return Plugin_Handled;
 	
 	if(g_iSoundSpam[client] > GetTime())
@@ -199,6 +201,6 @@ public Action Command_Silence(int client, int args)
 	{
 		g_bClientDisable[client] = true;
 		SetClientCookie(client, g_hCookieSounds, "1");
-		tPrintToChat(client, "%T", "sound off", client, "on");
+		tPrintToChat(client, "%T", "sound setting", client, "on");
 	}
 }

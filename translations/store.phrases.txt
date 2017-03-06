@@ -1,11 +1,5 @@
 ﻿"Phrases"
 {
-	"You dont have permission"
-	{
-		"en" "You don't have permission to access this."
-		"chi" "你没有权限进行本操作."
-	}
-	
 	"Inventory hasnt been fetched"
 	{
 		"en" "Please wait. Your inventory hasn't been fetched yet."
@@ -143,44 +137,6 @@
 		"chi" "赠送物品功能已被禁用."
 	}
 	
-	"Credit Invalid Amount"
-	{
-		"en" "Invalid amount of credits entered."
-		"chi" "Credits余额无效."
-	}
-	
-	"Credit Not Enough"
-	{
-		"en" "You don't have enough credits to buy this."
-		"chi" "Credits余额不足,无法购买."
-	}
-
-	"Credit Too Many Matches"
-	{
-		"en" "More than one client were found."
-		"chi" "搜索到多个匹配的客户端."
-	}
-	
-	"Credit No Match"
-	{
-		"en" "No player was found."
-		"chi" "查无此户."
-	}
-	
-	"Credit Gift Sent"
-	{
-		"#format" "{1:d},{2:s}"
-		"en" "You have sent {HIGHLIGHT}{1}{NORMAL} credits to {HIGHLIGHT}{2}{NORMAL}.
-		"chi" "你赠送了 {HIGHLIGHT}{1}{NORMAL} 信用点给玩家 {HIGHLIGHT}{2}{NORMAL}."
-	}
-	
-	"Credit Gift Received"
-	{
-		"#format" "{1:d},{2:s}"
-		"en" "{HIGHLIGHT}{2}{NORMAL} has sent you {HIGHLIGHT}{1}{NORMAL} credits."
-		"chi" "玩家 {HIGHLIGHT}{2}{NORMAL} 给你赠送了 {HIGHLIGHT}{1}{NORMAL} 信用点."
-	}
-	
 	"Package Sell"
 	{
 		"#format" "{1:d}"
@@ -229,80 +185,22 @@
 	"Confirm_Gift"
 	{
 		"#format" "{1:s},{2:t},{3:s}"
-		"en" "Are you sure you want to gift {1} {2} to {3}?"
-		"chi" "你是否要赠送物品 {1} {2} 给玩家 {3}?"
-	}
-
-	"Confirm_Gift_Drop"
-	{
-		"#format" "{1:s},{2:t}"
-		"en" "Are you sure you want to drop {1} {2} as a gift?"
-		"chi" "你是否要将物品 {1} {2} 作为礼物投出?"
+		"en" "Are you sure? gift {1} {2} to {3}?"
+		"chi" "你确定送物品 {1} {2} 给玩家 {3}?"
 	}
 	
-	"Override Enabled"
+	"Gift_Handing"
 	{
-		"en" "Your current skin doesn't support hats. Your skin will be changed."
-		"chi" "你当前的人物模型不能使用帽子,系统已改变你的人物模型."
+		"#format" "{1:d}"
+		"en" "Handing Fee: {1} Credits"
+		"chi" "手续费: {1} 信用点"
 	}
 	
-	"Override Disabled"
-	{
-		"en" "Your skin doesn't support hats. Your equipped hat will be disabled."
-		"chi" "你当前的人物模型不能使用帽子,系统已卸下你的帽子."
-	}
-
-	"Credits Given"
-	{
-		"#format" "{1:s}{2:d}"
-		"en" "{1} has been given {2} credits."
-		"chi" "{1} 收到了 {2} 信用点."
-	}
-
-	"Betting Won"
+	"Chat Not Enough Handing Fee"
 	{
 		"#format" "{1:d}"
-		"en" "Your bet was successful. You won {1} credits."
-		"chi" "你赢得了这次赌注 {1} 信用点."
-	}
-
-	"Betting Lost"
-	{
-		"#format" "{1:d}"
-		"en" "You lost {1} credits on the bet."
-		"chi" "你输掉了这次赌注,失去 {1} 信用点."
-	}
-
-	"Betting Invalid Team"
-	{
-		"en" "Invalid team identifier specified."
-		"chi" "选择的队伍无效."
-	}
-
-	"Betting Placed"
-	{
-		"#format" "{1:d}"
-		"en" "You have successfully placed a bet of {1} credits."
-		"chi" "你成功下了一笔 {1} Credits的赌注."
-	}
-
-	"Betting Already Placed"
-	{
-		"en" "You have already placed your bet for the round."
-		"chi" "你已经下过本局的赌注了."
-	}
-
-	"Betting Period Over"
-	{
-		"en" "The betting period is over for this round."
-		"chi" "本局下注时间已结束下注时间已结束,请等下局."
-	}
-	
-	"Player Resetted"
-	{
-		"#format" "{1:s}"
-		"en" "{1} has been resetted."
-		"chi" "{1} 的库存已被重置."
+		"en" "You have not enough handing fee, Request: {red}{1}{normal} Credits"
+		"chi" "你的信用点余额不足以支付手续费! 手续费: {red}{1}{normal} 信用点"
 	}
 
 	"Player Credits"
@@ -310,71 +208,6 @@
 		"#format" "{1:s},{2:d}"
 		"en" "{HIGHLIGHT}{1}{NORMAL} has {HIGHLIGHT}{2}{NORMAL} credits."
 		"chi" "{HIGHLIGHT}{1}{NORMAL} 现在拥有 {HIGHLIGHT}{2}{NORMAL} 信用点."
-	}
-
-	"Credits Earned For Killing"
-	{
-		"#format" "{1:d},{2:s}"
-		"en" "You earned {HIGHLIGHT}{1}{NORMAL} credits for killing {HIGHLIGHT}{2}{NORMAL}."
-		"chi" "你击杀敌人 {HIGHLIGHT}{2}{NORMAL} 获得 {HIGHLIGHT}{1}{NORMAL} 信用点."
-	}
-
-	"Credits Earned For Playing"
-	{
-		"#format" "{1:d}"
-		"en" "You earned {HIGHLIGHT}{1}{NORMAL} credits for playing on the server."
-		"chi" "你获得 {HIGHLIGHT}{1}{NORMAL} 信用点 来自{lightred}[在线时间]"
-	}
-
-	"Drop Gift"
-	{
-		"en" "Drop as gift"
-		"chi" "作为礼物投出"
-	}
-
-	"Gift Item Picked"
-	{
-		"#format" "{1:s},{2:t}"
-		"en" "You picked up a {HIGHLIGHT}{1} {2}{NORMAL}."
-		"chi" "你拾起了物品 {HIGHLIGHT}{1} {2}{NORMAL}."
-	}
-
-	"Gift Credit Picked"
-	{
-		"#format" "{1:d}"
-		"en" "You picked up {HIGHLIGHT}{1} credits{NORMAL}."
-		"chi" "你拾起了 {HIGHLIGHT} {1} Credits{NORMAL}."
-	}
-
-	"Credit Gift Dropped"
-	{
-		"#format" "{1:d}"
-		"en" "You dropped {HIGHLIGHT}{1} credits{NORMAL} as a gift."
-		"chi" "你投出了 {HIGHLIGHT}{1} Credits{NORMAL} 作为礼物."
-	}
-
-	"Must be Alive"
-	{
-		"en" "You must be alive to use this."
-		"chi" "你必须在存活状态才能使用这个."
-	}
-
-	"TF Wrong Class"
-	{
-		"en" "This item was meant to be used with a different player class."
-		"chi" "该物品只能被其他类型的玩家使用."
-	}
-
-	"Help_Back"
-	{
-		"en" "Back"
-		"chi" "返回."
-	}
-
-	"Help_Exit"
-	{
-		"en" "Exit"
-		"chi" "退出."
 	}
 
 	// Item type names for chat messages

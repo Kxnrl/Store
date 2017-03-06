@@ -1,5 +1,8 @@
 #pragma newdecls required
 #include <sdktools>
+#include <cg_core>
+
+#define TEAM_SPEC 3
 
 UserMsg MsgId;
 Handle g_tMsgFmt;
@@ -7,13 +10,14 @@ Handle g_fwdOnChatMessage;
 Handle g_fwdOnChatMessagePost;
 bool g_bProto;
 bool g_bChat[MAXPLAYERS+1];
+int g_iTeam[MAXPLAYERS+1];
 
 public Plugin myinfo =
 {
 	name		= "Chat-Processor",
 	author		= "Kyle",
 	description = "",
-	version		= "2.5 > CG Edition ver.2 - Include CSC",
+	version		= "2.6 > CG Edition ver.4 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
@@ -44,6 +48,18 @@ public void OnPluginStart()
 public void OnClientConnected(int client)
 {
 	g_bChat[client] = false;
+}
+
+public void CG_OnClientTeam(int client)
+{
+	RequestFrame(OnClientTeam, client);
+}
+
+void OnClientTeam(int client)
+{
+	if(!IsClientInGame(client))
+		return;
+	g_iTeam[client] = GetClientTeam(client);
 }
 
 public Action Command_Say(int client, const char[] command, int argc)
@@ -93,13 +109,9 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 	RemoveAllColors(m_szMsg, 256);
 
 	ArrayList m_hRecipients = CreateArray();
-	//LogMessage("Before total %d", playersNum);
 	for(int i = 0; i < playersNum; i++)
 		if(FindValueInArray(m_hRecipients, players[i]) == -1)
-		{
 			PushArrayCell(m_hRecipients, players[i]);
-			//LogMessage("PushArrayCell %d.%N", i, players[i]);
-		}
 
 	if(FindValueInArray(m_hRecipients, m_iSender) == -1)
 		PushArrayCell(m_hRecipients, m_iSender);
@@ -159,7 +171,6 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 
 	WritePackString(hPack, m_szFmt);
 	WritePackCell(hPack, m_bChat);
-	WritePackCell(hPack, iResults);
 
 	RequestFrame(Frame_OnChatMessage_SayText2, hPack);
 	
@@ -175,6 +186,13 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 
 	char m_szName[128];
 	ReadPackString(data, m_szName, 128);
+	ReplaceString(m_szName, 32, "◇ ", "");
+	ReplaceString(m_szName, 32, "◆ ", "");
+	ReplaceString(m_szName, 32, "☆ ", "");
+	ReplaceString(m_szName, 32, "★ ", "");
+	ReplaceString(m_szName, 32, "✪ ", "");
+	ReplaceString(m_szName, 32, "♜ ", "");
+	ReplaceString(m_szName, 32, "♚ ", "");
 
 	char m_szMsg[256];
 	ReadPackString(data, m_szMsg, 256);
@@ -189,7 +207,6 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 	ReadPackString(data, m_szFmt, 256);
 
 	bool m_bChat = ReadPackCell(data);
-	Action iResults = view_as<Action>(ReadPackCell(data));
 
 	CloseHandle(data);
 
@@ -209,53 +226,21 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 
 	ReplaceAllColors(m_szBuffer, 512);
 
-	if(iResults == Plugin_Changed)
-	{/*
-		if(g_bProto)
-		{
-			//for(int i = 0; i < GetArraySize(m_hRecipients); i++)
-			//{
-			//	int client = GetArrayCell(m_hRecipients, i);
-			//	if(IsClientInGame(client))
-			//		PrintToChat(client, m_szBuffer);
-			//		//SayText2(client, m_szBuffer, m_iSender, m_bChat);
-			//}
-			Handle bf = StartMessageEx(MsgId, iRecipients, iNumRecipients, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
-			PbSetInt(bf, "ent_idx", m_iSender);
-			PbSetBool(bf, "chat", m_bChat);
-			PbSetString(bf, "msg_name", m_szBuffer);
-			PbAddString(bf, "params", "");
-			PbAddString(bf, "params", "");
-			PbAddString(bf, "params", "");
-			PbAddString(bf, "params", "");
-			EndMessage();
-		}
-		else
-		{
-			for(int i = 0; i < GetArraySize(m_hRecipients); i++)
-			{
-				int client = GetArrayCell(m_hRecipients, i);
-				if(IsClientInGame(client))
-					PrintToChat(client, m_szBuffer);
-			}
-		}*/
-	}
-
 	int target_list[MAXPLAYERS+1], target_count;
 	bool m_bChatAll = GetChatType(m_szFlag);
 
-	if(IsPlayerAlive(m_iSender))
+	if(IsPlayerAlive(m_iSender) || g_iTeam[m_iSender] == TEAM_SPEC)
 	{
 		if(m_bChatAll)
 		{
-			for(int i = 1; i<= MaxClients; ++i)
-				if(IsClientInGame(i) && !IsFakeClient(i) )
+			for(int i = 1; i <= MaxClients; ++i)
+				if(IsClientInGame(i) && !IsFakeClient(i))
 					target_list[target_count++] = i;
 		}
 		else
 		{
-			for(int i = 1; i<= MaxClients; ++i)
-				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(m_iSender))
+			for(int i = 1; i <= MaxClients; ++i)
+				if(IsClientInGame(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
 					target_list[target_count++] = i;
 		}
 	}
@@ -267,13 +252,13 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 			{
 				if(!m_bChatAll)
 				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(m_iSender))
+					for(int i = 1; i <= MaxClients; ++i)
+						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
 							target_list[target_count++] = i;
 				}
 				else
 				{
-					for(int i = 1; i<= MaxClients; ++i)
+					for(int i = 1; i <= MaxClients; ++i)
 						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i))
 							target_list[target_count++] = i;
 				}
@@ -282,13 +267,13 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 			{
 				if(!m_bChatAll)
 				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(m_iSender))
+					for(int i = 1; i <= MaxClients; ++i)
+						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
 							target_list[target_count++] = i;
 				}
 				else
 				{
-					for(int i = 1; i<= MaxClients; ++i)
+					for(int i = 1; i <= MaxClients; ++i)
 						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i))
 							target_list[target_count++] = i;
 				}
@@ -298,13 +283,13 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 			{
 				if(!m_bChatAll)
 				{
-					for(int i = 1; i<= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(m_iSender))
+					for(int i = 1; i <= MaxClients; ++i)
+						if(IsClientInGame(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
 							target_list[target_count++] = i;
 				}
 				else
 				{
-					for(int i = 1; i<= MaxClients; ++i)
+					for(int i = 1; i <= MaxClients; ++i)
 						if(IsClientInGame(i) && !IsFakeClient(i))
 							target_list[target_count++] = i;
 				}
@@ -466,19 +451,6 @@ stock void SayText2(int client, char[] message, int author, bool chat = true)
 
 stock bool GetChatType(const char[] flag)
 {
-/*	if(StrEqual(flag, "Cstrike_Chat_All") || StrEqual(flag, "Cstrike_Chat_AllDead") || StrEqual(flag, "Cstrike_Chat_AllSpec"))
-		return CHAT_ALL;
-	if(StrEqual(flag, "Cstrike_Chat_CT_Loc") || StrEqual(flag, "Cstrike_Chat_CT"))
-		return CHAT_TEAM;
-	if(StrEqual(flag, "Cstrike_Chat_CT_Dead"))
-		return 4;
-	if(StrEqual(flag, "Cstrike_Chat_T_Loc") || StrEqual(flag, "Cstrike_Chat_T"))
-		return 5;
-	if(StrEqual(flag, "Cstrike_Chat_T_Dead"))
-		return 6;
-	if(StrEqual(flag, "Cstrike_Chat_Spec"))
-		return 7;
-*/
 	if(StrContains(flag, "_All") != -1)
 		return true;
 

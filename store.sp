@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.2.2rc3 - 2017/03/06 06:44"
+#define PLUGIN_VERSION "1.2.2rc4 - 2017/03/08 09:35"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -96,6 +96,7 @@ bool g_bGameModePR;
 bool g_bGameModeHZ;
 
 bool g_bLateLoad;
+bool g_bDisableGift = true;
 char g_szLogFile[128];
 char g_szTempole[128];
 
@@ -1930,12 +1931,20 @@ public int Store_GiftItem(int client, int receiver, int item)
 		return;
 	}
 	
+	if(g_bDisableGift)
+	{
+		tPrintToChat(client, "\x04服务器目前已关闭物品赠送功能!");
+		tPrintToChat(client, "\x04论坛玩家专属交易板块即将上线...");
+		tPrintToChat(client, "\x04CG社区管理团队祝您游戏愉快:)"); 
+		return;
+	}
+
 	if(g_eClients[client][iCredits] < g_eClientItems[client][item][iPriceOfPurchase]/2)
 	{
 		tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_eClientItems[client][item][iPriceOfPurchase]/2);
 		return;
 	}
-	
+
 	if(g_eClientItems[client][item][iPriceOfPurchase] == 30)
 	{
 		tPrintToChat(client, " \x02UNKNOWN ERROR\x01 :  \x07%d", GetRandomInt(100000, 999999));
@@ -2059,7 +2068,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 			if(StrContains(m_szType, "playerskin", false) != -1)
 			{
 				int team = KvGetNum(kv, "team", 0);
-				if(g_bGameModeTT || g_bGameModeJB || g_bGameModeZE || g_bGameModeDR)
+				if(g_bGameModeTT || g_bGameModeZE || g_bGameModeDR)
 				{
 					Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[通用] %s", g_eItems[g_iItems][szName]);
 				}

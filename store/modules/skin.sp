@@ -22,7 +22,7 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 
 	g_ePlayerSkins[g_iPlayerSkins][iTeam] = KvGetNum(kv, "team");
 	
-	if(g_bGameModeTT || g_bGameModeJB)
+	if(g_bGameModeTT)
 		g_ePlayerSkins[g_iPlayerSkins][iTeam] = 2;
 	
 	if(g_bGameModeZE || g_bGameModeDR)

@@ -195,7 +195,7 @@ public Action Timer_HUD_1(Handle timer, int userid)
 	if(!client || !IsClientInGame(client))
 		return Plugin_Stop;
 	
-	PrintCenterText(client, "系统检测到你加入了[博麗靈夢]组\n你在服务器内将受到一定限制");
+	PrintCenterText(client, "系统检测到你加入了[博麗靈夢]组");
 	
 	return Plugin_Continue;
 }
@@ -206,7 +206,7 @@ public Action Timer_HUD_2(Handle timer, int userid)
 	if(!client || !IsClientInGame(client))
 		return Plugin_Stop;
 	
-	PrintCenterText(client, "系统检测到你加入了[琴レーン Kotori]组\n你在服务器内将受到一定限制");
+	PrintCenterText(client, "系统检测到你加入了[琴レーン Kotori]组");
 
 	return Plugin_Continue;
 }

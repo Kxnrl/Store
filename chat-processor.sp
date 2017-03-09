@@ -17,7 +17,7 @@ public Plugin myinfo =
 	name		= "Chat-Processor",
 	author		= "Kyle",
 	description = "",
-	version		= "2.6 > CG Edition ver.4 - Include CSC",
+	version		= "2.6 > CG Edition ver.5 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
@@ -246,53 +246,34 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 	}
 	else
 	{
-		switch(GetConVarInt(FindConVar("sv_deadtalk")))
+		if(GetConVarInt(FindConVar("sv_deadtalk")) == 2)
 		{
-			case 0:
+			if(m_bChatAll)
 			{
-				if(!m_bChatAll)
-				{
-					for(int i = 1; i <= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
-							target_list[target_count++] = i;
-				}
-				else
-				{
-					for(int i = 1; i <= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i))
-							target_list[target_count++] = i;
-				}
+				for(int i = 1; i <= MaxClients; ++i)
+					if(IsClientInGame(i) && !IsFakeClient(i))
+						target_list[target_count++] = i;
 			}
-			case 1:
+			else
 			{
-				if(!m_bChatAll)
-				{
-					for(int i = 1; i <= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
-							target_list[target_count++] = i;
-				}
-				else
-				{
-					for(int i = 1; i <= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i))
-							target_list[target_count++] = i;
-				}
-
+				for(int i = 1; i <= MaxClients; ++i)
+					if(IsClientInGame(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
+						target_list[target_count++] = i;
 			}
-			case 2:
+		}
+		else
+		{
+			if(m_bChatAll)
 			{
-				if(!m_bChatAll)
-				{
-					for(int i = 1; i <= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
-							target_list[target_count++] = i;
-				}
-				else
-				{
-					for(int i = 1; i <= MaxClients; ++i)
-						if(IsClientInGame(i) && !IsFakeClient(i))
-							target_list[target_count++] = i;
-				}
+				for(int i = 1; i <= MaxClients; ++i)
+					if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i))
+						target_list[target_count++] = i;
+			}
+			else
+			{
+				for(int i = 1; i <= MaxClients; ++i)
+					if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
+						target_list[target_count++] = i;
 			}
 		}
 	}

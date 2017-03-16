@@ -176,12 +176,12 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
 				if(groupid == 103582791440276886)
 				{
 					g_bInBlackGroup[client] = true;
-					CreateTimer(3.0, Timer_HUD_1, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+					//CreateTimer(3.0, Timer_HUD_1, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 				}
 				if(groupid == 103582791439793469)
 				{
 					g_bInBlackGroup[client] = true;
-					CreateTimer(3.0, Timer_HUD_2, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+					//CreateTimer(3.0, Timer_HUD_2, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 				}
 				break;
 			}
@@ -405,9 +405,10 @@ public void CG_OnClientDailySign(int client)
 
 void Active_GiveSignCredits(int client)
 {
-	int Credits = Math_GetRandomInt(1, 300);
+	int Credits = Math_GetRandomInt(1, 500);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
 	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01", PF_GLOBAL, client, Credits);
+	CG_ShowHiddenMotd(client, "https://csgogamers.com/music/voices.php?volume=65");
 }
 /*
 stock void Active_GiveRandomItems(int client)

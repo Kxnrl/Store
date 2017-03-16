@@ -22,12 +22,12 @@ int g_eGrenadeTrails[STORE_MAX_ITEMS][GrenadeTrail];
 int g_iGrenadeSkins = 0;
 int g_iSlots = 0;
 int g_iGrenadeTrails = 0;
-char g_szSlots[16][64];
+char g_szSlots[6][64];
 
 
 public void Grenades_OnPluginStart()
 {
-	if(g_bGameModePR || g_bGameModeKZ)
+	if(g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_KreedZ)
 		return;
 
 	Store_RegisterHandler("grenadetrail", "material", GrenadeTrails_OnMapStart, GrenadeTrails_Reset, GrenadeTrails_Config, GrenadeTrails_Equip, GrenadeTrails_Remove, true);

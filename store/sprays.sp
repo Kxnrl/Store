@@ -7,7 +7,7 @@ int g_iCGLOGO = -1;
 
 public void Sprays_OnPluginStart()
 {
-	if(g_bGameModePR)
+	if(g_eGameMode == GameMode_Pure)
 		return;
 
 	Store_RegisterHandler("spray", "material", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);

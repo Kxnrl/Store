@@ -85,7 +85,7 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
 		
-		if(g_bGameModeZE && GetClientTeam(client) == 2)
+		if(g_eGameMode == GameMode_Zombie && GetClientTeam(client) == 2)
 			return;
 		
 		float m_fHatOrigin[3];

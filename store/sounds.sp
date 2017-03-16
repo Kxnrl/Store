@@ -17,7 +17,7 @@ Handle g_hCookieSounds;
 
 public void Sounds_OnPluginStart()
 {
-	if(g_bGameModePR || g_bGameModeHZ)
+	if(g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_Casual)
 		return;
 
 	Store_RegisterHandler("sound", "sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
@@ -159,7 +159,7 @@ public Action Command_Cheer(int client, int args)
 
 void StartSoundToAll(int client)
 {
-	if(g_bGameModePR || g_bGameModeHZ)
+	if(g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_Casual)
 		return;
 
 	int[] targets = new int[MaxClients];
@@ -179,7 +179,7 @@ void StartSoundToAll(int client)
 
 public void OnClientCookiesCached(int client)
 {
-	if(g_bGameModePR || g_bGameModeHZ)
+	if(g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_Casual)
 		return;
 	
 	char buff[4];

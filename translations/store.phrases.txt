@@ -27,6 +27,13 @@
 		"chi" "{1} (查看详细)"
 	}
 	
+	"Item Compose Available"
+	{
+		"#format" "{1:s}"
+		"en" "{1} (Skin compose Required)"
+		"chi" "{1} (需要合成)"
+	}
+	
 	"Item Equipped"
 	{
 		"#format" "{1:s}"
@@ -91,6 +98,45 @@
 		"chi" "选择欲赠送物品的玩家"
 	}
 	
+	"Title Compose"
+	{
+		"#format" "{1:s},{2:s},{3:s}"
+		"en" "Compose {1} \n item①: {2}\n item②: {3}"
+		"chi" "合成 {1} \n物品①: {2}\n物品②: {3}"
+	}
+	
+	"unselect"
+	{
+		"en" "Unselect"
+		"chi" "未选择"
+	}
+	
+	"Confirm_Compose"
+	{
+		"#format" "{1:s},{2:s},{3:s},{4:s}"
+		"en" "Are you sure compose {1}\nexpend: \n{2}\n{3}\n{4}Credits"
+		"chi" "你确定要合成 {1}\n消耗:\n{2}\n{3}\n{4}信用点"
+	}
+	
+	"Compose no material"
+	{
+		"en" "{red}Not enough compost material(s)!"
+		"chi" "{red}没有足够的合成材料"
+	}
+	
+	"Compose Failed"
+	{
+		"en" "{red}compose failed! you lost your material and credits..."
+		"chi" "{red}合成失败,你损失了合成材料!"
+	}
+	
+	"Compose successfully"
+	{
+		"#format" "{1:s}"
+		"en" "{green}Compose successfully! you get new skin {orange}{1}"
+		"chi" "{green}合成成功! 你获得了新皮肤{orange}{1}"
+	}
+
 	"Gift Player Left"
 	{
 		"en" "Selected player has already left the game."
@@ -436,5 +482,12 @@
 	{
 		"en" "You are in TP mode!"
 		"chi" "你已经开了TP,还想开SeeMe?"
+	}
+	
+	"data protect"
+	{
+		"#format" "{1:d}"
+		"en" "Data protection activated. Try again after {green}{1} second(s){normal}!"
+		"chi" "数据保护已开启,请等待{green}{1}秒{normal}后再试..."
 	}
 }

@@ -28,6 +28,7 @@ enum Store_Item
 	bool:bBuyable,
 	bool:bIgnoreVIP,
 	bool:bGiftable,
+	bool:bCompose,
 	Handle:hAttributes
 }
 

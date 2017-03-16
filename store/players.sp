@@ -11,7 +11,7 @@ bool g_bThirdperson[MAXPLAYERS+1];
 
 void Players_OnPluginStart()
 {
-	if(g_bGameModePR)
+	if(g_eGameMode == GameMode_Pure)
 		return;
 	
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
@@ -24,10 +24,10 @@ void Players_OnPluginStart()
 	RegConsoleCmd("sm_arm", Command_Arm, "Draw Player Arms");
 	RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
 
-	if(!g_bGameModeKZ)
+	if(g_eGameMode != GameMode_KreedZ)
 		Store_RegisterHandler("hat", "model", Hats_OnMapStart, Hats_Reset, Hats_Config, Hats_Equip, Hats_Remove, true);
 
-	if(g_bGameModeHZ || g_bGameModeZE || g_bGameModeKZ)
+	if(g_eGameMode == GameMode_Casual || g_eGameMode == GameMode_Zombie || g_eGameMode == GameMode_KreedZ)
 		return;
 
 	Store_RegisterHandler("trail", "material", Trails_OnMapStart, Trails_Reset, Trails_Config, Trails_Equip, Trails_Remove, true);
@@ -69,7 +69,7 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 	
 	RequestFrame(OnClientSpawn, client);
 
-	if(g_bGameModeZE && GetClientTeam(client) == 2)
+	if(g_eGameMode == GameMode_Zombie && GetClientTeam(client) == 2)
 		return Plugin_Continue;
 
 	Store_PreSetClientModel(client);
@@ -89,10 +89,10 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 	
 	RequestFrame(OnClientDeath, client);
 	
-	if(g_bGameModeKZ)
+	if(g_eGameMode == GameMode_KreedZ)
 		return Plugin_Continue;
 
-	if(!g_bGameModeHZ && !g_bGameModeZE)
+	if(g_eGameMode != GameMode_Casual && g_eGameMode != GameMode_Zombie)
 	{
 		Store_RemoveClientAura(client);
 		Store_RemoveClientNeon(client);
@@ -103,7 +103,7 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 	{
 		Store_RemoveClientHats(client, i);
 
-		if(!g_bGameModeHZ && !g_bGameModeZE)
+		if(g_eGameMode != GameMode_Casual && g_eGameMode != GameMode_Zombie)
 			Store_RemoveClientTrail(client, i);
 	}
 	
@@ -112,17 +112,17 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 
 public void CG_OnClientTeam(int client)
 {
-	if(g_bGameModePR || IsFakeClient(client))
+	if(g_eGameMode == GameMode_Pure || IsFakeClient(client))
 		return;
 	RequestFrame(OnClientTeam, client);
 }
 
 public void OnClientSpawn(int client)
 {
-	if(!IsClientInGame(client) || !IsPlayerAlive(client) || g_bGameModeKZ)
+	if(!IsClientInGame(client) || !IsPlayerAlive(client) || g_eGameMode == GameMode_KreedZ)
 		return;
 
-	if(!g_bGameModeHZ && !g_bGameModeZE)
+	if(g_eGameMode != GameMode_Casual && g_eGameMode != GameMode_Zombie)
 	{
 		Store_SetClientTrail(client);
 		Store_SetClientAura(client);
@@ -140,7 +140,7 @@ public void OnClientDeath(int client)
 
 public void OnClientTeam(int client)
 {
-	if(g_bGameModePR || g_bGameModeKZ || !IsClientInGame(client))
+	if(g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_KreedZ || !IsClientInGame(client))
 		return;
 
 	if(!IsPlayerAlive(client))
@@ -153,7 +153,7 @@ public void OnClientTeam(int client)
 			Store_RemoveClientHats(client, i);
 	}
 
-	if((g_bGameModeMG || g_bGameModeNJ) && IsPlayerAlive(client))
+	if((g_eGameMode == GameMode_MiniGame || g_eGameMode == GameMode_Ninja) && IsPlayerAlive(client))
 	{
 		Store_PreSetClientModel(client);
 		CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
@@ -173,7 +173,7 @@ public Action Command_Hide(int client, int args)
 
 public Action Command_TP(int client, int args)
 {
-	if((g_bGameModeTT || g_bGameModeHG || g_bGameModeJB || g_bGameModePR || g_bGameModeHZ) && g_eClients[client][iId] != 1)
+	if((g_eGameMode == GameMode_TTT || g_eGameMode == GameMode_HungerGame || g_eGameMode == GameMode_JailBreak || g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_Casual) && g_eClients[client][iId] != 1)
 	{
 		tPrintToChat(client, "%T", "tp not allow", client);
 		return Plugin_Handled;
@@ -250,7 +250,7 @@ public Action Command_Arms(int client, int args)
 	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
 		return Plugin_Handled;
 	
-	if(g_bGameModeZE && GetClientTeam(client) == 2)
+	if(g_eGameMode == GameMode_Zombie && GetClientTeam(client) == 2)
 		return Plugin_Handled;
 	
 	Store_PreSetClientModel(client);

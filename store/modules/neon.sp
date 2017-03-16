@@ -83,7 +83,7 @@ void Store_SetClientNeon(int client)
 	if(g_iClientNeon[client] != 0)
 		Store_RemoveClientNeon(client);
 
-	if(g_bGameModeZE)
+	if(g_eGameMode == GameMode_Zombie)
 		return;
 
 	int m_iEquipped = Store_GetEquippedItem(client, "neon", 0); 

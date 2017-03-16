@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.2.2rc4 - 2017/03/08 09:35"
+#define PLUGIN_VERSION "1.3f - 2017/03/16 06:35"
 #define PLUGIN_URL ""
 
 //////////////////////////////
@@ -23,11 +23,12 @@
 #include <clientprefs>
 #include <chat-processor>
 #include <fpvm_interface>
+#include <csc>
 
 //////////////////////////////
 //			ENUMS			//
 //////////////////////////////
-enum Client
+enum Client_Data
 {
 	iId,
 	iUserId,
@@ -53,19 +54,41 @@ enum Menu_Handler
 	Function:fnHandler
 }
 
+enum Game_Mode
+{
+	GameMode_Pure,
+	GameMode_Zombie,
+	GameMode_TTT,
+	GameMode_MiniGame,
+	GameMode_JailBreak,
+	GameMode_KreedZ,
+	GameMode_DeathRun,
+	GameMode_HungerGame,
+	GameMode_Ninja,
+	GameMode_Casual
+}
+
+enum Compose_Data
+{
+	item1,
+	item2,
+	types
+}
+
 //////////////////////////////////
 //		GLOBAL VARIABLES		//
 //////////////////////////////////
-
 Handle g_hDatabase = INVALID_HANDLE;
 Handle g_hKeyValue = INVALID_HANDLE;
 
 Store_Item g_eItems[STORE_MAX_ITEMS][Store_Item];
-Client g_eClients[MAXPLAYERS+1][Client];
+Client_Data g_eClients[MAXPLAYERS+1][Client_Data];
 Client_Item g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
 Type_Handler g_eTypeHandlers[STORE_MAX_HANDLERS][Type_Handler];
 Menu_Handler g_eMenuHandlers[STORE_MAX_HANDLERS][Menu_Handler];
 Item_Plan g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
+Game_Mode g_eGameMode;
+Compose_Data g_eCompose[MAXPLAYERS+1][Compose_Data];
 
 int g_iItems = 0;
 int g_iTypeHandlers = 0;
@@ -80,23 +103,12 @@ int g_iSelectedPlan[MAXPLAYERS+1];
 int g_iMenuClient[MAXPLAYERS+1];
 int g_iMenuNum[MAXPLAYERS+1];
 int g_iSpam[MAXPLAYERS+1];
-int g_iBuySellProtect[MAXPLAYERS+1];
+int g_iDataProtect[MAXPLAYERS+1];
 
 bool g_bInvMode[MAXPLAYERS+1];
 
-bool g_bGameModeZE;
-bool g_bGameModeTT;
-bool g_bGameModeMG;
-bool g_bGameModeKZ;
-bool g_bGameModeJB;
-bool g_bGameModeDR;
-bool g_bGameModeNJ;
-bool g_bGameModeHG;
-bool g_bGameModePR;
-bool g_bGameModeHZ;
-
 bool g_bLateLoad;
-bool g_bDisableGift = true;
+bool g_bDisableGift;
 char g_szLogFile[128];
 char g_szTempole[128];
 
@@ -113,7 +125,6 @@ char g_szTempole[128];
 //////////////////////////////////
 //		PLUGIN DEFINITION		//
 //////////////////////////////////
-
 public Plugin myinfo = 
 {
 	name		= PLUGIN_NAME,
@@ -126,7 +137,6 @@ public Plugin myinfo =
 //////////////////////////////
 //		PLUGIN FORWARDS		//
 //////////////////////////////
-
 public void OnPluginStart()
 {
 	// Setting default values
@@ -145,13 +155,16 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_inventory", Command_Inventory);
 	RegConsoleCmd("sm_credits", Command_Credits);
 
+	// Register Server Command
+	RegServerCmd("store_gift", Command_Server);
+
 	// Load the translations file
 	LoadTranslations("store.phrases");
 	
 	// Connect to the database
 	if(g_hDatabase == INVALID_HANDLE)
 		SQL_TConnect(SQLCallback_Connect, "csgo");
-		
+
 	CreateTimer(30.0, Timer_DatabaseTimeout);
 
 	// Initiaze the fake package handler
@@ -210,6 +223,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
+	
+	MarkNativeAsOptional("CG_Broadcast");
 	
 	g_bLateLoad = late;
 
@@ -325,7 +340,7 @@ public int Native_HasClientPlayerSkin(Handle myself, int numParams)
 
 public int Native_GetClientPlayerSkin(Handle myself, int numParams)
 {
-	if(g_bGameModePR)
+	if(g_eGameMode == GameMode_Pure)
 	{
 		if(SetNativeString(2, "none", GetNativeCell(3)) != SP_ERROR_NONE)
 			ThrowNativeError(SP_ERROR_NATIVE, "Can not return Player Skin.");
@@ -451,6 +466,8 @@ public int Native_DisplayPreviousMenu(Handle myself, int numParams)
 		DisplayPlayerMenu(client);
 	else if(g_iMenuNum[client] == 5)
 		DisplayPlanMenu(client, g_iSelectedItem[client]);
+	else if(g_iMenuNum[client] == 6)
+		DisplayComposeMenu(client, false);
 }
 
 public int Native_SetClientMenu(Handle myself, int numParams)
@@ -506,18 +523,19 @@ public int Native_IsItemInBoughtPackage(Handle myself, int numParams)
 public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
-	char title[255];
+	char title[255], m_szCallback[32], m_szData[11];
 	GetNativeString(2, STRING(title));
-	int callback = GetNativeCell(3);
-	int data = GetNativeCell(4);
+
+	DataPack pack = CreateDataPack();
+	WritePackCell(pack, plugin);
+	WritePackCell(pack, GetNativeCell(3));
+	ResetPack(pack);
 
 	Handle m_hMenu = CreateMenu(MenuHandler_Confirm);
 	SetMenuTitle(m_hMenu, title);
 	SetMenuExitButton(m_hMenu, false);
-	char m_szCallback[32];
-	char m_szData[11];
-	Format(STRING(m_szCallback), "%d.%d", plugin, callback);
-	IntToString(data, STRING(m_szData));
+	IntToString(view_as<int>(pack), STRING(m_szCallback));
+	IntToString(GetNativeCell(4), STRING(m_szData));
 	AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szCallback, "%T", "Confirm_Yes", client);
 	AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szData, "%T", "Confirm_No", client);
 	DisplayMenu(m_hMenu, client, 0);
@@ -570,7 +588,7 @@ public int Native_RemoveItem(Handle myself, int numParams)
 	}
 	
 	Store_UnequipItem(client, itemid, false);
-	
+
 	int m_iId = Store_GetClientItemId(client, itemid);
 	if(m_iId != -1)
 		g_eClientItems[client][m_iId][bDeleted] = true;
@@ -680,16 +698,19 @@ public int Native_ExtClientItem(Handle myself, int numParams)
 //////////////////////////////
 //		CLIENT FORWARDS		//
 //////////////////////////////
-
 public void OnClientConnected(int client)
 {
 	g_iSpam[client] = 0;
-	g_iBuySellProtect[client] = GetTime();
+	g_iDataProtect[client] = GetTime()+60;
 	g_eClients[client][iUserId] = GetClientUserId(client);
 	g_eClients[client][iCredits] = -1;
 	g_eClients[client][iOriginalCredits] = 0;
 	g_eClients[client][iItems] = -1;
 	g_eClients[client][bLoaded] = false;
+	
+	g_eCompose[client][item1]=-1;
+	g_eCompose[client][item2]=-1;
+	g_eCompose[client][types]=-1;
 	
 	for(int i = 0; i < STORE_MAX_HANDLERS; ++i)
 	{
@@ -715,12 +736,12 @@ public void OnClientPostAdminCheck(int client)
 
 public void OnClientDisconnect(int client)
 {
+	if(IsFakeClient(client))
+		return;
+
 	Aura_OnClientDisconnect(client);
 	Neon_OnClientDisconnect(client);
 	Part_OnClientDisconnect(client);
-
-	if(IsFakeClient(client))
-		return;
 
 	Store_SaveClientData(client);
 	Store_SaveClientInventory(client);
@@ -734,7 +755,6 @@ public void OnClientSettingsChanged(int client)
 	if(g_hDatabase)
 		SQL_EscapeString(g_hDatabase, g_eClients[client][szName], g_eClients[client][szNameEscaped], 128);
 }
-
 
 //////////////////////////////////
 //			COMMANDS	 		//
@@ -805,6 +825,12 @@ public Action Command_Credits(int client, int args)
 	}
 	
 	return Plugin_Handled;
+}
+
+public Action Command_Server(int args)
+{
+	g_bDisableGift = !g_bDisableGift;
+	PrintToServer("g_bDisableGift = %b", g_bDisableGift);
 }
 
 //////////////////////////////
@@ -889,9 +915,9 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 				if(g_eItems[i][iPrice] == -1 || Store_HasClientItem(target, i))
 					AddMenuItem(m_hMenu, m_szId, g_eItems[i][szName], m_iStyle);
 				else if(!g_bInvMode[client] && g_eItems[i][iPlans]==0 && g_eItems[i][bBuyable])
-					InsertMenuItemEx(m_hMenu, m_iPosition, (m_iPrice<=g_eClients[target][iCredits]?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED), m_szId, "%T", "Item Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
+					InsertMenuItemEx(m_hMenu, m_iPosition, ((m_iPrice<=g_eClients[target][iCredits] && !g_eItems[i][bCompose]) || g_eItems[i][bCompose])?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED, m_szId, "%T", "Item Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
 				else if(!g_bInvMode[client])
-					InsertMenuItemEx(m_hMenu, m_iPosition, (m_iPrice<=g_eClients[target][iCredits]?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED), m_szId, "%T", "Item Plan Available", client, g_eItems[i][szName]);
+					InsertMenuItemEx(m_hMenu, m_iPosition, ((m_iPrice<=g_eClients[target][iCredits] && !g_eItems[i][bCompose]) || g_eItems[i][bCompose])?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED, m_szId, "%T", "Item Plan Available", client, g_eItems[i][szName]);
 				++m_iPosition;
 			}
 			// This is a normal item
@@ -910,14 +936,19 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 					int m_iStyle = ITEMDRAW_DEFAULT;
 					if((g_eItems[i][iPlans]==0 && g_eClients[target][iCredits]<m_iPrice) || !GetClientPrivilege(target, g_eItems[i][iFlagBits], m_iFlags))
 						m_iStyle = ITEMDRAW_DISABLED;
-					
+
 					if(!g_eItems[i][bBuyable])
 						continue;
-
-					if(g_eItems[i][iPlans]==0)
-						AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
+					
+					if(!g_eItems[i][bCompose])
+					{
+						if(g_eItems[i][iPlans]==0)
+							AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
+						else
+							AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Plan Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
+					}
 					else
-						AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Plan Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
+						AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Compose Available", client, g_eItems[i][szName]);
 				}
 			}
 		}
@@ -950,17 +981,9 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 
 				if(g_eClients[target][iCredits]>=m_iPrice && !Store_HasClientItem(target, g_iSelectedItem[client]))
 					Store_BuyItem(client);
-
-				if(g_eItems[g_iSelectedItem[client]][iHandler] == g_iPackageHandler)
-					DisplayStoreMenu(client, g_iSelectedItem[client]);
-				else
-					DisplayItemMenu(client, g_iSelectedItem[client]);
 			}
 			else if(param2 == 1)
-			{
 				Store_SellItem(target, g_iSelectedItem[client]);
-				Store_DisplayPreviousMenu(client);
-			}
 		}
 		else
 		{
@@ -1006,23 +1029,40 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 				g_iSelectedItem[client] = m_iId;
 				g_iSelectedPlan[client] = -1;
 				
-				if((g_eClients[target][iCredits]>=g_eItems[m_iId][iPrice] || g_eItems[m_iId][iPlans]>0 && g_eClients[target][iCredits]>=Store_GetLowestPrice(m_iId)) && !Store_HasClientItem(target, m_iId) && g_eItems[m_iId][iPrice] != -1)				{
-					if(g_eItems[m_iId][iPlans] > 0)
+				if(!Store_HasClientItem(target, m_iId))
+				{
+					if(g_eItems[m_iId][bCompose])
 					{
-						DisplayPlanMenu(client, m_iId);
+						if(g_eClients[target][iCredits] >= 10000)
+						{
+							g_eCompose[client][item1]=-1;
+							g_eCompose[client][item2]=-1;
+							g_eCompose[client][types]=-1;
+							DisplayComposeMenu(client, false);
+						}
+						else
+							tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 10000);
 						return;
 					}
 					else
 					{
-						char m_szTitle[128];
-						Format(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
-						Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
-						return;
+						if((g_eClients[target][iCredits]>=g_eItems[m_iId][iPrice] || g_eItems[m_iId][iPlans]>0 && g_eClients[target][iCredits]>=Store_GetLowestPrice(m_iId)) && g_eItems[m_iId][iPrice] != -1)
+						{
+							if(g_eItems[m_iId][iPlans] > 0)
+								DisplayPlanMenu(client, m_iId);
+							else
+							{
+								char m_szTitle[128];
+								Format(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+								Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
+							}
+							return;
+						}
 					}
 				}
 				
 				if(g_eItems[m_iId][iHandler] != g_iPackageHandler)
-				{				
+				{
 					if(Store_HasClientItem(target, m_iId))
 					{
 						if(g_eTypeHandlers[g_eItems[m_iId][iHandler]][bRaw])
@@ -1084,10 +1124,12 @@ public int DisplayItemMenu(int client, int itemid)
 	SetMenuTitle(m_hMenu, m_szTitle);
 	
 	if(g_eTypeHandlers[g_eItems[itemid][iHandler]][bEquipable])
+	{
 		if(!m_bEquipped)
 			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Item Equip", client);
 		else
 			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%T", "Item Unequip", client);
+	}
 	else
 	{
 		
@@ -1112,7 +1154,7 @@ public int DisplayItemMenu(int client, int itemid)
 		else
 			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Item Use", client);
 	}
-		
+
 	if(!Store_IsItemInBoughtPackage(target, itemid))
 	{
 		int m_iCredits = RoundToFloor(Store_GetClientItemPrice(client, itemid)*0.6);
@@ -1144,7 +1186,7 @@ public int DisplayItemMenu(int client, int itemid)
 		Call_PushCell(itemid);
 		Call_Finish();
 	}
-	
+
 	DisplayMenu(m_hMenu, client, 0);
 }
 
@@ -1166,13 +1208,213 @@ public int DisplayPlanMenu(int client, int itemid)
 	DisplayMenu(m_hMenu, client, 0);
 }
 
+public int DisplayComposeMenu(int client, bool last)
+{
+	if(g_iDataProtect[client] > GetTime())
+	{
+		tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
+		DisplayItemMenu(client, g_iSelectedItem[client]);
+		return;
+	}
+	
+	g_iMenuNum[client] = 1;
+	Handle m_hMenu = CreateMenu(MenuHandler_Compose);
+	SetMenuExitBackButton(m_hMenu, true);
+	
+	char sitem1[64];
+	if(g_eCompose[client][item1] >= 0)
+		strcopy(sitem1, 64, g_eItems[g_eCompose[client][item1]][szName]);
+	else
+		Format(sitem1, 64, "%T", "unselect", client);
+	
+	char sitem2[64];
+	if(g_eCompose[client][item2] >= 0)
+		strcopy(sitem2, 64, g_eItems[g_eCompose[client][item2]][szName]);
+	else
+		Format(sitem2, 64, "%T", "unselect", client);
+
+	SetMenuTitle(m_hMenu, "%T", "Title Compose", client, g_eItems[g_iSelectedItem[client]][szName], sitem1, sitem2);
+
+	int num=0;
+
+	if(!last)
+	{
+		char m_szId[8];
+		for(int i = 0; i < g_iItems; ++i)
+		{
+			if(g_eItems[i][iHandler] == g_iPackageHandler)
+				continue;
+			
+			if(!Store_HasClientItem(client, i))
+				continue;
+
+			if(i == g_eCompose[client][item1] || i == g_eCompose[client][item2])
+				continue;
+
+			if(!StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
+				continue;
+			
+			if(!g_eItems[i][bGiftable] || g_eItems[i][bCompose])
+				continue;
+
+			int uid = Store_GetClientItemId(client, i);
+			
+			if(uid < 0 || g_eClientItems[client][uid][iDateOfExpiration] != 0 || g_eClientItems[client][uid][iPriceOfPurchase] < 1)
+				continue;
+
+			num++;
+			IntToString(i, m_szId, 8);
+			AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, g_eItems[i][szName]);
+		}
+	}
+	else
+	{
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "合成模式① [60%%成功率]");
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "合成模式② [65%%成功率]");
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "合成模式③ [70%%成功率]");
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "合成模式④ [75%%成功率]");
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "合成模式⑤ [80%%成功率]");
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "合成模式⑥ [99%%成功率]");
+		num=6;
+	}
+
+	if(num > 0)
+		DisplayMenu(m_hMenu, client, 0);
+	else
+	{
+		CloseHandle(m_hMenu);
+		tPrintToChat(client, "%T", "Compose no material", client);
+		Store_DisplayPreviousMenu(client);
+	}
+}
+
+void Store_ComposeItem(int client)
+{
+	if(g_eCompose[client][item2] < 0 || g_eCompose[client][item1] < 0 || g_eCompose[client][types] < 0 || g_iSelectedItem[client] < 0)
+		return;
+	
+	if(!Store_HasClientItem(client, g_eCompose[client][item2]) || !Store_HasClientItem(client, g_eCompose[client][item1]) || Store_HasClientItem(client, g_iSelectedItem[client]))
+		return;
+	
+	int m_iFees;
+	switch(g_eCompose[client][types])
+	{
+		case 0 : m_iFees =  5000;
+		case 1 : m_iFees = 10000;
+		case 2 : m_iFees = 15000;
+		case 3 : m_iFees = 20000;
+		case 4 : m_iFees = 25000;
+		case 5 : m_iFees = 88888;
+		default: m_iFees = 999999;
+	}
+
+	if(Store_GetClientCredits(client) < m_iFees || m_iFees < 0)
+	{
+		tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, m_iFees);
+		return;
+	}
+
+	Store_RemoveItem(client, g_eCompose[client][item2]);
+	Store_RemoveItem(client, g_eCompose[client][item1]);
+	
+	Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, "合成手续费");
+	
+	int probability = 0;
+	switch(g_eCompose[client][types])
+	{
+		case 0 : probability = 600000;
+		case 1 : probability = 650000;
+		case 2 : probability = 700000;
+		case 3 : probability = 750000;
+		case 4 : probability = 800000;
+		case 5 : probability = 999999;
+		default: probability = 0;
+	}
+
+	if(GetRandomInt(0, 1000000) > probability)
+	{
+		tPrintToChat(client, "Compose Failed", client);
+		return;
+	}
+
+	Store_GiveItem(client, g_iSelectedItem[client], GetTime(), 0, 99999);
+	
+	Store_SaveClientAll(client);
+	
+	g_iDataProtect[client] = GetTime()+120;
+
+	tPrintToChat(client, "Compose successfully", client, g_eItems[g_iSelectedItem[client]][szName]);
+	
+	tPrintToChatAll("\x0C%N\x04成功合成了皮肤\x10%s", client, g_eItems[g_iSelectedItem[client]][szName]);
+	BroadcastComposeItem(client, g_eItems[g_iSelectedItem[client]][szName]);
+	
+	CG_ShowHiddenMotd(client, "https://csgogamers.com/music/voices.php?volume=100");       
+}
+
+public int MenuHandler_Compose(Handle menu, MenuAction action, int client, int param2)
+{
+	if (action == MenuAction_End)
+		CloseHandle(menu);
+	else if (action == MenuAction_Select)
+	{
+		// Confirmation was sent
+		if(menu == INVALID_HANDLE)
+		{
+			if(param2 == 0)
+			{
+				Store_ComposeItem(client);
+			}
+		}
+		else
+		{
+			char m_szId[64];
+			GetMenuItem(menu, param2, STRING(m_szId));
+			int itemid = StringToInt(m_szId);
+			g_iMenuNum[client] = 6;
+			if(g_eCompose[client][item1]==-1)
+			{
+				g_eCompose[client][item1]=itemid;
+				DisplayComposeMenu(client, false);
+			}
+			else if(g_eCompose[client][item2]==-1)
+			{
+				g_eCompose[client][item2]=itemid;
+				DisplayComposeMenu(client, true);
+			}
+			else if(0 <= itemid <= 5 && g_eCompose[client][item1] >= 0 && g_eCompose[client][item2] >= 0 && Store_HasClientItem(client, g_eCompose[client][item1]) && Store_HasClientItem(client, g_eCompose[client][item2]))
+			{
+				g_eCompose[client][types]=itemid;
+				char m_szTitle[256], m_szTypes[32];
+				switch(itemid)
+				{
+					case 0: strcopy(m_szTypes, 32,  "5000");
+					case 1: strcopy(m_szTypes, 32, "10000");
+					case 2: strcopy(m_szTypes, 32, "15000");
+					case 3: strcopy(m_szTypes, 32, "20000");
+					case 4: strcopy(m_szTypes, 32, "25000");
+					case 5: strcopy(m_szTypes, 32, "88888");
+				}
+				Format(m_szTitle, 256, "%T", "Confirm_Compose", client, g_eItems[g_iSelectedItem[client]][szName], g_eItems[g_eCompose[client][item1]][szName], g_eItems[g_eCompose[client][item2]][szName], m_szTypes);
+				Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Compose, 0);
+			}
+		}
+	}
+	else if(action==MenuAction_Cancel)
+		if (param2 == MenuCancel_ExitBack)
+		{
+			g_eCompose[client][item1] = -1;
+			g_eCompose[client][item2] = -1;
+			g_eCompose[client][types] = -1;
+			Store_DisplayPreviousMenu(client);
+		}
+}
+
 public int MenuHandler_Plan(Handle menu, MenuAction action, int client, int param2)
 {
 	if (action == MenuAction_End)
 		CloseHandle(menu);
 	else if (action == MenuAction_Select)
 	{
-		//new target = g_iMenuClient[client];
 		g_iSelectedPlan[client]=param2;
 		g_iMenuNum[client]=5;
 
@@ -1200,7 +1442,6 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
 			{
 				g_iMenuNum[client] = 1;
 				Store_SellItem(target, g_iSelectedItem[client]);
-				Store_DisplayPreviousMenu(client);
 			}
 		}
 		else
@@ -1351,8 +1592,14 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
 			m_iItem = Store_GetClientItemId(target, g_iSelectedItem[client]);
 			
 			char m_szTitle[128];
-			Format(STRING(m_szTitle), "%T\n%T", "Confirm_Gift", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], g_eClients[m_iReceiver][szName], "Gift_Handing", client, g_eClientItems[client][m_iItem][iPriceOfPurchase]/2);
-			Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Gift, m_iId);
+			int m_iFees = Store_GetClientHandleFees(client, g_iSelectedItem[client]);
+			if(m_iFees > 0)
+			{
+				Format(STRING(m_szTitle), "%T\n%T", "Confirm_Gift", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], g_eClients[m_iReceiver][szName], "Gift_Handing", client, m_iFees);
+				Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Gift, m_iId);
+			}
+			else
+				tPrintToChat(client, " \x02UNKNOWN ERROR\x01 :  \x07%d", GetRandomInt(100000, 999999));
 		}
 	}
 	else if(action==MenuAction_Cancel)
@@ -1372,11 +1619,11 @@ public int MenuHandler_Confirm(Handle menu, MenuAction action, int client, int p
 			char m_szData[11];
 			GetMenuItem(menu, 0, STRING(m_szCallback));
 			GetMenuItem(menu, 1, STRING(m_szData));
-			int m_iPos = FindCharInString(m_szCallback, '.');
-			m_szCallback[m_iPos] = 0;
-			Handle m_hPlugin = view_as<Handle>(StringToInt(m_szCallback));
-			Function fnMenuCallback = view_as<Function>(StringToInt(m_szCallback[m_iPos+1]));
-			if(fnMenuCallback != INVALID_FUNCTION)
+			Handle pack = view_as<Handle>(StringToInt(m_szCallback));
+			Handle m_hPlugin = ReadPackCell(pack);
+			Function fnMenuCallback = ReadPackCell(pack);
+			CloseHandle(pack);
+			if(m_hPlugin != INVALID_HANDLE && fnMenuCallback != INVALID_FUNCTION)
 			{
 				Call_StartFunction(m_hPlugin, fnMenuCallback);
 				Call_PushCell(INVALID_HANDLE);
@@ -1422,13 +1669,10 @@ public Action Timer_DatabaseTimeout(Handle timer, int userid)
 //////////////////////////////
 //		SQL CALLBACKS		//
 //////////////////////////////
-
 public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, any data)
 {
 	if(hndl==INVALID_HANDLE)
-	{
-		SetFailState("Failed to connect to SQL database. Error: %s", error);
-	}
+		LogError("Failed to connect to SQL database. Error: %s", error);
 	else
 	{
 		// If it's already connected we are good to go
@@ -1624,9 +1868,11 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 			if(m_iUniqueId == -1)
 				continue;
 				
-			if(!Store_HasClientItem(client, m_iUniqueId))
-				Store_UnequipItem(client, m_iUniqueId);
-			else
+			//if(!Store_HasClientItem(client, m_iUniqueId))
+			//	Store_UnequipItem(client, m_iUniqueId);
+			//else
+			//	Store_UseItem(client, m_iUniqueId, true, SQL_FetchInt(hndl, 3));
+			if(Store_HasClientItem(client, m_iUniqueId))
 				Store_UseItem(client, m_iUniqueId, true, SQL_FetchInt(hndl, 3));
 		}
 		g_eClients[client][bLoaded] = true;
@@ -1847,8 +2093,11 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 				g_eClients[target][iCredits] -= diff;
 			}
 			
-			if(g_eClients[target][iCredits]<m_iPrice)
+			if(g_eClients[target][iCredits]<m_iPrice || g_eItems[itemid][bCompose])
+			{
+				DisplayItemMenu(client, g_iSelectedItem[client]);
 				return;
+			}
 
 			int m_iId = g_eClients[target][iItems]++;
 			g_eClientItems[target][m_iId][iId] = -1;
@@ -1864,14 +2113,11 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 			Store_LogMessage(target, -m_iPrice, true, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 			LogToFileEx(g_szTempole, "%N 购买了 %s %s[%d]", target, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], m_iPrice);
 
-			//购买回写
-			//char m_szQuery[512];
-			//Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[target][iId], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], g_eItems[itemid][szUniqueId], GetTime(), g_eClientItems[target][m_iId][iDateOfExpiration], g_eClientItems[target][m_iId][iPriceOfPurchase]);
-			//SQL_TVoid(g_hDatabase, m_szQuery);
 			Store_SaveClientAll(target);
 
 			tPrintToChat(target, "%T", "Chat Bought Item", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-			Command_Store(target, 0);
+			
+			DisplayItemMenu(client, g_iSelectedItem[client]);
 		}
 	}
 }
@@ -1879,14 +2125,22 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 int Store_BuyItem(int client)
 {
 	int target = g_iMenuClient[client];
-	if(Store_HasClientItem(target, g_iSelectedItem[client]))
+
+	if(g_eItems[g_iSelectedItem[client]][iHandler] == g_iPackageHandler)
 		return;
-	if(g_iBuySellProtect[client] > GetTime())
+
+	if(Store_HasClientItem(target, g_iSelectedItem[client]))
 	{
-		tPrintToChat(client, "数据保护已开启,请等待\x04%d秒\x01后再尝试购买商品...", g_iBuySellProtect[client]-GetTime());
+		DisplayItemMenu(client, g_iSelectedItem[client]);
 		return;
 	}
-	g_iBuySellProtect[client] = GetTime()+60;
+	if(g_iDataProtect[client] > GetTime())
+	{
+		tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
+		DisplayItemMenu(client, g_iSelectedItem[client]);
+		return;
+	}
+	g_iDataProtect[client] = GetTime()+30;
 	char m_szQuery[255];
 	Format(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[target][iId]);
 	SQL_TQuery(g_hDatabase, SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
@@ -1894,12 +2148,14 @@ int Store_BuyItem(int client)
 
 public int Store_SellItem(int client, int itemid)
 {
-	if(g_iBuySellProtect[client] > GetTime())
+	if(g_iDataProtect[client] > GetTime())
 	{
-		tPrintToChat(client, "数据保护已开启,请等待\x04%d秒\x01后再尝试卖出物品...", g_iBuySellProtect[client]-GetTime());
+		tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
+		DisplayItemMenu(client, itemid);
 		return;
 	}
-	g_iBuySellProtect[client] = GetTime()+60;
+
+	g_iDataProtect[client] = GetTime()+30;
 	int m_iCredits = RoundToFloor(Store_GetClientItemPrice(client, itemid)*0.6);
 	int uid = Store_GetClientItemId(client, itemid);
 	if(g_eClientItems[client][uid][iDateOfExpiration] != 0)
@@ -1919,18 +2175,27 @@ public int Store_SellItem(int client, int itemid)
 	Store_RemoveItem(client, itemid);
 
 	Store_SaveClientAll(client);
+	
+	Store_DisplayPreviousMenu(client);
 }
 
 public int Store_GiftItem(int client, int receiver, int item)
 {
 	int m_iId = g_eClientItems[client][item][iUniqueId];
 	int target = g_iMenuClient[client];
-	
+
 	if((g_eClients[target][iCredits] == -1 && g_eClients[target][iItems] == -1) || !g_eClients[target][bLoaded]
 		|| (g_eClients[receiver][iCredits] == -1 && g_eClients[receiver][iItems] == -1) || !g_eClients[receiver][bLoaded]) {
 		return;
 	}
 	
+	if(g_iDataProtect[client] > GetTime())
+	{
+		tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
+		DisplayItemMenu(client, m_iId);
+		return;
+	}
+
 	if(g_bDisableGift)
 	{
 		tPrintToChat(client, "\x04服务器目前已关闭物品赠送功能!");
@@ -1939,20 +2204,23 @@ public int Store_GiftItem(int client, int receiver, int item)
 		return;
 	}
 
-	if(g_eClients[client][iCredits] < g_eClientItems[client][item][iPriceOfPurchase]/2)
-	{
-		tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_eClientItems[client][item][iPriceOfPurchase]/2);
-		return;
-	}
+	g_iDataProtect[client] = GetTime()+30;
+	g_iDataProtect[receiver] = GetTime()+30;
 
-	if(g_eClientItems[client][item][iPriceOfPurchase] == 30)
+	int m_iFees = Store_GetClientHandleFees(client, m_iId);
+	
+	if(m_iFees < 0)
 	{
 		tPrintToChat(client, " \x02UNKNOWN ERROR\x01 :  \x07%d", GetRandomInt(100000, 999999));
 		return;
 	}
 
-	int handingF = Store_GetClientCredits(client)-g_eClientItems[client][item][iPriceOfPurchase]/2;
-	Store_SetClientCredits(client, handingF, "赠送物品_手续费");
+	if(m_iFees > g_eClients[client][iCredits])
+	{
+		tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, m_iFees);
+		return;
+	}
+	Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, "赠送物品_手续费");
 
 	g_eClientItems[client][item][bDeleted] = true;
 	Store_UnequipItem(client, m_iId);
@@ -2037,6 +2305,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 			g_eItems[g_iItems][iPrice] = KvGetNum(kv, "price", -1);
 			g_eItems[g_iItems][bBuyable] = (KvGetNum(kv, "buyable", 1)?true:false);
 			g_eItems[g_iItems][bGiftable] = (KvGetNum(kv, "giftable", 1)?true:false);
+			g_eItems[g_iItems][bCompose] = (KvGetNum(kv, "compose", 0)?true:false);
 			g_eItems[g_iItems][bIgnoreVIP] = (KvGetNum(kv, "ignore_vip", 0)?true:false);
 			g_eItems[g_iItems][iHandler] = g_iPackageHandler;
 			
@@ -2057,6 +2326,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 			g_eItems[g_iItems][iPrice] = KvGetNum(kv, "price");
 			g_eItems[g_iItems][bBuyable] = KvGetNum(kv, "buyable", 1)?true:false;
 			g_eItems[g_iItems][bGiftable] = KvGetNum(kv, "giftable", 1)?true:false;
+			g_eItems[g_iItems][bCompose] = (KvGetNum(kv, "compose", 0)?true:false);
 			g_eItems[g_iItems][bIgnoreVIP] = (KvGetNum(kv, "ignore_vip", 0)?true:false);
 
 			
@@ -2068,7 +2338,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 			if(StrContains(m_szType, "playerskin", false) != -1)
 			{
 				int team = KvGetNum(kv, "team", 0);
-				if(g_bGameModeTT || g_bGameModeZE || g_bGameModeDR)
+				if(g_eGameMode == GameMode_TTT || g_eGameMode == GameMode_Zombie || g_eGameMode == GameMode_DeathRun)
 				{
 					Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[通用] %s", g_eItems[g_iItems][szName]);
 				}
@@ -2314,6 +2584,21 @@ int Store_GetLowestPrice(int itemid)
 	return m_iLowest;
 }
 
+int Store_GetHighestPrice(int itemid)
+{
+	if(g_eItems[itemid][iPlans]==0)
+		return g_eItems[itemid][iPrice];
+
+	int m_iHighest=g_ePlans[itemid][0][iPrice];
+	for(int i = 1; i < g_eItems[itemid][iPlans]; ++i)
+	{
+		if(m_iHighest<g_ePlans[itemid][i][iPrice])
+			m_iHighest = g_ePlans[itemid][i][iPrice];
+	}
+
+	return m_iHighest;
+}
+
 int Store_GetClientItemPrice(int client, int itemid)
 {
 	int uid = Store_GetClientItemId(client, itemid);
@@ -2326,57 +2611,90 @@ int Store_GetClientItemPrice(int client, int itemid)
 	return g_eClientItems[client][uid][iPriceOfPurchase];
 }
 
+int Store_GetClientHandleFees(int client, int itemid)
+{
+	int uid = Store_GetClientItemId(client, itemid);
+	if(uid<0)
+		return 9999999;
+
+	if(g_eClientItems[client][uid][iDateOfExpiration] == 0)
+	{
+		if(!g_eItems[itemid][bBuyable])
+		{
+			if(g_eItems[itemid][bCompose])
+				return 99999;
+			else
+				return 50000;
+		}
+		else
+		{
+			if(g_eClientItems[client][uid][iPriceOfPurchase] < 1000)
+				return RoundToFloor(Store_GetHighestPrice(itemid)*0.15);
+			else
+				return RoundToFloor(g_eClientItems[client][uid][iPriceOfPurchase]*0.15);
+		}
+	}
+
+	if(g_eClientItems[client][uid][iDateOfExpiration]-g_eClientItems[client][uid][iDateOfPurchase] <= 2678400)
+		return 100;
+
+	if(g_eClientItems[client][uid][iPriceOfPurchase] < 1000)
+		return RoundToFloor(Store_GetHighestPrice(itemid)*0.2);
+	else
+		return RoundToFloor(g_eClientItems[client][uid][iPriceOfPurchase]*0.2);
+}
+
 void CheckGameMode()
 {
 	if(FindPluginByFile("ct.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  TTT");
-		g_bGameModeTT = true;
+		g_eGameMode = GameMode_TTT;
 	}
 	else if(FindPluginByFile("mg_stats.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  MG");
-		g_bGameModeMG = true;
+		g_eGameMode = GameMode_MiniGame;
 	}
 	else if(FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("drapi_zombie_riot.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  ZE");
-		g_bGameModeZE = true;
+		g_eGameMode = GameMode_Zombie;
 	}
 	else if(FindPluginByFile("KZTimer.smx") || FindPluginByFile("KZTimerGlobal.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  KZ");
-		g_bGameModeKZ = true;
+		g_eGameMode = GameMode_KreedZ;
 	}
 	else if(FindPluginByFile("sm_hosties.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  JB");
-		g_bGameModeJB = true;
+		g_eGameMode = GameMode_JailBreak;
 	}
 	else if(FindPluginByFile("devzones_givecredits.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  DR");
-		g_bGameModeDR = true;
+		g_eGameMode = GameMode_DeathRun;
 	}
 	else if(FindPluginByFile("ninja.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  NJ");
-		g_bGameModeNJ = true;
+		g_eGameMode = GameMode_Ninja;
 	}
 	else if(FindPluginByFile("hg.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  HG");
-		g_bGameModeHG = true;
+		g_eGameMode = GameMode_HungerGame;
 	}
 	else if(FindPluginByFile("public_ext.smx"))
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  HZ");
-		g_bGameModeHZ = true;
+		g_eGameMode = GameMode_Casual;
 	}
 	else
 	{
 		LogMessage("Loaded Successful!  Current GameMode:  Pure");
-		g_bGameModePR = true;
+		g_eGameMode = GameMode_Pure;
 	}
 
 	// Initialize the modules	
@@ -2472,4 +2790,17 @@ public Action Timer_KickClient(Handle timer, int userid)
 	KickClient(client, "STEAM AUTH ERROR");
 	
 	return Plugin_Stop;
+}
+
+stock void BroadcastComposeItem(int client, const char[] item)
+{
+	if(GetFeatureStatus(FeatureType_Native, "CG_Broadcast") != FeatureStatus_Available)
+		return;
+	
+	char content[256];
+	Format(content, 256, " \x01[\x04Store\x01]  \x0C%N\x04成功合成了皮肤\x10%s", client, item);
+	ReplaceString(content, 256, "[通用]", "");
+	ReplaceString(content, 256, "[CT]", "");
+	ReplaceString(content, 256, "[TE]", "");
+	CG_Broadcast(true, content);
 }

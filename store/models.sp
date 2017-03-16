@@ -20,7 +20,7 @@ public void Models_OnPluginStart()
 		return;
 	}
 	
-	if(g_bGameModePR)
+	if(g_eGameMode == GameMode_Pure)
 		return;
 
 	Store_RegisterHandler("vwmodel", "model", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 

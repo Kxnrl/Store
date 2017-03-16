@@ -170,7 +170,7 @@ void AttachTrail(int ent, int client, int current, int num)
 
 public void Trails_OnGameFrame()
 {
-	if(g_bGameModePR || g_bGameModeKZ || g_bGameModeHZ || g_bGameModeZE)
+	if(g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_KreedZ || g_eGameMode == GameMode_Casual || g_eGameMode == GameMode_Zombie)
 		return;
 
 	if(GetGameTickCount()%6 != 0)

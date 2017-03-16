@@ -22,10 +22,10 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 
 	g_ePlayerSkins[g_iPlayerSkins][iTeam] = KvGetNum(kv, "team");
 	
-	if(g_bGameModeTT)
+	if(g_eGameMode == GameMode_TTT)
 		g_ePlayerSkins[g_iPlayerSkins][iTeam] = 2;
 	
-	if(g_bGameModeZE || g_bGameModeDR)
+	if(g_eGameMode == GameMode_Zombie || g_eGameMode == GameMode_DeathRun)
 		g_ePlayerSkins[g_iPlayerSkins][iTeam] = 3;
 	
 	if(FileExists(g_ePlayerSkins[g_iPlayerSkins][szModel], true))
@@ -51,7 +51,7 @@ public void PlayerSkins_OnMapStart()
 		}
 	}
 
-	if(g_bGameModeZE)
+	if(g_eGameMode == GameMode_Zombie)
 	{
 		if(FileExists(Model_ZE_Newbee))
 		{
@@ -94,7 +94,7 @@ void Store_PreSetClientModel(int client)
 			CreateTimer(5.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 	}
-	else if(g_bGameModeZE)
+	else if(g_eGameMode == GameMode_Zombie)
 	{
 		if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
 			Store_SetClientModel(client, Model_ZE_Newbee, Arms_ZE_NewBee);
@@ -114,7 +114,7 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 	char currentmodel[128];
 	GetEntPropString(client, Prop_Send, "m_szArmsModel", currentmodel, 128);
 	
-	if(!g_bGameModeZE)
+	if(g_eGameMode != GameMode_Zombie)
 		g_bHasPlayerskin[client] = true;
 	else if(!StrEqual(model, Model_ZE_Newbee))
 		g_bHasPlayerskin[client] = true;
@@ -136,7 +136,7 @@ public Action Timer_SetPlayerArms(Handle timer, int userid)
 	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
 		return Plugin_Stop;
 
-	if(g_bGameModeZE && GetClientTeam(client) != 3)
+	if(g_eGameMode == GameMode_Zombie && GetClientTeam(client) != 3)
 		return Plugin_Stop;
 
 	Store_PreSetClientModel(client);
@@ -151,7 +151,7 @@ public Action Timer_FixPlayerArms(Handle timer, int userid)
 	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
 		return Plugin_Stop;
 	
-	if(g_bGameModeZE)
+	if(g_eGameMode == GameMode_Zombie)
 		if(GetClientTeam(client) != 3)
 			return Plugin_Stop;
 		

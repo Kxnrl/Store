@@ -21,6 +21,7 @@ native    int CG_GetServerId();
 native    int CG_GetClientOnlines(int client);
 native    int CG_GetClientVitality(int client);
 native    int CG_GetClientLastseen(int client);
+native    int CG_GetClientDailyTime(int client);
 native    int CG_GetClientId(int client);
 native    int CG_GetClientUId(int client);
 native    int CG_GetClientGId(int client);

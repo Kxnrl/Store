@@ -42,9 +42,16 @@ void Players_OnPluginStart()
 
 void Players_OnClientConnected(int client)
 {
+	g_iPreviewModel[client] = -1;
 	g_bHideMode[client] = false;
 	g_bThirdperson[client] = false;
 	g_bMirror[client] = false;
+}
+
+public void CG_OnRoundStart()
+{
+	for(int client = 1; client <= MaxClients; ++client)
+		g_iPreviewModel[client] = -1;
 }
 
 public void CG_OnRoundEnd(int winner)
@@ -53,7 +60,7 @@ public void CG_OnRoundEnd(int winner)
 	{
 		if(!IsClientInGame(client))
 			continue;
-		
+
 		g_iClientAura[client] = 0;
 		g_iClientNeon[client] = 0;
 		g_iClientPart[client] = 0;
@@ -67,6 +74,7 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 	if(IsFakeClient(client))
 		return Plugin_Continue;
 	
+	Timer_KillPreview(INVALID_HANDLE, client);
 	RequestFrame(OnClientSpawn, client);
 
 	if(g_eGameMode == GameMode_Zombie && GetClientTeam(client) == 2)
@@ -83,8 +91,8 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
 	if(IsFakeClient(client))
-		return  Plugin_Continue;
-	
+		return Plugin_Continue;
+
 	CheckClientTP(client);
 	
 	RequestFrame(OnClientDeath, client);

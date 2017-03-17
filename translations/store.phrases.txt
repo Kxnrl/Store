@@ -16,17 +16,30 @@
 	"Item Available"
 	{
 		"#format" "{1:s},{2:d}"
-		"en" "{1} ({2})"
-		"chi" "{1} ({2})"
+		"en" "{1} ({2}Credits)"
+		"chi" "{1} ({2}信用点)"
 	}
 
 	"Item Plan Available"
 	{
 		"#format" "{1:s}"
-		"en" "{1} (More Info)"
+		"en" "{1} (Choose Plan)"
+		"chi" "{1} (选择购买套餐)"
+	}
+	
+	"Item Preview Available"
+	{
+		"#format" "{1:s}"
+		"en" "{1} (view details)"
 		"chi" "{1} (查看详细)"
 	}
 	
+	"Item not Buyable"
+	{
+		"en" "Non-sale products"
+		"chi" "这皮肤是非卖品"
+	}
+
 	"Item Compose Available"
 	{
 		"#format" "{1:s}"
@@ -34,6 +47,43 @@
 		"chi" "{1} (需要合成)"
 	}
 	
+	"Preview Compose Available"
+	{
+		"en"  "Compose Skin"
+		"chi" "合成皮肤"
+	}
+	
+	"Preview Available"
+	{
+		"#format" "{1:d}"
+		"en"  "Purchase ({1}Credits)"
+		"chi" "购买这个皮肤 ({1}信用点)"
+	}
+	
+	"Preview Plan Available"
+	{
+		"en" "Choose Purchase Plan"
+		"chi" "购买这个皮肤 (选择购买期限)"
+	}
+
+	"Item Preview"
+	{
+		"en" "Preview Skin"
+		"chi" "预览这个皮肤"
+	}
+	
+	"Chat Preview"
+	{
+		"en" "Preview model will disappear in 30 seconds"
+		"chi" "30秒后预览模型将消失"
+	}
+	
+	"Chat Preview Cooldown"
+	{
+		"en" "Preview is cooling down..."
+		"chi" "预览功能正在冷却中..."
+	}
+
 	"Item Equipped"
 	{
 		"#format" "{1:s}"
@@ -71,7 +121,7 @@
 		"en" "Gift this item"
 		"chi" "赠送该物品"
 	}
-	
+
 	"Title Store"
 	{
 		"en" "Store Menu"
@@ -82,7 +132,7 @@
 	{
 		"#format" "{1:d}"
 		"en" "Credits: {1}"
-		"chi" "信用点: {1}  充值请登录论坛"
+		"chi" "信用点: {1}  充值请上论坛"
 	}
 	
 	"Title Expiration"
@@ -165,14 +215,14 @@
 	
 	"Chat Gift Item Sent"
 	{
-		"#format" "{1:s},{2:s},{3:t}"
+		"#format" "{1:N},{2:s},{3:t}"
 		"en" "You have sent {HIGHLIGHT}{1}{NORMAL} a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
 		"chi" "你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL} 给玩家 {HIGHLIGHT}{1}{NORMAL}."
 	}
 	
 	"Chat Gift Item Received"
 	{
-		"#format" "{1:s},{2:s},{3:t}"
+		"#format" "{1:N},{2:s},{3:t}"
 		"en" "{HIGHLIGHT}{1}{NORMAL} has sent you a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
 		"chi" "玩家 {HIGHLIGHT}{1}{NORMAL} 给你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL}."
 	}
@@ -230,7 +280,7 @@
 	
 	"Confirm_Gift"
 	{
-		"#format" "{1:s},{2:t},{3:s}"
+		"#format" "{1:s},{2:t},{3:N}"
 		"en" "Are you sure? gift {1} {2} to {3}?"
 		"chi" "你确定送物品 {1} {2} 给玩家 {3}?"
 	}
@@ -251,7 +301,7 @@
 
 	"Player Credits"
 	{
-		"#format" "{1:s},{2:d}"
+		"#format" "{1:N},{2:d}"
 		"en" "{HIGHLIGHT}{1}{NORMAL} has {HIGHLIGHT}{2}{NORMAL} credits."
 		"chi" "{HIGHLIGHT}{1}{NORMAL} 现在拥有 {HIGHLIGHT}{2}{NORMAL} 信用点."
 	}

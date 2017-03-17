@@ -11,6 +11,8 @@ enum PlayerSkin
 PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 
 int g_iPlayerSkins = 0;
+int g_iPreviewTimes[MAXPLAYERS+1];
+int g_iPreviewModel[MAXPLAYERS+1];
 bool g_bHasPlayerskin[MAXPLAYERS+1];
 
 public int PlayerSkins_Config(Handle &kv, int itemid)
@@ -217,4 +219,89 @@ stock void GetWeaponClassname(int weapon, char[] classname, int maxLen)
 		case 63: strcopy(classname, maxLen, "weapon_cz75a");
 		case 64: strcopy(classname, maxLen, "weapon_revolver");
 	}
+}
+
+void Store_PreviewSkin(int client, int itemid)
+{
+	int m_iViewModel = CreateEntityByName("prop_dynamic_override"); //prop_physics_multiplayer
+	char m_szTargetName[32];
+	Format(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
+	DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
+	DispatchKeyValue(m_iViewModel, "spawnflags", "64");
+	DispatchKeyValue(m_iViewModel, "model", g_eItems[itemid][szUniqueId]);
+	DispatchKeyValue(m_iViewModel, "rendermode", "0");
+	DispatchKeyValue(m_iViewModel, "renderfx", "0");
+	DispatchKeyValue(m_iViewModel, "rendercolor", "255 255 255");
+	DispatchKeyValue(m_iViewModel, "renderamt", "255");
+	DispatchKeyValue(m_iViewModel, "solid", "0");
+	
+	DispatchSpawn(m_iViewModel);
+	
+	SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
+
+	SetVariantString("run_upper_knife");
+	
+	AcceptEntityInput(m_iViewModel, "SetAnimation");
+	AcceptEntityInput(m_iViewModel, "Enable");
+	
+	int offset = GetEntSendPropOffs(m_iViewModel, "m_clrGlow");
+	SetEntProp(m_iViewModel, Prop_Send, "m_bShouldGlow", true, true);
+	SetEntProp(m_iViewModel, Prop_Send, "m_nGlowStyle", 0);
+	SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 200.0);
+
+	//Miku Green
+	SetEntData(m_iViewModel, offset    ,  57, _, true);
+	SetEntData(m_iViewModel, offset + 1, 197, _, true);
+	SetEntData(m_iViewModel, offset + 2, 187, _, true);
+	SetEntData(m_iViewModel, offset + 3, 255, _, true);
+
+	float m_fOrigin[3], m_fAngles[3], m_fRadians[2], m_fPosition[3];
+
+	GetClientAbsOrigin(client, m_fOrigin);
+	GetClientAbsAngles(client, m_fAngles);
+
+	m_fRadians[0] = DegToRad(m_fAngles[0]);
+	m_fRadians[1] = DegToRad(m_fAngles[1]);  
+
+	m_fPosition[0] = m_fOrigin[0] + 64 * Cosine(m_fRadians[0]) * Cosine(m_fRadians[1]);
+	m_fPosition[1] = m_fOrigin[1] + 64 * Cosine(m_fRadians[0]) * Sine(m_fRadians[1]);
+	m_fPosition[2] = m_fOrigin[2] + 4 * Sine(m_fRadians[0]);
+	
+	m_fAngles[0] *= -1.0;
+	m_fAngles[1] *= -1.0;
+
+	TeleportEntity(m_iViewModel, m_fPosition, m_fAngles, NULL_VECTOR);
+	
+	g_iPreviewTimes[client] = GetTime()+60;
+	g_iPreviewModel[client] = m_iViewModel;
+
+	SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
+	
+	CreateTimer(30.0, Timer_KillPreview, client);
+
+	tPrintToChat(client, "%T", "Chat Preview", client);
+}
+
+public Action Hook_SetTransmit_Preview(int ent, int client)
+{
+	if(ent == g_iPreviewModel[client])
+		return Plugin_Continue;
+
+	return Plugin_Handled;
+}
+
+public Action Timer_KillPreview(Handle timer, int client)
+{
+	if(g_iPreviewModel[client] > MaxClients && IsValidEdict(g_iPreviewModel[client]))
+	{
+		char m_szName[32];
+		GetEntPropString(g_iPreviewModel[client], Prop_Data, "m_iName", m_szName, 32);
+		if(StrContains(m_szName, "Store_Preview_", false) == 0)
+		{
+			SetEntProp(g_iPreviewModel[client], Prop_Send, "m_bShouldGlow", false, true);
+			SDKUnhook(g_iPreviewModel[client], SDKHook_SetTransmit, Hook_SetTransmit_Preview);
+			AcceptEntityInput(g_iPreviewModel[client], "Kill");
+		}
+	}
+	g_iPreviewModel[client] = -1;
 }

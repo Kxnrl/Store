@@ -11,7 +11,6 @@ native int Store_DisplayConfirmMenu(int client, char[] title, Function callback,
 native int Store_GetItem(char[] type, char[] uid);
 native int Store_GiveItem(int client, int itemid, int purchase = 0, int expiration = 0, int price = 0);
 native int Store_RemoveItem(int client, int itemid);
-native int Store_GetClientTarget(int client);
 native int Store_GetClientID(int client);
 native int Store_GetItemExpiration(int client, int itemid);
 native bool Store_IsClientBanned(int client);

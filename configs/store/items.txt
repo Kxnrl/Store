@@ -2,7 +2,7 @@
 {
 	"人物模型"
 	{
-		"CyberTech(Miku) - 专属"
+		"CyberTech(Miku)"
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku_arms.mdl"
@@ -13,7 +13,7 @@
 			"price"		"999999999"
 			"type"		"playerskin"
 		}
-		"桐子(Kirito) - 专属"
+		"桐子(Kirito)"
 		{
 			"model"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito.mdl"
 			"arms"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito_arms.mdl"
@@ -23,7 +23,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"琴里(Kotori) - 司令琴里组"
+		"琴里.指挥官(Kotori)"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/commander/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kotori/commander/kotori_arms.mdl"
@@ -33,7 +33,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"琴里.灵装(kotori) - 娱乐挂壁"
+		"琴里.灵装(kotori)"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/spirit/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kotori/spirit/kotori_arms.mdl"
@@ -43,7 +43,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"普魯魯特(Pururut) - 活动"
+		"普魯魯特(Pururut)"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/pururut/normal/pururut.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/pururut/normal/pururut_arms.mdl"
@@ -52,7 +52,7 @@
 			"price"		"3000"
 			"type"		"playerskin"
 		}
-		"Re0.艾米莉亚(Emilia) - 活动"
+		"Re0.艾米莉亚(Emilia)"
 		{
 			"model"		"models/player/custom_player/maoling/re0/emilia_v2/emilia.mdl"
 			"arms"		"models/player/custom_player/maoling/re0/emilia_v2/emilia_arms.mdl"
@@ -61,7 +61,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"夕立(Yuudachi) - 活动"
+		"夕立(Yuudachi)"
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/yuudachi/yuudachi.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/yuudachi/yuudachi_arms.mdl"
@@ -70,7 +70,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"犬走椛(Momiji) - 活动"
+		"犬走椛(Momiji)"
 		{
 			"model"		"models/player/custom_player/maoling/touhou/momiji/momiji.mdl"
 			"arms"		"models/player/custom_player/maoling/touhou/momiji/momiji_arms.mdl"
@@ -79,7 +79,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"北方栖姬(Hoppou) - 矿场"
+		"北方栖姬(Hoppou)"
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou_arms.mdl"
@@ -88,7 +88,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"希斯(Historie) - 矿场"
+		"希斯(Historie)"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/histoire/normal/histoire.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/histoire/normal/histoire_arms.mdl"
@@ -97,7 +97,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"褆亞拉(Tiara) - 矿场"
+		"褆亞拉(Tiara)"
 		{
 			"model"		"models/player/custom_player/maoling/fairyfancyf/tiara/tiara.mdl"
 			"arms"		"models/player/custom_player/maoling/fairyfancyf/tiara/tiara_arms.mdl"
@@ -106,7 +106,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"巡音露卡.摇滚(Luka) - KZ"
+		"巡音露卡.摇滚(Luka)"
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/luka/punk/luka.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/luka/punk/luka_arms.mdl"
@@ -115,7 +115,7 @@
 			"price"		"99999"
 			"type"		"playerskin"
 		}
-		"朝田诗乃(Shino) - SVIP"
+		"朝田诗乃(Shino) - SVIP免费使用"
 		{
 			"model"		"models/player/custom_player/maoling/sword_art_online/shino/ggo/shino.mdl"
 			"arms"		"models/player/custom_player/maoling/sword_art_online/shino/ggo/shino_arms.mdl"
@@ -123,7 +123,7 @@
 			"flag"		"t"
 			"type"		"playerskin"
 		}
-		"PupleHeart  - SVIP"
+		"PupleHeart - SVIP免费使用"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart_arms.mdl"
@@ -137,6 +137,7 @@
 			"arms"		"models/player/custom_player/maoling/hongkai_impact3/kiana/kiana_arms.mdl"
 			"team"		"3"
 			"compose"	"1"
+			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
 		}
@@ -146,6 +147,7 @@
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_nothruster_arms.mdl"
 			"team"		"2"
 			"compose"	"1"
+			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
 		}

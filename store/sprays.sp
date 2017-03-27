@@ -103,8 +103,6 @@ public void Sprays_Create(int client)
 {
 	if(!IsPlayerAlive(client))
 		return;
-	
-	g_iSprayLimit[client] = GetTime()+30;
 
 	float m_flEye[3];
 	GetClientEyePosition(client, m_flEye);
@@ -119,6 +117,8 @@ public void Sprays_Create(int client)
 		tPrintToChat(client, "%T", "spray distance", client);
 		return;	
 	}
+
+	g_iSprayLimit[client] = GetTime()+30;
 
 	TE_Start("World Decal");
 	TE_WriteVector("m_vecOrigin",m_flView);

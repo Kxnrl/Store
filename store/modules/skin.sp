@@ -240,14 +240,14 @@ void Store_PreviewSkin(int client, int itemid)
 	SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
 
 	SetVariantString("run_upper_knife");
-	
+
 	AcceptEntityInput(m_iViewModel, "SetAnimation");
 	AcceptEntityInput(m_iViewModel, "Enable");
-	
+
 	int offset = GetEntSendPropOffs(m_iViewModel, "m_clrGlow");
 	SetEntProp(m_iViewModel, Prop_Send, "m_bShouldGlow", true, true);
 	SetEntProp(m_iViewModel, Prop_Send, "m_nGlowStyle", 0);
-	SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 200.0);
+	SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 1000.0);
 
 	//Miku Green
 	SetEntData(m_iViewModel, offset    ,  57, _, true);
@@ -261,7 +261,7 @@ void Store_PreviewSkin(int client, int itemid)
 	GetClientAbsAngles(client, m_fAngles);
 
 	m_fRadians[0] = DegToRad(m_fAngles[0]);
-	m_fRadians[1] = DegToRad(m_fAngles[1]);  
+	m_fRadians[1] = DegToRad(m_fAngles[1]);
 
 	m_fPosition[0] = m_fOrigin[0] + 64 * Cosine(m_fRadians[0]) * Cosine(m_fRadians[1]);
 	m_fPosition[1] = m_fOrigin[1] + 64 * Cosine(m_fRadians[0]) * Sine(m_fRadians[1]);
@@ -276,7 +276,7 @@ void Store_PreviewSkin(int client, int itemid)
 	g_iPreviewModel[client] = m_iViewModel;
 
 	SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
-	
+
 	CreateTimer(30.0, Timer_KillPreview, client);
 
 	tPrintToChat(client, "%T", "Chat Preview", client);

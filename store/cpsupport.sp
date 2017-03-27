@@ -94,8 +94,6 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 
 	if(m_iEquippedNameColor >= 0)
 		strcopy(STRING(m_szNameColor), g_szNameColors[Store_GetDataIndex(m_iEquippedNameColor)]);
-	
-	//ReplaceString(name, 128, "[未注册]", "", false);
 
 	Format(name, 128, "%s%s%s", m_szNameTag, m_szNameColor, name);
 
@@ -111,7 +109,7 @@ stock void GetColorAuthName(int client, char[] buffer, int maxLen)
 	CG_GetClientGName(client, buffer, maxLen);
 	
 	if(!authorized)
-		Format(buffer, maxLen, "{default}[{lightblue}%s{default}]", buffer);	
+		Format(buffer, maxLen, " ");
 	else if(9002 >= authorized >= 9000)
 		Format(buffer, maxLen, "{default}[{darkred}%s{default}]", buffer);
 	else if(authorized > 9990) 

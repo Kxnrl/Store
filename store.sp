@@ -6,7 +6,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.3rc2 - 2017/03/17 08:19"
+#define PLUGIN_VERSION "1.4 - 2017/03/27 07:42"
 #define PLUGIN_URL ""
 
 //////////////////////////////

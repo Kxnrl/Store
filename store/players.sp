@@ -14,6 +14,7 @@ void Players_OnPluginStart()
 	if(g_eGameMode == GameMode_Pure)
 		return;
 	
+	CheckGameItemsTxt();
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
 	
 	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Pre);
@@ -266,4 +267,65 @@ public Action Command_Arms(int client, int args)
 	CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
 	
 	return Plugin_Handled;
+}
+
+void CheckGameItemsTxt()
+{
+	Handle kv = CreateKeyValues("items_game");
+	
+	if(!FileToKeyValues(kv, "scripts/items/items_game.txt"))
+	{
+		LogError("Unable to open/read file at 'scripts/items/items_game.txt'.");
+		CloseHandle(kv);
+		return;
+	}
+	
+	if(!KvJumpToKey(kv, "items"))
+	{
+		LogError("Unable to read key 'items'.");
+		CloseHandle(kv);
+		return;
+	}
+
+	bool del = false;
+
+	if(KvJumpToKey(kv, "5028"))
+	{
+		KvDeleteThis(kv);
+		LogMessage("Deleted 'scripts/items/items_game.txt' key '5028'");
+		KvRewind(kv);
+		KvJumpToKey(kv, "items");
+		del = true;
+	}
+	
+	if(KvJumpToKey(kv, "5029"))
+	{
+		KvDeleteThis(kv);
+		LogMessage("Deleted 'scripts/items/items_game.txt' key '5028'");
+		del = true;
+	}
+
+	KvRewind(kv);
+	
+	if(!del)
+	{
+		LogMessage("'scripts/items/items_game.txt' is lastest verison");
+		CloseHandle(kv);
+		return;
+	}
+
+	if(KeyValuesToFile(kv, "scripts/items/items_game.txt"))
+	{
+		LogMessage("Updated 'scripts/items/items_game.txt' successfully. - Restart Server");
+		CreateTimer(10.0, Timer_Shutdown);
+	}
+	else
+		LogError("Unable to save file at 'scripts/items/items_game.txt'.");
+
+	CloseHandle(kv);
+}
+
+public Action Timer_Shutdown(Handle timer)
+{
+	ServerCommand("quit");
 }

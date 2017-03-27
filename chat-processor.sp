@@ -9,6 +9,7 @@ Handle g_tMsgFmt;
 Handle g_fwdOnChatMessage;
 Handle g_fwdOnChatMessagePost;
 bool g_bProto;
+bool g_bDeathChat;
 bool g_bChat[MAXPLAYERS+1];
 int g_iTeam[MAXPLAYERS+1];
 
@@ -43,6 +44,12 @@ public void OnPluginStart()
 	}
 	else
 		SetFailState("Error loading the plugin, both chat hooks are unavailable. (SayText2)");
+}
+
+public void OnAllPluginsLoaded()
+{
+	if(FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("mg_stats.smx"))
+		g_bDeathChat = true;
 }
 
 public void OnClientConnected(int client)
@@ -109,12 +116,12 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 	RemoveAllColors(m_szMsg, 256);
 
 	ArrayList m_hRecipients = CreateArray();
-	for(int i = 0; i < playersNum; i++)
-		if(FindValueInArray(m_hRecipients, players[i]) == -1)
-			PushArrayCell(m_hRecipients, players[i]);
+	//for(int i = 0; i < playersNum; i++)
+	//	if(FindValueInArray(m_hRecipients, players[i]) == -1)
+	//		PushArrayCell(m_hRecipients, players[i]);
 
-	if(FindValueInArray(m_hRecipients, m_iSender) == -1)
-		PushArrayCell(m_hRecipients, m_iSender);
+	//if(FindValueInArray(m_hRecipients, m_iSender) == -1)
+	//	PushArrayCell(m_hRecipients, m_iSender);
 
 	char m_szNameCopy[128];
 	strcopy(m_szNameCopy, 128, m_szName);
@@ -211,11 +218,11 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 	CloseHandle(data);
 
 	// only used for non-pb messages
-	int[] iRecipients = new int[MaxClients];
-	int iNumRecipients = GetArraySize(m_hRecipients);
+	//int[] iRecipients = new int[MaxClients];
+	//int iNumRecipients = GetArraySize(m_hRecipients);
 
-	for(int i = 0; i < iNumRecipients; i++)
-		iRecipients[i] = GetArrayCell(m_hRecipients, i);
+	//for(int i = 0; i < iNumRecipients; i++)
+	//	iRecipients[i] = GetArrayCell(m_hRecipients, i);
 
 	char m_szBuffer[512];
 	strcopy(m_szBuffer, 512, m_szFmt);
@@ -246,7 +253,7 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 	}
 	else
 	{
-		if(GetConVarInt(FindConVar("sv_deadtalk")) == 2)
+		if(g_bDeathChat)
 		{
 			if(m_bChatAll)
 			{
@@ -266,13 +273,13 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 			if(m_bChatAll)
 			{
 				for(int i = 1; i <= MaxClients; ++i)
-					if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i))
+					if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i))
 						target_list[target_count++] = i;
 			}
 			else
 			{
 				for(int i = 1; i <= MaxClients; ++i)
-					if(IsClientInGame(i) && !IsPlayerAlive(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
+					if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i) && g_iTeam[i] == g_iTeam[m_iSender])
 						target_list[target_count++] = i;
 			}
 		}

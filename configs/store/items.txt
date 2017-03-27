@@ -900,6 +900,32 @@
 	{
 		"翅膀"
 		{
+			"月光之翼"
+			{
+				"model"		"models/maoling/wings/kiana/kiana_wings.mdl"
+				"position"		"-13.500000 1.000000 -5.500000"
+				"angles"		"0.500000 250.000000 -87.500000"
+				"Plans"
+				{
+					"1天"
+					{
+						"price"		"390"
+						"time"		"86400"
+					}
+					"1月"
+					{
+						"price"		"9999"
+						"time"		"2678400"
+					}
+					"永久"
+					{
+						"price"		"68888"
+					}
+				}
+				"type"		"hat"
+				"attachment"		"facemask"
+				"slot"		"3"
+			}
 			"燕子翅膀"
 			{
 				"model"		"models/shop/perfectworld_wings01_v3.mdl"

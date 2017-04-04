@@ -1,3 +1,5 @@
+#define Module_Trail
+
 enum Trail
 {
 	String:szMaterial[PLATFORM_MAX_PATH],
@@ -76,7 +78,9 @@ void Store_RemoveClientTrail(int client, int slot)
 		GetEdictClassname(g_iClientTrails[client][slot], STRING(m_szClassname));
 		if(strcmp("env_spritetrail", m_szClassname)==0)
 		{
+#if defined AllowHide
 			SDKUnhook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Trail);
+#endif
 			AcceptEntityInput(g_iClientTrails[client][slot], "Kill");
 		}
 	}
@@ -135,7 +139,9 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
 			DispatchKeyValue(g_iClientTrails[client][slot], "model", g_eTrails[m_iData][szMaterial]);
 			DispatchSpawn(g_iClientTrails[client][slot]);
 			AttachTrail(g_iClientTrails[client][slot], client, m_iCurrent, m_iNumEquipped);	
+#if defined AllowHide
 			SDKHook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Trail);
+#endif
 		}
 
 		int m_iColor[4];
@@ -168,11 +174,8 @@ void AttachTrail(int ent, int client, int current, int num)
 	SetEntPropVector(client, Prop_Data, "m_angAbsRotation", m_fAngle);
 }
 
-public void Trails_OnGameFrame()
+public void OnGameFrame()
 {
-	if(g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_KreedZ || g_eGameMode == GameMode_Casual || g_eGameMode == GameMode_Zombie)
-		return;
-
 	if(GetGameTickCount()%6 != 0)
 		return;
 
@@ -213,6 +216,7 @@ public void Trails_OnGameFrame()
 	}
 }
 
+#if defined AllowHide
 public Action Hook_SetTransmit_Trail(int ent, int client)
 {
 	if(g_bHideMode[client])
@@ -220,3 +224,4 @@ public Action Hook_SetTransmit_Trail(int ent, int client)
 	else
 		return Plugin_Continue;
 }
+#endif

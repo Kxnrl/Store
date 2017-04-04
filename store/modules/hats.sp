@@ -1,3 +1,5 @@
+#define Module_Hats
+
 enum Hat
 {
 	String:szModel[PLATFORM_MAX_PATH],
@@ -85,9 +87,11 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
 		
-		if(g_eGameMode == GameMode_Zombie && GetClientTeam(client) == 2)
+#if defined ZombieEscape
+		if(g_iClientTeam[client] == 2)
 			return;
-		
+#endif
+
 		float m_fHatOrigin[3];
 		float m_fHatAngles[3];
 		float m_fForward[3];
@@ -158,8 +162,10 @@ public Action Hook_SetTransmit_Hat(int ent, int client)
 	if(Store_IsPlayerTP(client))
 		return Plugin_Continue;
 
+#if defined AllowHide
 	if(g_bHideMode[client])
 		return Plugin_Handled;
+#endif
 
 	for(int i = 0; i < STORE_MAX_SLOTS; ++i)
 		if(ent == g_iClientHats[client][i])

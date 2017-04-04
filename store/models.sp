@@ -1,3 +1,5 @@
+#define Module_Model
+
 enum CustomModel
 {
 	String:szModelV[PLATFORM_MAX_PATH],
@@ -19,9 +21,6 @@ public void Models_OnPluginStart()
 		LogError("fpvm_interface isn't installed or failed to load. Models will be disabled.");
 		return;
 	}
-	
-	if(g_eGameMode == GameMode_Pure)
-		return;
 
 	Store_RegisterHandler("vwmodel", "model", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
 }

@@ -1,3 +1,5 @@
+#define Module_Skin
+
 #define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
 #define Arms_ZE_NewBee "models/weapons/t_arms_anarchist.mdl"
 
@@ -5,15 +7,58 @@ enum PlayerSkin
 {
 	String:szModel[PLATFORM_MAX_PATH],
 	String:szArms[PLATFORM_MAX_PATH],
-	iTeam,
+	iTeam
 }
 
 PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 
 int g_iPlayerSkins = 0;
 int g_iPreviewTimes[MAXPLAYERS+1];
-int g_iPreviewModel[MAXPLAYERS+1];
+int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 bool g_bHasPlayerskin[MAXPLAYERS+1];
+
+void Skin_OnPluginStart()
+{
+	CheckGameItemsTxt();
+	
+	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
+
+	RegConsoleCmd("sm_arm", Command_Arm, "Draw Player Arms");
+	RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
+}
+
+void Skin_OnClientDisconnect(int client)
+{
+	if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
+		CreateTimer(0.0, Timer_KillPreview, client);
+}
+
+public Action Command_Arm(int client, int args)
+{
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+		return Plugin_Handled;
+
+	SetEntProp(client, Prop_Send, "m_bDrawViewmodel", true);
+
+	return Plugin_Handled;
+}
+
+public Action Command_Arms(int client, int args)
+{
+	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+		return Plugin_Handled;
+
+#if defined ZombieEscape	
+	if(g_iClientTeam[client] == 2)
+		return Plugin_Handled;
+#endif
+
+	Store_PreSetClientModel(client);
+
+	CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
+	
+	return Plugin_Handled;
+}
 
 public int PlayerSkins_Config(Handle &kv, int itemid)
 {
@@ -22,13 +67,11 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 	KvGetString(kv, "model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
 	KvGetString(kv, "arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
 
+#if defined Global_Skin
+	g_ePlayerSkins[g_iPlayerSkins][iTeam] = Global_Skin;
+#else
 	g_ePlayerSkins[g_iPlayerSkins][iTeam] = KvGetNum(kv, "team");
-	
-	if(g_eGameMode == GameMode_TTT)
-		g_ePlayerSkins[g_iPlayerSkins][iTeam] = 2;
-	
-	if(g_eGameMode == GameMode_Zombie || g_eGameMode == GameMode_DeathRun)
-		g_ePlayerSkins[g_iPlayerSkins][iTeam] = 3;
+#endif
 	
 	if(FileExists(g_ePlayerSkins[g_iPlayerSkins][szModel], true))
 	{
@@ -53,15 +96,14 @@ public void PlayerSkins_OnMapStart()
 		}
 	}
 
-	if(g_eGameMode == GameMode_Zombie)
+#if defined ZombieEscape
+	if(FileExists(Model_ZE_Newbee))
 	{
-		if(FileExists(Model_ZE_Newbee))
-		{
-			PrecacheModel2(Model_ZE_Newbee, true);
-			PrecacheModel2(Arms_ZE_NewBee, true);
-			Downloader_AddFileToDownloadsTable(Model_ZE_Newbee);
-		}
+		PrecacheModel2(Model_ZE_Newbee, true);
+		PrecacheModel2(Arms_ZE_NewBee, true);
+		Downloader_AddFileToDownloadsTable(Model_ZE_Newbee);
 	}
+#endif
 }
 
 public void PlayerSkins_Reset()
@@ -96,11 +138,13 @@ void Store_PreSetClientModel(int client)
 			CreateTimer(5.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 	}
-	else if(g_eGameMode == GameMode_Zombie)
+#if defined ZombieEscape
+	else
 	{
 		if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
 			Store_SetClientModel(client, Model_ZE_Newbee, Arms_ZE_NewBee);
 	}
+#endif
 }
 
 void Store_SetClientModel(int client, const char[] model, const char[] arms = "null")
@@ -115,11 +159,13 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 
 	char currentmodel[128];
 	GetEntPropString(client, Prop_Send, "m_szArmsModel", currentmodel, 128);
-	
-	if(g_eGameMode != GameMode_Zombie)
+
+#if defined ZombieEscape
+	if(!StrEqual(model, Model_ZE_Newbee))
 		g_bHasPlayerskin[client] = true;
-	else if(!StrEqual(model, Model_ZE_Newbee))
-		g_bHasPlayerskin[client] = true;
+#else
+	g_bHasPlayerskin[client] = true;
+#endif
 
 	if(!StrEqual(arms, "null") && !StrEqual(currentmodel, arms))
 	{
@@ -127,19 +173,23 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 			PrecacheModel2(arms, true);
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
 	}
-	
+
+#if defined Module_Hats
 	Store_SetClientHat(client);
+#endif
 }
 
 public Action Timer_SetPlayerArms(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	
-	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+	if(!client || !IsPlayerAlive(client))
 		return Plugin_Stop;
 
-	if(g_eGameMode == GameMode_Zombie && GetClientTeam(client) != 3)
+#if defined ZombieEscape
+	if(GetClientTeam(client) != 3)
 		return Plugin_Stop;
+#endif
 
 	Store_PreSetClientModel(client);
 
@@ -150,15 +200,11 @@ public Action Timer_FixPlayerArms(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 	
-	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
+	if(!client || !IsPlayerAlive(client))
 		return Plugin_Stop;
-	
-	if(g_eGameMode == GameMode_Zombie)
-		if(GetClientTeam(client) != 3)
-			return Plugin_Stop;
-		
+
 	ResetPlayerArms(client);
-	
+
 	return Plugin_Stop;
 }
 
@@ -183,7 +229,6 @@ public Action Timer_GiveWeapon(Handle timer, Handle pack)
 	
 	char weapon[32];
 	ReadPackString(pack, weapon, 32);
-
 	GivePlayerItem(client, weapon);
 	
 	return Plugin_Stop;
@@ -209,7 +254,7 @@ bool ResetClientWeaponBySlot(int client, int slot, float giveDelay)
 	return true;
 }
 
-stock void GetWeaponClassname(int weapon, char[] classname, int maxLen)
+void GetWeaponClassname(int weapon, char[] classname, int maxLen)
 {
 	GetEdictClassname(weapon, classname, maxLen);
 	switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
@@ -239,15 +284,15 @@ void Store_PreviewSkin(int client, int itemid)
 	
 	SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
 
-	SetVariantString("run_upper_knife");
+	//SetVariantString("run_upper_knife");
 
-	AcceptEntityInput(m_iViewModel, "SetAnimation");
+	//AcceptEntityInput(m_iViewModel, "SetAnimation");
 	AcceptEntityInput(m_iViewModel, "Enable");
 
 	int offset = GetEntSendPropOffs(m_iViewModel, "m_clrGlow");
 	SetEntProp(m_iViewModel, Prop_Send, "m_bShouldGlow", true, true);
 	SetEntProp(m_iViewModel, Prop_Send, "m_nGlowStyle", 0);
-	SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 1000.0);
+	SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 2000.0);
 
 	//Miku Green
 	SetEntData(m_iViewModel, offset    ,  57, _, true);
@@ -272,8 +317,8 @@ void Store_PreviewSkin(int client, int itemid)
 
 	TeleportEntity(m_iViewModel, m_fPosition, m_fAngles, NULL_VECTOR);
 	
-	g_iPreviewTimes[client] = GetTime()+60;
-	g_iPreviewModel[client] = m_iViewModel;
+	g_iPreviewTimes[client] = GetTime()+90;
+	g_iPreviewModel[client] = EntIndexToEntRef(m_iViewModel);
 
 	SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
 
@@ -284,7 +329,7 @@ void Store_PreviewSkin(int client, int itemid)
 
 public Action Hook_SetTransmit_Preview(int ent, int client)
 {
-	if(ent == g_iPreviewModel[client])
+	if(ent == EntRefToEntIndex(g_iPreviewModel[client]))
 		return Plugin_Continue;
 
 	return Plugin_Handled;
@@ -292,16 +337,82 @@ public Action Hook_SetTransmit_Preview(int ent, int client)
 
 public Action Timer_KillPreview(Handle timer, int client)
 {
-	if(g_iPreviewModel[client] > MaxClients && IsValidEdict(g_iPreviewModel[client]))
+	if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE && IsValidEntity(g_iPreviewModel[client]))
 	{
-		char m_szName[32];
-		GetEntPropString(g_iPreviewModel[client], Prop_Data, "m_iName", m_szName, 32);
-		if(StrContains(m_szName, "Store_Preview_", false) == 0)
+		int entity = EntRefToEntIndex(g_iPreviewModel[client]);
+	
+		if(IsValidEdict(entity))
 		{
-			SetEntProp(g_iPreviewModel[client], Prop_Send, "m_bShouldGlow", false, true);
-			SDKUnhook(g_iPreviewModel[client], SDKHook_SetTransmit, Hook_SetTransmit_Preview);
-			AcceptEntityInput(g_iPreviewModel[client], "Kill");
+			char m_szName[32];
+			GetEntPropString(entity, Prop_Data, "m_iName", m_szName, 32);
+			if(StrContains(m_szName, "Store_Preview_", false) == 0)
+			{
+				SetEntProp(entity, Prop_Send, "m_bShouldGlow", false, true);
+				SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
+				AcceptEntityInput(entity, "Kill");
+			}
 		}
 	}
-	g_iPreviewModel[client] = -1;
+	g_iPreviewModel[client] = INVALID_ENT_REFERENCE;
+}
+
+void CheckGameItemsTxt()
+{
+	Handle kv = CreateKeyValues("items_game");
+	
+	if(!FileToKeyValues(kv, "scripts/items/items_game.txt"))
+	{
+		LogError("Unable to open/read file at 'scripts/items/items_game.txt'.");
+		CloseHandle(kv);
+		return;
+	}
+	
+	if(!KvJumpToKey(kv, "items"))
+	{
+		LogError("Unable to read key 'items'.");
+		CloseHandle(kv);
+		return;
+	}
+
+	bool del = false;
+
+	if(KvJumpToKey(kv, "5028"))
+	{
+		KvDeleteThis(kv);
+		LogMessage("Deleted 'scripts/items/items_game.txt' key '5028'");
+		KvRewind(kv);
+		KvJumpToKey(kv, "items");
+		del = true;
+	}
+	
+	if(KvJumpToKey(kv, "5029"))
+	{
+		KvDeleteThis(kv);
+		LogMessage("Deleted 'scripts/items/items_game.txt' key '5028'");
+		del = true;
+	}
+
+	KvRewind(kv);
+	
+	if(!del)
+	{
+		LogMessage("'scripts/items/items_game.txt' is lastest verison");
+		CloseHandle(kv);
+		return;
+	}
+
+	if(KeyValuesToFile(kv, "scripts/items/items_game.txt"))
+	{
+		LogMessage("Updated 'scripts/items/items_game.txt' successfully. - Restart Server");
+		CreateTimer(10.0, Timer_Shutdown);
+	}
+	else
+		LogError("Unable to save file at 'scripts/items/items_game.txt'.");
+
+	CloseHandle(kv);
+}
+
+public Action Timer_Shutdown(Handle timer)
+{
+	ServerCommand("quit");
 }

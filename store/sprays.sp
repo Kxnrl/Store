@@ -1,3 +1,5 @@
+#define Module_Spray
+
 char g_szSprays[STORE_MAX_ITEMS][256];
 int g_iSprayPrecache[STORE_MAX_ITEMS] = {-1,...};
 int g_iSprayCache[MAXPLAYERS+1] = {-1,...};
@@ -7,9 +9,6 @@ int g_iCGLOGO = -1;
 
 public void Sprays_OnPluginStart()
 {
-	if(g_eGameMode == GameMode_Pure)
-		return;
-
 	Store_RegisterHandler("spray", "material", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
 	
 	RegConsoleCmd("spray", Command_Spray);

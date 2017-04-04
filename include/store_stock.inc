@@ -57,6 +57,37 @@ enum Client_Item
 	iPriceOfPurchase,
 }
 
+enum Client_Data
+{
+	iId,
+	iUserId,
+	String:szAuthId[32],
+	iCredits,
+	iOriginalCredits,
+	iDateOfJoin,
+	iDateOfLastJoin,
+	iItems,
+	aEquipment[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
+	aEquipmentSynced[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
+	bool:bBan,
+	bool:bLoaded
+}
+
+enum Menu_Handler
+{
+	String:szIdentifier[64],
+	Handle:hPlugin,
+	Function:fnMenu,
+	Function:fnHandler
+}
+
+enum Compose_Data
+{
+	item1,
+	item2,
+	types
+}
+
 Handle g_hCachedFiles;
 Handle g_hCachedNums;
 Handle g_hCustomFiles;

@@ -1,3 +1,5 @@
+#define Module_Part
+
 int g_iParts = 0; 
 int g_iClientPart[MAXPLAYERS+1];
 char g_szPartName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];  
@@ -42,7 +44,8 @@ public int Part_Remove(int client)
 
 public void Part_OnMapStart()
 {
-	
+	PreDownload("particles/FX.pcf");
+	PrecacheGeneric("particles/FX.pcf", true);
 }
 
 void Store_RemoveClientPart(int client)

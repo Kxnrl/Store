@@ -1,3 +1,5 @@
+#define Module_Aura
+
 int g_iAuras = 0; 
 int g_iClientAura[MAXPLAYERS+1];
 char g_szAuraName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];  
@@ -5,17 +7,17 @@ char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 public void Aura_OnMapStart()
 {
-	PreDownload("materials/ex/gl.vmt");
-	PreDownload("materials/ex/gl.vtf");
-	PreDownload("materials/ex/ballX.vmt");
-	PreDownload("materials/ex/ES.vmt");
-	PreDownload("materials/ex/ballX.vtf");
-	PreDownload("materials/ex/ES.vtf");
+	//PreDownload("materials/ex/gl.vmt");
+	//PreDownload("materials/ex/gl.vtf");
+	//PreDownload("materials/ex/ballX.vmt");
+	//PreDownload("materials/ex/ES.vmt");
+	//PreDownload("materials/ex/ballX.vtf");
+	//PreDownload("materials/ex/ES.vtf");
 	PreDownload("particles/FX.pcf");
 	PrecacheGeneric("particles/FX.pcf", true);
-	PrecacheModel("materials/ex/ballX.vmt");
-	PrecacheModel("materials/ex/ES.vmt");
-	PrecacheModel("materials/ex/gl.vmt");
+	//PrecacheModel("materials/ex/ballX.vmt");
+	//PrecacheModel("materials/ex/ES.vmt");
+	//PrecacheModel("materials/ex/gl.vmt");
 }
 
 void PreDownload(const char[] path)

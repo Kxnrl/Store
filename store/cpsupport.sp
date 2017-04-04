@@ -1,3 +1,5 @@
+#define Module_Chat
+
 char g_szNameTags[STORE_MAX_ITEMS][128];
 char g_szNameColors[STORE_MAX_ITEMS][32];
 char g_szMessageColors[STORE_MAX_ITEMS][32];
@@ -78,9 +80,14 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 	char m_szNameColor[32];
 
 	GetColorAuthName(client,  m_szNameTag, 128);
-	
+
 	if(m_iEquippedNameTag >= 0)
+	{
+		if(CG_GetClientUId(client) <= 0)
+			StrCat(STRING(m_szNameTag), "{lightblue}[未注册]{teamcolor}");
+
 		StrCat(STRING(m_szNameTag), g_szNameTags[Store_GetDataIndex(m_iEquippedNameTag)]);
+	}
 	else
 	{
 		switch(CG_GetClientVip(client))
@@ -88,7 +95,7 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 			case  3: StrCat(STRING(m_szNameTag), "{purple}[SVIP] {teamcolor}");
 			case  2: StrCat(STRING(m_szNameTag), "{orange}[AVIP] {teamcolor}");
 			case  1: StrCat(STRING(m_szNameTag), "{silver}[MVIP] {teamcolor}");
-			default: StrCat(STRING(m_szNameTag), "{lightblue}[CG社区] {teamcolor}");
+			default: StrCat(STRING(m_szNameTag), (CG_GetClientUId(client) > 0) ? "{lightblue}[CG社区] {teamcolor}" : "{lightblue}[未注册] {teamcolor}");
 		}
 	}
 

@@ -1,3 +1,5 @@
+#define Module_Neon
+
 enum Neon
 {
 	iColor[4],
@@ -51,6 +53,7 @@ public int Neon_Remove(int client)
 	return 0; 
 }
 
+#if defined AllowHide
 public Action Hook_SetTransmit_Neon(int ent, int client)
 {
 	if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
@@ -58,6 +61,7 @@ public Action Hook_SetTransmit_Neon(int ent, int client)
 
 	return !(g_bHideMode[client]) ? Plugin_Continue : Plugin_Handled;
 }
+#endif
 
 void NeonEquipDelay(int client)
 {
@@ -70,7 +74,9 @@ void Store_RemoveClientNeon(int client)
 	{
 		if(IsValidEdict(g_iClientNeon[client]))
 		{
+#if defined AllowHide
 			SDKUnhook(g_iClientNeon[client], SDKHook_SetTransmit, Hook_SetTransmit_Neon);
+#endif
 			AcceptEntityInput(g_iClientNeon[client], "Kill");
 		}
 
@@ -82,9 +88,6 @@ void Store_SetClientNeon(int client)
 {
 	if(g_iClientNeon[client] != 0)
 		Store_RemoveClientNeon(client);
-
-	if(g_eGameMode == GameMode_Zombie)
-		return;
 
 	int m_iEquipped = Store_GetEquippedItem(client, "neon", 0); 
 	if(m_iEquipped < 0) 
@@ -125,7 +128,9 @@ void Store_SetClientNeon(int client)
 		AcceptEntityInput(iNeon, "SetParent", client, iNeon, 0);
 		
 		g_iClientNeon[client] = iNeon;
-		
+
+#if defined AllowHide		
 		SDKHook(iNeon, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
+#endif
 	}
 }

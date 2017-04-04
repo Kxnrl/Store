@@ -1,3 +1,5 @@
+#define Module_Grenade
+
 enum GrenadeSkin
 {
 	String:szModel[PLATFORM_MAX_PATH],
@@ -27,9 +29,6 @@ char g_szSlots[6][64];
 
 public void Grenades_OnPluginStart()
 {
-	if(g_eGameMode == GameMode_Pure || g_eGameMode == GameMode_KreedZ)
-		return;
-
 	Store_RegisterHandler("grenadetrail", "material", GrenadeTrails_OnMapStart, GrenadeTrails_Reset, GrenadeTrails_Config, GrenadeTrails_Equip, GrenadeTrails_Remove, true);
 	Store_RegisterHandler("grenadeskin", "model", GrenadeSkins_OnMapStart, GrenadeSkins_Reset, GrenadeSkins_Config, GrenadeSkins_Equip, GrenadeSkins_Remove, true);
 }
@@ -127,11 +126,11 @@ public int GrenadeSkins_GetSlot(char[] weapon)
 	return g_iSlots++;
 }
 
-public void Grenades_OnEntityCreated(int entity, const char[] classname)
+public void OnEntityCreated(int entity, const char[] classname)
 {
 	if(g_iGrenadeTrails == 0 && g_iGrenadeSkins == 0)
 		return;
-	
+
 	if(StrContains(classname, "_projectile") > 0)
 		SDKHook(entity, SDKHook_SpawnPost, Grenades_OnEntitySpawnedPost);		
 }

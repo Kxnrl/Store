@@ -1,13 +1,5 @@
 #pragma semicolon 1
 #pragma newdecls required
-//////////////////////////////
-//		DEFINITIONS			//
-//////////////////////////////
-#define PLUGIN_NAME "Store - The Resurrection [Redux]"
-#define PLUGIN_AUTHOR "Zephyrus | Kyle"
-#define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.4 - 2017/03/27 07:42"
-#define PLUGIN_URL ""
 
 //////////////////////////////
 //			INCLUDES		//
@@ -25,53 +17,23 @@
 #include <fpvm_interface>
 #include <csc>
 
+
 //////////////////////////////
-//			ENUMS			//
+//		DEFINITIONS			//
 //////////////////////////////
-enum Client_Data
-{
-	iId,
-	iUserId,
-	String:szAuthId[32],
-	iCredits,
-	iOriginalCredits,
-	iDateOfJoin,
-	iDateOfLastJoin,
-	iItems,
-	aEquipment[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
-	aEquipmentSynced[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
-	bool:bBan,
-	bool:bLoaded
-}
+#define PLUGIN_NAME "Store - The Resurrection [Redux]"
+#define PLUGIN_AUTHOR "Zephyrus | Kyle"
+#define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
+#define PLUGIN_VERSION "1.5 - 2017/04/03 05:52"
+#define PLUGIN_URL ""
 
-enum Menu_Handler
-{
-	String:szIdentifier[64],
-	Handle:hPlugin,
-	Function:fnMenu,
-	Function:fnHandler
-}
+// Costom
+#define CurrentMode KZ
+//#define Global_Skin	2	//skin does not match with team
+//#define ZombieEscape	//zombie escape server
+//#define TeamArms		//fix arms when client team
+//#define AllowHide		//Enable hide mode
 
-enum Game_Mode
-{
-	GameMode_Pure,
-	GameMode_Zombie,
-	GameMode_TTT,
-	GameMode_MiniGame,
-	GameMode_JailBreak,
-	GameMode_KreedZ,
-	GameMode_DeathRun,
-	GameMode_HungerGame,
-	GameMode_Ninja,
-	GameMode_Casual
-}
-
-enum Compose_Data
-{
-	item1,
-	item2,
-	types
-}
 
 //////////////////////////////////
 //		GLOBAL VARIABLES		//
@@ -85,7 +47,6 @@ Client_Item g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
 Type_Handler g_eTypeHandlers[STORE_MAX_HANDLERS][Type_Handler];
 Menu_Handler g_eMenuHandlers[STORE_MAX_HANDLERS][Menu_Handler];
 Item_Plan g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
-Game_Mode g_eGameMode;
 Compose_Data g_eCompose[MAXPLAYERS+1][Compose_Data];
 
 int g_iItems = 0;
@@ -101,23 +62,39 @@ int g_iSelectedPlan[MAXPLAYERS+1];
 int g_iMenuNum[MAXPLAYERS+1];
 int g_iSpam[MAXPLAYERS+1];
 int g_iDataProtect[MAXPLAYERS+1];
+int g_iClientTeam[MAXPLAYERS+1];
+
+#if defined AllowHide
+bool g_bHideMode[MAXPLAYERS+1];
+#endif
 
 bool g_bInvMode[MAXPLAYERS+1];
 
 bool g_bLateLoad;
-bool g_bDisableGift;
 char g_szLogFile[128];
 char g_szTempole[128];
+
 
 //////////////////////////////
 //			MODULES			//
 //////////////////////////////
+// player module
+#include "store/modules/hats.sp"
+#include "store/modules/skin.sp"
+//#include "store/modules/neon.sp"
+//#include "store/modules/aura.sp"
+//#include "store/modules/part.sp"
+//#include "store/modules/trail.sp"
+
+// global modules
 #include "store/players.sp"
-#include "store/grenades.sp"
+//#include "store/grenades.sp"
 #include "store/cpsupport.sp"
 #include "store/sprays.sp"
 #include "store/models.sp"
 #include "store/sounds.sp"
+#include "store/tpmode.sp"
+
 
 //////////////////////////////////
 //		PLUGIN DEFINITION		//
@@ -130,6 +107,7 @@ public Plugin myinfo =
 	version		= PLUGIN_VERSION,
 	url			= PLUGIN_URL
 };
+
 
 //////////////////////////////
 //		PLUGIN FORWARDS		//
@@ -152,8 +130,11 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_inventory", Command_Inventory);
 	RegConsoleCmd("sm_credits", Command_Credits);
 
-	// Register Server Command
-	RegServerCmd("store_gift", Command_Server);
+#if defined AllowHide
+	RegConsoleCmd("sm_hide", Command_Hide, "Hide Trail and Neon");
+	RegConsoleCmd("sm_hidetrail", Command_Hide, "Hide Trail and Neon");
+	RegConsoleCmd("sm_hideneon", Command_Hide, "Hide Trail and Neon");
+#endif
 
 	// Load the translations file
 	LoadTranslations("store.phrases");
@@ -171,12 +152,10 @@ public void OnPluginStart()
 
 public void OnAllPluginsLoaded()
 {
-	CheckGameMode();
-	CreateTimer(1.0, Timer_LoadConfig);
-}
+	// Initiaze module
+	CheckModules();
 
-public Action Timer_LoadConfig(Handle timer)
-{
+	// Load configs
 	Store_ReloadConfig();
 }
 
@@ -241,16 +220,6 @@ public void OnMapStart()
 			Call_Finish();
 		}
 	}
-}
-
-public void OnGameFrame()
-{
-	Trails_OnGameFrame();
-}
-
-public void OnEntityCreated(int entity, const char[] classname)
-{
-	Grenades_OnEntityCreated(entity, classname);
 }
 
 //////////////////////////////////////
@@ -328,49 +297,54 @@ public int Native_IsClientBanned(Handle myself, int numParams)
 
 public int Native_HasClientPlayerSkin(Handle myself, int numParams)
 {
+#if defined Module_Skin
 	int client = GetNativeCell(1);
 	if(IsClientInGame(client))
 		return g_bHasPlayerskin[client];
 	else
 		return false;
+#else
+	return false;
+#endif
 }
 
 public int Native_GetClientPlayerSkin(Handle myself, int numParams)
 {
-	if(g_eGameMode == GameMode_Pure)
+#if defined Module_Skin
+	int client = GetNativeCell(1);
+
+	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
+
+	if(m_iEquipped >= 0)
 	{
-		if(SetNativeString(2, "none", GetNativeCell(3)) != SP_ERROR_NONE)
+		int m_iData = Store_GetDataIndex(m_iEquipped);
+		if(SetNativeString(2, g_ePlayerSkins[m_iData][szModel], GetNativeCell(3)) != SP_ERROR_NONE)
 			ThrowNativeError(SP_ERROR_NATIVE, "Can not return Player Skin.");
 	}
 	else
-	{
-		int client = GetNativeCell(1);
-
-		int m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
-
-		if(m_iEquipped >= 0)
-		{
-			int m_iData = Store_GetDataIndex(m_iEquipped);
-			if(SetNativeString(2, g_ePlayerSkins[m_iData][szModel], GetNativeCell(3)) != SP_ERROR_NONE)
-				ThrowNativeError(SP_ERROR_NATIVE, "Can not return Player Skin.");
-		}
-		else
-			SetNativeString(2, "none", GetNativeCell(3));
-	}
+		SetNativeString(2, "none", GetNativeCell(3));
+#else
+	if(SetNativeString(2, "none", GetNativeCell(3)) != SP_ERROR_NONE)
+		ThrowNativeError(SP_ERROR_NATIVE, "Can not return Player Skin.");
+#endif
 }
 
 public int Native_ResetPlayerSkin(Handle myself, int numParams)
 {
+#if defined Module_Skin
 	int client = GetNativeCell(1);
 	if(client && IsClientInGame(client) && IsPlayerAlive(client))
 		Store_PreSetClientModel(client);
+#endif
 }
 
 public int Native_ResetPlayerArms(Handle myself, int numParams)
 {
+#if defined Module_Skin
 	int client = GetNativeCell(1);
 	if(client && IsClientInGame(client) && IsPlayerAlive(client))
 		CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
+#endif
 }
 
 public int Native_RegisterHandler(Handle plugin, int numParams)
@@ -693,12 +667,17 @@ public int Native_ExtClientItem(Handle myself, int numParams)
 public void OnClientConnected(int client)
 {
 	g_iSpam[client] = 0;
+	g_iClientTeam[client] = 0;
 	g_iDataProtect[client] = GetTime()+60;
 	g_eClients[client][iUserId] = GetClientUserId(client);
 	g_eClients[client][iCredits] = -1;
 	g_eClients[client][iOriginalCredits] = 0;
 	g_eClients[client][iItems] = -1;
 	g_eClients[client][bLoaded] = false;
+	
+#if defined AllowHide
+	g_bHideMode[client] = false;
+#endif
 	
 	g_eCompose[client][item1] = -1;
 	g_eCompose[client][item2] = -1;
@@ -712,10 +691,18 @@ public void OnClientConnected(int client)
 			g_eClients[client][aEquipmentSynced][i*STORE_MAX_SLOTS+a] = -2;
 		}
 	}
-	
-	Players_OnClientConnected(client);
+
+#if defined Module_Spray
 	Sprays_OnClientConnected(client);
+#endif
+
+#if defined Module_Sound
 	Sound_OnClientConnected(client);
+#endif
+
+#if defined Module_TPMode
+	TPMode_OnClientConnected(client);
+#endif
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -731,9 +718,9 @@ public void OnClientDisconnect(int client)
 	if(IsFakeClient(client))
 		return;
 
-	Aura_OnClientDisconnect(client);
-	Neon_OnClientDisconnect(client);
-	Part_OnClientDisconnect(client);
+#if defined Module_Player
+	Players_OnClientDisconnect(client);
+#endif
 
 	Store_SaveClientData(client);
 	Store_SaveClientInventory(client);
@@ -810,11 +797,18 @@ public Action Command_Credits(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action Command_Server(int args)
+#if defined AllowHide
+public Action Command_Hide(int client, int args)
 {
-	g_bDisableGift = !g_bDisableGift;
-	PrintToServer("g_bDisableGift = %b", g_bDisableGift);
+	if(!IsClientInGame(client))
+		return Plugin_Handled;
+
+	g_bHideMode[client] = !g_bHideMode[client];
+	tPrintToChat(client, "%T", "hide setting", client, g_bHideMode[client] ? "on" : "off");
+
+	return Plugin_Handled;
 }
+#endif
 
 //////////////////////////////
 //			MENUS	 		//
@@ -1153,6 +1147,7 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
 		}
 		else if(selected == 2)
 		{
+#if defined Module_Skin
 			if(g_iPreviewTimes[client] <= GetTime())
 			{
 				Timer_KillPreview(INVALID_HANDLE, client);
@@ -1161,6 +1156,9 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
 			}
 			else
 				tPrintToChat(client, "%T", "Chat Preview Cooldown", client);
+#else
+			tPrintToChat(client, "%T", "Chat Preview Cooldown", client);
+#endif
 		}
 	}
 	else if(action==MenuAction_Cancel)
@@ -2194,7 +2192,9 @@ void Store_ComposeItem(int client)
 
 void Store_BuyItem(int client)
 {
+#if defined Module_Skin
 	Timer_KillPreview(INVALID_HANDLE, client);
+#endif
 
 	if(g_eItems[g_iSelectedItem[client]][iHandler] == g_iPackageHandler)
 		return;
@@ -2263,14 +2263,6 @@ void Store_GiftItem(int client, int receiver, int item)
 	{
 		tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
 		DisplayItemMenu(client, m_iId);
-		return;
-	}
-
-	if(g_bDisableGift)
-	{
-		tPrintToChat(client, "\x04服务器目前已关闭物品赠送功能!");
-		tPrintToChat(client, "\x04论坛玩家专属交易板块即将上线...");
-		tPrintToChat(client, "\x04CG社区管理团队祝您游戏愉快:)"); 
 		return;
 	}
 
@@ -2359,6 +2351,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 	char m_szFlags[64];
 	int m_iHandler;
 	bool m_bSuccess;
+
 	do
 	{
 		if(g_iItems == STORE_MAX_ITEMS)
@@ -2398,7 +2391,6 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 			g_eItems[g_iItems][bGiftable] = KvGetNum(kv, "giftable", 1)?true:false;
 			g_eItems[g_iItems][bCompose] = (KvGetNum(kv, "compose", 0)?true:false);
 			g_eItems[g_iItems][bIgnoreVIP] = (KvGetNum(kv, "ignore_vip", 0)?true:false);
-
 			
 			KvGetString(kv, "type", STRING(m_szType));
 			m_iHandler = Store_GetTypeHandler(m_szType);
@@ -2407,18 +2399,16 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 
 			if(StrContains(m_szType, "playerskin", false) != -1)
 			{
+#if defined Global_Skin
+				Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[通用] %s", g_eItems[g_iItems][szName]);
+#else
 				int team = KvGetNum(kv, "team", 0);
-				if(g_eGameMode == GameMode_TTT || g_eGameMode == GameMode_Zombie || g_eGameMode == GameMode_DeathRun)
-				{
-					Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[通用] %s", g_eItems[g_iItems][szName]);
-				}
-				else
-				{
-					if(team == 2)
-						Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[TE] %s", g_eItems[g_iItems][szName]);
-					if(team == 3)
-						Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[CT] %s", g_eItems[g_iItems][szName]);
-				}
+
+				if(team == 2)
+					Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[TE] %s", g_eItems[g_iItems][szName]);
+				if(team == 3)
+					Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[CT] %s", g_eItems[g_iItems][szName]);
+#endif
 			}
 
 			KvGetString(kv, "flag", STRING(m_szFlags));
@@ -2714,128 +2704,35 @@ int Store_GetClientHandleFees(int client, int itemid)
 		return RoundToFloor(g_eClientItems[client][uid][iPriceOfPurchase]*0.2);
 }
 
-void CheckGameMode()
+void CheckModules()
 {
-	if(FindPluginByFile("ct.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  TTT");
-		g_eGameMode = GameMode_TTT;
-	}
-	else if(FindPluginByFile("mg_stats.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  MG");
-		g_eGameMode = GameMode_MiniGame;
-	}
-	else if(FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("drapi_zombie_riot.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  ZE");
-		g_eGameMode = GameMode_Zombie;
-	}
-	else if(FindPluginByFile("KZTimer.smx") || FindPluginByFile("KZTimerGlobal.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  KZ");
-		g_eGameMode = GameMode_KreedZ;
-	}
-	else if(FindPluginByFile("sm_hosties.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  JB");
-		g_eGameMode = GameMode_JailBreak;
-	}
-	else if(FindPluginByFile("devzones_givecredits.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  DR");
-		g_eGameMode = GameMode_DeathRun;
-	}
-	else if(FindPluginByFile("ninja.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  NJ");
-		g_eGameMode = GameMode_Ninja;
-	}
-	else if(FindPluginByFile("hg.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  HG");
-		g_eGameMode = GameMode_HungerGame;
-	}
-	else if(FindPluginByFile("public_ext.smx"))
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  HZ");
-		g_eGameMode = GameMode_Casual;
-	}
-	else
-	{
-		LogMessage("Loaded Successful!  Current GameMode:  Pure");
-		g_eGameMode = GameMode_Pure;
-	}
-
-	// Initialize the modules	
-	Players_OnPluginStart();
-	Grenades_OnPluginStart();
+#if defined Module_Chat
 	CPSupport_OnPluginStart();
+#endif
+
+#if defined Module_Grenade
+	Grenades_OnPluginStart();
+#endif
+
+#if defined Module_Spray
 	Sprays_OnPluginStart();
+#endif
+
+#if defined Module_Model
 	Models_OnPluginStart();
+#endif
+
+#if defined Module_Sound
 	Sounds_OnPluginStart();
-}
+#endif
 
-bool Store_IsPlayerTP(int client)
-{
-	if(g_bThirdperson[client])
-		return true;
-	
-	if(g_bMirror[client])
-		return true;
-	
-	return false;
-}
+#if defined Module_TPMode
+	TPMode_OnPluginStart();
+#endif
 
-void CheckClientTP(int client)
-{
-	if(g_bThirdperson[client])
-	{
-		SetThirdperson(client, false);
-		g_bThirdperson[client] = false;
-	}
-
-	if(g_bMirror[client])
-	{
-		SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", -1);
-		SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
-		SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
-		SetEntProp(client, Prop_Send, "m_iFOV", 90);
-		char valor[6];
-		GetConVarString(FindConVar("mp_forcecamera"), valor, 6);
-		SendConVarValue(client, FindConVar("mp_forcecamera"), valor);
-		g_bMirror[client] = false;
-	}
-}
-
-void ToggleThirdperson(int client)
-{
-	if(g_bThirdperson[client])
-	{
-		SetThirdperson(client, true);
-	}
-	else
-	{
-		SetThirdperson(client, false);
-	}
-}
-
-void SetThirdperson(int client, bool tp)
-{
-	static Handle m_hAllowTP = INVALID_HANDLE;
-	if(m_hAllowTP == INVALID_HANDLE)
-		m_hAllowTP = FindConVar("sv_allow_thirdperson");
-
-	SetConVarInt(m_hAllowTP, 1);
-
-	if(tp)
-	{
-		ClientCommand(client, "thirdperson");
-	}
-	else
-	{
-		ClientCommand(client, "firstperson");
-	}
+#if defined Module_Player
+	Players_OnPluginStart();
+#endif
 }
 
 void BuildTempLogFile()
@@ -2873,4 +2770,16 @@ void BroadcastComposeItem(int client, const char[] item)
 	ReplaceString(content, 256, "[CT]", "");
 	ReplaceString(content, 256, "[TE]", "");
 	CG_Broadcast(true, content);
+}
+
+stock bool Store_IsPlayerTP(int client)
+{
+#if defined Module_TPMode
+	if(g_bThirdperson[client])
+		return true;
+
+	if(g_bMirror[client])
+		return true;
+#endif
+	return false;
 }

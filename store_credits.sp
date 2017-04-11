@@ -236,7 +236,7 @@ public Action CreditTimer(Handle timer, int client)
 	char szFrom[128], szReason[128];
 	strcopy(szFrom, 128, "\x10[");
 	strcopy(szReason, 128, "store_credits[");
-	
+/*	
 	m_iCredits += 1;
 	StrCat(szFrom, 128, "\x04在线时间+1");
 	StrCat(szReason, 128, "在线时间 ");
@@ -280,7 +280,7 @@ public Action CreditTimer(Handle timer, int client)
 			Format(auname, 32, "\x0A|\x0C%s+%d", auname, m_iPlus);
 		StrCat(szFrom, 128, auname);
 	}
-	
+*/	
 	switch(CG_GetClientVip(client))
 	{
 		case 3:
@@ -408,7 +408,7 @@ void Active_GiveSignCredits(int client)
 	int Credits = Math_GetRandomInt(1, 500);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
 	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01", PF_GLOBAL, client, Credits);
-	CG_ShowHiddenMotd(client, "https://csgogamers.com/music/voices.php?volume=65");
+	//CG_ShowHiddenMotd(client, "https://csgogamers.com/music/voices.php?volume=65");
 }
 /*
 stock void Active_GiveRandomItems(int client)

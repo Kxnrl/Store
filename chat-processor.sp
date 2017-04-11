@@ -162,7 +162,10 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 	}
 
 	if(!StrEqual(m_szFlag, m_szFlagCopy) && !GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, 256))
+	{
+		CloseHandle(m_hRecipients);
 		return Plugin_Continue;
+	}
 
 	if(StrEqual(m_szNameCopy, m_szName))
 		Format(m_szName, 128, "\x03%s", m_szName);
@@ -318,7 +321,7 @@ bool GenerateMessageFormats()
 			SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT", "(CT) {1} :  {2}");
 			SetTrieString(g_tMsgFmt, "Cstrike_Chat_T_Loc", "(TE) {1} :  {2}");
 			SetTrieString(g_tMsgFmt, "Cstrike_Chat_T", "(TE) {1} :  {2}");
-			SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT_Dead", "*DEAD*(TE) {1} :  {2}");
+			SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT_Dead", "*DEAD*(CT) {1} :  {2}");
 			SetTrieString(g_tMsgFmt, "Cstrike_Chat_T_Dead", "*DEAD*(TE) {1} :  {2}");
 			SetTrieString(g_tMsgFmt, "Cstrike_Chat_Spec", "(SPEC) {1} :  {2}");
 			SetTrieString(g_tMsgFmt, "Cstrike_Chat_All", " {1} :  {2}");
@@ -416,7 +419,7 @@ stock void ReplaceAllColors(char[] message, int maxLen)
 
 stock bool ChatToAll(const char[] flag)
 {
-	if(StrContains(flag, "_All") != -1)
+	if(StrContains(flag, "_All", false) != -1)
 		return true;
 
 	return false;
@@ -424,7 +427,7 @@ stock bool ChatToAll(const char[] flag)
 
 stock bool ChatFromDead(const char[] flag)
 {
-	if(StrContains(flag, "Dead") != -1)
+	if(StrContains(flag, "Dead", false) != -1)
 		return true;
 
 	return false;

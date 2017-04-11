@@ -432,26 +432,3 @@ public void SQL_TVoid(Handle db, char[] query)
 	ResetPack(data);
 	SQL_TQuery(db, SQLCallback_Void_PrintQuery, query, data);
 }
-
-public void SQLCallback_NoError(Handle owner, Handle hndl, const char[] error, any data)
-{
-}
-
-stock bool GetLegacyAuthString(int client, char[] out, int maxlen, bool validate = true)
-{
-	char m_szSteamID[32];
-	bool success = GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), validate);
-
-	if(m_szSteamID[0]=='[')
-	{
-		int m_unAccountID = StringToInt(m_szSteamID[5]);
-		int m_unMod = m_unAccountID % 2;
-		Format(out, maxlen, "STEAM_0:%d:%d", m_unMod, (m_unAccountID-m_unMod)/2);
-	}
-	else
-	{
-		strcopy(out, maxlen, m_szSteamID);
-	}
-
-	return success;
-}

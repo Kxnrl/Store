@@ -7,6 +7,7 @@ enum PlayerSkin
 {
 	String:szModel[PLATFORM_MAX_PATH],
 	String:szArms[PLATFORM_MAX_PATH],
+	String:szSound[PLATFORM_MAX_PATH],
 	iTeam
 }
 
@@ -15,10 +16,12 @@ PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 int g_iPlayerSkins = 0;
 int g_iPreviewTimes[MAXPLAYERS+1];
 int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-bool g_bHasPlayerskin[MAXPLAYERS+1];
+bool g_bDeathSound[MAXPLAYERS+1];
 
 void Skin_OnPluginStart()
 {
+	AddNormalSoundHook(Hook_NormalSound);
+
 	CheckGameItemsTxt();
 	
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
@@ -66,13 +69,14 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 	
 	KvGetString(kv, "model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
 	KvGetString(kv, "arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
+	KvGetString(kv, "sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
 
 #if defined Global_Skin
 	g_ePlayerSkins[g_iPlayerSkins][iTeam] = Global_Skin;
 #else
 	g_ePlayerSkins[g_iPlayerSkins][iTeam] = KvGetNum(kv, "team");
 #endif
-	
+
 	if(FileExists(g_ePlayerSkins[g_iPlayerSkins][szModel], true))
 	{
 		++g_iPlayerSkins;
@@ -84,6 +88,7 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 
 public void PlayerSkins_OnMapStart()
 {
+	char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
 	for(int i = 0; i < g_iPlayerSkins; ++i)
 	{
 		PrecacheModel2(g_ePlayerSkins[i][szModel], true);
@@ -93,6 +98,23 @@ public void PlayerSkins_OnMapStart()
 		{
 			PrecacheModel2(g_ePlayerSkins[i][szArms], true);
 			Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
+		}
+		
+		if(g_ePlayerSkins[i][szArms][0] != 0)
+		{
+			PrecacheModel2(g_ePlayerSkins[i][szArms], true);
+			Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
+		}
+
+		if(g_ePlayerSkins[i][szSound][0] != 0)
+		{
+			Format(szPath, 256, "sound/%s", g_ePlayerSkins[i][szSound]);
+			if(FileExists(szPath, true))
+			{
+				Format(szPathStar, 256, "*%s", g_ePlayerSkins[i][szSound]);
+				AddToStringTable(FindStringTable("soundprecache"), szPathStar);
+				Downloader_AddFileToDownloadsTable(szPath);
+			}
 		}
 	}
 
@@ -123,20 +145,27 @@ public int PlayerSkins_Remove(int client, int id)
 {
 	if(IsClientInGame(client))
 		tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
+	
+	g_bDeathSound[client] = false;
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
 
 void Store_PreSetClientModel(int client)
 {
-	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
+#if defined ZombieEscape
+	if(g_iClientTeam[client] != 3)
+		return;
+#endif
+	
+	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
 
 	if(m_iEquipped >= 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
-		if(StrContains(g_ePlayerSkins[m_iData][szModel], "cybertech") != -1 && CG_GetClientId(client) != 1)
-			CreateTimer(5.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
+		if(g_ePlayerSkins[m_iData][szSound][0] != 0)
+			g_bDeathSound[client] = true;
 	}
 #if defined ZombieEscape
 	else
@@ -160,13 +189,6 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 	char currentmodel[128];
 	GetEntPropString(client, Prop_Send, "m_szArmsModel", currentmodel, 128);
 
-#if defined ZombieEscape
-	if(!StrEqual(model, Model_ZE_Newbee))
-		g_bHasPlayerskin[client] = true;
-#else
-	g_bHasPlayerskin[client] = true;
-#endif
-
 	if(!StrEqual(arms, "null") && !StrEqual(currentmodel, arms))
 	{
 		if(!IsModelPrecached(arms))
@@ -179,6 +201,40 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 #endif
 }
 
+public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
+{
+	if(channel != SNDCHAN_VOICE || !(1 <= entity <= MaxClients) || !IsClientInGame(entity))
+		return Plugin_Continue;
+
+	if(!g_bDeathSound[entity])
+		return Plugin_Continue;
+
+	if	( 
+			StrEqual(sample, "player/death1.wav", false)||
+			StrEqual(sample, "player/death2.wav", false)||
+			StrEqual(sample, "player/death3.wav", false)||
+			StrEqual(sample, "player/death4.wav", false)||
+			StrEqual(sample, "player/death5.wav", false)
+		)
+		{
+			g_bDeathSound[entity] = false;
+			RequestFrame(BroadcastDeathSound, entity);
+			return Plugin_Stop;
+		}
+
+	return Plugin_Continue;
+}
+
+void BroadcastDeathSound(int client)
+{
+	if(!IsClientInGame(client))
+		return;
+
+	char szPath[128];
+	Format(szPath, 128, "*%s", g_ePlayerSkins[Store_GetDataIndex(Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2))][szSound]);
+	EmitSoundToAll(szPath, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, client);
+}
+
 public Action Timer_SetPlayerArms(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
@@ -187,7 +243,7 @@ public Action Timer_SetPlayerArms(Handle timer, int userid)
 		return Plugin_Stop;
 
 #if defined ZombieEscape
-	if(GetClientTeam(client) != 3)
+	if(g_iClientTeam[client] != 3)
 		return Plugin_Stop;
 #endif
 
@@ -284,9 +340,6 @@ void Store_PreviewSkin(int client, int itemid)
 	
 	SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
 
-	//SetVariantString("run_upper_knife");
-
-	//AcceptEntityInput(m_iViewModel, "SetAnimation");
 	AcceptEntityInput(m_iViewModel, "Enable");
 
 	int offset = GetEntSendPropOffs(m_iViewModel, "m_clrGlow");

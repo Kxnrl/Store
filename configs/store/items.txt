@@ -6,6 +6,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku_arms.mdl"
+			"sound"		"maoling/deathsound/miku.mp3"
 			"team"		"3"
 			"buyable"	"0"
 			"giftable"	"0"
@@ -17,6 +18,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito.mdl"
 			"arms"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito_arms.mdl"
+			"sound"		"maoling/deathdsound/kirito.mp3"
 			"team"		"2"
 			"buyable"	"0"
 			"giftable"	"0"
@@ -27,6 +29,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/commander/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kotori/commander/kotori_arms.mdl"
+			"sound"		"maoling/deathsound/kotori.mp3"
 			"team"		"2"
 			"buyable"	"0"
 			"giftable"	"0"
@@ -37,6 +40,18 @@
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/spirit/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kotori/spirit/kotori_arms.mdl"
+			"sound"		"maoling/deathsound/kotori.mp3"
+			"team"		"2"
+			"buyable"	"0"
+			"giftable"	"0"
+			"price"		"99999"
+			"type"		"playerskin"
+		}
+		"百万亚瑟王(Million.Arthur)"
+		{
+			"model"		"models/player/custom_player/maoling/neptunia/Million_Arthur/swimwear/million.mdl"
+			"arms"		"models/player/custom_player/maoling/neptunia/Million_Arthur/swimwear/million_arms.mdl"
+			"sound"		"maoling/deathsound/million.mp3"
 			"team"		"2"
 			"buyable"	"0"
 			"giftable"	"0"
@@ -74,6 +89,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/touhou/momiji/momiji.mdl"
 			"arms"		"models/player/custom_player/maoling/touhou/momiji/momiji_arms.mdl"
+			"sound"		"maoling/deathsound/momiji.mp3"
 			"team"		"2"
 			"buyable"	"0"
 			"price"		"99999"
@@ -83,6 +99,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou_arms.mdl"
+			"sound"		"maoling/deathsound/hoppou.mp3"
 			"team"		"2"
 			"buyable"	"0"
 			"price"		"99999"
@@ -92,6 +109,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/histoire/normal/histoire.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/histoire/normal/histoire_arms.mdl"
+			"sound"		"maoling/deathsound/histoire.mp3"
 			"team"		"3"
 			"buyable"	"0"
 			"price"		"99999"
@@ -101,6 +119,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/fairyfancyf/tiara/tiara.mdl"
 			"arms"		"models/player/custom_player/maoling/fairyfancyf/tiara/tiara_arms.mdl"
+			"sound"		"maoling/deathsound/tiara.mp3"
 			"team"		"3"
 			"buyable"	"0"
 			"price"		"99999"
@@ -110,6 +129,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/luka/punk/luka.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/luka/punk/luka_arms.mdl"
+			"sound"		"maoling/deathsound/luka.mp3"
 			"team"		"3"
 			"buyable"	"0"
 			"price"		"99999"
@@ -127,6 +147,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart_arms.mdl"
+			"sound"		"maoling/deathsound/purpleheart.mp3"
 			"team"		"2"
 			"flag"		"t"
 			"type"		"playerskin"
@@ -145,6 +166,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_nothruster.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_nothruster_arms.mdl"
+			"sound"		"maoling/deathsound/purpleheart.mp3"
 			"team"		"2"
 			"compose"	"1"
 			"buyable"	"0"
@@ -155,6 +177,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune_arms.mdl"
+			"sound"		"maoling/deathsound/neptune.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -179,6 +202,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune_arms.mdl"
+			"sound"		"maoling/deathsound/neptune.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -227,6 +251,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/blanc/normal/blanc.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/blanc/normal/blanc_arms.mdl"
+			"sound"		"maoling/deathsound/blanc.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -275,6 +300,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/guilty_crown/inori_v2/inori.mdl"
 			"arms"		"models/player/custom_player/maoling/guilty_crown/inori_v2/inori_arms.mdl"
+			"sound"		"maoling/deathsound/inori.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -299,6 +325,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/misc/banana_joe/banana_joe.mdl"
 			"arms"		"models/player/custom_player/maoling/misc/banana_joe/banana_joe_arms.mdl"
+			"sound"		"maoling/deathsound/banana_joe.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -323,6 +350,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/tohka/spirit/tohka.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/tohka/spirit/tohka_arms.mdl"
+			"sound"		"maoling/deathsound/tohka.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -347,6 +375,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kurumi/spirit/kurumi.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kurumi/spirit/kurumi_arms.mdl"
+			"sound"		"maoling/deathsound/kurumi.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -371,6 +400,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/touhou/remilia_scarlet/remilia_scarlet.mdl"
 			"arms"		"models/player/custom_player/maoling/touhou/remilia_scarlet/remilia_scarlet_arms.mdl"
+			"sound"		"maoling/deathsound/remilia_scarlet.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -395,6 +425,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/touhou/flandre_scarlet/flandre_scarlet.mdl"
 			"arms"		"models/player/custom_player/maoling/touhou/flandre_scarlet/flandre_scarlet_arms.mdl"
+			"sound"		"maoling/deathsound/flandre_scarlet.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -419,6 +450,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/seirei_tsukai_no_blade_dance/terminus_est/terminus_est.mdl"
 			"arms"		"models/player/custom_player/maoling/seirei_tsukai_no_blade_dance/terminus_est/terminus_est_arms.mdl"
+			"sound"		"maoling/deathsound/terminus.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -443,6 +475,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/shimakaze/shimakaze.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/shimakaze/shimakaze_arms.mdl"
+			"sound"		"maoling/deathsound/shimakaze.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -467,6 +500,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/haipa/haipa.mdl"
 			"arms"		"models/player/custom_player/maoling/haipa/haipa_arms.mdl"
+			"sound"		"maoling/deathsound/banana_joe.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -491,6 +525,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/school/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kotori/school/kotori_arms.mdl"
+			"sound"		"maoling/deathsound/kotori.mp3"
 			"team"		"2"
 			"Plans"
 			{
@@ -539,6 +574,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/uni/normal/uni.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/uni/normal/uni_arms.mdl"
+			"sound"		"maoling/deathsound/uni.mp3"
 			"team"		"3"
 			"Plans"
 			{
@@ -563,6 +599,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/adult_neptune/normal/neptune.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/adult_neptune/normal/neptune_arms.mdl"
+			"sound"		"maoling/deathsound/neptune.mp3"
 			"team"		"3"
 			"Plans"
 			{
@@ -635,6 +672,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/noire/normal/noire.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/noire/normal/noire_arms.mdl"
+			"sound"		"maoling/deathsound/noire.mp3"
 			"team"		"3"
 			"Plans"
 			{
@@ -659,6 +697,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/yoshino/spirit/yoshino.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/yoshino/spirit/yoshino_arms.mdl"
+			"sound"		"maoling/deathsound/yoshino.mp3"
 			"team"		"3"
 			"Plans"
 			{
@@ -683,6 +722,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/tda/miku.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/tda/miku_arms.mdl"
+			"sound"		"maoling/deathsound/miku.mp3"
 			"team"		"3"
 			"Plans"
 			{
@@ -707,6 +747,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/magnet/miku.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/magnet/miku_arms.mdl"
+			"sound"		"maoling/deathsound/miku.mp3"
 			"team"		"3"
 			"Plans"
 			{
@@ -731,6 +772,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/misc/rikka/rikka.mdl"
 			"arms"		"models/player/custom_player/maoling/misc/rikka/rikka_arms.mdl"
+			"sound"		"maoling/deathsound/rikka.mp3"
 			"team"		"3"
 			"Plans"
 			{
@@ -755,6 +797,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/black_rock_shooter/brs/brs.mdl"
 			"arms"		"models/player/custom_player/maoling/black_rock_shooter/brs/brs_arms.mdl"
+			"sound"		"maoling/deathsound/brs.mp3"
 			"team"		"3"
 			"Plans"
 			{
@@ -779,6 +822,7 @@
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/amatsukaze/amatsukaze.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/amatsukaze/amatsukaze_arms.mdl"
+			"sound"		"maoling/deathsound/amatsukaze.mp3"
 			"team"		"3"
 			"Plans"
 			{

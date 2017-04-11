@@ -70,22 +70,16 @@ public void CG_OnRoundEnd(int winner)
 public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	
+
 	if(IsFakeClient(client))
 		return Plugin_Continue;
-	
+
 	RequestFrame(OnClientSpawn, client);
 
 #if defined Module_Skin
-	g_bHasPlayerskin[client] = false;
-
-	Timer_KillPreview(INVALID_HANDLE, client);
-
-	if(g_iClientTeam[client] == 3)
-		return Plugin_Continue;
-
 	Store_PreSetClientModel(client);
 	CreateTimer(1.0, Timer_SetPlayerArms, GetClientUserId(client));
+	CreateTimer(0.0, Timer_KillPreview, client);
 #endif
 
 	return Plugin_Continue;
@@ -146,8 +140,18 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 		Store_RemoveClientTrail(client, i);
 #endif
 	}
-	
+
 	return Plugin_Continue;
+}
+
+public int ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool respawnOverride, bool respawn)
+{
+	g_iClientTeam[client] = 2;
+
+#if defined Module_Hats
+	for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+		Store_RemoveClientHats(client, i);
+#endif
 }
 
 public void CG_OnClientTeam(int client)
@@ -157,10 +161,10 @@ public void CG_OnClientTeam(int client)
 
 public void OnClientTeam(int client)
 {
-	if(!IsClientInGame(client) || IsFakeClient(client))
+	if(!IsClientInGame(client))
 		return;
-	
-	g_iClientTeam[client] == GetClientTeam(client);
+
+	g_iClientTeam[client] = GetClientTeam(client);
 
 #if defined TeamArms
 	if(IsPlayerAlive(client))

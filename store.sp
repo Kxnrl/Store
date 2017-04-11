@@ -15,8 +15,6 @@
 #include <clientprefs>
 #include <chat-processor>
 #include <fpvm_interface>
-#include <csc>
-
 
 //////////////////////////////
 //		DEFINITIONS			//
@@ -24,12 +22,12 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.5 - 2017/04/03 05:52"
+#define PLUGIN_VERSION "1.5.1 - 2017/04/12 02:39"
 #define PLUGIN_URL ""
 
 // Costom
-#define CurrentMode KZ
-//#define Global_Skin	2	//skin does not match with team
+#define CurrentMode HZ
+//#define Global_Skin	3	//skin does not match with team
 //#define ZombieEscape	//zombie escape server
 //#define TeamArms		//fix arms when client team
 //#define AllowHide		//Enable hide mode
@@ -88,12 +86,12 @@ char g_szTempole[128];
 
 // global modules
 #include "store/players.sp"
-//#include "store/grenades.sp"
+#include "store/grenades.sp"
 #include "store/cpsupport.sp"
 #include "store/sprays.sp"
 #include "store/models.sp"
-#include "store/sounds.sp"
-#include "store/tpmode.sp"
+//#include "store/sounds.sp"
+//#include "store/tpmode.sp"
 
 
 //////////////////////////////////
@@ -190,17 +188,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_SaveClientAll", Native_SaveClientAll);
 	CreateNative("Store_GetClientID", Native_GetClientID);
 	CreateNative("Store_IsClientBanned", Native_IsClientBanned);
-	CreateNative("Store_HasClientPlayerSkin", Native_HasClientPlayerSkin);
-	CreateNative("Store_GetClientPlayerSkin", Native_GetClientPlayerSkin);
-	CreateNative("Store_ResetPlayerSkin", Native_ResetPlayerSkin);
 	CreateNative("Store_ResetPlayerArms", Native_ResetPlayerArms);
 
 	MarkNativeAsOptional("FPVMI_SetClientModel");
 	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
-	
-	MarkNativeAsOptional("CG_Broadcast");
 
 	g_bLateLoad = late;
 
@@ -293,49 +286,6 @@ public int Native_GetClientID(Handle myself, int numParams)
 public int Native_IsClientBanned(Handle myself, int numParams)
 {
 	return g_eClients[GetNativeCell(1)][bBan];
-}
-
-public int Native_HasClientPlayerSkin(Handle myself, int numParams)
-{
-#if defined Module_Skin
-	int client = GetNativeCell(1);
-	if(IsClientInGame(client))
-		return g_bHasPlayerskin[client];
-	else
-		return false;
-#else
-	return false;
-#endif
-}
-
-public int Native_GetClientPlayerSkin(Handle myself, int numParams)
-{
-#if defined Module_Skin
-	int client = GetNativeCell(1);
-
-	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
-
-	if(m_iEquipped >= 0)
-	{
-		int m_iData = Store_GetDataIndex(m_iEquipped);
-		if(SetNativeString(2, g_ePlayerSkins[m_iData][szModel], GetNativeCell(3)) != SP_ERROR_NONE)
-			ThrowNativeError(SP_ERROR_NATIVE, "Can not return Player Skin.");
-	}
-	else
-		SetNativeString(2, "none", GetNativeCell(3));
-#else
-	if(SetNativeString(2, "none", GetNativeCell(3)) != SP_ERROR_NONE)
-		ThrowNativeError(SP_ERROR_NATIVE, "Can not return Player Skin.");
-#endif
-}
-
-public int Native_ResetPlayerSkin(Handle myself, int numParams)
-{
-#if defined Module_Skin
-	int client = GetNativeCell(1);
-	if(client && IsClientInGame(client) && IsPlayerAlive(client))
-		Store_PreSetClientModel(client);
-#endif
 }
 
 public int Native_ResetPlayerArms(Handle myself, int numParams)
@@ -1725,7 +1675,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 		int m_iTime = GetTime();
 		g_eClients[client][iUserId] = userid;
 		g_eClients[client][iItems] = -1;
-		GetLegacyAuthString(client, STRING(m_szSteamID), true);
+		GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), true);
 		strcopy(g_eClients[client][szAuthId], 32, m_szSteamID[8]);
 		if(KvJumpToKey(g_hKeyValue, m_szSteamID, true))
 		{
@@ -1912,7 +1862,7 @@ void Store_LoadClientInventory(int client)
 	char m_szQuery[512];
 	char m_szAuthId[32];
 
-	GetLegacyAuthString(client, STRING(m_szAuthId), true);
+	GetClientAuthId(client, AuthId_Steam2, STRING(m_szAuthId), true);
 	if(m_szAuthId[0] == 0)
 		return;
 
@@ -2185,7 +2135,6 @@ void Store_ComposeItem(int client)
 	tPrintToChat(client, "Compose successfully", client, g_eItems[g_iSelectedItem[client]][szName]);
 	
 	tPrintToChatAll("\x0C%N\x04成功合成了皮肤\x10%s", client, g_eItems[g_iSelectedItem[client]][szName]);
-	BroadcastComposeItem(client, g_eItems[g_iSelectedItem[client]][szName]);
 	
 	CG_ShowHiddenMotd(client, "https://csgogamers.com/music/voices.php?volume=100");       
 }
@@ -2757,19 +2706,6 @@ public Action Timer_KickClient(Handle timer, int userid)
 	KickClient(client, "STEAM AUTH ERROR");
 	
 	return Plugin_Stop;
-}
-
-void BroadcastComposeItem(int client, const char[] item)
-{
-	if(GetFeatureStatus(FeatureType_Native, "CG_Broadcast") != FeatureStatus_Available)
-		return;
-	
-	char content[256];
-	Format(content, 256, " \x01[\x04Store\x01]  \x0C%N\x04成功合成了皮肤\x10%s", client, item);
-	ReplaceString(content, 256, "[通用]", "");
-	ReplaceString(content, 256, "[CT]", "");
-	ReplaceString(content, 256, "[TE]", "");
-	CG_Broadcast(true, content);
 }
 
 stock bool Store_IsPlayerTP(int client)

@@ -224,21 +224,11 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 	//for(int i = 0; i < iNumRecipients; i++)
 	//	iRecipients[i] = GetArrayCell(m_hRecipients, i);
 
-	char m_szBuffer[512];
-	strcopy(m_szBuffer, 512, m_szFmt);
-
-	ReplaceString(m_szBuffer, 512, "{1} :  {2}", "{1} {normal}:  {2}");
-	ReplaceString(m_szBuffer, 512, "{1}", m_szName);
-	ReplaceString(m_szBuffer, 512, "{2}", m_szMsg);
-
-	ReplaceAllColors(m_szBuffer, 512);
-
 	int target_list[MAXPLAYERS+1], target_count;
-	bool m_bChatAll = GetChatType(m_szFlag);
 
-	if(IsPlayerAlive(m_iSender) || g_iTeam[m_iSender] == TEAM_SPEC)
+	if(!ChatFromDead(m_szFlag) || g_iTeam[m_iSender] == TEAM_SPEC)
 	{
-		if(m_bChatAll)
+		if(ChatToAll(m_szFlag))
 		{
 			for(int i = 1; i <= MaxClients; ++i)
 				if(IsClientInGame(i) && !IsFakeClient(i))
@@ -255,7 +245,7 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 	{
 		if(g_bDeathChat)
 		{
-			if(m_bChatAll)
+			if(ChatToAll(m_szFlag))
 			{
 				for(int i = 1; i <= MaxClients; ++i)
 					if(IsClientInGame(i) && !IsFakeClient(i))
@@ -270,7 +260,7 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 		}
 		else
 		{
-			if(m_bChatAll)
+			if(ChatToAll(m_szFlag))
 			{
 				for(int i = 1; i <= MaxClients; ++i)
 					if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i))
@@ -284,6 +274,15 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 			}
 		}
 	}
+	
+	char m_szBuffer[512];
+	strcopy(m_szBuffer, 512, m_szFmt);
+
+	ReplaceString(m_szBuffer, 512, "{1} :  {2}", "{1} {normal}:  {2}");
+	ReplaceString(m_szBuffer, 512, "{1}", m_szName);
+	ReplaceString(m_szBuffer, 512, "{2}", m_szMsg);
+	
+	ReplaceAllColors(m_szBuffer, 512);
 
 	Handle bf = StartMessageEx(MsgId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
 	PbSetInt(bf, "ent_idx", m_iSender);
@@ -408,38 +407,24 @@ stock void ReplaceAllColors(char[] message, int maxLen)
 	ReplaceString(message, maxLen, "{grey}", "\x08", false);
 	ReplaceString(message, maxLen, "{olive}", "\x09", false);
 	ReplaceString(message, maxLen, "{orange}", "\x10", false);
-	ReplaceString(message, maxLen, "{silver}", "\x0A", false);
+	ReplaceString(message, maxLen, "{silver}", "\x0A", false); 
 	ReplaceString(message, maxLen, "{lightblue}", "\x0B", false);
 	ReplaceString(message, maxLen, "{blue}", "\x0C", false);
 	ReplaceString(message, maxLen, "{purple}", "\x0E", false);
 	ReplaceString(message, maxLen, "{darkorange}", "\x0F", false);
 }
 
-stock void SayText2(int client, char[] message, int author, bool chat = true)
-{
-	Handle hMsg = StartMessageOne("SayText2", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
-	if(GetUserMessageType() == UM_Protobuf)
-	{
-		PbSetInt(hMsg, "ent_idx", author);
-		PbSetBool(hMsg, "chat", chat);
-		PbSetString(hMsg, "msg_name", message);
-		PbAddString(hMsg, "params", "");
-		PbAddString(hMsg, "params", "");
-		PbAddString(hMsg, "params", "");
-		PbAddString(hMsg, "params", "");
-	}
-	else
-	{
-		BfWriteByte(hMsg, author);
-		BfWriteByte(hMsg, chat);
-		BfWriteString(hMsg, message);
-	}
-	EndMessage();
-}
-
-stock bool GetChatType(const char[] flag)
+stock bool ChatToAll(const char[] flag)
 {
 	if(StrContains(flag, "_All") != -1)
+		return true;
+
+	return false;
+}
+
+stock bool ChatFromDead(const char[] flag)
+{
+	if(StrContains(flag, "Dead") != -1)
 		return true;
 
 	return false;

@@ -26,9 +26,9 @@
 #define PLUGIN_URL ""
 
 // Costom
-#define CurrentMode HZ
-//#define Global_Skin	3	//skin does not match with team
-//#define ZombieEscape	//zombie escape server
+#define CurrentMode ZE
+#define Global_Skin	3	//skin does not match with team
+#define ZombieEscape	//zombie escape server
 //#define TeamArms		//fix arms when client team
 //#define AllowHide		//Enable hide mode
 
@@ -90,8 +90,8 @@ char g_szTempole[128];
 #include "store/cpsupport.sp"
 #include "store/sprays.sp"
 #include "store/models.sp"
-//#include "store/sounds.sp"
-//#include "store/tpmode.sp"
+#include "store/sounds.sp"
+#include "store/tpmode.sp"
 
 
 //////////////////////////////////

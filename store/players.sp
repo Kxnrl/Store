@@ -74,18 +74,18 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 	if(IsFakeClient(client))
 		return Plugin_Continue;
 
-	RequestFrame(OnClientSpawn, client);
+	RequestFrame(OnClientSpawnPost, client);
 
 #if defined Module_Skin
+	g_szDeathVoice[client][0] = '\0';
 	Store_PreSetClientModel(client);
-	CreateTimer(1.0, Timer_SetPlayerArms, GetClientUserId(client));
 	CreateTimer(0.0, Timer_KillPreview, client);
 #endif
 
 	return Plugin_Continue;
 }
 
-public void OnClientSpawn(int client)
+public void OnClientSpawnPost(int client)
 {
 	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 		return;
@@ -154,23 +154,20 @@ public int ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool
 #endif
 }
 
-public void CG_OnClientTeam(int client)
+public void CG_OnClientTeam(int client, int oldteam, int newteam)
 {
-	RequestFrame(OnClientTeam, client);
+	g_iClientTeam[client] = newteam;
+	
+#if defined TeamArms
+	RequestFrame(OnClientTeamPost, client);
+#endif
 }
 
-public void OnClientTeam(int client)
+public void OnClientTeamPost(int client)
 {
-	if(!IsClientInGame(client))
+	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 		return;
 
-	g_iClientTeam[client] = GetClientTeam(client);
-
-#if defined TeamArms
-	if(IsPlayerAlive(client))
-	{
-		Store_PreSetClientModel(client);
-		CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
-	}
-#endif
+	Store_PreSetClientModel(client);
+	CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
 }

@@ -16,7 +16,7 @@ PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 int g_iPlayerSkins = 0;
 int g_iPreviewTimes[MAXPLAYERS+1];
 int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-bool g_bDeathSound[MAXPLAYERS+1];
+char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 void Skin_OnPluginStart()
 {
@@ -145,8 +145,6 @@ public int PlayerSkins_Remove(int client, int id)
 {
 	if(IsClientInGame(client))
 		tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
-	
-	g_bDeathSound[client] = false;
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
@@ -154,7 +152,7 @@ public int PlayerSkins_Remove(int client, int id)
 void Store_PreSetClientModel(int client)
 {
 #if defined ZombieEscape
-	if(g_iClientTeam[client] != 3)
+	if(g_iClientTeam[client] == 2)
 		return;
 #endif
 	
@@ -165,7 +163,7 @@ void Store_PreSetClientModel(int client)
 		int m_iData = Store_GetDataIndex(m_iEquipped);
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
 		if(g_ePlayerSkins[m_iData][szSound][0] != 0)
-			g_bDeathSound[client] = true;
+			Format(g_szDeathVoice[client], PLATFORM_MAX_PATH, "*%s", g_ePlayerSkins[m_iData][szSound]);
 	}
 #if defined ZombieEscape
 	else
@@ -178,18 +176,12 @@ void Store_PreSetClientModel(int client)
 
 void Store_SetClientModel(int client, const char[] model, const char[] arms = "null")
 {
-	if(!StrEqual(arms, "null"))
-		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
-	
 	if(!IsModelPrecached(model))
 		PrecacheModel2(model, true);
 
 	SetEntityModel(client, model);
 
-	char currentmodel[128];
-	GetEntPropString(client, Prop_Send, "m_szArmsModel", currentmodel, 128);
-
-	if(!StrEqual(arms, "null") && !StrEqual(currentmodel, arms))
+	if(!StrEqual(arms, "null"))
 	{
 		if(!IsModelPrecached(arms))
 			PrecacheModel2(arms, true);
@@ -201,12 +193,17 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 #endif
 }
 
-public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
+public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-	if(channel != SNDCHAN_VOICE || !(1 <= entity <= MaxClients) || !IsClientInGame(entity))
+	if(channel != SNDCHAN_VOICE || !(1 <= client <= MaxClients) || !IsClientInGame(client))
 		return Plugin_Continue;
-
-	if(!g_bDeathSound[entity])
+	
+#if defined ZombieEscape
+	if(g_iClientTeam[client] == 2)
+		return Plugin_Continue;
+#endif
+	
+	if(g_szDeathVoice[client][0] == '\0')
 		return Plugin_Continue;
 
 	if	( 
@@ -217,8 +214,7 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
 			StrEqual(sample, "player/death5.wav", false)
 		)
 		{
-			g_bDeathSound[entity] = false;
-			RequestFrame(BroadcastDeathSound, entity);
+			RequestFrame(BroadcastDeathSound, client);
 			return Plugin_Stop;
 		}
 
@@ -230,26 +226,7 @@ void BroadcastDeathSound(int client)
 	if(!IsClientInGame(client))
 		return;
 
-	char szPath[128];
-	Format(szPath, 128, "*%s", g_ePlayerSkins[Store_GetDataIndex(Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2))][szSound]);
-	EmitSoundToAll(szPath, client, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, client);
-}
-
-public Action Timer_SetPlayerArms(Handle timer, int userid)
-{
-	int client = GetClientOfUserId(userid);
-	
-	if(!client || !IsPlayerAlive(client))
-		return Plugin_Stop;
-
-#if defined ZombieEscape
-	if(g_iClientTeam[client] != 3)
-		return Plugin_Stop;
-#endif
-
-	Store_PreSetClientModel(client);
-
-	return Plugin_Stop;
+	EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, client);
 }
 
 public Action Timer_FixPlayerArms(Handle timer, int userid)

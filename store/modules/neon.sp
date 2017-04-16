@@ -10,7 +10,7 @@ enum Neon
 
 Neon g_eNeons[STORE_MAX_ITEMS][Neon];
 int g_iNeons = 0;
-int g_iClientNeon[MAXPLAYERS+1];
+int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 
 public int Neon_Config(Handle &kv, int itemid) 
 { 
@@ -31,9 +31,7 @@ public void Neon_OnMapStart()
 public void Neon_OnClientDisconnect(int client)
 {
 	Store_RemoveClientNeon(client);
-	g_iClientNeon[client] = 0;
 }
-
 
 public void Neon_Reset()
 {
@@ -42,14 +40,15 @@ public void Neon_Reset()
 
 public int Neon_Equip(int client, int id)
 {
-	RequestFrame(NeonEquipDelay, client);
+	if(IsPlayerAlive(client))
+		Store_SetClientNeon(client);
+
 	return 0;
 }
 
 public int Neon_Remove(int client) 
 {
 	Store_RemoveClientNeon(client);
-	g_iClientNeon[client] = 0;
 	return 0; 
 }
 
@@ -63,31 +62,25 @@ public Action Hook_SetTransmit_Neon(int ent, int client)
 }
 #endif
 
-void NeonEquipDelay(int client)
-{
-	Store_SetClientNeon(client);
-}
-
 void Store_RemoveClientNeon(int client)
 {
-	if(g_iClientNeon[client] != 0)
+	if(g_iClientNeon[client] != INVALID_ENT_REFERENCE)
 	{
-		if(IsValidEdict(g_iClientNeon[client]))
+		int entity = EntRefToEntIndex(g_iClientNeon[client]);
+		if(IsValidEdict(entity))
 		{
 #if defined AllowHide
-			SDKUnhook(g_iClientNeon[client], SDKHook_SetTransmit, Hook_SetTransmit_Neon);
+			SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
 #endif
 			AcceptEntityInput(g_iClientNeon[client], "Kill");
 		}
-
-		g_iClientNeon[client] = 0;
+		g_iClientNeon[client] = INVALID_ENT_REFERENCE;
 	}
 }
 
 void Store_SetClientNeon(int client)
 {
-	if(g_iClientNeon[client] != 0)
-		Store_RemoveClientNeon(client);
+	Store_RemoveClientNeon(client);
 
 	int m_iEquipped = Store_GetEquippedItem(client, "neon", 0); 
 	if(m_iEquipped < 0) 
@@ -127,7 +120,7 @@ void Store_SetClientNeon(int client)
 		SetVariantString("!activator");
 		AcceptEntityInput(iNeon, "SetParent", client, iNeon, 0);
 		
-		g_iClientNeon[client] = iNeon;
+		g_iClientNeon[client] = EntIndexToEntRef(iNeon);
 
 #if defined AllowHide		
 		SDKHook(iNeon, SDKHook_SetTransmit, Hook_SetTransmit_Neon);

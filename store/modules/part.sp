@@ -1,14 +1,13 @@
 #define Module_Part
 
 int g_iParts = 0; 
-int g_iClientPart[MAXPLAYERS+1];
+int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 char g_szPartName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];  
 char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 public void Part_OnClientDisconnect(int client)
 {
 	Store_RemoveClientPart(client);
-	g_iClientPart[client] = 0;
 	g_szPartClient[client] = "";
 }
 
@@ -29,15 +28,16 @@ public int Part_Equip(int client, int id)
 {
 	g_szPartClient[client] = g_szPartName[Store_GetDataIndex(id)];
 
-	Store_SetClientPart(client);
+	if(IsPlayerAlive(client))
+		Store_SetClientPart(client);
 
 	return 0;
 }
 
 public int Part_Remove(int client) 
 {
-	g_szPartClient[client] = "";
 	Store_RemoveClientPart(client);
+	g_szPartClient[client] = "";
 
 	return 0; 
 }
@@ -50,36 +50,37 @@ public void Part_OnMapStart()
 
 void Store_RemoveClientPart(int client)
 {
-	if(g_iClientPart[client] != 0)
+	if(g_iClientPart[client] != INVALID_ENT_REFERENCE)
 	{
-		if(IsValidEdict(g_iClientPart[client]))
+		int entity = EntRefToEntIndex(g_iClientPart[client]);
+		if(IsValidEdict(entity))
 			AcceptEntityInput(g_iClientPart[client], "Kill");
-
-		g_iClientPart[client] = 0;
+		g_iClientPart[client] = INVALID_ENT_REFERENCE;
 	}
 }
 
 void Store_SetClientPart(int client)
 {
-	if(g_iClientPart[client] != 0)
-		Store_RemoveClientPart(client);
+	Store_RemoveClientPart(client);
 
 	if(!(strcmp(g_szPartClient[client], "", false) == 0))
 	{
 		float clientOrigin[3];
 		GetClientAbsOrigin(client, clientOrigin);
 
-		g_iClientPart[client] = CreateEntityByName("info_particle_system");
+		int iEnt = CreateEntityByName("info_particle_system");
 		
-		DispatchKeyValue(g_iClientPart[client], "start_active", "1");
-		DispatchKeyValue(g_iClientPart[client], "effect_name", g_szPartClient[client]);
-		DispatchSpawn(g_iClientPart[client]);
+		DispatchKeyValue(iEnt, "start_active", "1");
+		DispatchKeyValue(iEnt, "effect_name", g_szPartClient[client]);
+		DispatchSpawn(iEnt);
 		
-		TeleportEntity(g_iClientPart[client], clientOrigin, NULL_VECTOR,NULL_VECTOR);
+		TeleportEntity(iEnt, clientOrigin, NULL_VECTOR,NULL_VECTOR);
 		
-		ActivateEntity(g_iClientPart[client]);
+		ActivateEntity(iEnt);
 		
 		SetVariantString("!activator");
-		AcceptEntityInput(g_iClientPart[client], "SetParent", client, g_iClientPart[client], 0);
+		AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
+
+		g_iClientPart[client] = EntIndexToEntRef(iEnt);
 	}
 }

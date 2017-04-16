@@ -92,10 +92,7 @@ public Action Timer_RaffleItem(Handle timer)
 public void OnClientPostAdminCheck(int client)
 {
 	LookupPlayerGroups(client);
-	
-	if(g_hTimer[client] != INVALID_HANDLE)
-		KillTimer(g_hTimer[client]);
-	
+
 	g_hTimer[client] = CreateTimer(300.0, CreditTimer, client, TIMER_REPEAT);
 	
 	g_iNumPlayers = GetClientCount(true);
@@ -103,11 +100,11 @@ public void OnClientPostAdminCheck(int client)
 
 public void OnClientDisconnect(int client)
 {
-	g_bInBlackGroup[client] = false;
+	//g_bInBlackGroup[client] = false;
 	g_bInOfficalGroup[client] = false;
-	g_bInMimiGameGroup[client] = false;
-	g_bInZombieGroup[client] = false;
-	g_bInOpeatorGroup[client] = false;
+	//g_bInMimiGameGroup[client] = false;
+	//g_bInZombieGroup[client] = false;
+	//g_bInOpeatorGroup[client] = false;
 	g_bIsCheck[client] = false;
 	
 	if(g_hTimer[client] != INVALID_HANDLE)
@@ -118,33 +115,19 @@ public void OnClientDisconnect(int client)
 	g_iNumPlayers = GetClientCount(true);
 }
 
-public int ZE_GetClientGroupStats(int client)
-{
-	if(g_bInBlackGroup[client])
-		return -1;
-	
-	if(g_bInZombieGroup[client])
-		return 2;
-	
-	if(g_bInOfficalGroup[client])
-		return 1;
-	
-	return 0;
-}
-
 public void LookupPlayerGroups(int client)
 {
 	g_bIsCheck[client] = true;
 	
 	//Check CG Group
-	SteamWorks_GetUserGroupStatus(client, 103582791438550612);
-	SteamWorks_GetUserGroupStatus(client, 103582791437825710);
-	SteamWorks_GetUserGroupStatus(client, 103582791442277011);
-	SteamWorks_GetUserGroupStatus(client, 103582791456047719);
+	SteamWorks_GetUserGroupStatus(client, 103582791438550612); // OFFICAL GROUP
+	//SteamWorks_GetUserGroupStatus(client, 103582791437825710);
+	//SteamWorks_GetUserGroupStatus(client, 103582791442277011);
+	//SteamWorks_GetUserGroupStatus(client, 103582791456047719);
 	
 	//Check Blacklist
-	SteamWorks_GetUserGroupStatus(client, 103582791440276886); //bolilingmeng
-	SteamWorks_GetUserGroupStatus(client, 103582791439793469); //qinli802011
+	//SteamWorks_GetUserGroupStatus(client, 103582791440276886); //bolilingmeng
+	//SteamWorks_GetUserGroupStatus(client, 103582791439793469); //qinli802011
 }
 
 public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember, bool isOfficer)
@@ -167,28 +150,28 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
             {
 				if(groupid == 103582791438550612)
 					g_bInOfficalGroup[client] = true;
-				if(groupid == 103582791437825710)
-					g_bInMimiGameGroup[client] = true;
-				if(groupid == 103582791442277011)
-					g_bInOpeatorGroup[client] = true;
-				if(groupid == 103582791456047719)
-					g_bInZombieGroup[client] = true;
-				if(groupid == 103582791440276886)
-				{
-					g_bInBlackGroup[client] = true;
+				//if(groupid == 103582791437825710)
+				//	g_bInMimiGameGroup[client] = true;
+				//if(groupid == 103582791442277011)
+				//	g_bInOpeatorGroup[client] = true;
+				//if(groupid == 103582791456047719)
+				//	g_bInZombieGroup[client] = true;
+				//if(groupid == 103582791440276886)
+				//{
+				//	g_bInBlackGroup[client] = true;
 					//CreateTimer(3.0, Timer_HUD_1, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-				}
-				if(groupid == 103582791439793469)
-				{
-					g_bInBlackGroup[client] = true;
-					//CreateTimer(3.0, Timer_HUD_2, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-				}
+				//}
+				//if(groupid == 103582791439793469)
+				//{
+				//	g_bInBlackGroup[client] = true;
+				//	//CreateTimer(3.0, Timer_HUD_2, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+				//}
 				break;
 			}
 		}
 	}
 }
-
+/*
 public Action Timer_HUD_1(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
@@ -210,7 +193,7 @@ public Action Timer_HUD_2(Handle timer, int userid)
 
 	return Plugin_Continue;
 }
-
+*/
 public Action CreditTimer(Handle timer, int client)
 {
 	if(!IsClientInGame(client))
@@ -219,30 +202,62 @@ public Action CreditTimer(Handle timer, int client)
 		return Plugin_Stop;
 	}
 	
-	if(!(2 <= GetClientTeam(client) <= 3))
+	if(!g_bInOfficalGroup[client])
 	{
-		PrintToChat(client, "%s  \x07观察者无法获得信用点", PF_CREDITS);
-		return Plugin_Continue;
-	}
-
-	if(g_iNumPlayers < 6 && !FindPluginByFile("KZTimerGlobal.smx"))
-	{
-		PrintToChat(client, "%s  \x04玩家人数不足6人,不能获得在线奖励的信用点", PF_CREDITS);
-		return Plugin_Continue;
+		PrintToChat(client, "%s  \x07你尚未加入官方Steam组,不能通过游戏在线获得信用点", PF_CREDITS);
+		PrintToChat(client, "%s  \x04按Y输入\x07!group\x04即可加入官方组", PF_CREDITS);
+		g_hTimer[client] = INVALID_HANDLE;
+		return Plugin_Stop;
 	}
 
 	int m_iCredits = 0;
-	bool m_bGroupCreidts = false;
+	//bool m_bGroupCreidts = false;
 	char szFrom[128], szReason[128];
 	strcopy(szFrom, 128, "\x10[");
 	strcopy(szReason, 128, "store_credits[");
+	
+	int m_iVitality = CG_GetClientVitality(client);
+	if(m_iVitality)
+	{
+		StrCat(szReason, 128, " 热度");	
+		if(200 > m_iVitality >= 100)
+		{
+			m_iCredits += 2;
+			StrCat(szFrom, 128, "\x07热度+2");
+		}
+		else if(400 > m_iVitality >= 200)
+		{
+			m_iCredits += 3;
+			StrCat(szFrom, 128, "\x07热度+3");
+		}
+		else if(700 > m_iVitality >= 400)
+		{
+			m_iCredits += 4;
+			StrCat(szFrom, 128, "\x07热度+4");
+		}
+		else if(m_iVitality >= 700)
+		{
+			m_iCredits += 5;
+			StrCat(szFrom, 128, "\x07热度+5");
+		}
+		else if(m_iVitality >= 999)
+		{
+			m_iCredits += 6;
+			StrCat(szFrom, 128, "\x07热度+6");
+		}
+		else
+		{
+			m_iCredits += 1;
+			StrCat(szFrom, 128, "\x07热度+1");
+		}
+	}
 /*	
 	m_iCredits += 1;
 	StrCat(szFrom, 128, "\x04在线时间+1");
 	StrCat(szReason, 128, "在线时间 ");
+*/
 
 	int authid = CG_GetClientGId(client);
-	
 	if(authid > 0)
 	{
 		int m_iPlus = 0;
@@ -280,7 +295,7 @@ public Action CreditTimer(Handle timer, int client)
 			Format(auname, 32, "\x0A|\x0C%s+%d", auname, m_iPlus);
 		StrCat(szFrom, 128, auname);
 	}
-*/	
+
 	switch(CG_GetClientVip(client))
 	{
 		case 3:
@@ -296,7 +311,7 @@ public Action CreditTimer(Handle timer, int client)
 			StrCat(szReason, 128, " AVIP ");
 		}
 	}
-
+/*
 	if(g_bInMimiGameGroup[client] && !m_bGroupCreidts)
 	{
 		m_iCredits += 3;
@@ -312,52 +327,21 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szFrom, 128, "\x0A|\x06祈り~+2");
 		StrCat(szReason, 128, "祈り~");
 	}
-	
+*//*	
 	if(g_bInOfficalGroup[client] && !m_bGroupCreidts)
 	{				
 		m_bGroupCreidts = true;
 		m_iCredits += 3;
 		StrCat(szFrom, 128, "\x0A|\x06官方组+3");
 		StrCat(szReason, 128, "官方组");
-	}
-
+	}*/
+/*
 	if(g_bInOpeatorGroup[client] && GetUserFlagBits(client) & ADMFLAG_BAN)
 	{
 		m_iCredits += 3;
 		StrCat(szFrom, 128, "\x0A|\x10OP+3");
 		StrCat(szReason, 128, "OP");		
-	}
-	
-	int m_iVitality = CG_GetClientVitality(client);
-	if(m_iVitality)
-	{
-		StrCat(szReason, 128, " 热度");	
-		if(200 > m_iVitality >= 100)
-		{
-			m_iCredits += 1;
-			StrCat(szFrom, 128, "\x0A|\x07热度+1");
-		}
-		else if(400 > m_iVitality >= 200)
-		{
-			m_iCredits += 2;
-			StrCat(szFrom, 128, "\x0A|\x07热度+2");
-		}
-		else if(700 > m_iVitality >= 400)
-		{
-			m_iCredits += 3;
-			StrCat(szFrom, 128, "\x0A|\x07热度+3");
-		}
-		else if(m_iVitality >= 700)
-		{
-			m_iCredits += 4;
-			StrCat(szFrom, 128, "\x0A|\x07热度+4");
-		}
-		else if(m_iVitality == 1000)
-		{
-			m_iCredits += 5;
-			StrCat(szFrom, 128, "\x0A|\x07热度+5");
-		}
-	}
+	}*/
 /*	
 	if(g_bNightfever)
 	{
@@ -374,8 +358,8 @@ public Action CreditTimer(Handle timer, int client)
 	PrintToChat(client, "%s \x10你获得了\x04 %d 信用点", PF_CREDITS, m_iCredits);
 	PrintToChat(client, " \x0A积分来自%s", szFrom);
 	
-	if(!g_bInOfficalGroup[client])
-		PrintToChat(client, " \x04加入官方Steam组即可享受3倍在线积分");
+	//if(!g_bInOfficalGroup[client])
+	//	PrintToChat(client, " \x04加入官方Steam组即可享受3倍在线积分");
 
 	return Plugin_Continue;
 }

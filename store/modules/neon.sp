@@ -40,10 +40,15 @@ public void Neon_Reset()
 
 public int Neon_Equip(int client, int id)
 {
-	if(IsPlayerAlive(client))
-		Store_SetClientNeon(client);
+	RequestFrame(EquipNeon_Delay, client);
 
 	return 0;
+}
+
+public void EquipNeon_Delay(int client)
+{
+	if(IsClientInGame(client) && IsPlayerAlive(client))
+		Store_SetClientNeon(client);
 }
 
 public int Neon_Remove(int client) 
@@ -72,7 +77,7 @@ void Store_RemoveClientNeon(int client)
 #if defined AllowHide
 			SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
 #endif
-			AcceptEntityInput(g_iClientNeon[client], "Kill");
+			AcceptEntityInput(entity, "Kill");
 		}
 		g_iClientNeon[client] = INVALID_ENT_REFERENCE;
 	}

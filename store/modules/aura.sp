@@ -53,8 +53,8 @@ public int Aura_Equip(int client, int id)
 
 public int Aura_Remove(int client) 
 {
-	g_szAuraClient[client] = "";
 	Store_RemoveClientAura(client);
+	g_szAuraClient[client] = "";
 
 	return 0; 
 }
@@ -65,7 +65,7 @@ void Store_RemoveClientAura(int client)
 	{
 		int entity = EntRefToEntIndex(g_iClientAura[client]);
 		if(IsValidEdict(entity))
-			AcceptEntityInput(g_iClientAura[client], "Kill");
+			AcceptEntityInput(entity, "Kill");
 		g_iClientAura[client] = INVALID_ENT_REFERENCE;
 	}
 }

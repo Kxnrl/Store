@@ -54,7 +54,7 @@ void Store_RemoveClientPart(int client)
 	{
 		int entity = EntRefToEntIndex(g_iClientPart[client]);
 		if(IsValidEdict(entity))
-			AcceptEntityInput(g_iClientPart[client], "Kill");
+			AcceptEntityInput(entity, "Kill");
 		g_iClientPart[client] = INVALID_ENT_REFERENCE;
 	}
 }

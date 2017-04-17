@@ -49,24 +49,6 @@ void Players_OnClientDisconnect(int client)
 #endif
 }
 
-public void CG_OnRoundEnd(int winner)
-{
-	for(int client = 1; client <= MaxClients; ++client)
-	{
-#if defined Module_Aura
-		g_iClientAura[client] = 0;
-#endif
-
-#if defined Module_Neon
-		g_iClientNeon[client] = 0;
-#endif
-
-#if defined Module_Part
-		g_iClientPart[client] = 0;
-#endif
-	}
-}
-
 public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));

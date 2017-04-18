@@ -2,6 +2,18 @@
 {
 	"人物模型"
 	{
+		"NextBlack(Non-Thruster)"
+		{
+			"model"		"models/player/custom_player/maoling/neptunia/noire/nextform/nextblack_nothruster.mdl"
+			"arms"		"models/player/custom_player/maoling/neptunia/noire/nextform/nextblack_nothruster_arms.mdl"
+			"sound"		"maoling/deathsound/noire.mp3"
+			"team"		"3"
+			"compose"	"0"
+			"buyable"	"0"
+			"price"		"99999"
+			"type"		"playerskin"
+			"desc"		"次世代-诺瓦露: 该模型为二周年庆典模型"
+		}
 		"二宮飛鳥(Ninomiya Asuka)"
 		{
 			"model"		"models/player/custom_player/maoling/idolm@ster/ninomiya_asuka/ninomiya.mdl"
@@ -25,6 +37,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"二宮飛鳥: 《偶像大师》的中二偶像"
 		}
 		"大個子妮普褆努(Adult Neptune)"
 		{
@@ -50,6 +63,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"大个子妮普褆努: NeptuniaVII中的???"
 		}
 		"世嘉少女(HatsumiSega)"
 		{
@@ -74,6 +88,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"HatsumiSega: VS Sega Hard Girl中的女主角"
 		}
 		"Peter Animation Helper"
 		{
@@ -98,6 +113,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Peter28: CGAY社区原创人物"
 		}
 		"諾娃(Noire)"
 		{
@@ -123,6 +139,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Noire: NeptuniaVII中的黑色女神"
 		}
 		"四糸乃(Yoshino)"
 		{
@@ -148,6 +165,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Yoshino: 约炮大作战中的精灵"
 		}
 		"初音未来.TDA(Miku)"
 		{
@@ -173,6 +191,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Miku: Princess of CGAY Community"
 		}
 		"初音未来.和服(Miku)"
 		{
@@ -198,6 +217,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Miku: Princess of CGAY Community"
 		}
 		"小鸟游六花(Rikka)"
 		{
@@ -223,6 +243,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Rikka: 《中二病也要谈恋爱》中的女主角"
 		}
 		"黑岩射手(BRS)"
 		{
@@ -248,6 +269,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
 		}
 		"天津风(Amatsukaze)"
 		{
@@ -273,6 +295,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Amatsukaze: 舰队Collection中的角色"
 		}
 		"南小鸟(kotori)"
 		{
@@ -297,6 +320,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Kotori: LoveLive中的角色"
 		}
 		"响(Hikibi)"
 		{
@@ -321,6 +345,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Amatsukaze: 舰队Collection中的角色"
 		}
 		"弱音(Haku)"
 		{
@@ -345,6 +370,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
 		}
 		"妮普褆努.泳装(Neptune)"
 		{
@@ -370,6 +396,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"妮普褆努.泳装:  大个子妮普褆努的泳装版本"
 		}
 		"妮普褆努.夏日鮮黃(Neptune)"
 		{
@@ -395,6 +422,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"妮普褆努.夏日鮮黃: 妮普褆努的泳装DLC版本"
 		}
 		"拉姆(Ram)"
 		{
@@ -419,6 +447,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Ram: RE0中的角色"
 		}
 		"布蘭(Blanc)"
 		{
@@ -444,6 +473,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Blanc: NeptuniaVII中的白色女神"
 		}
 		"貝兒(Vert)"
 		{
@@ -468,6 +498,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Blanc: NeptuniaVII中的绿色女神"
 		}
 		"蝶祈(Inori)"
 		{
@@ -493,6 +524,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Inori: 《罪恶王冠》女主角"
 		}
 		"香蕉人"
 		{
@@ -518,6 +550,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
 		}
 		"夜刀神十香(Tohka)"
 		{
@@ -543,6 +576,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Tohka: 约炮大作战中的精灵"
 		}
 		"时崎狂三(Kurumi)"
 		{
@@ -568,6 +602,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
 		}
 		"蕾米莉亚(Remilia)"
 		{
@@ -593,6 +628,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
 		}
 		"芙兰朵露(Flandre)"
 		{
@@ -618,6 +654,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
 		}
 		"提露密努斯艾斯特(Terminus)"
 		{
@@ -643,6 +680,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Terminus: 《精灵使的剑舞》主要人物"
 		}
 		"岛风(Shimakaze)"
 		{
@@ -668,6 +706,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Shimakaze: 舰队Collection中的角色"
 		}
 		"害怕(滑稽)"
 		{
@@ -693,6 +732,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"滑稽: CGAY社区原创人物"
 		}
 		"琴里.校服(Kotori)"
 		{
@@ -718,6 +758,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Kotori: 约炮大作战中的精灵.校服版本"
 		}
 		"蕾姆(Rem)"
 		{
@@ -742,6 +783,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
 		}
 		"優尼(Uni)"
 		{
@@ -767,6 +809,7 @@
 				}
 			}
 			"type"		"playerskin"
+			"desc"		"Uni: NeptuniaVII中的黑色妹妹"
 		}
 		"CyberTech(Miku)"
 		{
@@ -779,6 +822,7 @@
 			"flag"		"z"
 			"price"		"999999999"
 			"type"		"playerskin"
+			"desc"		"Miku: Princess of Kyle. [个人专属模型]"
 		}
 		"桐子(Kirito)"
 		{
@@ -790,6 +834,7 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Kirito: Gaytuosi/GatTong. [个人专属模型]"
 		}
 		"琴里.指挥官(Kotori)"
 		{
@@ -801,6 +846,7 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Kotori: 约炮大作战中的精灵.指挥官版本.[泡面组专属]"
 		}
 		"琴里.灵装(kotori)"
 		{
@@ -812,6 +858,7 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Kotori: 约炮大作战中的精灵.灵装版本.[挂壁组专属]"
 		}
 		"百万亚瑟王(Million.Arthur)"
 		{
@@ -823,6 +870,7 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Arthur: NeptuniaVII中DLC人物,从哪出来的我也忘了.[祈组专属]"
 		}
 		"普魯魯特(Pururut)"
 		{
@@ -832,6 +880,7 @@
 			"buyable"	"0"
 			"price"		"3000"
 			"type"		"playerskin"
+			"desc"		"Pururut: 神次元中的紫色女神.[线下活动专属]"
 		}
 		"Re0.艾米莉亚(Emilia)"
 		{
@@ -841,6 +890,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Emilia: Re0中的女主角.[2017春节活动专属]"
 		}
 		"夕立(Yuudachi)"
 		{
@@ -850,6 +900,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Yuudachi: 舰队Collection中的角色.[①周年庆专属]"
 		}
 		"犬走椛(Momiji)"
 		{
@@ -860,6 +911,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Momiji: 东方Project的角色.[2015内测/公测活动专属]"
 		}
 		"北方栖姬(Hoppou)"
 		{
@@ -870,6 +922,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Hoppou: 舰队Collection中的角色.[矿场兑换模型]"
 		}
 		"希斯(Historie)"
 		{
@@ -880,6 +933,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Historie: NeptuneVII中的紫国??.[矿场兑换模型]"
 		}
 		"褆亞拉(Tiara)"
 		{
@@ -890,6 +944,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Tiara: FFF中的女主角.[矿场兑换模型]"
 		}
 		"巡音露卡.摇滚(Luka)"
 		{
@@ -900,6 +955,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Luka: 不想介绍.[Kz.Elite以上认证专属模型]"
 		}
 		"朝田诗乃(Shino) - SVIP免费使用"
 		{
@@ -908,6 +964,7 @@
 			"team"		"3"
 			"flag"		"t"
 			"type"		"playerskin"
+			"desc"		"氪金买年费/永久VIP就能免费用的模型"
 		}
 		"PupleHeart - SVIP免费使用"
 		{
@@ -916,7 +973,7 @@
 			"sound"		"maoling/deathsound/purpleheart.mp3"
 			"team"		"2"
 			"flag"		"t"
-			"type"		"playerskin"
+			"desc"		"氪金买年费/永久VIP就能免费用的模型"
 		}
 		"琪亚娜(Kiana)"
 		{
@@ -927,6 +984,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"Kiana: 崩坏手游中的XX.[合成限定模型]"
 		}
 		"NextPurple(Non-Thruster)"
 		{
@@ -938,6 +996,7 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
+			"desc"		"次世代-妮普褆努: 二次变身的?.[合成限定模型]"
 		}
 	}
 	"人物装饰品"

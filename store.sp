@@ -22,14 +22,14 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.5.4 - 2017/04/17 20:13"
+#define PLUGIN_VERSION "1.5.5 - 2017/04/19 06:16"
 #define PLUGIN_URL ""
 
 // Costom
-#define CurrentMode MG
-//#define Global_Skin	2	//skin does not match with team
-//#define ZombieEscape	//zombie escape server
-#define TeamArms		//fix arms when client team
+#define CurrentMode ZE
+#define Global_Skin	3	//skin does not match with team
+#define ZombieEscape	//zombie escape server
+//#define TeamArms		//fix arms when client team
 //#define AllowHide		//Enable hide mode
 
 
@@ -79,10 +79,10 @@ char g_szTempole[128];
 // player module
 #include "store/modules/hats.sp"
 #include "store/modules/skin.sp"
-#include "store/modules/neon.sp"
-#include "store/modules/aura.sp"
-#include "store/modules/part.sp"
-#include "store/modules/trail.sp"
+//#include "store/modules/neon.sp"
+//#include "store/modules/aura.sp"
+//#include "store/modules/part.sp"
+//#include "store/modules/trail.sp"
 
 // global modules
 #include "store/players.sp"
@@ -988,7 +988,7 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
 						}
 					}
 				}
-				
+
 				if(g_eItems[m_iId][iHandler] != g_iPackageHandler)
 				{
 					if(Store_HasClientItem(client, m_iId))
@@ -1033,6 +1033,8 @@ public void DisplayPreviewMenu(int client, int itemid)
 	SetMenuExitBackButton(m_hMenu, true);
 	
 	SetMenuTitle(m_hMenu, "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
+	
+	AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
 
 	if(g_eItems[itemid][bCompose])
 		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Preview Compose Available", client);
@@ -2298,6 +2300,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 {
 	char m_szType[32];
 	char m_szFlags[64];
+	char m_szDesc[64];
 	int m_iHandler;
 	bool m_bSuccess;
 
@@ -2359,10 +2362,14 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 					Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[CT] %s", g_eItems[g_iItems][szName]);
 #endif
 			}
-
+			
+			KvGetString(kv, "desc", STRING(m_szDesc), "");
 			KvGetString(kv, "flag", STRING(m_szFlags));
 			g_eItems[g_iItems][iFlagBits] = ReadFlagString(m_szFlags);
 			g_eItems[g_iItems][iHandler] = m_iHandler;
+			
+			if(m_szDesc[0] != '\0')
+				strcopy(g_eItems[g_iItems][szDesc], 64, m_szDesc);
 			
 			if(KvGetNum(kv, "unique_id", -1)==-1)
 				KvGetString(kv, g_eTypeHandlers[m_iHandler][szUniqueKey], g_eItems[g_iItems][szUniqueId], PLATFORM_MAX_PATH);
@@ -2382,28 +2389,6 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 				} while (KvGotoNextKey(kv));
 
 				g_eItems[g_iItems][iPlans]=index;
-
-				KvGoBack(kv);
-				KvGoBack(kv);
-			}
-
-			if(g_eItems[g_iItems][hAttributes])
-				CloseHandle(g_eItems[g_iItems][hAttributes]);
-			g_eItems[g_iItems][hAttributes] = INVALID_HANDLE;
-			if(KvJumpToKey(kv, "Attributes"))
-			{
-				g_eItems[g_iItems][hAttributes] = CreateTrie();
-
-				KvGotoFirstSubKey(kv, false);
-
-				char m_szAttribute[64];
-				char m_szValue[64];
-				do
-				{
-					KvGetSectionName(kv, STRING(m_szAttribute));
-					KvGetString(kv, NULL_STRING, STRING(m_szValue));
-					SetTrieString(g_eItems[g_iItems][hAttributes], m_szAttribute, m_szValue);
-				} while (KvGotoNextKey(kv, false));
 
 				KvGoBack(kv);
 				KvGoBack(kv);

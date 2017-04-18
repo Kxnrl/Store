@@ -18,6 +18,7 @@ enum Store_Item
 	String:szName[ITEM_NAME_LENGTH],
 	String:szUniqueId[PLATFORM_MAX_PATH],
 	String:szShortcut[64],
+	String:szDesc[64],
 	iId,
 	iPrice,
 	iParent,
@@ -29,7 +30,6 @@ enum Store_Item
 	bool:bIgnoreVIP,
 	bool:bGiftable,
 	bool:bCompose,
-	Handle:hAttributes
 }
 
 enum Type_Handler

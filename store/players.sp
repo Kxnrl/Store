@@ -100,6 +100,10 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 	if(IsFakeClient(client))
 		return Plugin_Continue;
 
+#if defined Module_Skin
+	FirstPersonDeathCamera(client);
+#endif
+
 #if defined Module_Aura
 	Store_RemoveClientAura(client);
 #endif

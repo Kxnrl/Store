@@ -16,7 +16,9 @@ PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 int g_iPlayerSkins = 0;
 int g_iPreviewTimes[MAXPLAYERS+1];
 int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+ConVar spec_freeze_time;
 
 void Skin_OnPluginStart()
 {
@@ -28,12 +30,25 @@ void Skin_OnPluginStart()
 
 	RegConsoleCmd("sm_arm", Command_Arm, "Draw Player Arms");
 	RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
+	
+	//DEATH CAMERA CCVAR
+	spec_freeze_time = FindConVar("spec_freeze_time");
+	HookConVarChange(spec_freeze_time, Skin_OnConVarChanged);
+}
+
+public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+	if(convar == spec_freeze_time)
+		SetConVarString(spec_freeze_time, "-1", true);
 }
 
 void Skin_OnClientDisconnect(int client)
 {
 	if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
 		CreateTimer(0.0, Timer_KillPreview, client);
+	
+	if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
+		CreateTimer(0.0, Timer_ClearCamera, client);
 }
 
 public Action Command_Arm(int client, int args)
@@ -367,7 +382,7 @@ public Action Hook_SetTransmit_Preview(int ent, int client)
 
 public Action Timer_KillPreview(Handle timer, int client)
 {
-	if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE && IsValidEntity(g_iPreviewModel[client]))
+	if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
 	{
 		int entity = EntRefToEntIndex(g_iPreviewModel[client]);
 	
@@ -377,13 +392,14 @@ public Action Timer_KillPreview(Handle timer, int client)
 			GetEntPropString(entity, Prop_Data, "m_iName", m_szName, 32);
 			if(StrContains(m_szName, "Store_Preview_", false) == 0)
 			{
-				SetEntProp(entity, Prop_Send, "m_bShouldGlow", false, true);
 				SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
 				AcceptEntityInput(entity, "Kill");
 			}
 		}
 	}
 	g_iPreviewModel[client] = INVALID_ENT_REFERENCE;
+	
+	return Plugin_Stop;
 }
 
 void CheckGameItemsTxt()
@@ -445,4 +461,101 @@ void CheckGameItemsTxt()
 public Action Timer_Shutdown(Handle timer)
 {
 	ServerCommand("quit");
+}
+
+void FirstPersonDeathCamera(int client)
+{
+	if(!IsClientInGame(client) || g_iClientTeam[client] < 2)
+		return;
+	
+	int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");	
+
+	if(m_iRagdoll < 0)
+		return;
+
+	SpawnCamAndAttach(client, m_iRagdoll);
+}
+
+bool SpawnCamAndAttach(int client, int ragdoll)
+{
+	char m_szModel[32];
+	Format(m_szModel, 32, "models/blackout.mdl"); //
+	PrecacheModel(m_szModel, true);
+
+	char m_szTargetName[32]; 
+	Format(m_szTargetName, 32, "ragdoll%d", client);
+	DispatchKeyValue(ragdoll, "targetname", m_szTargetName);
+
+	int iEntity = CreateEntityByName("prop_dynamic");
+	if(iEntity == -1)
+		return false;
+
+	char m_szCamera[32]; 
+	Format(m_szCamera, 32, "ragdollCam%d", iEntity);
+
+	DispatchKeyValue(iEntity, "targetname", m_szCamera);
+	DispatchKeyValue(iEntity, "parentname", m_szTargetName);
+	DispatchKeyValue(iEntity, "model",	  m_szModel);
+	DispatchKeyValue(iEntity, "solid",	  "0");
+	DispatchKeyValue(iEntity, "rendermode", "10"); // dont render
+	DispatchKeyValue(iEntity, "disableshadows", "1"); // no shadows
+
+	float m_fAngles[3]; 
+	GetClientEyeAngles(client, m_fAngles);
+	
+	char m_szCamAngles[64];
+	Format(m_szCamAngles, 64, "%f %f %f", m_fAngles[0], m_fAngles[1], m_fAngles[2]);
+
+	DispatchKeyValue(iEntity, "angles", m_szCamAngles);
+
+	SetEntityModel(iEntity, m_szModel);
+	DispatchSpawn(iEntity);
+
+	SetVariantString(m_szTargetName);
+	AcceptEntityInput(iEntity, "SetParent", iEntity, iEntity, 0);
+
+	SetVariantString("facemask");
+	AcceptEntityInput(iEntity, "SetParentAttachment", iEntity, iEntity, 0);
+
+	AcceptEntityInput(iEntity, "TurnOn");
+
+	SetClientViewEntity(client, iEntity);
+	g_iCameraRef[client] = EntIndexToEntRef(iEntity);
+	
+	//SDKHook(iEntity, SDKHook_SetTransmit, Hook_SetTransmit_Ragdoll);
+	
+	CreateTimer(5.0, Timer_ClearCamera, client);
+
+	return true;
+}
+/*
+public Action Hook_SetTransmit_Ragdoll(int entity, int client)
+{
+	return Plugin_Handled;
+}
+*/
+public Action Timer_ClearCamera(Handle timer, int client)
+{
+	if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
+	{
+		int entity = EntRefToEntIndex(g_iCameraRef[client]);
+
+		if(IsValidEdict(entity))
+		{
+			char m_szName[32];
+			GetEntPropString(entity, Prop_Data, "m_iName", m_szName, 32);
+			if(StrContains(m_szName, "ragdollCam", false) == 0)
+			{
+				//SDKUnhook(iEntity, SDKHook_SetTransmit, Hook_SetTransmit_Ragdoll);
+				AcceptEntityInput(entity, "Kill");
+			}
+		}
+
+		if(IsClientInGame(client))
+			SetClientViewEntity(client, client);
+	}
+
+	g_iCameraRef[client] = INVALID_ENT_REFERENCE;
+
+	return Plugin_Stop;
 }

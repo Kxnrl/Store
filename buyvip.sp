@@ -14,7 +14,7 @@ public Plugin myinfo =
 	version		= "1.0",
 	url			= "http://csgogamers.com"
 }
-
+/*
 Handle g_hDatabase = INVALID_HANDLE;
 
 public void CG_OnServerLoaded()
@@ -28,7 +28,7 @@ public Action Timer_Reconnect(Handle timer)
 {
 	CG_OnServerLoaded();
 }
-
+*/
 public void VIP_OnMapStart()
 {
 }
@@ -41,7 +41,7 @@ public bool VIP_Config(Handle &kv, int itemid)
 {
 	return true;
 }
-
+/*
 public void SQLCallback_BuyVIP(Handle db, Handle hndl, const char[] error, any userid)
 {
 	if(hndl==INVALID_HANDLE)
@@ -73,7 +73,7 @@ public void SQLCallback_BuyVIP(Handle db, Handle hndl, const char[] error, any u
 		Store_SetClientCredits(client, Store_GetClientCredits(client) + 16888, "购买一个月VIP失败退款");
 	}
 }
-
+*/
 public int VIP_Equip(int client, int id)
 {
 	if(Store_GetClientCredits(client) < 16888)
@@ -87,6 +87,10 @@ public int VIP_Equip(int client, int id)
 		CPrintToChat(client, "\x04[Store]  \x10你已经是VIP了");
 		return -1;
 	}
+	
+	CPrintToChat(client, "\x04[Store]  \x10当前不允许在游戏中购买VIP,请访问论坛");
+	
+	/*
 
 	char steamid[32], communityid[32];
 	GetClientAuthId(client, AuthId_Steam2, steamid, 32, true);
@@ -95,7 +99,7 @@ public int VIP_Equip(int client, int id)
 	char query[255];
 	Format(query, sizeof(query), "CALL buyvip1month(%s)", communityid);
 	SQL_TQuery(g_hDatabase, SQLCallback_BuyVIP, query, GetClientUserId(client));
-	Store_SetClientCredits(client, Store_GetClientCredits(client) - 16888, "购买一个月VIP");
+	Store_SetClientCredits(client, Store_GetClientCredits(client) - 16888, "购买一个月VIP");*/
 	return 0;
 }
 
@@ -106,6 +110,6 @@ public int VIP_Remove(int client)
 
 public void OnPluginStart()
 {
-	CG_OnServerLoaded();
+	//CG_OnServerLoaded();
 	Store_RegisterHandler("buyvip", "", VIP_OnMapStart, VIP_Reset, VIP_Config, VIP_Equip, VIP_Remove, false);
 }

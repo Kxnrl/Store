@@ -17,6 +17,7 @@ int g_iPlayerSkins = 0;
 int g_iPreviewTimes[MAXPLAYERS+1];
 int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+bool g_bSpecJoinPending[MAXPLAYERS+1];
 char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 
@@ -49,6 +50,9 @@ void Skin_OnClientDisconnect(int client)
 	
 	if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
 		CreateTimer(0.0, Timer_ClearCamera, client);
+	
+	if(g_bSpecJoinPending[client])
+		g_bSpecJoinPending[client] = false;
 }
 
 public Action Command_Arm(int client, int args)
@@ -558,4 +562,15 @@ public Action Timer_ClearCamera(Handle timer, int client)
 	g_iCameraRef[client] = INVALID_ENT_REFERENCE;
 
 	return Plugin_Stop;
+}
+
+void AttemptState(int client, bool spec)
+{
+	char client_specmode[10];
+	GetClientInfo(client, "cl_spec_mode", client_specmode, 9);
+	if(StringToInt(client_specmode) <= 4)
+	{
+		g_bSpecJoinPending[client] = spec;
+		ClientCommand(client, "cl_spec_mode 6");
+	}
 }

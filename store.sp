@@ -22,14 +22,14 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.5.6 - 2017/04/22 06:17"
+#define PLUGIN_VERSION "1.6 - 2017/04/22 06:28"
 #define PLUGIN_URL ""
 
 // Costom
-#define CurrentMode MG
+#define CurrentMode PR
 //#define Global_Skin	3	//skin does not match with team
 //#define ZombieEscape	//zombie escape server
-#define TeamArms		//fix arms when client team
+//#define TeamArms		//fix arms when client team
 //#define AllowHide		//Enable hide mode
 
 
@@ -77,21 +77,21 @@ char g_szTempole[128];
 //			MODULES			//
 //////////////////////////////
 // player module
-#include "store/modules/hats.sp"
-#include "store/modules/skin.sp"
-#include "store/modules/neon.sp"
-#include "store/modules/aura.sp"
-#include "store/modules/part.sp"
-#include "store/modules/trail.sp"
+//#include "store/modules/hats.sp"
+//#include "store/modules/skin.sp"
+//#include "store/modules/neon.sp"
+//#include "store/modules/aura.sp"
+//#include "store/modules/part.sp"
+//#include "store/modules/trail.sp"
 
 // global modules
-#include "store/players.sp"
-#include "store/grenades.sp"
+//#include "store/players.sp"
+//#include "store/grenades.sp"
 #include "store/cpsupport.sp"
-#include "store/sprays.sp"
-#include "store/models.sp"
-#include "store/sounds.sp"
-#include "store/tpmode.sp"
+//#include "store/sprays.sp"
+//#include "store/models.sp"
+//#include "store/sounds.sp"
+//#include "store/tpmode.sp"
 
 
 //////////////////////////////////

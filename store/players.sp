@@ -101,6 +101,7 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 		return Plugin_Continue;
 
 #if defined Module_Skin
+	AttemptState(client, false);
 	FirstPersonDeathCamera(client);
 #endif
 
@@ -147,7 +148,38 @@ public void CG_OnClientTeam(int client, int oldteam, int newteam)
 #if defined TeamArms
 	RequestFrame(OnClientTeamPost, client);
 #endif
+
+#if defined Module_Skin
+	if(!IsClientInGame(client) || IsFakeClient(client))
+		return;
+
+	if(oldteam != newteam && newteam == 1)
+		AttemptState(client, true);
+#endif
 }
+
+#if defined Module_Skin
+public void OnClientSettingsChanged(int client)
+{
+	if(!g_bSpecJoinPending[client])
+		return;
+
+	if(!IsClientInGame(client) || g_iClientTeam[client] == 1)
+	{
+		g_bSpecJoinPending[client] = false;
+		return;
+	}
+
+	char client_specmode[10];
+	GetClientInfo(client, "cl_spec_mode", client_specmode, 9);
+
+	if(StringToInt(client_specmode) > 4)
+	{
+		g_bSpecJoinPending[client] = false;
+		ChangeClientTeam(client, 1);
+	}
+}
+#endif
 
 public void OnClientTeamPost(int client)
 {

@@ -5,7 +5,8 @@
 //#include <store.item>
 #include <smlib/math>
 
-//#undef REQUIRE_PLUGIN
+#undef REQUIRE_PLUGIN
+#include <sourcebans>
 //#include <csc>
 
 #pragma newdecls required
@@ -126,6 +127,7 @@ public void LookupPlayerGroups(int client)
 	//SteamWorks_GetUserGroupStatus(client, 103582791456047719);
 	
 	//Check Blacklist
+	SteamWorks_GetUserGroupStatus(client, 103582791455638129); //4=1
 	//SteamWorks_GetUserGroupStatus(client, 103582791440276886); //bolilingmeng
 	//SteamWorks_GetUserGroupStatus(client, 103582791439793469); //qinli802011
 }
@@ -166,6 +168,12 @@ public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember
 				//	g_bInBlackGroup[client] = true;
 				//	//CreateTimer(3.0, Timer_HUD_2, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 				//}
+				if(groupid == 103582791455638129)
+				{
+					SBBanPlayer(0, client, 0, "CAT: 自动封禁4=1作弊狗");
+					return;
+				}
+
 				break;
 			}
 		}

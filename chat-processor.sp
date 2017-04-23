@@ -2,7 +2,7 @@
 #include <sdktools>
 #include <cg_core>
 
-#define TEAM_SPEC 3
+#define TEAM_SPEC 1
 
 UserMsg MsgId;
 Handle g_tMsgFmt;
@@ -12,20 +12,21 @@ bool g_bProto;
 bool g_bDeathChat;
 bool g_bChat[MAXPLAYERS+1];
 int g_iTeam[MAXPLAYERS+1];
+int g_iAuth[MAXPLAYERS+1];
 
 public Plugin myinfo =
 {
 	name		= "Chat-Processor",
 	author		= "Kyle",
 	description = "",
-	version		= "2.6 > CG Edition ver.5 - Include CSC",
+	version		= "2.7 > CG Edition ver.6 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
 public void OnPluginStart()
 {
 	g_tMsgFmt = CreateTrie();
-	
+
 	AddCommandListener(Command_Say, "say");
 	AddCommandListener(Command_Say, "say_team");
 
@@ -39,8 +40,6 @@ public void OnPluginStart()
 		HookUserMessage(MsgId, OnSayText2, true);
 		if(!GenerateMessageFormats())
 			SetFailState("Error loading Chat Format");
-		else
-			LogMessage("Hooking 'SayText2' chat messages, mode '%s'", g_bProto ? "Protobuf" : "BitBuf");
 	}
 	else
 		SetFailState("Error loading the plugin, both chat hooks are unavailable. (SayText2)");
@@ -54,19 +53,18 @@ public void OnAllPluginsLoaded()
 
 public void OnClientConnected(int client)
 {
+	g_iAuth[client] = -1;
 	g_bChat[client] = false;
 }
 
-public void CG_OnClientTeam(int client)
+public void CG_OnClientLoaded(int client)
 {
-	RequestFrame(OnClientTeam, client);
+	g_iAuth[client] = CG_GetClientId(client);
 }
 
-void OnClientTeam(int client)
+public void CG_OnClientTeam(int client, int oldteam, int newteam)
 {
-	if(!IsClientInGame(client))
-		return;
-	g_iTeam[client] = GetClientTeam(client);
+	g_iTeam[client] = newteam;
 }
 
 public Action Command_Say(int client, const char[] command, int argc)
@@ -183,7 +181,7 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 	WritePackCell(hPack, m_bChat);
 
 	RequestFrame(Frame_OnChatMessage_SayText2, hPack);
-	
+
 	return Plugin_Handled;
 }
 
@@ -240,7 +238,7 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 		else
 		{
 			for(int i = 1; i <= MaxClients; ++i)
-				if(IsClientInGame(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
+				if(IsClientInGame(i) && !IsFakeClient(i) && (g_iTeam[i] == g_iTeam[m_iSender] || g_iAuth[i] == 1))
 					target_list[target_count++] = i;
 		}
 	}
@@ -257,7 +255,7 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 			else
 			{
 				for(int i = 1; i <= MaxClients; ++i)
-					if(IsClientInGame(i) && !IsFakeClient(i) && g_iTeam[i] == g_iTeam[m_iSender])
+					if(IsClientInGame(i) && !IsFakeClient(i) && (g_iTeam[i] == g_iTeam[m_iSender] || g_iAuth[i] == 1))
 						target_list[target_count++] = i;
 			}
 		}
@@ -266,13 +264,13 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 			if(ChatToAll(m_szFlag))
 			{
 				for(int i = 1; i <= MaxClients; ++i)
-					if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i))
+					if(IsClientInGame(i) && !IsFakeClient(i) && (!IsPlayerAlive(i) || g_iAuth[i] == 1))
 						target_list[target_count++] = i;
 			}
 			else
 			{
 				for(int i = 1; i <= MaxClients; ++i)
-					if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i) && g_iTeam[i] == g_iTeam[m_iSender])
+					if(IsClientInGame(i) && !IsFakeClient(i) && ((!IsPlayerAlive(i) && g_iTeam[i] == g_iTeam[m_iSender]) || g_iAuth[i] == 1))
 						target_list[target_count++] = i;
 			}
 		}

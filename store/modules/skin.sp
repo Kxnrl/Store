@@ -20,6 +20,7 @@ int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 bool g_bSpecJoinPending[MAXPLAYERS+1];
 char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
+ConVar mp_round_restart_delay;
 
 void Skin_OnPluginStart()
 {
@@ -35,12 +36,20 @@ void Skin_OnPluginStart()
 	//DEATH CAMERA CCVAR
 	spec_freeze_time = FindConVar("spec_freeze_time");
 	HookConVarChange(spec_freeze_time, Skin_OnConVarChanged);
+	SetConVarString(spec_freeze_time, "-1.0", true);
+	
+	mp_round_restart_delay = FindConVar("mp_round_restart_delay");
+	HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
+	SetConVarString(mp_round_restart_delay, "12", true);
 }
 
 public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	if(convar == spec_freeze_time)
-		SetConVarString(spec_freeze_time, "-1", true);
+		SetConVarString(spec_freeze_time, "-1.0", true);
+	
+	if(convar == mp_round_restart_delay)
+		SetConVarString(mp_round_restart_delay, "12", true);
 }
 
 void Skin_OnClientDisconnect(int client)
@@ -70,7 +79,7 @@ public Action Command_Arms(int client, int args)
 	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
 		return Plugin_Handled;
 
-#if defined ZombieEscape	
+#if defined GM_ZE	
 	if(g_iClientTeam[client] == 2)
 		return Plugin_Handled;
 #endif
@@ -137,7 +146,7 @@ public void PlayerSkins_OnMapStart()
 		}
 	}
 
-#if defined ZombieEscape
+#if defined GM_ZE
 	if(FileExists(Model_ZE_Newbee))
 	{
 		PrecacheModel2(Model_ZE_Newbee, true);
@@ -170,7 +179,7 @@ public int PlayerSkins_Remove(int client, int id)
 
 void Store_PreSetClientModel(int client)
 {
-#if defined ZombieEscape
+#if defined GM_ZE
 	if(g_iClientTeam[client] == 2)
 		return;
 #endif
@@ -184,7 +193,7 @@ void Store_PreSetClientModel(int client)
 		if(g_ePlayerSkins[m_iData][szSound][0] != 0)
 			Format(g_szDeathVoice[client], PLATFORM_MAX_PATH, "*%s", g_ePlayerSkins[m_iData][szSound]);
 	}
-#if defined ZombieEscape
+#if defined GM_ZE
 	else
 	{
 		if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
@@ -217,7 +226,7 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
 	if(channel != SNDCHAN_VOICE || !(1 <= client <= MaxClients) || !IsClientInGame(client))
 		return Plugin_Continue;
 	
-#if defined ZombieEscape
+#if defined GM_ZE
 	if(g_iClientTeam[client] == 2)
 		return Plugin_Continue;
 #endif
@@ -278,11 +287,11 @@ public Action Timer_GiveWeapon(Handle timer, Handle pack)
 	int client = ReadPackCell(pack);
 	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 		return Plugin_Stop;
-	
+
 	char weapon[32];
 	ReadPackString(pack, weapon, 32);
 	GivePlayerItem(client, weapon);
-	
+
 	return Plugin_Stop;
 }
 
@@ -471,15 +480,17 @@ void FirstPersonDeathCamera(int client)
 {
 	if(!IsClientInGame(client) || g_iClientTeam[client] < 2)
 		return;
-	
-	int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");	
+#if !defined GM_TT	
+	int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 
 	if(m_iRagdoll < 0)
 		return;
 
 	SpawnCamAndAttach(client, m_iRagdoll);
+#endif
 }
 
+#if !defined GM_TT
 bool SpawnCamAndAttach(int client, int ragdoll)
 {
 	char m_szModel[32];
@@ -526,18 +537,14 @@ bool SpawnCamAndAttach(int client, int ragdoll)
 	SetClientViewEntity(client, iEntity);
 	g_iCameraRef[client] = EntIndexToEntRef(iEntity);
 	
-	//SDKHook(iEntity, SDKHook_SetTransmit, Hook_SetTransmit_Ragdoll);
-	
-	CreateTimer(5.0, Timer_ClearCamera, client);
+	FadeScreenBlack(client);
+
+	CreateTimer(10.0, Timer_ClearCamera, client);
 
 	return true;
 }
-/*
-public Action Hook_SetTransmit_Ragdoll(int entity, int client)
-{
-	return Plugin_Handled;
-}
-*/
+#endif
+
 public Action Timer_ClearCamera(Handle timer, int client)
 {
 	if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
@@ -548,15 +555,17 @@ public Action Timer_ClearCamera(Handle timer, int client)
 		{
 			char m_szName[32];
 			GetEntPropString(entity, Prop_Data, "m_iName", m_szName, 32);
-			if(StrContains(m_szName, "ragdollCam", false) == 0)
-			{
-				//SDKUnhook(iEntity, SDKHook_SetTransmit, Hook_SetTransmit_Ragdoll);
+			if(!StrContains(m_szName, "ragdollCam", false))
 				AcceptEntityInput(entity, "Kill");
-			}
 		}
 
 		if(IsClientInGame(client))
+		{
 			SetClientViewEntity(client, client);
+#if !defined GM_TT
+			FadeScreenWhite(client);
+#endif
+		}
 	}
 
 	g_iCameraRef[client] = INVALID_ENT_REFERENCE;
@@ -574,3 +583,32 @@ void AttemptState(int client, bool spec)
 		ClientCommand(client, "cl_spec_mode 6");
 	}
 }
+
+#if !defined GM_TT
+
+#define FFADE_IN		0x0001		// Just here so we don't pass 0 into the function
+#define FFADE_OUT		0x0002		// Fade out (not in)
+#define FFADE_MODULATE	0x0004		// Modulate (don't blend)
+#define FFADE_STAYOUT	0x0008		// ignores the duration, stays faded out until new ScreenFade message received
+#define FFADE_PURGE		0x0010		// Purges all other fades, replacing them with this one
+
+void FadeScreenBlack(int client)
+{
+	Handle pb = StartMessageOne("Fade", client);
+	PbSetInt(pb, "duration", 3072);
+	PbSetInt(pb, "hold_time", 3072);
+	PbSetInt(pb, "flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
+	PbSetColor(pb, "clr", {0, 0, 0, 255});
+	EndMessage();
+}
+
+void FadeScreenWhite(int client)
+{
+	Handle pb = StartMessageOne("Fade", client);
+	PbSetInt(pb, "duration", 1536);
+	PbSetInt(pb, "hold_time", 1536);
+	PbSetInt(pb, "flags", FFADE_IN|FFADE_PURGE);
+	PbSetColor(pb, "clr", {0, 0, 0, 0});
+	EndMessage();
+}
+#endif

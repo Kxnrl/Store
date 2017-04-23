@@ -87,7 +87,7 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 	{
 		int m_iData = Store_GetDataIndex(m_iEquipped);
 		
-#if defined ZombieEscape
+#if defined GM_ZE
 		if(g_iClientTeam[client] == 2)
 			return;
 #endif

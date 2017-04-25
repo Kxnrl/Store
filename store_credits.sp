@@ -304,20 +304,11 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szFrom, 128, auname);
 	}
 
-	switch(CG_GetClientVip(client))
+	if(CG_IsClientVIP(client))
 	{
-		case 3:
-		{
-			m_iCredits += 2;
-			StrCat(szFrom, 128, "\x0A|\x07永久VIP+2");
-			StrCat(szReason, 128, " SVIP ");
-		}
-		case 2:
-		{
-			m_iCredits += 1;
-			StrCat(szFrom, 128, "\x0A|\x07年费VIP+1");
-			StrCat(szReason, 128, " AVIP ");
-		}
+		m_iCredits += 2;
+		StrCat(szFrom, 128, "\x0A|\x0EVIP+2");
+		StrCat(szReason, 128, " VIP ");
 	}
 /*
 	if(g_bInMimiGameGroup[client] && !m_bGroupCreidts)

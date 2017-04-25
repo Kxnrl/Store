@@ -90,13 +90,10 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 	}
 	else
 	{
-		switch(CG_GetClientVip(client))
-		{
-			case  3: StrCat(STRING(m_szNameTag), "{purple}[SVIP] {teamcolor}");
-			case  2: StrCat(STRING(m_szNameTag), "{orange}[AVIP] {teamcolor}");
-			case  1: StrCat(STRING(m_szNameTag), "{silver}[MVIP] {teamcolor}");
-			default: StrCat(STRING(m_szNameTag), (CG_GetClientUId(client) > 0) ? "{lightblue}[CG社区] {teamcolor}" : "{lightblue}[未注册] {teamcolor}");
-		}
+		if(CG_IsClientVIP(client))
+			StrCat(STRING(m_szNameTag), "{purple}[VIP] {teamcolor}");
+		else
+			StrCat(STRING(m_szNameTag), (CG_GetClientUId(client) > 0) ? "{lightblue}[CG社区] {teamcolor}" : "{lightblue}[未注册] {teamcolor}");
 	}
 
 	if(m_iEquippedNameColor >= 0)

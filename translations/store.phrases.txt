@@ -400,39 +400,20 @@
 	
 	"you are already vip"
 	{
-		"#format" "{1:t}"
-		"en" "You are already {1}"
-		"chi" "你已经是{1}了"
+		"en" "You are already VIP"
+		"chi" "你已经是VIP了"
 	}
-	
-	"buy monthly vip"
-	{
-		"en" "Buy monthly VIP"
-		"chi" "购买月费VIP\n    购买年费/永久VIP请登录论坛"
-	}
-	
-	"svip"
-	{
-		"en" "Permanent VIP"
-		"chi" "永久VIP"
-	}
-	
-	"yvip"
-	{
-		"en" "Annual VIP"
-		"chi" "年费VIP"
-	}
-	
-	"mvip"
-	{
-		"en" "monthly VIP"
-		"chi" "月费VIP"
-	}
-	
+
 	"go to forum to buy vip"
 	{
-		"en" "Permanent/Annual VIP ? \n    visit https://csgogamers.com"
-		"chi" "购买年费/永久VIP\n    请登录https://csgogamers.com"
+		"en" "Buy VIP ? \n    visit https://csgogamers.com"
+		"chi" "购买VIP ?\n    请登录https://csgogamers.com"
+	}
+	
+	"go to forum to buy vip chat"
+	{
+		"en" "Buy VIP => visit https://csgogamers.com"
+		"chi" "购买VIP请登录https://csgogamers.com"
 	}
 	
 	"cat banned"

@@ -480,6 +480,12 @@ void FirstPersonDeathCamera(int client)
 {
 	if(!IsClientInGame(client) || g_iClientTeam[client] < 2)
 		return;
+
+#if defined GM_ZE
+	if(IsPlayerAlive(client))
+		return;
+#endif
+
 #if !defined GM_TT	
 	int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 

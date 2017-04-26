@@ -22,7 +22,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.6.2 - 2017/04/25 08:51"
+#define PLUGIN_VERSION "1.6.2.1 - 2017/04/26 23:00"
 #define PLUGIN_URL ""
 
 // Server
@@ -33,8 +33,8 @@
 //#define GM_HG //hunger game server
 //#define GM_PR //pure|competitive server
 //#define GM_HZ //casual server
-//#define GM_KZ //kreedz server
-#define GM_SR //death surf server
+#define GM_KZ //kreedz server
+//#define GM_SR //death surf server
 
 //Custom
 //#define Global_Skin	3	//skin does not match with team
@@ -86,18 +86,18 @@ char g_szTempole[128];
 //			MODULES			//
 //////////////////////////////
 // player module
-#include "store/modules/hats.sp"
+//#include "store/modules/hats.sp"
 #include "store/modules/skin.sp"
-#include "store/modules/neon.sp"
-#include "store/modules/aura.sp"
-#include "store/modules/part.sp"
-#include "store/modules/trail.sp"
+//#include "store/modules/neon.sp"
+//#include "store/modules/aura.sp"
+//#include "store/modules/part.sp"
+//#include "store/modules/trail.sp"
 
 // global modules
 #include "store/cpsupport.sp"
 #include "store/vipadmin.sp"
 #include "store/players.sp"
-#include "store/grenades.sp"
+//#include "store/grenades.sp"
 #include "store/sprays.sp"
 #include "store/models.sp"
 #include "store/sounds.sp"

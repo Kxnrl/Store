@@ -973,6 +973,7 @@
 			"sound"		"maoling/deathsound/purpleheart.mp3"
 			"team"		"2"
 			"flag"		"t"
+			"type"		"playerskin"
 			"desc"		"氪金买年费/永久VIP就能免费用的模型"
 		}
 		"琪亚娜(Kiana)"

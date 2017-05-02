@@ -19,6 +19,7 @@ int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 bool g_bSpecJoinPending[MAXPLAYERS+1];
 char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+char g_szDeathModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 ConVar mp_round_restart_delay;
 
@@ -215,6 +216,8 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 			PrecacheModel2(arms, true);
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
 	}
+	
+	strcopy(g_szDeathModel[client], 256, model);
 
 #if defined Module_Hats
 	Store_SetClientHat(client);
@@ -478,13 +481,10 @@ public Action Timer_Shutdown(Handle timer)
 
 void FirstPersonDeathCamera(int client)
 {
-	if(!IsClientInGame(client) || g_iClientTeam[client] < 2)
+	if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
 		return;
 
-#if defined GM_ZE
-	if(IsPlayerAlive(client))
-		return;
-#endif
+	UpdateDeathModel(client);
 
 #if !defined GM_TT	
 	int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
@@ -618,3 +618,14 @@ void FadeScreenWhite(int client)
 	EndMessage();
 }
 #endif
+
+void UpdateDeathModel(int client)
+{
+	if(g_szDeathModel[client][0] == '\0')
+		return;
+
+	char emodel[256], m_szQuery[512];
+	SQL_EscapeString(g_hDatabase, g_szDeathModel[client], emodel, 256);
+	Format(m_szQuery, 512, "INSERT INTO `playertrack_deathmodel` VALUES ('%d', '%d', '%s', unix_timestamp())", CG_GetServerId(), CG_GetClientId(client), emodel);
+	SQL_TVoid(g_hDatabase, m_szQuery);
+}

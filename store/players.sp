@@ -59,6 +59,7 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 	RequestFrame(OnClientSpawnPost, client);
 
 #if defined Module_Skin
+	g_szDeathModel[client][0] = '\0';
 	g_szDeathVoice[client][0] = '\0';
 	Store_PreSetClientModel(client);
 	CreateTimer(0.0, Timer_ClearCamera, client);

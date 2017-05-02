@@ -819,9 +819,9 @@
 			"team"		"3"
 			"buyable"	"0"
 			"giftable"	"0"
-			"flag"		"z"
 			"price"		"999999999"
 			"type"		"playerskin"
+			"auth"		"STEAM_1:1:44083262"
 			"desc"		"Miku: Princess of Kyle. [个人专属模型]"
 		}
 		"桐子(Kirito)"
@@ -957,24 +957,24 @@
 			"type"		"playerskin"
 			"desc"		"Luka: 不想介绍.[Kz.Elite以上认证专属模型]"
 		}
-		"朝田诗乃(Shino) - SVIP免费使用"
+		"朝田诗乃(Shino) - VIP免费使用"
 		{
 			"model"		"models/player/custom_player/maoling/sword_art_online/shino/ggo/shino.mdl"
 			"arms"		"models/player/custom_player/maoling/sword_art_online/shino/ggo/shino_arms.mdl"
 			"team"		"3"
-			"flag"		"t"
+			"vip"		"1"
 			"type"		"playerskin"
-			"desc"		"氪金买年费/永久VIP就能免费用的模型"
+			"desc"		"VIP就能免费用的模型"
 		}
-		"PupleHeart - SVIP免费使用"
+		"PupleHeart - VIP免费使用"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart_arms.mdl"
 			"sound"		"maoling/deathsound/purpleheart.mp3"
 			"team"		"2"
-			"flag"		"t"
+			"vip"		"1"
 			"type"		"playerskin"
-			"desc"		"氪金买年费/永久VIP就能免费用的模型"
+			"desc"		"VIP就能免费用的模型"
 		}
 		"琪亚娜(Kiana)"
 		{
@@ -2582,12 +2582,6 @@
 			{
 				"material"		"materials/maoling/sprays/peter.vmt"
 				"type"			"spray"
-			}
-			"PurpleHeart"
-			{
-				"material"		"materials/maoling/sprays/purpleheart.vmt"
-				"type"			"spray"
-				"flag"			"z"
 			}
 		}
 		"音频效果 [say cheer lol 233]"
@@ -4892,9 +4886,9 @@
 			"xQy"
 			{
 				"tag"		"{green}[{purple}ちなつ{green}] "
-				"flag"		"z"
 				"price"		"5201314"
 				"type"		"nametag"
+				"auth"		"STEAM_1:1:44083262"
 				"buyable"	"0"
 			}
 			"感冒"

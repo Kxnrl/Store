@@ -22,22 +22,22 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.6.2.1 - 2017/04/26 23:00"
+#define PLUGIN_VERSION "1.6.3 - 2017/05/03 03:15"
 #define PLUGIN_URL ""
 
 // Server
 //#define GM_TT
-//#define GM_ZE //zombie escape server
+#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_HG //hunger game server
 //#define GM_PR //pure|competitive server
 //#define GM_HZ //casual server
-#define GM_KZ //kreedz server
+//#define GM_KZ //kreedz server
 //#define GM_SR //death surf server
 
 //Custom
-//#define Global_Skin	3	//skin does not match with team
+#define Global_Skin	3	//skin does not match with team
 //#define TeamArms		//fix arms when client team
 //#define AllowHide		//Enable hide mode
 
@@ -86,7 +86,7 @@ char g_szTempole[128];
 //			MODULES			//
 //////////////////////////////
 // player module
-//#include "store/modules/hats.sp"
+#include "store/modules/hats.sp"
 #include "store/modules/skin.sp"
 //#include "store/modules/neon.sp"
 //#include "store/modules/aura.sp"
@@ -97,7 +97,7 @@ char g_szTempole[128];
 #include "store/cpsupport.sp"
 #include "store/vipadmin.sp"
 #include "store/players.sp"
-//#include "store/grenades.sp"
+#include "store/grenades.sp"
 #include "store/sprays.sp"
 #include "store/models.sp"
 #include "store/sounds.sp"
@@ -541,6 +541,12 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
 	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
 		return -1;
 	
+	if(!AllowItemForAuth(client, g_eItems[itemid][szAuthId]))
+		return -1;
+	
+	if(!AllowItemForVIP(client, g_eItems[itemid][bVIP]))
+		return -1;
+	
 	// Is the item free (available for everyone)?
 	if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
 		return -1;
@@ -565,6 +571,14 @@ public int Native_HasClientItem(Handle myself, int numParams)
 
 	// Can he even have it?	
 	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
+		return false;
+	
+	// Personal item?
+	if(!AllowItemForAuth(client, g_eItems[itemid][szAuthId]))
+		return false;
+
+	// VIP item?
+	if(!AllowItemForVIP(client, g_eItems[itemid][bVIP]))
 		return false;
 
 	// Is the item free (available for everyone)?
@@ -838,7 +852,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 					continue;
 
 				int m_iStyle = ITEMDRAW_DEFAULT;
-				if(!GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags))
+				if(!GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szAuthId]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
 					m_iStyle = ITEMDRAW_DISABLED;
 
 				IntToString(i, STRING(m_szId));
@@ -864,7 +878,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 				else if(!g_bInvMode[client])
 				{				
 					int m_iStyle = ITEMDRAW_DEFAULT;
-					if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags))
+					if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szAuthId]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
 						m_iStyle = ITEMDRAW_DISABLED;
 
 					if(StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
@@ -1053,7 +1067,7 @@ public void DisplayPreviewMenu(int client, int itemid)
 		if(g_eItems[itemid][bBuyable])
 		{
 			int m_iStyle = ITEMDRAW_DEFAULT;
-			if((g_eItems[itemid][iPlans]==0 && g_eClients[client][iCredits]<Store_GetLowestPrice(itemid)) || !GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
+			if((g_eItems[itemid][iPlans]==0 && g_eClients[client][iCredits]<Store_GetLowestPrice(itemid)) || !GetClientPrivilege(client, g_eItems[itemid][iFlagBits]) || !AllowItemForAuth(client, g_eItems[itemid][szAuthId]) || !AllowItemForVIP(client, g_eItems[itemid][bVIP]))
 				m_iStyle = ITEMDRAW_DISABLED;
 			
 			if(g_eItems[itemid][iPlans]==0)
@@ -1489,7 +1503,7 @@ public void DisplayPlayerMenu(int client)
 			continue;
 
 		m_iFlags = GetUserFlagBits(i);
-		if(!GetClientPrivilege(i, g_eItems[g_iSelectedItem[client]][iFlagBits], m_iFlags))
+		if(!GetClientPrivilege(i, g_eItems[g_iSelectedItem[client]][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szAuthId]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
 			continue;
 		if(i != client && IsClientInGame(i) && !Store_HasClientItem(i, g_iSelectedItem[client]))
 		{
@@ -2300,6 +2314,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 	char m_szType[32];
 	char m_szFlags[64];
 	char m_szDesc[64];
+	char m_szAuth[32];
 	int m_iHandler;
 	bool m_bSuccess;
 
@@ -2320,7 +2335,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 			g_eItems[g_iItems][bBuyable] = (KvGetNum(kv, "buyable", 1)?true:false);
 			g_eItems[g_iItems][bGiftable] = (KvGetNum(kv, "giftable", 1)?true:false);
 			g_eItems[g_iItems][bCompose] = (KvGetNum(kv, "compose", 0)?true:false);
-			g_eItems[g_iItems][bIgnoreVIP] = (KvGetNum(kv, "ignore_vip", 0)?true:false);
+			g_eItems[g_iItems][bVIP] = (KvGetNum(kv, "vip", 0)?true:false);
 			g_eItems[g_iItems][iHandler] = g_iPackageHandler;
 			
 			KvGotoFirstSubKey(kv);
@@ -2341,7 +2356,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 			g_eItems[g_iItems][bBuyable] = KvGetNum(kv, "buyable", 1)?true:false;
 			g_eItems[g_iItems][bGiftable] = KvGetNum(kv, "giftable", 1)?true:false;
 			g_eItems[g_iItems][bCompose] = (KvGetNum(kv, "compose", 0)?true:false);
-			g_eItems[g_iItems][bIgnoreVIP] = (KvGetNum(kv, "ignore_vip", 0)?true:false);
+			g_eItems[g_iItems][bVIP] = (KvGetNum(kv, "vip", 0)?true:false);
 			
 			KvGetString(kv, "type", STRING(m_szType));
 			m_iHandler = Store_GetTypeHandler(m_szType);
@@ -2362,14 +2377,18 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 #endif
 			}
 			
-			KvGetString(kv, "desc", STRING(m_szDesc), "");
+			KvGetString(kv, "desc", STRING(m_szDesc));
+			KvGetString(kv, "auth", STRING(m_szAuth));
 			KvGetString(kv, "flag", STRING(m_szFlags));
 			g_eItems[g_iItems][iFlagBits] = ReadFlagString(m_szFlags);
 			g_eItems[g_iItems][iHandler] = m_iHandler;
 			
-			if(m_szDesc[0] != '\0')
+			if(m_szDesc[0] != 0)
 				strcopy(g_eItems[g_iItems][szDesc], 64, m_szDesc);
 			
+			if(m_szAuth[0] != 0)
+				strcopy(g_eItems[g_iItems][szAuthId], 64, m_szAuth);
+
 			if(KvGetNum(kv, "unique_id", -1)==-1)
 				KvGetString(kv, g_eTypeHandlers[m_iHandler][szUniqueKey], g_eItems[g_iItems][szUniqueId], PLATFORM_MAX_PATH);
 			else
@@ -2521,7 +2540,7 @@ bool Store_PackageHasClientItem(int client, int packageid, bool invmode = false)
 {
 	int m_iFlags = GetUserFlagBits(client);
 	for(int i =0;i<g_iItems;++i)
-		if(g_eItems[i][iParent] == packageid && GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) && (invmode && Store_HasClientItem(client, i) || !invmode))
+		if(g_eItems[i][iParent] == packageid && GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) && (invmode && Store_HasClientItem(client, i) || !invmode) && AllowItemForAuth(client, g_eItems[i][szAuthId]) && AllowItemForVIP(client, g_eItems[i][bVIP]))
 			if((g_eItems[i][iHandler] == g_iPackageHandler && Store_PackageHasClientItem(client, i, invmode)) || g_eItems[i][iHandler] != g_iPackageHandler)
 				return true;
 	return false;

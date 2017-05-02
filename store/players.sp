@@ -104,7 +104,7 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 
 #if defined Module_Skin
 	AttemptState(client, false);
-	FirstPersonDeathCamera(client);
+	FirstPersonDeathCamera(client, GetClientOfUserId(GetEventInt(event, "attacker")));
 #endif
 
 #if defined Module_Aura

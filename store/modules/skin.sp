@@ -479,12 +479,12 @@ public Action Timer_Shutdown(Handle timer)
 	ServerCommand("quit");
 }
 
-void FirstPersonDeathCamera(int client)
+void FirstPersonDeathCamera(int client, int attacker)
 {
 	if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
 		return;
 
-	UpdateDeathModel(client);
+	UpdateDeathModel(client, attacker);
 
 #if !defined GM_TT	
 	int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
@@ -619,8 +619,11 @@ void FadeScreenWhite(int client)
 }
 #endif
 
-void UpdateDeathModel(int client)
+void UpdateDeathModel(int client, int attacker)
 {
+	if(!attacker || !IsClientInGame(attacker))
+		return;
+	
 	if(g_szDeathModel[client][0] == '\0')
 		return;
 

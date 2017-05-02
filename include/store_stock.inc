@@ -19,6 +19,7 @@ enum Store_Item
 	String:szUniqueId[PLATFORM_MAX_PATH],
 	String:szShortcut[64],
 	String:szDesc[64],
+	String:szAuthId[32],
 	iId,
 	iPrice,
 	iParent,
@@ -27,9 +28,9 @@ enum Store_Item
 	iData,
 	iPlans,
 	bool:bBuyable,
-	bool:bIgnoreVIP,
 	bool:bGiftable,
 	bool:bCompose,
+	bool:bVIP
 }
 
 enum Type_Handler
@@ -431,4 +432,27 @@ public void SQL_TVoid(Handle db, char[] query)
 	WritePackString(data, query);
 	ResetPack(data);
 	SQL_TQuery(db, SQLCallback_Void_PrintQuery, query, data);
+}
+
+bool AllowItemForAuth(int client, const char[] authid)
+{
+	if(authid[0] == 0)
+		return true;
+
+	char m_szAuthId[32];
+	if(!GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true))
+		return false;
+
+	if(!StrEqual(authid, m_szAuthId))
+		return false;
+
+	return true;
+}
+
+bool AllowItemForVIP(int client, bool vip)
+{
+	if(!vip)
+		return true;
+
+	return CG_IsClientVIP(client);
 }

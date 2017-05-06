@@ -479,12 +479,17 @@ public Action Timer_Shutdown(Handle timer)
 	ServerCommand("quit");
 }
 
-void FirstPersonDeathCamera(int client, int attacker)
+void FirstPersonDeathCamera(Handle pack)
 {
+	int client = ReadPackCell(pack);
+	int attacker = ReadPackCell(pack);
+	CloseHandle(pack);
+
 	if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
 		return;
 
-	UpdateDeathModel(client, attacker);
+	if(IsValidClient(attacker))
+		CreateTimer(0.2, Timer_UpdateDeathModel, client);
 
 #if !defined GM_TT	
 	int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
@@ -619,11 +624,11 @@ void FadeScreenWhite(int client)
 }
 #endif
 
-void UpdateDeathModel(int client, int attacker)
+public Action Timer_UpdateDeathModel(Handle timer, int client)
 {
-	if(!attacker || !IsClientInGame(attacker))
+	if(!IsValidClient(client) || IsPlayerAlive(client))
 		return;
-	
+
 	if(g_szDeathModel[client][0] == '\0')
 		return;
 
@@ -631,4 +636,5 @@ void UpdateDeathModel(int client, int attacker)
 	SQL_EscapeString(g_hDatabase, g_szDeathModel[client], emodel, 256);
 	Format(m_szQuery, 512, "INSERT INTO `playertrack_deathmodel` VALUES ('%d', '%d', '%s', unix_timestamp())", CG_GetServerId(), CG_GetClientId(client), emodel);
 	SQL_TVoid(g_hDatabase, m_szQuery);
+	g_szDeathModel[client][0] = '\0';
 }

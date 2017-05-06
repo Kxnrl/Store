@@ -104,7 +104,11 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 
 #if defined Module_Skin
 	AttemptState(client, false);
-	FirstPersonDeathCamera(client, GetClientOfUserId(GetEventInt(event, "attacker")));
+	Handle pack = CreateDataPack();
+	WritePackCell(pack, client);
+	WritePackCell(pack, GetClientOfUserId(GetEventInt(event, "attacker")));
+	ResetPack(pack);
+	RequestFrame(FirstPersonDeathCamera, pack);
 #endif
 
 #if defined Module_Aura

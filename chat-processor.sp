@@ -19,7 +19,7 @@ public Plugin myinfo =
 	name		= "Chat-Processor",
 	author		= "Kyle",
 	description = "",
-	version		= "2.7 > CG Edition ver.6 - Include CSC",
+	version		= "2.7 > CG Edition ver.7 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
@@ -57,7 +57,7 @@ public void OnClientConnected(int client)
 	g_bChat[client] = false;
 }
 
-public void CG_OnClientLoaded(int client)
+public void CG_OnClientSpawn(int client)
 {
 	g_iAuth[client] = CG_GetClientId(client);
 }

@@ -104,11 +104,7 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
 
 #if defined Module_Skin
 	AttemptState(client, false);
-	Handle pack = CreateDataPack();
-	WritePackCell(pack, client);
-	WritePackCell(pack, GetClientOfUserId(GetEventInt(event, "attacker")));
-	ResetPack(pack);
-	RequestFrame(FirstPersonDeathCamera, pack);
+	RequestFrame(FirstPersonDeathCamera, client);
 #endif
 
 #if defined Module_Aura
@@ -193,5 +189,5 @@ public void OnClientTeamPost(int client)
 		return;
 
 	Store_PreSetClientModel(client);
-	CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
+	CreateTimer(0.1, Timer_FixPlayerArms, GetClientUserId(client));
 }

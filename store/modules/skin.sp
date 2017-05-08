@@ -164,7 +164,7 @@ public void PlayerSkins_Reset()
 
 public int PlayerSkins_Equip(int client, int id)
 {
-	if(IsClientInGame(client))
+	if(IsClientInGame(client) && IsPlayerAlive(client))
 		tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
@@ -182,8 +182,13 @@ void Store_PreSetClientModel(int client)
 {
 #if defined GM_ZE
 	if(g_iClientTeam[client] == 2)
+	{
+		strcopy(g_szDeathModel[client], 256, "zombie");
 		return;
+	}
 #endif
+
+	strcopy(g_szDeathModel[client], 256, "default");
 	
 	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
 
@@ -217,7 +222,8 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
 	}
 	
-	strcopy(g_szDeathModel[client], 256, model);
+	if(!StrEqual(arms, Model_ZE_Newbee))
+		strcopy(g_szDeathModel[client], 256, model);
 
 #if defined Module_Hats
 	Store_SetClientHat(client);
@@ -274,14 +280,11 @@ public Action Timer_FixPlayerArms(Handle timer, int userid)
 
 void ResetPlayerArms(int client)
 {
-	float delay = 2.0;
-	if(g_eClients[client][iId] == 1) delay = 0.1;
-	
-	ResetClientWeaponBySlot(client, 0, delay);
-	ResetClientWeaponBySlot(client, 1, delay);
-	while(ResetClientWeaponBySlot(client, 2, delay)){}
-	while(ResetClientWeaponBySlot(client, 3, delay)){}
-	while(ResetClientWeaponBySlot(client, 4, delay)){}
+	ResetClientWeaponBySlot(client, 0);
+	ResetClientWeaponBySlot(client, 1);
+	while(ResetClientWeaponBySlot(client, 2)){}
+	while(ResetClientWeaponBySlot(client, 3)){}
+	while(ResetClientWeaponBySlot(client, 4)){}
 }
 
 public Action Timer_GiveWeapon(Handle timer, Handle pack)
@@ -298,7 +301,7 @@ public Action Timer_GiveWeapon(Handle timer, Handle pack)
 	return Plugin_Stop;
 }
 
-bool ResetClientWeaponBySlot(int client, int slot, float giveDelay)
+bool ResetClientWeaponBySlot(int client, int slot)
 {
 	int weapon = GetPlayerWeaponSlot(client, slot);
 
@@ -311,7 +314,7 @@ bool ResetClientWeaponBySlot(int client, int slot, float giveDelay)
 	AcceptEntityInput(weapon, "Kill");
 
 	Handle hPack;
-	CreateDataTimer(giveDelay, Timer_GiveWeapon, hPack, TIMER_FLAG_NO_MAPCHANGE);
+	CreateDataTimer(0.1, Timer_GiveWeapon, hPack, TIMER_FLAG_NO_MAPCHANGE);
 	WritePackCell(hPack, client);
 	WritePackString(hPack, classname);
 
@@ -479,17 +482,10 @@ public Action Timer_Shutdown(Handle timer)
 	ServerCommand("quit");
 }
 
-void FirstPersonDeathCamera(Handle pack)
+void FirstPersonDeathCamera(int client)
 {
-	int client = ReadPackCell(pack);
-	int attacker = ReadPackCell(pack);
-	CloseHandle(pack);
-
 	if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
 		return;
-
-	if(IsValidClient(attacker))
-		CreateTimer(0.2, Timer_UpdateDeathModel, client);
 
 #if !defined GM_TT	
 	int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
@@ -624,17 +620,26 @@ void FadeScreenWhite(int client)
 }
 #endif
 
-public Action Timer_UpdateDeathModel(Handle timer, int client)
+public Action Timer_DeathModel(Handle timer, Handle pack)
 {
+	int client = ReadPackCell(pack);
+	int attacker = ReadPackCell(pack);
+	bool headshot = ReadPackCell(pack);
+	char attackerweapon[32];
+	ReadPackString(pack, attackerweapon, 32);
+
 	if(!IsValidClient(client) || IsPlayerAlive(client))
-		return;
+		return Plugin_Stop;
 
 	if(g_szDeathModel[client][0] == '\0')
-		return;
+		return Plugin_Stop;
 
-	char emodel[256], m_szQuery[512];
+	char emodel[256], eweapon[32], m_szQuery[512];
 	SQL_EscapeString(g_hDatabase, g_szDeathModel[client], emodel, 256);
-	Format(m_szQuery, 512, "INSERT INTO `playertrack_deathmodel` VALUES ('%d', '%d', '%s', unix_timestamp())", CG_GetServerId(), CG_GetClientId(client), emodel);
+	SQL_EscapeString(g_hDatabase, attackerweapon, eweapon, 32);
+	Format(m_szQuery, 512, "INSERT INTO `playertrack_deathmodel` VALUES (unix_timestamp(), %d, %d, %d, %b, '%s', '%s')", CG_GetServerId(), CG_GetClientId(client), CG_GetClientId(attacker), headshot, eweapon, emodel);
 	SQL_TVoid(g_hDatabase, m_szQuery);
 	g_szDeathModel[client][0] = '\0';
+
+	return Plugin_Stop;
 }

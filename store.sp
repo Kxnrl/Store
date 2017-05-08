@@ -22,23 +22,23 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.6.4 - 2017/05/05 00:26"
+#define PLUGIN_VERSION "1.6.5 - 2017/05/09 05:28"
 #define PLUGIN_URL ""
 
 // Server
 //#define GM_TT
 //#define GM_ZE //zombie escape server
-#define GM_MG //mini games server
+//#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_HG //hunger game server
 //#define GM_PR //pure|competitive server
 //#define GM_HZ //casual server
-//#define GM_KZ //kreedz server
+#define GM_KZ //kreedz server
 //#define GM_SR //death surf server
 
 //Custom
 //#define Global_Skin	2	//skin does not match with team
-#define TeamArms		//fix arms when client team
+//#define TeamArms		//fix arms when client team
 //#define AllowHide		//Enable hide mode
 
 
@@ -86,18 +86,18 @@ char g_szTempole[128];
 //			MODULES			//
 //////////////////////////////
 // player module
-#include "store/modules/hats.sp"
+//#include "store/modules/hats.sp"
 #include "store/modules/skin.sp"
-#include "store/modules/neon.sp"
-#include "store/modules/aura.sp"
-#include "store/modules/part.sp"
-#include "store/modules/trail.sp"
+//#include "store/modules/neon.sp"
+//#include "store/modules/aura.sp"
+//#include "store/modules/part.sp"
+//#include "store/modules/trail.sp"
 
 // global modules
 #include "store/cpsupport.sp"
 #include "store/vipadmin.sp"
 #include "store/players.sp"
-#include "store/grenades.sp"
+//#include "store/grenades.sp"
 #include "store/sprays.sp"
 #include "store/models.sp"
 #include "store/sounds.sp"
@@ -311,7 +311,7 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
 {
 	if(g_iTypeHandlers == STORE_MAX_HANDLERS)
 		return -1;
-		
+
 	char m_szType[32];
 	GetNativeString(1, STRING(m_szType));
 	int m_iHandler = Store_GetTypeHandler(m_szType);	
@@ -2701,6 +2701,23 @@ void BuildTempLogFile()
 	g_hKeyValue = CreateKeyValues("store_logs", "", "");
 
 	KeyValuesToFile(g_hKeyValue, g_szLogFile);
+}
+
+public void CG_OnClientDeath(int client, int attacker, int assister, bool headshot, const char[] weapon)
+{
+#if defined Module_TPMode
+	CheckClientTP(client);
+#endif
+
+#if defined Module_Skin
+	Handle pack;
+	CreateDataTimer(0.1, Timer_DeathModel, pack, TIMER_FLAG_NO_MAPCHANGE);
+	WritePackCell(pack, client);
+	WritePackCell(pack, attacker);
+	WritePackCell(pack, headshot);
+	WritePackString(pack, weapon);
+	ResetPack(pack);
+#endif
 }
 
 public Action Timer_KickClient(Handle timer, int userid)

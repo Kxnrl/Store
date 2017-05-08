@@ -817,9 +817,6 @@
 			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku_arms.mdl"
 			"sound"		"maoling/deathsound/miku.mp3"
 			"team"		"3"
-			"buyable"	"0"
-			"giftable"	"0"
-			"price"		"999999999"
 			"type"		"playerskin"
 			"auth"		"STEAM_1:1:44083262"
 			"desc"		"Miku: Princess of Kyle. [个人专属模型]"
@@ -834,7 +831,7 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Kirito: Gaytuosi/GatTong. [个人专属模型]"
+			"desc"		"Kirito: Gaytuosi/GayTong. [个人专属模型]"
 		}
 		"琴里.指挥官(Kotori)"
 		{
@@ -4854,20 +4851,6 @@
 				"price"		"3000"
 				"type"		"nametag"
 			}
-			"[曼妥鼠]"
-			{
-				"tag"		"{lightred}[曼妥鼠]{teamcolor} "
-				"price"		"9999999"
-				"buyable"		"0"
-				"type"		"nametag"
-			}
-			"[XOXO]"
-			{
-				"tag"		"{darkred}[BOSS]{teamcolor} "
-				"price"		"3000"
-				"buyable"		"0"
-				"type"		"nametag"
-			}
 			"[咸鱼]"
 			{
 				"tag"		"{lightred}[咸鱼]{teamcolor} "
@@ -4880,179 +4863,23 @@
 				"price"		"3000"
 				"type"		"nametag"
 			}
-			"牛奶喵"
-			{
-				"tag"		"{lightred}[牛奶喵]{teamcolor} "
-				"price"		"3000"
-				"buyable"		"0"
-				"type"		"nametag"
-			}
 			"xQy"
 			{
 				"tag"		"{green}[{purple}ちなつ{green}] "
-				"price"		"5201314"
 				"type"		"nametag"
 				"auth"		"STEAM_1:1:44083262"
-				"buyable"	"0"
 			}
-			"感冒"
+			"宋出"
 			{
-				"tag"		"{purple}[{green}qwq感冒{purple}] "
-				"price"		"6501643"
+				"tag"		"{green}[{pink}Nokyo{green}] "
 				"type"		"nametag"
-				"buyable"		"0"
-			}
-			"[w罗比w]"
-			{
-				"tag"		"{lightred}[w罗比w]{teamcolor} "
-				"price"		"3000"
-				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[卖萌.avi]"
-			{
-				"tag"		"{lightred}[卖萌]{teamcolor} "
-				"type"		"nametag"
-				"price"		"350"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[T-ara]"
-			{
-				"tag"		"{yellow}[T-ara]{teamcolor} "
-				"price"		"3000"
-				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[CQY吗]"
-			{
-				"tag"		"{blue}[CQY吗]{teamcolor} "
-				"price"		"3000"
-				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[いいGo]"
-			{
-				"tag"		"{blue}[いいGo]{teamcolor} "
-				"type"		"nametag"
-				"price"		"3000"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[蓝大人]"
-			{
-				"tag"		"{yellow}[蓝大人]{teamcolor} "
-				"type"		"nametag"
-				"price"		"3000"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[ho毒瘤]"
-			{
-				"tag"		"{gray}[ho毒瘤]{teamcolor} "
-				"type"		"nametag"
-				"price"		"3000"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[Co辣条]"
-			{
-				"tag"		"{purple}[Co辣条]{teamcolor} "
-				"type"		"nametag"
-				"price"		"3000"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[BluE]"
-			{
-				"tag"		"{blue}[BluE]{teamcolor} "
-				"type"		"nametag"
-				"price"		"3000"
-				"buyable"		"0"
-				"giftable"		"0"
-			}
-			"[死灵师]"
-			{
-				"tag"		"{orange}[死灵师]{teamcolor} "
-				"type"		"nametag"
-				"price"		"3000"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[雪乃汪]"
-			{
-				"tag"		"{purple}[雪乃汪]{teamcolor} "
-				"price"		"3000"
-				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[ExCalibur]"
-			{
-				"tag"		"{orange}[ExCalibur]{teamcolor} "
-				"price"		"3000"
-				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[蠢蛇]"
-			{
-				"tag"		"{green}[蠢蛇]{teamcolor} "
-				"price"		"3000"
-				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[玲鱼]"
-			{
-				"tag"		"{blue}[玲鱼]{teamcolor} "
-				"price"		"3000"
-				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[咸鱼檬]"
-			{
-				"tag"		"{yellow}[咸鱼檬]{teamcolor} "
-				"price"		"3000"
-				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
+				"auth"		"STEAM_1:0:181409964"
 			}
 			"[马王]"
 			{
 				"tag"		"{yellow}[海灵顿]{teamcolor} "
-				"price"		"3000"
 				"type"		"nametag"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[屁蟘]"
-			{
-				"tag"		"{green}[玄学]{teamcolor} "
-				"type"		"nametag"
-				"price"		"350"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[南小鸟]"
-			{
-				"tag"		"{lightred}[南小鸟]{teamcolor} "
-				"type"		"nametag"
-				"price"		"350"
-				"giftable"		"0"
-				"buyable"		"0"
-			}
-			"[魔都人民]"
-			{
-				"tag"		"{lightred}[魔都人民]{teamcolor} "
-				"type"		"nametag"
-				"price"		"350"
-				"giftable"		"0"
-				"buyable"		"0"
+				"auth"		"STEAM_1:0:103918523"
 			}
 		}
 		"名字颜色"

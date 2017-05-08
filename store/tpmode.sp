@@ -100,8 +100,3 @@ void CheckClientTP(int client)
 		g_bMirror[client] = false;
 	}
 }
-
-public void CG_OnClientDeath(int client, int attacker, int assister, bool headshot, const char[] weapon)
-{
-	CheckClientTP(client);
-}

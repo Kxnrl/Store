@@ -22,7 +22,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.6.5 - 2017/05/09 05:28"
+#define PLUGIN_VERSION "1.6.5a - 2017/05/11 05:48"
 #define PLUGIN_URL ""
 
 // Server
@@ -31,13 +31,13 @@
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_HG //hunger game server
-//#define GM_PR //pure|competitive server
+#define GM_PR //pure|competitive server
 //#define GM_HZ //casual server
-#define GM_KZ //kreedz server
+//#define GM_KZ //kreedz server
 //#define GM_SR //death surf server
 
 //Custom
-//#define Global_Skin	2	//skin does not match with team
+//#define Global_Skin	3	//skin does not match with team
 //#define TeamArms		//fix arms when client team
 //#define AllowHide		//Enable hide mode
 
@@ -87,7 +87,7 @@ char g_szTempole[128];
 //////////////////////////////
 // player module
 //#include "store/modules/hats.sp"
-#include "store/modules/skin.sp"
+//#include "store/modules/skin.sp"
 //#include "store/modules/neon.sp"
 //#include "store/modules/aura.sp"
 //#include "store/modules/part.sp"
@@ -96,12 +96,12 @@ char g_szTempole[128];
 // global modules
 #include "store/cpsupport.sp"
 #include "store/vipadmin.sp"
-#include "store/players.sp"
+//#include "store/players.sp"
 //#include "store/grenades.sp"
-#include "store/sprays.sp"
-#include "store/models.sp"
-#include "store/sounds.sp"
-#include "store/tpmode.sp"
+//#include "store/sprays.sp"
+//#include "store/models.sp"
+//#include "store/sounds.sp"
+//#include "store/tpmode.sp"
 
 
 //////////////////////////////////
@@ -2710,13 +2710,16 @@ public void CG_OnClientDeath(int client, int attacker, int assister, bool headsh
 #endif
 
 #if defined Module_Skin
-	Handle pack;
-	CreateDataTimer(0.1, Timer_DeathModel, pack, TIMER_FLAG_NO_MAPCHANGE);
-	WritePackCell(pack, client);
-	WritePackCell(pack, attacker);
-	WritePackCell(pack, headshot);
-	WritePackString(pack, weapon);
-	ResetPack(pack);
+	if(IsValidClient(attacker))
+	{
+		Handle pack;
+		CreateDataTimer(0.1, Timer_DeathModel, pack, TIMER_FLAG_NO_MAPCHANGE);
+		WritePackCell(pack, client);
+		WritePackCell(pack, CG_GetClientId(attacker));
+		WritePackCell(pack, headshot);
+		WritePackString(pack, weapon);
+		ResetPack(pack);
+	}
 #endif
 }
 

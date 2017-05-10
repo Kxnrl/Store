@@ -224,6 +224,8 @@ void Store_SetClientModel(int client, const char[] model, const char[] arms = "n
 	
 	if(!StrEqual(arms, Model_ZE_Newbee))
 		strcopy(g_szDeathModel[client], 256, model);
+	else
+		strcopy(g_szDeathModel[client], 256, "default");
 
 #if defined Module_Hats
 	Store_SetClientHat(client);
@@ -623,12 +625,12 @@ void FadeScreenWhite(int client)
 public Action Timer_DeathModel(Handle timer, Handle pack)
 {
 	int client = ReadPackCell(pack);
-	int attacker = ReadPackCell(pack);
+	int attackerid = ReadPackCell(pack);
 	bool headshot = ReadPackCell(pack);
 	char attackerweapon[32];
 	ReadPackString(pack, attackerweapon, 32);
 
-	if(!IsValidClient(client) || IsPlayerAlive(client))
+	if(!IsValidClient(client) || IsPlayerAlive(client) || !attackerid)
 		return Plugin_Stop;
 
 	if(g_szDeathModel[client][0] == '\0')
@@ -637,7 +639,7 @@ public Action Timer_DeathModel(Handle timer, Handle pack)
 	char emodel[256], eweapon[32], m_szQuery[512];
 	SQL_EscapeString(g_hDatabase, g_szDeathModel[client], emodel, 256);
 	SQL_EscapeString(g_hDatabase, attackerweapon, eweapon, 32);
-	Format(m_szQuery, 512, "INSERT INTO `playertrack_deathmodel` VALUES (unix_timestamp(), %d, %d, %d, %b, '%s', '%s')", CG_GetServerId(), CG_GetClientId(client), CG_GetClientId(attacker), headshot, eweapon, emodel);
+	Format(m_szQuery, 512, "INSERT INTO `playertrack_deathmodel` VALUES (unix_timestamp(), %d, %d, %d, %b, '%s', '%s')", CG_GetServerId(), CG_GetClientId(client), attackerid, headshot, eweapon, emodel);
 	SQL_TVoid(g_hDatabase, m_szQuery);
 	g_szDeathModel[client][0] = '\0';
 

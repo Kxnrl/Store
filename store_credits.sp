@@ -203,6 +203,9 @@ public Action CreditTimer(Handle timer, int client)
 	StrCat(szFrom, 128, "\x10]");
 	StrCat(szReason, 128, "]");
 
+	if(!m_iCredits)
+		return Plugin_Continue;
+
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
 	PrintToChat(client, "%s \x10你获得了\x04 %d 信用点", PF_CREDITS, m_iCredits);

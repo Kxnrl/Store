@@ -3,28 +3,19 @@
 enum Trail
 {
 	String:szMaterial[PLATFORM_MAX_PATH],
-	Float:fWidth,
-	iColor[4],
-	iSlot,
-	iCacheID
+	iSlot
 }
 
 Trail g_eTrails[STORE_MAX_ITEMS][Trail];
 
-int g_iTrailOwners[2048] = {-1,...};
 int g_iTrails = 0;
 int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
-bool g_bSpawnTrails[MAXPLAYERS+1];
-float g_fClientCounters[MAXPLAYERS+1];
-float g_fLastPosition[MAXPLAYERS+1][3];
 
 public int Trails_Config(Handle &kv, int itemid)
 {
 	Store_SetDataIndex(itemid, g_iTrails);
 	
 	KvGetString(kv, "material", g_eTrails[g_iTrails][szMaterial], PLATFORM_MAX_PATH);
-	KvGetColor(kv, "color", g_eTrails[g_iTrails][iColor][0], g_eTrails[g_iTrails][iColor][1], g_eTrails[g_iTrails][iColor][2], g_eTrails[g_iTrails][iColor][3]);
-	g_eTrails[g_iTrails][fWidth] = KvGetFloat(kv, "width", 10.0);
 	g_eTrails[g_iTrails][iSlot] = KvGetNum(kv, "slot");
 
 	if(FileExists(g_eTrails[g_iTrails][szMaterial], true))
@@ -40,13 +31,10 @@ public void Trails_OnMapStart()
 {
 	for(int a = 0; a <= MaxClients; ++a)
 		for(int b = 0; b < STORE_MAX_SLOTS; ++b)
-			g_iClientTrails[a][b] = 0;
+			g_iClientTrails[a][b] = INVALID_ENT_REFERENCE;
 
 	for(int i = 0; i < g_iTrails; ++i)
-	{
-		g_eTrails[i][iCacheID] = PrecacheModel2(g_eTrails[i][szMaterial], true);
 		Downloader_AddFileToDownloadsTable(g_eTrails[i][szMaterial]);
-	}
 }
 
 public void Trails_Reset()
@@ -70,22 +58,25 @@ public int Trails_Remove(int client, int id)
 
 void Store_RemoveClientTrail(int client, int slot)
 {
-	if(g_iClientTrails[client][slot] != 0 && IsValidEdict(g_iClientTrails[client][slot]))
+	if(g_iClientTrails[client][slot] != INVALID_ENT_REFERENCE)
 	{
-		g_iTrailOwners[g_iClientTrails[client][slot]]=-1;
-
-		char m_szClassname[64];
-		GetEdictClassname(g_iClientTrails[client][slot], STRING(m_szClassname));
-		if(strcmp("env_spritetrail", m_szClassname)==0)
+		int entity = EntRefToEntIndex(g_iClientTrails[client][slot]);
+		if(IsValidEdict(entity))
 		{
 #if defined AllowHide
-			SDKUnhook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Trail);
+			SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Trail);
 #endif
-			AcceptEntityInput(g_iClientTrails[client][slot], "Kill");
+			AcceptEntityInput(entity, "Kill");
 		}
 	}
 
-	g_iClientTrails[client][slot]=0;
+	g_iClientTrails[client][slot] = INVALID_ENT_REFERENCE;
+}
+
+void Trails_OnClientDisconnect(int client)
+{
+	for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+		Store_RemoveClientTrail(client, i);
 }
 
 void Store_SetClientTrail(int client)
@@ -107,51 +98,50 @@ public void Store_PreSetTrail(int client)
 
 void CreateTrail(int client, int itemid = -1, int slot = 0)
 {
-	int m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "trail", slot) : itemid);
+	int m_iEquipped = (itemid == -1) ? Store_GetEquippedItem(client, "trail", slot) : itemid;
 
-	if(m_iEquipped >= 0)
+	if(m_iEquipped < 0)
+		return;
+	
+	int m_iData = Store_GetDataIndex(m_iEquipped);
+	
+	int m_aEquipped[STORE_MAX_SLOTS] = {-1,...};
+	int m_iNumEquipped = 0;
+
+	int m_iCurrent;
+
+	for(int i=0;i<STORE_MAX_SLOTS;++i)
 	{
-		int m_iData = Store_GetDataIndex(m_iEquipped);
-		
-		int m_aEquipped[STORE_MAX_SLOTS] = {-1,...};
-		int m_iNumEquipped = 0;
-
-		int m_iCurrent;
-
-		for(int i=0;i<STORE_MAX_SLOTS;++i)
+		if((m_aEquipped[m_iNumEquipped] = Store_GetEquippedItem(client, "trail", i)) >= 0)
 		{
-			if((m_aEquipped[m_iNumEquipped] = Store_GetEquippedItem(client, "trail", i)) >= 0)
-			{
-				if(i == g_eTrails[m_iData][iSlot])
-					m_iCurrent = m_iNumEquipped;
-				++m_iNumEquipped;
-			}
+			if(i == g_eTrails[m_iData][iSlot])
+				m_iCurrent = m_iNumEquipped;
+			++m_iNumEquipped;
 		}
-		
-		if(g_iClientTrails[client][slot] == 0 || !IsValidEdict(g_iClientTrails[client][slot]))
-		{
-			g_iClientTrails[client][slot] = CreateEntityByName("env_sprite");
-			DispatchKeyValue(g_iClientTrails[client][slot], "classname", "env_sprite");
-			DispatchKeyValue(g_iClientTrails[client][slot], "spawnflags", "1");
-			DispatchKeyValue(g_iClientTrails[client][slot], "scale", "0.0");
-			DispatchKeyValue(g_iClientTrails[client][slot], "rendermode", "10");
-			DispatchKeyValue(g_iClientTrails[client][slot], "rendercolor", "255 255 255 0");
-			DispatchKeyValue(g_iClientTrails[client][slot], "model", g_eTrails[m_iData][szMaterial]);
-			DispatchSpawn(g_iClientTrails[client][slot]);
-			AttachTrail(g_iClientTrails[client][slot], client, m_iCurrent, m_iNumEquipped);	
-#if defined AllowHide
-			SDKHook(g_iClientTrails[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Trail);
-#endif
-		}
-
-		int m_iColor[4];
-		m_iColor[0] = g_eTrails[m_iData][iColor][0];
-		m_iColor[1] = g_eTrails[m_iData][iColor][1];
-		m_iColor[2] = g_eTrails[m_iData][iColor][2];
-		m_iColor[3] = g_eTrails[m_iData][iColor][3];
-		TE_SetupBeamFollow(g_iClientTrails[client][slot], g_eTrails[m_iData][iCacheID], 0, 1.0, g_eTrails[m_iData][fWidth], g_eTrails[m_iData][fWidth], 10, m_iColor);
-		TE_SendToAll();
 	}
+	
+	int entity = g_iClientTrails[client][slot] == INVALID_ENT_REFERENCE ? -1 : EntRefToEntIndex( g_iClientTrails[client][slot]);
+
+	if(IsValidEdict(entity))
+		return;
+
+	entity = CreateEntityByName("env_spritetrail");
+	DispatchKeyValue(entity, "classname", "env_spritetrail");
+	DispatchKeyValue(entity, "renderamt", "255");
+	DispatchKeyValue(entity, "rendercolor", "255 255 255");
+	DispatchKeyValue(entity, "lifetime", "1.0");
+	DispatchKeyValue(entity, "rendermode", "5");
+	DispatchKeyValue(entity, "spritename", g_eTrails[m_iData][szMaterial]);
+	DispatchKeyValue(entity, "startwidth", "10.0");
+	DispatchKeyValue(entity, "endwidth", "10.0");
+	SetEntPropFloat(entity, Prop_Send, "m_flTextureRes", 0.05);
+	DispatchSpawn(entity);
+	AttachTrail(entity, client, m_iCurrent, m_iNumEquipped);	
+#if defined AllowHide
+	SDKHook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Trail);
+#endif
+
+	g_iClientTrails[client][slot] = EntIndexToEntRef(entity);
 }
 
 void AttachTrail(int ent, int client, int current, int num)
@@ -172,48 +162,10 @@ void AttachTrail(int ent, int client, int current, int num)
 	SetVariantString("!activator");
 	AcceptEntityInput(ent, "SetParent", client, ent);
 	SetEntPropVector(client, Prop_Data, "m_angAbsRotation", m_fAngle);
-}
-
-public void OnGameFrame()
-{
-	if(GetGameTickCount()%6 != 0)
-		return;
-
-	float m_fTime = GetEngineTime();
-	float m_fPosition[3];
-
-	for(int i = 1; i <= MaxClients; ++i)
-	{
-		if(!IsClientInGame(i))
-			continue;
-		
-		if(!IsPlayerAlive(i))
-			continue;
-		
-		GetClientAbsOrigin(i, m_fPosition);
-		if(GetVectorDistance(g_fLastPosition[i], m_fPosition) <= 5.0)
-		{
-			if(!g_bSpawnTrails[i])
-				if(m_fTime-g_fClientCounters[i] >= 1.0/2)
-					g_bSpawnTrails[i] = true;
-		}
-		else
-		{
-			if(g_bSpawnTrails[i])
-			{
-				g_bSpawnTrails[i] = false;
-				TE_Start("KillPlayerAttachments");
-				TE_WriteNum("m_nPlayer",i);
-				TE_SendToAll();
-				for(int a = 0; a < STORE_MAX_SLOTS; ++a)
-					CreateTrail(i, -1, a);
-			}
-			else
-				g_fClientCounters[i] = m_fTime;
-
-			g_fLastPosition[i] = m_fPosition;
-		}
-	}
+	
+	SetVariantString("OnUser1 !self:SetScale:1:0.5:-1");
+	AcceptEntityInput(ent, "AddOutput");
+	AcceptEntityInput(ent, "FireUser1");
 }
 
 #if defined AllowHide

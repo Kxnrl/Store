@@ -47,6 +47,10 @@ void Players_OnClientDisconnect(int client)
 #if defined Module_Skin
 	Skin_OnClientDisconnect(client);
 #endif
+
+#if defined Module_Trail
+	Trails_OnClientDisconnect(client);
+#endif
 }
 
 public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast)

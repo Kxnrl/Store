@@ -191,6 +191,11 @@ void Store_PreSetClientModel(int client)
 	strcopy(g_szDeathModel[client], 256, "default");
 	
 	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
+	
+#if !defined Global_Skin
+	if(g_eClients[client][iId] == 1)
+		m_iEquipped = Store_GetEquippedItem(client, "playerskin", 1);
+#endif	
 
 	if(m_iEquipped >= 0)
 	{

@@ -19,7 +19,7 @@ enum Store_Item
 	String:szUniqueId[PLATFORM_MAX_PATH],
 	String:szShortcut[64],
 	String:szDesc[64],
-	String:szAuthId[32],
+	String:szSteam[256],
 	iId,
 	iPrice,
 	iParent,

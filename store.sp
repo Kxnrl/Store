@@ -541,7 +541,7 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
 	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
 		return -1;
 	
-	if(!AllowItemForAuth(client, g_eItems[itemid][szAuthId]))
+	if(!AllowItemForAuth(client, g_eItems[itemid][szSteam]))
 		return -1;
 	
 	if(!AllowItemForVIP(client, g_eItems[itemid][bVIP]))
@@ -574,7 +574,7 @@ public int Native_HasClientItem(Handle myself, int numParams)
 		return false;
 	
 	// Personal item?
-	if(!AllowItemForAuth(client, g_eItems[itemid][szAuthId]))
+	if(!AllowItemForAuth(client, g_eItems[itemid][szSteam]))
 		return false;
 
 	// VIP item?
@@ -852,7 +852,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 					continue;
 
 				int m_iStyle = ITEMDRAW_DEFAULT;
-				if(!GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szAuthId]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
+				if(!GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
 					m_iStyle = ITEMDRAW_DISABLED;
 
 				IntToString(i, STRING(m_szId));
@@ -878,7 +878,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 				else if(!g_bInvMode[client])
 				{				
 					int m_iStyle = ITEMDRAW_DEFAULT;
-					if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szAuthId]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
+					if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
 						m_iStyle = ITEMDRAW_DISABLED;
 
 					if(StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
@@ -1067,7 +1067,7 @@ public void DisplayPreviewMenu(int client, int itemid)
 		if(g_eItems[itemid][bBuyable])
 		{
 			int m_iStyle = ITEMDRAW_DEFAULT;
-			if((g_eItems[itemid][iPlans]==0 && g_eClients[client][iCredits]<Store_GetLowestPrice(itemid)) || !GetClientPrivilege(client, g_eItems[itemid][iFlagBits]) || !AllowItemForAuth(client, g_eItems[itemid][szAuthId]) || !AllowItemForVIP(client, g_eItems[itemid][bVIP]))
+			if((g_eItems[itemid][iPlans]==0 && g_eClients[client][iCredits]<Store_GetLowestPrice(itemid)) || !GetClientPrivilege(client, g_eItems[itemid][iFlagBits]) || !AllowItemForAuth(client, g_eItems[itemid][szSteam]) || !AllowItemForVIP(client, g_eItems[itemid][bVIP]))
 				m_iStyle = ITEMDRAW_DISABLED;
 			
 			if(g_eItems[itemid][iPlans]==0)
@@ -1503,7 +1503,7 @@ public void DisplayPlayerMenu(int client)
 			continue;
 
 		m_iFlags = GetUserFlagBits(i);
-		if(!GetClientPrivilege(i, g_eItems[g_iSelectedItem[client]][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szAuthId]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
+		if(!GetClientPrivilege(i, g_eItems[g_iSelectedItem[client]][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szSteam]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
 			continue;
 		if(i != client && IsClientInGame(i) && !Store_HasClientItem(i, g_iSelectedItem[client]))
 		{
@@ -2295,7 +2295,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 	char m_szType[32];
 	char m_szFlags[64];
 	char m_szDesc[64];
-	char m_szAuth[32];
+	char m_szAuth[256];
 	int m_iHandler;
 	bool m_bSuccess;
 
@@ -2368,7 +2368,7 @@ void Store_WalkConfig(Handle &kv, int parent = -1)
 				strcopy(g_eItems[g_iItems][szDesc], 64, m_szDesc);
 			
 			if(m_szAuth[0] != 0)
-				strcopy(g_eItems[g_iItems][szAuthId], 64, m_szAuth);
+				strcopy(g_eItems[g_iItems][szSteam], 256, m_szAuth);
 
 			if(KvGetNum(kv, "unique_id", -1)==-1)
 				KvGetString(kv, g_eTypeHandlers[m_iHandler][szUniqueKey], g_eItems[g_iItems][szUniqueId], PLATFORM_MAX_PATH);
@@ -2521,7 +2521,7 @@ bool Store_PackageHasClientItem(int client, int packageid, bool invmode = false)
 {
 	int m_iFlags = GetUserFlagBits(client);
 	for(int i =0;i<g_iItems;++i)
-		if(g_eItems[i][iParent] == packageid && GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) && (invmode && Store_HasClientItem(client, i) || !invmode) && AllowItemForAuth(client, g_eItems[i][szAuthId]) && AllowItemForVIP(client, g_eItems[i][bVIP]))
+		if(g_eItems[i][iParent] == packageid && GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) && (invmode && Store_HasClientItem(client, i) || !invmode) && AllowItemForAuth(client, g_eItems[i][szSteam]) && AllowItemForVIP(client, g_eItems[i][bVIP]))
 			if((g_eItems[i][iHandler] == g_iPackageHandler && Store_PackageHasClientItem(client, i, invmode)) || g_eItems[i][iHandler] != g_iPackageHandler)
 				return true;
 	return false;

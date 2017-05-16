@@ -4719,6 +4719,51 @@
 	{
 		"名字标签"
 		{
+			"专属标签 - 私人订制"
+			{
+				"猫灵"
+				{
+					"tag"		"{green}[{purple}Princess{green}] "
+					"type"		"nametag"
+					"auth"		"STEAM_1:1:44083262"
+				}
+				"宋出"
+				{
+					"tag"		"{green}[{pink}Nokyo{green}] "
+					"type"		"nametag"
+					"auth"		"STEAM_1:0:181409964"
+				}
+				"马王"
+				{
+					"tag"		"{green}[{yellow}马王{green}]{teamcolor} "
+					"type"		"nametag"
+					"auth"		"STEAM_1:0:103918523"
+				}
+				"叁生鉐"
+				{
+					"tag"		"{green}[{lightblue}萌新出厂{green}]{teamcolor} "
+					"type"		"nametag"
+					"auth"		"STEAM_1:0:166655872"
+				}
+				"王子"
+				{
+					"tag"		"{green}[{lightred}王子{green}]{teamcolor} "
+					"type"		"nametag"
+					"auth"		"STEAM_1:0:211984941"
+				}
+				"蠢蛇"
+				{
+					"tag"		"{green}[{green}蠢蛇{green}]{teamcolor} "
+					"type"		"nametag"
+					"auth"		"STEAM_1:0:98534074"
+				}
+				"基佬桐"
+				{
+					"tag"		"{green}[{orange}歼星舰{green}]{teamcolor} "
+					"type"		"nametag"
+					"auth"		"STEAM_1:0:85922133"
+				}
+			}
 			"[东山大法]"
 			{
 				"tag"		"{lightred}[东山大法]{teamcolor} "
@@ -4862,24 +4907,6 @@
 				"tag"		"{lightred}[路痴]{teamcolor} "
 				"price"		"3000"
 				"type"		"nametag"
-			}
-			"xQy"
-			{
-				"tag"		"{green}[{purple}ちなつ{green}] "
-				"type"		"nametag"
-				"auth"		"STEAM_1:1:44083262"
-			}
-			"宋出"
-			{
-				"tag"		"{green}[{pink}Nokyo{green}] "
-				"type"		"nametag"
-				"auth"		"STEAM_1:0:181409964"
-			}
-			"[马王]"
-			{
-				"tag"		"{yellow}[海灵顿]{teamcolor} "
-				"type"		"nametag"
-				"auth"		"STEAM_1:0:103918523"
 			}
 		}
 		"名字颜色"

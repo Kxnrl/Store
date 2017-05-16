@@ -1707,14 +1707,10 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			g_eClients[client][iDateOfLastJoin] = m_iTime;
 			g_eClients[client][bBan] = (SQL_FetchInt(hndl, 6) == 1 || g_eClients[client][iCredits] < 0) ? true : false;
 			
-			if(g_eClients[client][iId] == 1)
+			if(g_eClients[client][iId] == 1 && !StrEqual(m_szSteamID, "STEAM_1:1:44083262"))
 			{
-				GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32);
-				if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262"))
-				{
-					CreateTimer(3.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-					return;
-				}
+				g_eClients[client][bBan] = true;
+				return;
 			}
 
 			Format(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
@@ -1755,17 +1751,6 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 			g_eClients[client][iItems] = 0;
 			return;
 		}
-		
-		if(g_eClients[client][iId] == 1)
-		{
-			char m_szSteamID[32];
-			GetClientAuthId(client, AuthId_Steam2, m_szSteamID, 32, true);
-			if(!StrEqual(m_szSteamID, "STEAM_1:1:44083262"))
-			{
-				CreateTimer(3.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-				return;
-			}
-		}
 
 		if(!SQL_GetRowCount(hndl))
 		{
@@ -1794,9 +1779,6 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 			
 			SQL_FetchString(hndl, 2, STRING(m_szType));
 			SQL_FetchString(hndl, 3, STRING(m_szUniqueId));
-			
-			if(StrContains(m_szUniqueId, "cybertech") != -1 && CG_GetClientId(client) != 1)
-				CreateTimer(20.0, Timer_KickClient, GetClientOfUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
 			while((m_iUniqueId = Store_GetItemId(m_szType, m_szUniqueId, m_iUniqueId))!=-1)
 			{
@@ -2713,25 +2695,15 @@ public void CG_OnClientDeath(int client, int attacker, int assister, bool headsh
 	if(IsValidClient(attacker))
 	{
 		Handle pack;
-		CreateDataTimer(0.1, Timer_DeathModel, pack, TIMER_FLAG_NO_MAPCHANGE);
+		CreateDataTimer(0.5, Timer_DeathModel, pack, TIMER_FLAG_NO_MAPCHANGE);
 		WritePackCell(pack, client);
+		WritePackCell(pack, CG_GetClientId(client));
 		WritePackCell(pack, CG_GetClientId(attacker));
 		WritePackCell(pack, headshot);
 		WritePackString(pack, weapon);
 		ResetPack(pack);
 	}
 #endif
-}
-
-public Action Timer_KickClient(Handle timer, int userid)
-{
-	int client = GetClientOfUserId(client);
-	if(!client || !IsClientConnected(client))
-		return Plugin_Stop;
-	
-	KickClient(client, "STEAM AUTH ERROR");
-	
-	return Plugin_Stop;
 }
 
 stock bool Store_IsPlayerTP(int client)

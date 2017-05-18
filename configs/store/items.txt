@@ -2,7 +2,7 @@
 {
 	"人物模型"
 	{
-		"NextBlack(Non-Thruster)"
+		"NextBlack"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/noire/nextform/nextblack_nothruster.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/noire/nextform/nextblack_nothruster_arms.mdl"
@@ -12,9 +12,11 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"次世代-诺瓦露: 该模型为二周年庆典模型"
+			"desc"		"该模型为二周年庆典模型"
+			"lvls"		"3"
+			"only"		"1"
 		}
-		"二宮飛鳥(Ninomiya Asuka)"
+		"二宮飛鳥"
 		{
 			"model"		"models/player/custom_player/maoling/idolm@ster/ninomiya_asuka/ninomiya.mdl"
 			"arms"		"models/player/custom_player/maoling/idolm@ster/ninomiya_asuka/ninomiya_arms.mdl"
@@ -37,9 +39,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"二宮飛鳥: 《偶像大师》的中二偶像"
+			"desc"		"《偶像大师》的中二偶像"
+			"lvls"		"0"
 		}
-		"大個子妮普褆努(Adult Neptune)"
+		"大個子妮普褆努"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/adult_neptune/normal/neptune.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/adult_neptune/normal/neptune_arms.mdl"
@@ -63,9 +66,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"大个子妮普褆努: NeptuniaVII中的???"
+			"desc"		"NeptuniaVII中的时空旅行家"
+			"lvls"		"0"
 		}
-		"世嘉少女(HatsumiSega)"
+		"世嘉少女"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/hatsumi_sega/normal/sega_girl.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/hatsumi_sega/normal/sega_girl_arms.mdl"
@@ -88,9 +92,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"HatsumiSega: VS Sega Hard Girl中的女主角"
+			"desc"		"VS Sega Hard Girl中的女主角"
+			"lvls"		"0"
 		}
-		"Peter Animation Helper"
+		"Peter"
 		{
 			"model"		"models/player/custom_player/maoling/misc/peter/peter_v2.mdl"
 			"arms"		"models/player/custom_player/maoling/misc/peter/peter_arms_v2.mdl"
@@ -113,9 +118,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Peter28: CGAY社区原创人物"
+			"desc"		"CGAY社区原创人物"
+			"lvls"		"0"
 		}
-		"諾娃(Noire)"
+		"诺瓦露"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/noire/normal/noire.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/noire/normal/noire_arms.mdl"
@@ -139,9 +145,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Noire: NeptuniaVII中的黑色女神"
+			"desc"		"NeptuniaVII中的黑色女神"
+			"lvls"		"0"
 		}
-		"四糸乃(Yoshino)"
+		"四糸乃"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/yoshino/spirit/yoshino.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/yoshino/spirit/yoshino_arms.mdl"
@@ -165,9 +172,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Yoshino: 约炮大作战中的精灵"
+			"desc"		"约炮大作战中的精灵.灵装版本"
+			"lvls"		"0"
 		}
-		"初音未来.TDA(Miku)"
+		"初音ミク.TDA"
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/tda/miku.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/tda/miku_arms.mdl"
@@ -191,9 +199,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Miku: Princess of CGAY Community"
+			"desc"		"Princess of CGAY Community"
+			"lvls"		"1"
 		}
-		"初音未来.和服(Miku)"
+		"初音ミク.和服"
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/magnet/miku.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/magnet/miku_arms.mdl"
@@ -217,9 +226,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Miku: Princess of CGAY Community"
+			"desc"		"Princess of CGAY Community"
+			"lvls"		"1"
 		}
-		"小鸟游六花(Rikka)"
+		"小鸟游六花"
 		{
 			"model"		"models/player/custom_player/maoling/misc/rikka/rikka.mdl"
 			"arms"		"models/player/custom_player/maoling/misc/rikka/rikka_arms.mdl"
@@ -243,9 +253,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Rikka: 《中二病也要谈恋爱》中的女主角"
+			"desc"		"《中二病也要谈恋爱》中的女主角"
+			"lvls"		"0"
 		}
-		"黑岩射手(BRS)"
+		"黑岩射手"
 		{
 			"model"		"models/player/custom_player/maoling/black_rock_shooter/brs/brs.mdl"
 			"arms"		"models/player/custom_player/maoling/black_rock_shooter/brs/brs_arms.mdl"
@@ -269,9 +280,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
+			"desc"		"BLACK★ROCK SHOOTER"
+			"lvls"		"0"
 		}
-		"天津风(Amatsukaze)"
+		"天津风"
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/amatsukaze/amatsukaze.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/amatsukaze/amatsukaze_arms.mdl"
@@ -295,9 +307,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Amatsukaze: 舰队Collection中的角色"
+			"desc"		"舰队Collection中的角色"
+			"lvls"		"0"
 		}
-		"南小鸟(kotori)"
+		"南小鸟"
 		{
 			"model"		"models/player/custom_player/maoling/lovelive/kotori/school/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/lovelive/kotori/school/kotori_arms.mdl"
@@ -320,9 +333,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Kotori: LoveLive中的角色"
+			"desc"		"LoveLive中的角色"
+			"lvls"		"0"
 		}
-		"响(Hikibi)"
+		"响"
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/hikibi/hikibi.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/hikibi/hikibi_arms.mdl"
@@ -345,9 +359,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Amatsukaze: 舰队Collection中的角色"
+			"desc"		"舰队Collection中的角色"
+			"lvls"		"0"
 		}
-		"弱音(Haku)"
+		"弱音"
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/haku/uniform/haku.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/haku/uniform/haku_arms.mdl"
@@ -370,9 +385,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
+			"desc"		"不知道要写什么"
+			"lvls"		"0"
 		}
-		"妮普褆努.泳装(Neptune)"
+		"妮普褆努.泳装"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/swimsuit/neptune_arms.mdl"
@@ -396,9 +412,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"妮普褆努.泳装:  大个子妮普褆努的泳装版本"
+			"desc"		"妮普褆努的泳装版本"
+			"lvls"		"0"
 		}
-		"妮普褆努.夏日鮮黃(Neptune)"
+		"妮普褆努.夏日鮮黃"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/swimwear/neptune_arms.mdl"
@@ -422,9 +439,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"妮普褆努.夏日鮮黃: 妮普褆努的泳装DLC版本"
+			"desc"		"妮普褆努的泳装DLC版本"
+			"lvls"		"0"
 		}
-		"拉姆(Ram)"
+		"拉姆"
 		{
 			"model"		"models/player/custom_player/maoling/re0/ram/ram.mdl"
 			"arms"		"models/player/custom_player/maoling/re0/ram/ram_arms.mdl"
@@ -447,9 +465,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Ram: RE0中的角色"
+			"desc"		"Re0里面的过气女主角"
+			"lvls"		"0"
 		}
-		"布蘭(Blanc)"
+		"布蘭"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/blanc/normal/blanc.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/blanc/normal/blanc_arms.mdl"
@@ -473,9 +492,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Blanc: NeptuniaVII中的白色女神"
+			"desc"		"NeptuniaVII中的白色女神"
+			"lvls"		"0"
 		}
-		"貝兒(Vert)"
+		"貝兒"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/vert/normal/vert.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/vert/normal/vert_arms.mdl"
@@ -498,9 +518,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Blanc: NeptuniaVII中的绿色女神"
+			"desc"		"NeptuniaVII中的绿色女神"
+			"lvls"		"0"
 		}
-		"蝶祈(Inori)"
+		"蝶祈"
 		{
 			"model"		"models/player/custom_player/maoling/guilty_crown/inori_v2/inori.mdl"
 			"arms"		"models/player/custom_player/maoling/guilty_crown/inori_v2/inori_arms.mdl"
@@ -524,7 +545,8 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Inori: 《罪恶王冠》女主角"
+			"desc"		"《罪恶王冠》女主角"
+			"lvls"		"0"
 		}
 		"香蕉人"
 		{
@@ -550,9 +572,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
+			"desc"		"额哦"
+			"lvls"		"0"
 		}
-		"夜刀神十香(Tohka)"
+		"夜刀神十香"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/tohka/spirit/tohka.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/tohka/spirit/tohka_arms.mdl"
@@ -576,9 +599,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Tohka: 约炮大作战中的精灵"
+			"desc"		"约炮大作战中的精灵.灵装版本"
+			"lvls"		"0"
 		}
-		"时崎狂三(Kurumi)"
+		"时崎狂三"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kurumi/spirit/kurumi.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kurumi/spirit/kurumi_arms.mdl"
@@ -602,9 +626,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
+			"desc"		"约炮大作战中的精灵.灵装版本"
+			"lvls"		"0"
 		}
-		"蕾米莉亚(Remilia)"
+		"蕾米莉亚"
 		{
 			"model"		"models/player/custom_player/maoling/touhou/remilia_scarlet/remilia_scarlet.mdl"
 			"arms"		"models/player/custom_player/maoling/touhou/remilia_scarlet/remilia_scarlet_arms.mdl"
@@ -628,9 +653,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
+			"desc"		"东方Project的角色"
+			"lvls"		"0"
 		}
-		"芙兰朵露(Flandre)"
+		"芙兰朵露"
 		{
 			"model"		"models/player/custom_player/maoling/touhou/flandre_scarlet/flandre_scarlet.mdl"
 			"arms"		"models/player/custom_player/maoling/touhou/flandre_scarlet/flandre_scarlet_arms.mdl"
@@ -654,9 +680,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
+			"desc"		"东方Project的角色"
+			"lvls"		"0"
 		}
-		"提露密努斯艾斯特(Terminus)"
+		"提露密努斯艾斯特"
 		{
 			"model"		"models/player/custom_player/maoling/seirei_tsukai_no_blade_dance/terminus_est/terminus_est.mdl"
 			"arms"		"models/player/custom_player/maoling/seirei_tsukai_no_blade_dance/terminus_est/terminus_est_arms.mdl"
@@ -680,9 +707,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Terminus: 《精灵使的剑舞》主要人物"
+			"desc"		"《精灵使的剑舞》主要人物"
+			"lvls"		"0"
 		}
-		"岛风(Shimakaze)"
+		"岛风"
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/shimakaze/shimakaze.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/shimakaze/shimakaze_arms.mdl"
@@ -706,9 +734,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Shimakaze: 舰队Collection中的角色"
+			"desc"		"舰队Collection中的角色"
+			"lvls"		"0"
 		}
-		"害怕(滑稽)"
+		"害怕"
 		{
 			"model"		"models/player/custom_player/maoling/haipa/haipa.mdl"
 			"arms"		"models/player/custom_player/maoling/haipa/haipa_arms.mdl"
@@ -732,9 +761,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"滑稽: CGAY社区原创人物"
+			"desc"		"CGAY社区原创人物"
+			"lvls"		"1"
 		}
-		"琴里.校服(Kotori)"
+		"琴里.校服"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/school/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kotori/school/kotori_arms.mdl"
@@ -758,9 +788,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Kotori: 约炮大作战中的精灵.校服版本"
+			"desc"		"约炮大作战中的精灵.校服版本"
+			"lvls"		"0"
 		}
-		"蕾姆(Rem)"
+		"蕾姆"
 		{
 			"model"		"models/player/custom_player/maoling/re0/rem/rem.mdl"
 			"arms"		"models/player/custom_player/maoling/re0/rem/rem_arms.mdl"
@@ -783,9 +814,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"这个我懒得介绍,自己百度= =,老夫就是这么任性"
+			"desc"		"Re0里面的过气女主角"
+			"lvls"		"0"
 		}
-		"優尼(Uni)"
+		"優尼"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/uni/normal/uni.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/uni/normal/uni_arms.mdl"
@@ -809,9 +841,10 @@
 				}
 			}
 			"type"		"playerskin"
-			"desc"		"Uni: NeptuniaVII中的黑色妹妹"
+			"desc"		"NeptuniaVII中的黑色妹妹"
+			"lvls"		"0"
 		}
-		"CyberTech(Miku)"
+		"CyberTech.Miku"
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/hatsune_miku/cybertech/miku_arms.mdl"
@@ -819,21 +852,24 @@
 			"team"		"3"
 			"type"		"playerskin"
 			"auth"		"STEAM_1:1:44083262"
-			"desc"		"Miku: Princess of Kyle. [个人专属模型]"
+			"desc"		"[个人专属模型] Princess of Kyle"
+			"lvls"		"5"
+			"only"		"1"
 		}
-		"桐子(Kirito)"
+		"桐子"
 		{
 			"model"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito.mdl"
 			"arms"		"models/player/custom_player/maoling/sword_art_online/kirito/sao/kirito_arms.mdl"
 			"sound"		"maoling/deathdsound/kirito.mp3"
 			"team"		"2"
-			"buyable"	"0"
-			"giftable"	"0"
 			"price"		"99999"
+			"auth"		"STEAM_1:0:85922133,STEAM_1:1:2359822"
 			"type"		"playerskin"
-			"desc"		"Kirito: Gaytuosi/GayTong. [个人专属模型]"
+			"desc"		"[个人专属模型] Kirito: Gaytuosi/GayTong"
+			"lvls"		"4"
+			"only"		"1"
 		}
-		"琴里.指挥官(Kotori)"
+		"琴里.指挥官"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/commander/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kotori/commander/kotori_arms.mdl"
@@ -843,9 +879,11 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Kotori: 约炮大作战中的精灵.指挥官版本.[泡面组专属]"
+			"desc"		"[泡面组专属] 约炮大作战中的精灵.指挥官版本"
+			"lvls"		"4"
+			"only"		"1"
 		}
-		"琴里.灵装(kotori)"
+		"琴里.灵装"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/spirit/kotori.mdl"
 			"arms"		"models/player/custom_player/maoling/date_a_live/kotori/spirit/kotori_arms.mdl"
@@ -855,9 +893,11 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Kotori: 约炮大作战中的精灵.灵装版本.[挂壁组专属]"
+			"desc"		"[挂壁组专属] 约炮大作战中的精灵.灵装版本"
+			"lvls"		"4"
+			"only"		"1"
 		}
-		"百万亚瑟王(Million.Arthur)"
+		"百万亚瑟王"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/Million_Arthur/swimwear/million.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/Million_Arthur/swimwear/million_arms.mdl"
@@ -867,9 +907,11 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Arthur: NeptuniaVII中DLC人物,从哪出来的我也忘了.[祈组专属]"
+			"desc"		"[祈组专属] NeptuniaVII中DLC人物"
+			"lvls"		"4"
+			"only"		"1"
 		}
-		"普魯魯特(Pururut)"
+		"普魯魯特"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/pururut/normal/pururut.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/pururut/normal/pururut_arms.mdl"
@@ -878,9 +920,11 @@
 			"giftable"	"0"
 			"price"		"3000"
 			"type"		"playerskin"
-			"desc"		"Pururut: 神次元中的紫色女神.[线下活动专属]"
+			"desc"		"[线下活动专属] 神次元中的紫色女神"
+			"lvls"		"3"
+			"only"		"1"
 		}
-		"Re0.艾米莉亚(Emilia)"
+		"艾米莉亚"
 		{
 			"model"		"models/player/custom_player/maoling/re0/emilia_v2/emilia.mdl"
 			"arms"		"models/player/custom_player/maoling/re0/emilia_v2/emilia_arms.mdl"
@@ -889,9 +933,11 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Emilia: Re0中的女主角.[2017春节活动专属]"
+			"desc"		"[春节活动专属] Emilia: Re0中的女主角"
+			"lvls"		"3"
+			"only"		"1"
 		}
-		"夕立(Yuudachi)"
+		"夕立"
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/yuudachi/yuudachi.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/yuudachi/yuudachi_arms.mdl"
@@ -900,9 +946,11 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Yuudachi: 舰队Collection中的角色.[①周年庆专属]"
+			"desc"		"[周年庆专属] 舰队Collection中的角色"
+			"lvls"		"3"
+			"only"		"1"
 		}
-		"犬走椛(Momiji)"
+		"犬走椛"
 		{
 			"model"		"models/player/custom_player/maoling/touhou/momiji/momiji.mdl"
 			"arms"		"models/player/custom_player/maoling/touhou/momiji/momiji_arms.mdl"
@@ -911,9 +959,11 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Momiji: 东方Project的角色.[2015内测/公测活动专属]"
+			"desc"		"[内测活动专属] 东方Project的角色"
+			"lvls"		"2"
+			"case"		"1"
 		}
-		"北方栖姬(Hoppou)"
+		"北方栖姬"
 		{
 			"model"		"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou.mdl"
 			"arms"		"models/player/custom_player/maoling/kantai_collection/hoppou/hoppou_arms.mdl"
@@ -922,9 +972,11 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Hoppou: 舰队Collection中的角色.[矿场兑换模型]"
+			"desc"		"[开箱限定] 舰队Collection中的角色"
+			"lvls"		"2"
+			"case"		"1"
 		}
-		"希斯(Historie)"
+		"希斯"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/histoire/normal/histoire.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/histoire/normal/histoire_arms.mdl"
@@ -933,9 +985,11 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Historie: NeptuneVII中的紫国??.[矿场兑换模型]"
+			"desc"		"[开箱限定] NeptuneVII中的紫国教祖"
+			"lvls"		"2"
+			"case"		"1"
 		}
-		"褆亞拉(Tiara)"
+		"褆亞拉"
 		{
 			"model"		"models/player/custom_player/maoling/fairyfancyf/tiara/tiara.mdl"
 			"arms"		"models/player/custom_player/maoling/fairyfancyf/tiara/tiara_arms.mdl"
@@ -944,9 +998,11 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Tiara: FFF中的女主角.[矿场兑换模型]"
+			"desc"		"[开箱限定] FFF中的女主角"
+			"lvls"		"2"
+			"case"		"1"
 		}
-		"巡音露卡.摇滚(Luka)"
+		"巡音露卡.摇滚"
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/luka/punk/luka.mdl"
 			"arms"		"models/player/custom_player/maoling/vocaloid/luka/punk/luka_arms.mdl"
@@ -956,18 +1012,22 @@
 			"giftable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Luka: 不想介绍.[Kz.Elite以上认证专属模型]"
+			"desc"		"[Kz认证专属] Luka的Punk版本"
+			"lvls"		"2"
+			"only"		"1"
 		}
-		"朝田诗乃(Shino) - VIP免费使用"
+		"朝田诗乃"
 		{
 			"model"		"models/player/custom_player/maoling/sword_art_online/shino/ggo/shino.mdl"
 			"arms"		"models/player/custom_player/maoling/sword_art_online/shino/ggo/shino_arms.mdl"
 			"team"		"3"
 			"vip"		"1"
 			"type"		"playerskin"
-			"desc"		"VIP就能免费用的模型"
+			"desc"		"[VIP专属] 刀剑神域的朝田诗乃"
+			"lvls"		"3"
+			"only"		"1"
 		}
-		"PupleHeart - VIP免费使用"
+		"PupleHeart"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/hdd/purpleheart_arms.mdl"
@@ -975,9 +1035,11 @@
 			"team"		"2"
 			"vip"		"1"
 			"type"		"playerskin"
-			"desc"		"VIP就能免费用的模型"
+			"desc"		"[VIP专属] CPU形态的妮普褆努"
+			"lvls"		"3"
+			"only"		"1"
 		}
-		"琪亚娜(Kiana)"
+		"琪亚娜"
 		{
 			"model"		"models/player/custom_player/maoling/hongkai_impact3/kiana/kiana.mdl"
 			"arms"		"models/player/custom_player/maoling/hongkai_impact3/kiana/kiana_arms.mdl"
@@ -986,9 +1048,10 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"Kiana: 崩坏手游中的XX.[合成限定模型]"
+			"desc"		"[合成限定模型] 崩坏手游中的琪亚娜"
+			"lvls"		"1"
 		}
-		"NextPurple(Non-Thruster)"
+		"NextPurple"
 		{
 			"model"		"models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_nothruster.mdl"
 			"arms"		"models/player/custom_player/maoling/neptunia/neptune/nextform/nextpurple_nothruster_arms.mdl"
@@ -998,7 +1061,8 @@
 			"buyable"	"0"
 			"price"		"99999"
 			"type"		"playerskin"
-			"desc"		"次世代-妮普褆努: 二次变身的?.[合成限定模型]"
+			"desc"		"[合成限定模型] 二次变身的妮普褆努"
+			"lvls"		"1"
 		}
 	}
 	"人物装饰品"

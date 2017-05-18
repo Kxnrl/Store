@@ -18,7 +18,7 @@ enum Store_Item
 	String:szName[ITEM_NAME_LENGTH],
 	String:szUniqueId[PLATFORM_MAX_PATH],
 	String:szShortcut[64],
-	String:szDesc[64],
+	String:szDesc[128],
 	String:szSteam[256],
 	iId,
 	iPrice,
@@ -27,6 +27,9 @@ enum Store_Item
 	iFlagBits,
 	iData,
 	iPlans,
+	iLevels,
+	bool:bCase,
+	bool:bIgnore,
 	bool:bBuyable,
 	bool:bGiftable,
 	bool:bCompose,
@@ -443,7 +446,7 @@ bool AllowItemForAuth(int client, const char[] authid)
 	if(!GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true))
 		return false;
 
-	if(!StrEqual(authid, m_szAuthId))
+	if(StrContains(authid, m_szAuthId) == -1)
 		return false;
 
 	return true;

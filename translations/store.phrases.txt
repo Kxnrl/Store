@@ -13,6 +13,18 @@
 		"chi" "{1}"
 	}
 	
+	"Item not in case"
+	{
+		"en" "This skin is not in case"
+		"chi" "CG皮肤箱中不包含当前浏览的皮肤"
+	}
+	
+	"Open case successful"
+	{
+		"en" "Open case successful"
+		"chi" "开箱成功"
+	}
+	
 	"Item Available"
 	{
 		"#format" "{1:s},{2:d}"
@@ -53,6 +65,25 @@
 		"chi" "合成皮肤"
 	}
 	
+	"Playerskins Level"
+	{
+		"#format" "{1:d},{2:s}"
+		"en"  "Skin Level: {1}  -  {2}"
+		"chi" "皮肤等级: {1}  -  {2}"
+	}
+	
+	"Open Case Available"
+	{
+		"en"  "Open skin case(8888Credits)"
+		"chi" "开启CG皮肤箱(8888信用点)"
+	}
+	
+	"Open Case not available"
+	{
+		"en"  "you can`t open skin case now..."
+		"chi" "现在还不能开箱..."
+	}
+
 	"Preview Available"
 	{
 		"#format" "{1:d}"

@@ -42,6 +42,8 @@ void Skin_OnPluginStart()
 	mp_round_restart_delay = FindConVar("mp_round_restart_delay");
 	HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
 	SetConVarString(mp_round_restart_delay, "12", true);
+	
+	g_ArraySkin = CreateArray(ByteCountToCells(256));
 }
 
 public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -108,6 +110,9 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 
 	if(FileExists(g_ePlayerSkins[g_iPlayerSkins][szModel], true))
 	{
+		if(!g_eItems[itemid][bIgnore])
+			PushArrayString(g_ArraySkin, g_ePlayerSkins[g_iPlayerSkins][szModel]);
+
 		++g_iPlayerSkins;
 		return true;
 	}

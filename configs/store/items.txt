@@ -4827,6 +4827,12 @@
 					"type"		"nametag"
 					"auth"		"STEAM_1:0:85922133"
 				}
+				"烂水果"
+				{
+					"tag"		"{green}[{yellow}烂水果{green}]{teamcolor} "
+					"type"		"nametag"
+					"auth"		"STEAM_1:1:161803745"
+				}
 			}
 			"[东山大法]"
 			{

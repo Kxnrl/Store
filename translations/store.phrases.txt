@@ -74,8 +74,8 @@
 	
 	"Open Case Available"
 	{
-		"en"  "Open skin case(8888Credits)"
-		"chi" "开启CG皮肤箱(8888信用点)"
+		"en"  "Open skin case"
+		"chi" "开启CG皮肤箱"
 	}
 	
 	"Open Case not available"

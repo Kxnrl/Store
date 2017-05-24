@@ -17,10 +17,10 @@ bool g_bIsCheck[MAXPLAYERS+1];
 
 public Plugin myinfo =
 {
-	name		= "Store Online Credits/Riffle",
+	name		= "Store - Online Credits",
 	author		= "Kyle",
 	description = "",
-	version		= "1.1rc2",
+	version		= "1.2",
 	url			= "http://steamcommunity.com/id/_xQy_/"
 };
 
@@ -198,6 +198,13 @@ public Action CreditTimer(Handle timer, int client)
 		m_iCredits += 2;
 		StrCat(szFrom, 128, "\x0A|\x0EVIP+2");
 		StrCat(szReason, 128, " VIP ");
+	}
+	
+	if(CG_IsClientRealName(client))
+	{
+		m_iCredits += 2;
+		StrCat(szFrom, 128, "\x0A|\x0E实名认证+2");
+		StrCat(szReason, 128, " 实名认证 ");
 	}
 
 	StrCat(szFrom, 128, "\x10]");

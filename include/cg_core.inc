@@ -20,6 +20,7 @@ forward void CG_OnClientFire(int client, const char[] weapon);
 
 native    int CG_GetServerId();
 native    int CG_GetClientOnlines(int client);
+native    int CG_GetClientGrowth(int client);
 native    int CG_GetClientVitality(int client);
 native    int CG_GetClientLastseen(int client);
 native    int CG_GetClientDailyTime(int client);
@@ -30,6 +31,7 @@ native    int CG_GetClientPartner(int client);
 native    int CG_GetClientLilyDate(int client);
 native   bool HookClientVIPChecked(OnClientVIPChecked func);
 native   bool CG_IsClientVIP(int client);
+native   bool CG_IsClientRealName(int client);
 native   bool CG_ShowNormalMotd(int client, int width, int height, char[] url);
 native   bool CG_ShowHiddenMotd(int client, char[] url);
 native   bool CG_RemoveMotd(int client);

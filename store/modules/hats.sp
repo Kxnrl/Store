@@ -25,7 +25,7 @@ public int Hats_Config(Handle &kv, int itemid)
 	g_eHats[g_iHats][fAngles] = m_fTemp;
 	g_eHats[g_iHats][bBonemerge] = (KvGetNum(kv, "bonemerge", 0)?true:false);
 	g_eHats[g_iHats][iSlot] = KvGetNum(kv, "slot");
-	KvGetString(kv, "attachment", g_eHats[g_iHats][szAttachment], 64, "forward");
+	KvGetString(kv, "attachment", g_eHats[g_iHats][szAttachment], 64, "facemask");
 	
 	if(!(FileExists(g_eHats[g_iHats][szModel], true)))
 		return false;
@@ -138,7 +138,7 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
 		
 		SetVariantString("!activator");
 		AcceptEntityInput(m_iEnt, "SetParent", client, m_iEnt, 0);
-		
+
 		SetVariantString(g_eHats[m_iData][szAttachment]);
 		AcceptEntityInput(m_iEnt, "SetParentAttachmentMaintainOffset", m_iEnt, m_iEnt, 0);
 	}

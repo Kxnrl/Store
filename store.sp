@@ -15,6 +15,7 @@
 #include <clientprefs>
 #include <chat-processor>
 #include <fpvm_interface>
+#include <csc>
 
 //////////////////////////////
 //		DEFINITIONS			//
@@ -22,7 +23,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.8b - 2017/05/18 21:50"
+#define PLUGIN_VERSION "1.81 - 2017/05/25 01:10"
 #define PLUGIN_URL ""
 
 // Server
@@ -30,14 +31,14 @@
 //#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
-//#define GM_HG //hunger game server
-//#define GM_PR //pure|competitive server
+//#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-#define GM_KZ //kreedz server
+#define GM_PR //pure|competitive server
+//#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
 //Custom
-//#define Global_Skin	3	//skin does not match with team
+//#define Global_Skin		//skin does not match with team
 //#define TeamArms		//fix arms when client team
 //#define AllowHide		//Enable hide mode
 
@@ -90,7 +91,7 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 //////////////////////////////
 // player module
 //#include "store/modules/hats.sp"
-#include "store/modules/skin.sp"
+//#include "store/modules/skin.sp"
 //#include "store/modules/neon.sp"
 //#include "store/modules/aura.sp"
 //#include "store/modules/part.sp"
@@ -99,12 +100,12 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 // global modules
 #include "store/cpsupport.sp"
 #include "store/vipadmin.sp"
-#include "store/players.sp"
+//#include "store/players.sp"
 //#include "store/grenades.sp"
-#include "store/sprays.sp"
-#include "store/models.sp"
-#include "store/sounds.sp"
-#include "store/tpmode.sp"
+//#include "store/sprays.sp"
+//#include "store/models.sp"
+//#include "store/sounds.sp"
+//#include "store/tpmode.sp"
 
 
 //////////////////////////////////
@@ -207,6 +208,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
+	
+	MarkNativeAsOptional("CG_Broadcast");
 
 	g_bLateLoad = late;
 
@@ -550,17 +553,17 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
 	// Can he even have it?	
 	if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
 		return -1;
-	
-	if(!AllowItemForAuth(client, g_eItems[itemid][szSteam]))
-		return -1;
-	
-	if(!AllowItemForVIP(client, g_eItems[itemid][bVIP]))
-		return -1;
+
+	if(g_eItems[itemid][szSteam][0] != 0)
+		return (AllowItemForAuth(client, g_eItems[itemid][szSteam])) ? 0 : -1;
+
+	if(g_eItems[itemid][bVIP])
+		return (AllowItemForVIP(client, g_eItems[itemid][bVIP])) ? 0 : -1;
 	
 	// Is the item free (available for everyone)?
 	if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
 		return -1;
-	
+
 	for(int i = 0; i < g_eClients[client][iItems]; ++i)
 	{
 		if(g_eClientItems[client][i][iUniqueId] == itemid && !g_eClientItems[client][i][bDeleted])
@@ -584,15 +587,15 @@ public int Native_HasClientItem(Handle myself, int numParams)
 		return false;
 	
 	// Personal item?
-	if(!AllowItemForAuth(client, g_eItems[itemid][szSteam]))
-		return false;
+	if(g_eItems[itemid][szSteam][0] != 0)
+		return AllowItemForAuth(client, g_eItems[itemid][szSteam]);
 
 	// VIP item?
-	if(!AllowItemForVIP(client, g_eItems[itemid][bVIP]))
-		return false;
+	if(g_eItems[itemid][bVIP])
+		return AllowItemForVIP(client, g_eItems[itemid][bVIP]);
 
 	// Is the item free (available for everyone)?
-	if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+	if(!g_eItems[itemid][bIgnore] && !g_eItems[itemid][bCase] && !g_eItems[itemid][bCompose] && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
 		return true;
 
 	// Check if the client actually has the item
@@ -608,7 +611,7 @@ public int Native_HasClientItem(Handle myself, int numParams)
 	// Check if the item is part of a group the client already has
 	if(Store_IsItemInBoughtPackage(client, itemid))
 		return true;
-		
+
 	return false;
 }
 
@@ -902,9 +905,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 					if(!g_eItems[i][bBuyable])
 						continue;
 
-					if(g_eItems[i][bCompose])
-						AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Compose Available", client, g_eItems[i][szName]);
-					else if(g_eItems[i][iPlans]==0)
+					if(g_eItems[i][iPlans]==0)
 						AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
 					else
 						AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Plan Available", client, g_eItems[i][szName], g_eItems[i][iPrice]);
@@ -1091,8 +1092,14 @@ public void DisplayPreviewMenu(int client, int itemid)
 
 	AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%T", "Open Case Available", client);
 
-	if(g_eItems[itemid][bCompose])
+	if(g_eItems[itemid][bCompose])  //合成
 		AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Preview Compose Available", client);
+	else if(g_eItems[itemid][szSteam][0] != 0) //专个人属
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
+	else if(g_eItems[itemid][bIgnore]) //组专属或活动限定
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
+	else if(g_eItems[itemid][bCase]) //开箱专属
+		AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
 	else
 	{
 		if(g_eItems[itemid][bBuyable])
@@ -1127,7 +1134,7 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
 		int m_iId = g_iSelectedItem[client];
 
 		if(selected == 0)
-		{	
+		{
 			if(g_eClients[client][iCredits] >= 10000)
 			{
 				g_eCompose[client][item1]=-1;
@@ -1169,9 +1176,6 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
 		}
 		else if(selected == 3)
 		{
-			if(!g_eItems[m_iId][bCase])
-				tPrintToChat(client, "%T", "Item not in case", client);
-
 #if defined Module_Skin
 			if(g_eClients[client][iCredits] >= 8888)
 				Store_OpenSkinCase(client);
@@ -1226,18 +1230,21 @@ public int MenuHandler_SelectCase(Handle menu, MenuAction action, int client, in
 			GetMenuItem(menu, param2, STRING(info));
 
 			g_iClientCase[client] = StringToInt(info);
+			
+			if(g_eItems[g_iSelectedItem[client]][bIgnore])
+			{
+				if(g_iClientCase[client] == 1)
+					tPrintToChat(client, "%T", "Item not in case", client);
+				else if(g_eItems[g_iSelectedItem[client]][szSteam][0] != 0)
+					tPrintToChat(client, "%T", "Item not in case", client);
+			}
 
 			CreateTimer(0.1, Timer_OpeningCase, client);
 		}
-		case MenuCancel_ExitBack:
+		case MenuAction_Cancel:
 		{
 			if(param2 == MenuCancel_ExitBack)
-			{
-				if(Store_HasClientItem(client, g_iSelectedItem[client]))
-					DisplayItemMenu(client, g_iSelectedItem[client]);
-				else
-					DisplayPreviewMenu(client, g_iSelectedItem[client]);
-			}
+				DisplayItemMenu(client, g_iSelectedItem[client]);
 		}
 	}
 }
@@ -1288,9 +1295,10 @@ public Action Timer_OpeningCase(Handle timer, int client)
 	if(itemid < 0)
 	{
 		LogError("Item Id Error %s", modelname);
+		tPrintToChat(client, "\x07发生未知错误,请联系管理员");
 		return Plugin_Stop;
 	}
-	
+
 	int days;
 
 	int rdm = Math_GetRandomInt(1, 1000);
@@ -1309,8 +1317,8 @@ public Action Timer_OpeningCase(Handle timer, int client)
 	{
 		if(rdm >= 970)
 			days = 0;
-		else if(rdm >= 880)
-			days = Math_GetRandomInt(25, 365);
+		else if(rdm >= 900)
+			days = Math_GetRandomInt(32, 365);
 		else
 			days = Math_GetRandomInt(1, 31);
 
@@ -1324,10 +1332,10 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
 	OpeningCaseMenu(client, days, g_eItems[itemid][szName]);
 
-	if(times[client] <= 4) CreateTimer(0.2, Timer_OpeningCase, client);
-	else if(4 < times[client] <= 8)  CreateTimer(0.3, Timer_OpeningCase, client);
-	else if(8 < times[client] <= 10) CreateTimer(0.4, Timer_OpeningCase, client);
-	else if(10 < times[client] <= 12) CreateTimer(0.5, Timer_OpeningCase, client);
+	if(5 >= times[client]) CreateTimer(0.2, Timer_OpeningCase, client);
+	else if(times[client] > 5)  CreateTimer(0.3, Timer_OpeningCase, client);
+	else if(times[client] > 10) CreateTimer(0.4, Timer_OpeningCase, client);
+	else if(times[client] > 15) CreateTimer(0.5, Timer_OpeningCase, client);
 	else CreateTimer(0.6, Timer_OpeningCase, client);
 
 	return Plugin_Stop;
@@ -1407,6 +1415,7 @@ void EndingCaseMenu(int client, int days, int itemid)
 
 	Handle menu = CreateMenu(MenuHandler_OpenSuccessful);
 	SetMenuTitleEx(menu, "%T\n%s", "Open case successful", client, g_szCase[g_iClientCase[client]]);
+	SetMenuExitButton(menu, false);
 
 	char name[128];
 	strcopy(name, 128, g_eItems[itemid][szName]);
@@ -1428,6 +1437,9 @@ void EndingCaseMenu(int client, int days, int itemid)
 		AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "时限: 永久(permanent)");
 		PrintCenterText(client, "<big><u><b><font color='#dd2f2f' size='25'><center>%s</font> <font color='#15fb00' size='25'>Permanent</center>", name);
 		tPrintToChatAll("\x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
+		char msg[256];
+		Format(msg, 256, "[\x10Store\x01] \x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
+		BroadCastToAll(msg);
 	}
 
 	AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
@@ -1466,13 +1478,13 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
 			ReplaceString(name, 128, "[CT] ", "");
 			ReplaceString(name, 128, "[TE] ", "");
 			ReplaceString(name, 128, "[通用] ", "");
-			
+
 			char m_szQuery[256];
 
 			if(StrEqual(data[0], "sell"))
 			{
 				int crd = Store_GetSkinSellPrice(client, days);
-				Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, "Quick sell case skin");
+				Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, "Quick sell case skin Select");
 				if(days) tPrintToChat(client, "你出售了[\x04%s\x01](\x05%d天\x01)获得了\x04%d\x01信用点", name, days, crd);
 				else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
 				Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
@@ -1494,14 +1506,15 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
 				Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
 				SQL_TVoid(g_hDatabase, m_szQuery);
 				g_iDataProtect[client] = GetTime()+30;
+				g_iSelectedItem[client] = itemid;
 				DisplayItemMenu(client, itemid);
 			}
 			else
 				LogError("%N Open case error: %s", client, info);
 		}
-		case MenuCancel_ExitBack:
+		case MenuAction_Cancel:
 		{
-			if(IsClientInGame(client))
+			if(IsClientInGame(client) && param2 != MenuCancel_Disconnected && param2 != MenuCancel_NoDisplay)
 			{
 				char info[32];
 				GetMenuItem(menu, 5, STRING(info));
@@ -1517,22 +1530,34 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
 				ReplaceString(name, 128, "[CT] ", "");
 				ReplaceString(name, 128, "[TE] ", "");
 				ReplaceString(name, 128, "[通用] ", "");
-
-				int crd = Store_GetSkinSellPrice(client, days);
-				Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, "Fast sell case skin");
-				if(days) tPrintToChat(client, "你出售了[\x04%s\x01](\x05%d天\x01)获得了\x04%d\x01信用点", name, days, crd);
-				else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
-				g_iDataProtect[client] = GetTime()+5;
 				
 				char m_szQuery[256];
-				Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
-				SQL_TVoid(g_hDatabase, m_szQuery);
 				
-				if(g_iClientCase[client] > 1)
+				if(Store_HasClientItem(client, itemid))
 				{
-					g_iDataProtect[client] = GetTime()+30;
-					Store_SaveClientAll(client);
+					int crd = Store_GetSkinSellPrice(client, days);
+					Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, "Quick sell case skin Exitback");
+					if(days) tPrintToChat(client, "你出售了[\x04%s\x01](\x05%d天\x01)获得了\x04%d\x01信用点", name, days, crd);
+					else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
+					if(g_iClientCase[client] > 1)
+					{
+						g_iDataProtect[client] = GetTime()+30;
+						Store_SaveClientAll(client);
+					} else g_iDataProtect[client] = GetTime()+5;
+					Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
 				}
+				else
+				{
+					Store_GiveItem(client, itemid, GetTime(), (days == 0) ? 0 : GetTime()+days*86400, 233);
+					if(days) tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05%d天\x01)", g_szCase[g_iClientCase[client]], name, days);
+					else tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05永久\x01)", g_szCase[g_iClientCase[client]], name);			
+					Store_SaveClientAll(client);
+					g_iDataProtect[client] = GetTime()+30;
+					g_iSelectedItem[client] = itemid;
+					Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
+				}
+
+				SQL_TVoid(g_hDatabase, m_szQuery);
 			}
 		}
 	}
@@ -1541,7 +1566,11 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
 public void DisplayItemMenu(int client, int itemid)
 {
 	if(!Store_HasClientItem(client, itemid))
+	{
+		if(StrEqual(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "playerskin"))
+			DisplayPreviewMenu(client, itemid);
 		return;
+	}
 
 	g_iMenuNum[client] = 1;
 	g_iMenuBack[client] = g_eItems[itemid][iParent];
@@ -1888,9 +1917,6 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
 			// Player want to open case
 			else if(m_iId == 4)
 			{
-				if(!g_eItems[g_iSelectedItem[client]][bCase])
-					tPrintToChat(client, "%T", "Item not in case", client);
-
 #if defined Module_Skin
 				if(g_eClients[client][iCredits] >= 8888)
 					Store_OpenSkinCase(client);
@@ -2230,7 +2256,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 		
 		char m_szUniqueId[PLATFORM_MAX_PATH];
 		char m_szType[16];
-		int m_iUniqueId;
+		int m_iUniqueId, m_iSlot;
 
 		while(SQL_FetchRow(hndl))
 		{
@@ -2239,13 +2265,24 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 			m_iUniqueId = Store_GetItemId(m_szType, m_szUniqueId);
 			if(m_iUniqueId == -1)
 				continue;
-				
-			//if(!Store_HasClientItem(client, m_iUniqueId))
-			//	Store_UnequipItem(client, m_iUniqueId);
-			//else
-			//	Store_UseItem(client, m_iUniqueId, true, SQL_FetchInt(hndl, 3));
+
+			m_iSlot = SQL_FetchInt(hndl, 3);
+
+			if(StrEqual(m_szType, "playerskin"))
+			{
+#if defined Global_Skin
+				if(m_iSlot != 2)
+					continue;
+#else
+				if(m_iSlot >= 2)
+					continue;
+#endif
+			}
+
 			if(Store_HasClientItem(client, m_iUniqueId))
-				Store_UseItem(client, m_iUniqueId, true, SQL_FetchInt(hndl, 3));
+				Store_UseItem(client, m_iUniqueId, true, m_iSlot);
+			else
+				Store_UnequipItem(client, m_iUniqueId);
 		}
 		g_eClients[client][bLoaded] = true;
 	}
@@ -2340,11 +2377,14 @@ void Store_SaveClientEquipment(int client)
 			if(g_eClients[client][aEquipmentSynced][m_iId] == g_eClients[client][aEquipment][m_iId])
 				continue;
 			else if(g_eClients[client][aEquipmentSynced][m_iId] != -2)
+			{
 				if(g_eClients[client][aEquipment][m_iId]==-1)
 					Format(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d AND `type`=\"%s\" AND `slot`=%d", g_eClients[client][iId], g_eTypeHandlers[i][szType], a);
 				else
-					Format(STRING(m_szQuery), "UPDATE store_equipment SET `unique_id`=\"%s\" WHERE `player_id`=%d AND `type`=\"%s\" AND `slot`=%d", g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], g_eClients[client][iId], g_eTypeHandlers[i][szType], a);
-				
+					Format(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d) ON DUPLICATE KEY UPDATE `unique_id` = VALUES(`unique_id`)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
+
+				//Format(STRING(m_szQuery), "UPDATE store_equipment SET `unique_id`=\"%s\" WHERE `player_id`=%d AND `type`=\"%s\" AND `slot`=%d", g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], g_eClients[client][iId], g_eTypeHandlers[i][szType], a);
+			}
 			else
 				Format(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
 
@@ -3151,4 +3191,12 @@ int Math_GetRandomInt(int min, int max)
 		random++;
 
 	return RoundToCeil(float(random) / (float(SIZE_OF_INT) / float(max - min + 1))) + min - 1;
+}
+
+void BroadCastToAll(const char[] msg)
+{
+	if(GetFeatureStatus(FeatureType_Native, "CG_Broadcast") != FeatureStatus_Available)
+		return;
+	
+	CG_Broadcast(true, msg);
 }

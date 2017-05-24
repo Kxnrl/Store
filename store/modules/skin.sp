@@ -22,13 +22,12 @@ char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 char g_szDeathModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 ConVar mp_round_restart_delay;
+ConVar sv_disablefreezecam;
 
 void Skin_OnPluginStart()
 {
 	AddNormalSoundHook(Hook_NormalSound);
 
-	CheckGameItemsTxt();
-	
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
 
 	RegConsoleCmd("sm_arm", Command_Arm, "Draw Player Arms");
@@ -38,6 +37,10 @@ void Skin_OnPluginStart()
 	spec_freeze_time = FindConVar("spec_freeze_time");
 	HookConVarChange(spec_freeze_time, Skin_OnConVarChanged);
 	SetConVarString(spec_freeze_time, "-1.0", true);
+	
+	sv_disablefreezecam = FindConVar("sv_disablefreezecam");
+	HookConVarChange(sv_disablefreezecam, Skin_OnConVarChanged);
+	SetConVarString(sv_disablefreezecam, "1", true);
 	
 	mp_round_restart_delay = FindConVar("mp_round_restart_delay");
 	HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
@@ -50,7 +53,10 @@ public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const cha
 {
 	if(convar == spec_freeze_time)
 		SetConVarString(spec_freeze_time, "-1.0", true);
-	
+
+	if(convar == sv_disablefreezecam)
+		SetConVarString(sv_disablefreezecam, "1", true);	
+
 	if(convar == mp_round_restart_delay)
 		SetConVarString(mp_round_restart_delay, "12", true);
 }
@@ -103,7 +109,7 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 	KvGetString(kv, "sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
 
 #if defined Global_Skin
-	g_ePlayerSkins[g_iPlayerSkins][iTeam] = Global_Skin;
+	g_ePlayerSkins[g_iPlayerSkins][iTeam] = 4;
 #else
 	g_ePlayerSkins[g_iPlayerSkins][iTeam] = KvGetNum(kv, "team");
 #endif
@@ -194,13 +200,14 @@ void Store_PreSetClientModel(int client)
 #endif
 
 	strcopy(g_szDeathModel[client], 256, "default");
-	
+
+#if defined Global_Skin
+	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
+#else
 	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
-	
-#if !defined Global_Skin
 	if(g_eClients[client][iId] == 1)
 		m_iEquipped = Store_GetEquippedItem(client, "playerskin", 1);
-#endif	
+#endif
 
 	if(m_iEquipped >= 0)
 	{
@@ -433,67 +440,6 @@ public Action Timer_KillPreview(Handle timer, int client)
 	return Plugin_Stop;
 }
 
-void CheckGameItemsTxt()
-{
-	Handle kv = CreateKeyValues("items_game");
-	
-	if(!FileToKeyValues(kv, "scripts/items/items_game.txt"))
-	{
-		LogError("Unable to open/read file at 'scripts/items/items_game.txt'.");
-		CloseHandle(kv);
-		return;
-	}
-	
-	if(!KvJumpToKey(kv, "items"))
-	{
-		LogError("Unable to read key 'items'.");
-		CloseHandle(kv);
-		return;
-	}
-
-	bool del = false;
-
-	if(KvJumpToKey(kv, "5028"))
-	{
-		KvDeleteThis(kv);
-		LogMessage("Deleted 'scripts/items/items_game.txt' key '5028'");
-		KvRewind(kv);
-		KvJumpToKey(kv, "items");
-		del = true;
-	}
-	
-	if(KvJumpToKey(kv, "5029"))
-	{
-		KvDeleteThis(kv);
-		LogMessage("Deleted 'scripts/items/items_game.txt' key '5028'");
-		del = true;
-	}
-
-	KvRewind(kv);
-	
-	if(!del)
-	{
-		LogMessage("'scripts/items/items_game.txt' is lastest verison");
-		CloseHandle(kv);
-		return;
-	}
-
-	if(KeyValuesToFile(kv, "scripts/items/items_game.txt"))
-	{
-		LogMessage("Updated 'scripts/items/items_game.txt' successfully. - Restart Server");
-		CreateTimer(10.0, Timer_Shutdown);
-	}
-	else
-		LogError("Unable to save file at 'scripts/items/items_game.txt'.");
-
-	CloseHandle(kv);
-}
-
-public Action Timer_Shutdown(Handle timer)
-{
-	ServerCommand("quit");
-}
-
 void FirstPersonDeathCamera(int client)
 {
 	if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
@@ -616,8 +562,8 @@ void AttemptState(int client, bool spec)
 void FadeScreenBlack(int client)
 {
 	Handle pb = StartMessageOne("Fade", client);
-	PbSetInt(pb, "duration", 3072);
-	PbSetInt(pb, "hold_time", 3072);
+	PbSetInt(pb, "duration", 4096);
+	PbSetInt(pb, "hold_time", 0);
 	PbSetInt(pb, "flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
 	PbSetColor(pb, "clr", {0, 0, 0, 255});
 	EndMessage();

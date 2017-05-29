@@ -437,7 +437,7 @@ public void SQL_TVoid(Handle db, char[] query)
 	SQL_TQuery(db, SQLCallback_Void_PrintQuery, query, data);
 }
 
-bool AllowItemForAuth(int client, const char[] authid)
+stock bool AllowItemForAuth(int client, const char[] authid)
 {
 	if(authid[0] == 0)
 		return true;
@@ -452,10 +452,38 @@ bool AllowItemForAuth(int client, const char[] authid)
 	return true;
 }
 
-bool AllowItemForVIP(int client, bool vip)
+stock bool AllowItemForVIP(int client, bool vip)
 {
 	if(!vip)
 		return true;
 
 	return CG_IsClientVIP(client);
+}
+
+stock void SetDefaultSkin(int client, int team)
+{
+	char m_szModel[128];
+	GetEntPropString(client, Prop_Data, "m_ModelName", m_szModel, 128);
+
+	if(team == 2)
+	{
+		SetEntityModel(client, (StrContains(m_szModel, "tm_anarchist") != -1 || StrContains(m_szModel, "tm_phoenix") != -1) ? "models/player/custom_player/legacy/tm_pirate.mdl" : "models/player/custom_player/legacy/tm_anarchist.mdl");
+		SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/t_arms.mdl");
+	}
+	else if(team == 3)
+	{
+		SetEntityModel(client, (StrContains(m_szModel, "ctm_fbi") != -1 || StrContains(m_szModel, "ctm_sas") != -1 || StrContains(m_szModel, "ctm_swat") != -1) ? "models/player/custom_player/legacy/ctm_gign.mdl" : "models/player/custom_player/legacy/ctm_fbi.mdl");
+		SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
+	}
+}
+
+stock void PrecacheDefaultModel()
+{
+	PrecacheModel("models/player/custom_player/legacy/tm_anarchist.mdl");
+	PrecacheModel("models/player/custom_player/legacy/tm_pirate.mdl");
+	PrecacheModel("models/player/custom_player/legacy/ctm_gign.mdl");
+	PrecacheModel("models/player/custom_player/legacy/ctm_fbi.mdl");
+
+	PrecacheModel("models/weapons/t_arms.mdl");
+	PrecacheModel("models/weapons/ct_arms.mdl");
 }

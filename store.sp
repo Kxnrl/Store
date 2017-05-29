@@ -13,6 +13,7 @@
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
 #include <clientprefs>
+#include <cstrike>
 #include <chat-processor>
 #include <fpvm_interface>
 #include <csc>
@@ -23,7 +24,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.81 - 2017/05/25 01:10"
+#define PLUGIN_VERSION "1.83 - 2017/05/29 08:19"
 #define PLUGIN_URL ""
 
 // Server
@@ -94,7 +95,7 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 //#include "store/modules/skin.sp"
 //#include "store/modules/neon.sp"
 //#include "store/modules/aura.sp"
-//#include "store/modules/part.sp"
+////#include "store/modules/part.sp"
 //#include "store/modules/trail.sp"
 
 // global modules
@@ -505,8 +506,6 @@ public int Native_GiveItem(Handle myself, int numParams)
 		g_eClientItems[client][m_iId][iPriceOfPurchase] = price;
 		g_eClientItems[client][m_iId][bSynced] = false;
 		g_eClientItems[client][m_iId][bDeleted] = false;
-		
-		//LogMessage("Give %N %s successful. purchase %d expiration %d price %d", client, g_eItems[itemid][szName] , purchase, expiration, price);
 	}
 	else
 	{
@@ -2664,7 +2663,7 @@ void Store_GiftItem(int client, int receiver, int item)
 		|| (g_eClients[receiver][iCredits] == -1 && g_eClients[receiver][iItems] == -1) || !g_eClients[receiver][bLoaded]) {
 		return;
 	}
-	
+
 	if(g_iDataProtect[client] > GetTime())
 	{
 		tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());

@@ -23,6 +23,7 @@ char g_szDeathModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 ConVar mp_round_restart_delay;
 ConVar sv_disablefreezecam;
+bool g_bNeedFixArms;
 
 void Skin_OnPluginStart()
 {
@@ -157,6 +158,10 @@ public void PlayerSkins_OnMapStart()
 			}
 		}
 	}
+	
+	g_bNeedFixArms = false;
+
+	PrecacheDefaultModel();
 
 #if defined GM_ZE
 	if(FileExists(Model_ZE_Newbee))
@@ -211,43 +216,98 @@ void Store_PreSetClientModel(int client)
 
 	if(m_iEquipped >= 0)
 	{
+		if(g_bNeedFixArms)
+			SetDefaultSkin(client, g_iClientTeam[client]);
+
 		int m_iData = Store_GetDataIndex(m_iEquipped);
-		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][szArms]);
+		if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+			SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
+
+		if(g_bNeedFixArms)
+		{
+			CreateTimer(0.2, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
+#if defined GM_MG
+			int decoy = GivePlayerItem(client, "weapon_decoy");
+			if(decoy != -1) CreateTimer(0.3, Timer_ClearDecoy, EntIndexToEntRef(decoy));
+#endif
+		}
+		else Store_SetClientModel(client, m_iData);
+
 		if(g_ePlayerSkins[m_iData][szSound][0] != 0)
-			Format(g_szDeathVoice[client], PLATFORM_MAX_PATH, "*%s", g_ePlayerSkins[m_iData][szSound]);
+			Format(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
 	}
 #if defined GM_ZE
 	else
 	{
-		if(IsModelPrecached(Model_ZE_Newbee) && IsModelPrecached(Arms_ZE_NewBee))
-			Store_SetClientModel(client, Model_ZE_Newbee, Arms_ZE_NewBee);
+		SetDefaultSkin(client, g_iClientTeam[client]);
+		SetEntPropString(client, Prop_Send, "m_szArmsModel", Arms_ZE_NewBee);
+		CreateTimer(0.2, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 #endif
 }
 
-void Store_SetClientModel(int client, const char[] model, const char[] arms = "null")
+#if defined GM_MG
+public Action Timer_ClearDecoy(Handle timer, int iRef)
 {
-	if(!IsModelPrecached(model))
-		PrecacheModel2(model, true);
-
-	SetEntityModel(client, model);
-
-	if(!StrEqual(arms, "null"))
-	{
-		if(!IsModelPrecached(arms))
-			PrecacheModel2(arms, true);
-		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
-	}
+	int decoy = EntRefToEntIndex(iRef);
+	if(!IsValidEdict(decoy))
+		return Plugin_Stop;
 	
-	if(!StrEqual(model, Model_ZE_Newbee))
-		strcopy(g_szDeathModel[client], 256, model);
-	else
-		strcopy(g_szDeathModel[client], 256, "default");
+	int owner = GetEntPropEnt(decoy, Prop_Send, "m_hOwnerEntity");
+	
+	if(IsClientInGame(owner) && IsPlayerAlive(owner))
+		CS_DropWeapon(owner, decoy, true, true);
+	
+	AcceptEntityInput(decoy, "Kill");
+
+	return Plugin_Stop;
+}
+#endif
+
+void Store_SetClientModel(int client, int m_iData)
+{
+	if(!IsClientInGame(client) || !IsPlayerAlive(client))
+		return;
+	
+#if defined GM_ZE
+	if(g_iClientTeam[client] == 2)
+	{
+		strcopy(g_szDeathModel[client], 256, "zombie");
+		return;
+	}
+#endif
+
+	SetEntityModel(client, g_ePlayerSkins[m_iData][szModel]);
+	strcopy(g_szDeathModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
 
 #if defined Module_Hats
 	Store_SetClientHat(client);
 #endif
 }
+
+public Action Timer_SetClientModel(Handle timer, int Value)
+{
+	Store_SetClientModel(Value & 0x7f, Value >> 7);
+
+	return Plugin_Stop;
+}
+
+#if defined GM_ZE
+public Action Store_SetClientModelZE(Handle timer, int client)
+{
+	if(!IsClientInGame(client) || !IsPlayerAlive(client))
+		return Plugin_Stop;
+
+	strcopy(g_szDeathModel[client], 256, "default");
+	SetEntityModel(client, Model_ZE_Newbee);
+
+#if defined Module_Hats
+	Store_SetClientHat(client);
+#endif
+
+	return Plugin_Stop;
+}
+#endif
 
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
@@ -329,7 +389,7 @@ bool ResetClientWeaponBySlot(int client, int slot)
 
 	char classname[32];
 	GetWeaponClassname(weapon, classname, 32);
-	RemovePlayerItem(client, weapon);
+	CS_DropWeapon(client, weapon, true, true);
 	AcceptEntityInput(weapon, "Kill");
 
 	Handle hPack;
@@ -617,4 +677,50 @@ public Action Timer_DeathModel(Handle timer, Handle pack)
 	g_szDeathModel[client][0] = '\0';
 
 	return Plugin_Stop;
+}
+
+public void OnConfigsExecuted()
+{
+	char map[128];
+	GetCurrentMap(map, 128);
+	
+	char path[128];
+	Format(path, 128, "maps/%s.kv", map);
+	
+	Handle kv = CreateKeyValues(map);
+
+	FileToKeyValues(kv, path);
+	
+	if(KvJumpToKey(kv, "t_models", false))
+	{
+		if(KvGotoFirstSubKey(kv, false))
+		{
+			char kvalue[128];
+			KvGetSectionName(kv, kvalue, 128);
+			if(StrContains(kvalue, "tm_anarchist") != -1 || StrContains(kvalue, "ctm_sas") != -1 || StrContains(kvalue, "ctm_fbi") != -1 || StrContains(kvalue, "ctm_swat") != -1)
+			{
+				g_bNeedFixArms = true;
+				LogMessage("Found Kv -> %s", kvalue);
+			}
+		}
+	}
+	KvRewind(kv);
+
+	if(KvJumpToKey(kv, "ct_models", false))
+	{
+		if(KvGotoFirstSubKey(kv, false))
+		{
+			char kvalue[128];
+			KvGetSectionName(kv, kvalue, 128);
+			if(StrContains(kvalue, "tm_anarchist") != -1 || StrContains(kvalue, "ctm_sas") != -1 || StrContains(kvalue, "ctm_fbi") != -1 || StrContains(kvalue, "ctm_swat") != -1)
+			{
+				g_bNeedFixArms = true;
+				LogMessage("Found Kv -> %s", kvalue);
+			}
+		}
+	}
+	
+	LogMessage("Current Maps %s -> %s Need Fix Arms", map, !g_bNeedFixArms ? "NOT" : "");
+
+	CloseHandle(kv);
 }

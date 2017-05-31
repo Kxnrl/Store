@@ -29,19 +29,19 @@
 
 // Server
 //#define GM_TT
-//#define GM_ZE //zombie escape server
+#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-#define GM_PR //pure|competitive server
+//#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
 //Custom
-//#define Global_Skin		//skin does not match with team
+#define Global_Skin		//skin does not match with team
 //#define TeamArms		//fix arms when client team
-//#define AllowHide		//Enable hide mode
+#define AllowHide		//Enable hide mode
 
 
 //////////////////////////////////
@@ -91,22 +91,22 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 //			MODULES			//
 //////////////////////////////
 // player module
-//#include "store/modules/hats.sp"
-//#include "store/modules/skin.sp"
-//#include "store/modules/neon.sp"
+#include "store/modules/hats.sp"
+#include "store/modules/skin.sp"
+#include "store/modules/neon.sp"
 //#include "store/modules/aura.sp"
-////#include "store/modules/part.sp"
-//#include "store/modules/trail.sp"
+//#include "store/modules/part.sp"
+#include "store/modules/trail.sp"
 
 // global modules
 #include "store/cpsupport.sp"
 #include "store/vipadmin.sp"
-//#include "store/players.sp"
-//#include "store/grenades.sp"
-//#include "store/sprays.sp"
-//#include "store/models.sp"
-//#include "store/sounds.sp"
-//#include "store/tpmode.sp"
+#include "store/players.sp"
+#include "store/grenades.sp"
+#include "store/sprays.sp"
+#include "store/models.sp"
+#include "store/sounds.sp"
+#include "store/tpmode.sp"
 
 
 //////////////////////////////////

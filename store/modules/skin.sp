@@ -1,7 +1,6 @@
 #define Module_Skin
 
 #define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
-#define Arms_ZE_NewBee "models/weapons/t_arms_anarchist.mdl"
 
 enum PlayerSkin
 {
@@ -140,12 +139,6 @@ public void PlayerSkins_OnMapStart()
 			PrecacheModel2(g_ePlayerSkins[i][szArms], true);
 			Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
 		}
-		
-		if(g_ePlayerSkins[i][szArms][0] != 0)
-		{
-			PrecacheModel2(g_ePlayerSkins[i][szArms], true);
-			Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
-		}
 
 		if(g_ePlayerSkins[i][szSound][0] != 0)
 		{
@@ -167,7 +160,6 @@ public void PlayerSkins_OnMapStart()
 	if(FileExists(Model_ZE_Newbee))
 	{
 		PrecacheModel2(Model_ZE_Newbee, true);
-		PrecacheModel2(Arms_ZE_NewBee, true);
 		Downloader_AddFileToDownloadsTable(Model_ZE_Newbee);
 	}
 #endif
@@ -239,8 +231,6 @@ void Store_PreSetClientModel(int client)
 #if defined GM_ZE
 	else
 	{
-		SetDefaultSkin(client, g_iClientTeam[client]);
-		SetEntPropString(client, Prop_Send, "m_szArmsModel", Arms_ZE_NewBee);
 		CreateTimer(0.2, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 #endif
@@ -297,6 +287,12 @@ public Action Store_SetClientModelZE(Handle timer, int client)
 {
 	if(!IsClientInGame(client) || !IsPlayerAlive(client))
 		return Plugin_Stop;
+
+	if(g_iClientTeam[client] == 2)
+	{
+		strcopy(g_szDeathModel[client], 256, "zombie");
+		return Plugin_Stop;
+	}
 
 	strcopy(g_szDeathModel[client], 256, "default");
 	SetEntityModel(client, Model_ZE_Newbee);

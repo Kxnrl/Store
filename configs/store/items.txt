@@ -1000,6 +1000,19 @@
 			"lvls"		"4"
 			"only"		"1"
 		}
+		"Luka(Kimono)"
+		{
+			"model"		"models/player/custom_player/maoling/vocaloid/luka/baka/luka.mdl"
+			"arms"		"models/player/custom_player/maoling/vocaloid/luka/baka/luka_arms.mdl"
+			"sound"		"maoling/deathsound/luka.mp3"
+			"team"		"2"
+			"auth"		"STEAM_1:1:82430760"
+			"type"		"playerskin"
+			"buyable"	"0"
+			"desc"		"[个人专属模型] ************"
+			"lvls"		"4"
+			"only"		"1"
+		}
 		"琴里.指挥官"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/commander/kotori.mdl"

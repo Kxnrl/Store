@@ -44,7 +44,8 @@ public void Trails_Reset()
 
 public int Trails_Equip(int client, int id)
 {
-	Store_SetClientTrail(client);
+	if(IsPlayerAlive(client))
+		Store_SetClientTrail(client);
 
 	return g_eTrails[Store_GetDataIndex(id)][iSlot];
 }

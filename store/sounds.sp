@@ -44,6 +44,12 @@ public void Sound_OnMapStart()
 	}
 }
 
+public void Sound_OnClientDeath(int client, int attacker)
+{
+	g_iSoundClient[client] = -1;
+	g_iSoundClient[attacker] = -1;
+}
+
 public void Sound_Reset()
 {
 	g_iSounds = 0;

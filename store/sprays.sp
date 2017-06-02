@@ -37,6 +37,11 @@ public void Sprays_OnClientConnected(int client)
 	g_iSprayCache[client] = -1;
 }
 
+public void Spray_OnClientDeath(int client)
+{
+	g_iSprayCache[client] = -1;
+}
+
 public Action Command_Spray(int client, int args)
 {
 	if(g_iSprayCache[client] == -1)

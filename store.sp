@@ -24,14 +24,14 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.83 - 2017/05/29 08:19"
+#define PLUGIN_VERSION "1.83 - 2017/06/02 17:28"
 #define PLUGIN_URL ""
 
 // Server
 //#define GM_TT
-#define GM_ZE //zombie escape server
+//#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
-//#define GM_JB //jail break server
+#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
 //#define GM_PR //pure|competitive server
@@ -39,9 +39,9 @@
 //#define GM_SR //death surf server
 
 //Custom
-#define Global_Skin		//skin does not match with team
+//#define Global_Skin		//skin does not match with team
 //#define TeamArms		//fix arms when client team
-#define AllowHide		//Enable hide mode
+//#define AllowHide		//Enable hide mode
 
 
 //////////////////////////////////
@@ -94,8 +94,8 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 #include "store/modules/hats.sp"
 #include "store/modules/skin.sp"
 #include "store/modules/neon.sp"
-//#include "store/modules/aura.sp"
-//#include "store/modules/part.sp"
+#include "store/modules/aura.sp"
+#include "store/modules/part.sp"
 #include "store/modules/trail.sp"
 
 // global modules
@@ -106,7 +106,7 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 #include "store/sprays.sp"
 #include "store/models.sp"
 #include "store/sounds.sp"
-#include "store/tpmode.sp"
+//#include "store/tpmode.sp"
 
 
 //////////////////////////////////
@@ -3166,6 +3166,14 @@ public void CG_OnClientDeath(int client, int attacker, int assister, bool headsh
 		WritePackString(pack, weapon);
 		ResetPack(pack);
 	}
+#endif
+
+#if defined Module_Spray
+	Spray_OnClientDeath(attacker);
+#endif
+
+#if defined Module_Sound
+	Sound_OnClientDeath(client, attacker);
 #endif
 }
 

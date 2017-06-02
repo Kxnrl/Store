@@ -159,7 +159,7 @@ void Store_RemoveClientHats(int client, int slot)
 
 public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-	if(Store_IsPlayerTP(client))
+	if(UTIL_IsPlayerTP(client))
 		return Plugin_Continue;
 
 #if defined AllowHide

@@ -63,6 +63,7 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 	RequestFrame(OnClientSpawnPost, client);
 
 #if defined Module_Skin
+	g_iSkinLevel[client] = 0;
 	g_szDeathVoice[client][0] = '\0';
 	Store_PreSetClientModel(client);
 	CreateTimer(0.0, Timer_ClearCamera, client);
@@ -146,7 +147,7 @@ public int ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool
 #endif
 
 #if defined Module_Skin
-	strcopy(g_szDeathModel[client], 256, "zombie");
+	strcopy(g_szSkinModel[client], 256, "zombie");
 #endif
 }
 

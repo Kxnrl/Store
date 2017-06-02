@@ -7,18 +7,20 @@ enum PlayerSkin
 	String:szModel[PLATFORM_MAX_PATH],
 	String:szArms[PLATFORM_MAX_PATH],
 	String:szSound[PLATFORM_MAX_PATH],
+	iLevel,
 	iTeam
 }
 
 PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 
 int g_iPlayerSkins = 0;
+int g_iSkinLevel[MAXPLAYERS+1];
 int g_iPreviewTimes[MAXPLAYERS+1];
 int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 bool g_bSpecJoinPending[MAXPLAYERS+1];
 char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
-char g_szDeathModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+char g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 ConVar mp_round_restart_delay;
 ConVar sv_disablefreezecam;
@@ -37,7 +39,7 @@ void Skin_OnPluginStart()
 	spec_freeze_time = FindConVar("spec_freeze_time");
 	HookConVarChange(spec_freeze_time, Skin_OnConVarChanged);
 	SetConVarString(spec_freeze_time, "-1.0", true);
-	
+
 	sv_disablefreezecam = FindConVar("sv_disablefreezecam");
 	HookConVarChange(sv_disablefreezecam, Skin_OnConVarChanged);
 	SetConVarString(sv_disablefreezecam, "1", true);
@@ -107,6 +109,8 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 	KvGetString(kv, "model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
 	KvGetString(kv, "arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
 	KvGetString(kv, "sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
+	
+	g_ePlayerSkins[g_iPlayerSkins][iLevel] = KvGetNum(kv, "lvls", 0)+1;
 
 #if defined Global_Skin
 	g_ePlayerSkins[g_iPlayerSkins][iTeam] = 4;
@@ -191,12 +195,12 @@ void Store_PreSetClientModel(int client)
 #if defined GM_ZE
 	if(g_iClientTeam[client] == 2)
 	{
-		strcopy(g_szDeathModel[client], 256, "zombie");
+		strcopy(g_szSkinModel[client], 256, "zombie");
 		return;
 	}
 #endif
 
-	strcopy(g_szDeathModel[client], 256, "default");
+	strcopy(g_szSkinModel[client], 256, "default");
 
 #if defined Global_Skin
 	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
@@ -262,13 +266,16 @@ void Store_SetClientModel(int client, int m_iData)
 #if defined GM_ZE
 	if(g_iClientTeam[client] == 2)
 	{
-		strcopy(g_szDeathModel[client], 256, "zombie");
+		strcopy(g_szSkinModel[client], 256, "zombie");
 		return;
 	}
 #endif
 
 	SetEntityModel(client, g_ePlayerSkins[m_iData][szModel]);
-	strcopy(g_szDeathModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
+	
+	strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
+	
+	g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
 
 #if defined Module_Hats
 	Store_SetClientHat(client);
@@ -290,11 +297,11 @@ public Action Store_SetClientModelZE(Handle timer, int client)
 
 	if(g_iClientTeam[client] == 2)
 	{
-		strcopy(g_szDeathModel[client], 256, "zombie");
+		strcopy(g_szSkinModel[client], 256, "zombie");
 		return Plugin_Stop;
 	}
 
-	strcopy(g_szDeathModel[client], 256, "default");
+	strcopy(g_szSkinModel[client], 256, "default");
 	SetEntityModel(client, Model_ZE_Newbee);
 
 #if defined Module_Hats
@@ -658,19 +665,19 @@ public Action Timer_DeathModel(Handle timer, Handle pack)
 		return Plugin_Stop;
 
 	// null string.
-	if(g_szDeathModel[client][0] == '\0')
+	if(g_szSkinModel[client][0] == '\0')
 		return Plugin_Stop;
 	
 	// zombie escape server default model?
-	if(StrEqual(g_szDeathModel[client], Model_ZE_Newbee))
-		strcopy(g_szDeathModel[client], 256, "default");
+	if(StrEqual(g_szSkinModel[client], Model_ZE_Newbee))
+		strcopy(g_szSkinModel[client], 256, "default");
 
 	char emodel[256], eweapon[32], m_szQuery[512];
-	SQL_EscapeString(g_hDatabase, g_szDeathModel[client], emodel, 256);
+	SQL_EscapeString(g_hDatabase, g_szSkinModel[client], emodel, 256);
 	SQL_EscapeString(g_hDatabase, attackerweapon, eweapon, 32);
 	Format(m_szQuery, 512, "INSERT INTO `playertrack_deathmodel` VALUES (unix_timestamp(), %d, %d, %d, %b, '%s', '%s')", CG_GetServerId(), clientid, attackerid, headshot, eweapon, emodel);
 	SQL_TVoid(g_hDatabase, m_szQuery);
-	g_szDeathModel[client][0] = '\0';
+	g_szSkinModel[client][0] = '\0';
 
 	return Plugin_Stop;
 }

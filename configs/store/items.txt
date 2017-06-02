@@ -772,7 +772,7 @@
 			}
 			"type"		"playerskin"
 			"desc"		"CGAY社区原创人物"
-			"lvls"		"1"
+			"lvls"		"5"
 		}
 		"琴里.校服"
 		{

@@ -204,6 +204,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_GetClientID", Native_GetClientID);
 	CreateNative("Store_IsClientBanned", Native_IsClientBanned);
 	CreateNative("Store_ResetPlayerArms", Native_ResetPlayerArms);
+	CreateNative("Store_HasPlayerSkin", Native_HasPlayerSkin);
+	CreateNative("Store_GetPlayerSkin", Native_GetPlayerSkin);
+	CreateNative("Store_GetSkinLevel", Native_GetSkinLevel);
 
 	MarkNativeAsOptional("FPVMI_SetClientModel");
 	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
@@ -644,6 +647,39 @@ public int Native_ExtClientItem(Handle myself, int numParams)
 			return true;
 		}
 
+	return false;
+}
+
+public int Native_GetSkinLevel(Handle myself, int numParams)
+{
+#if defined Module_Skin
+	int client = GetNativeCell(1);
+	return IsPlayerAlive(client) ? g_iSkinLevel[client] : 0;
+#else
+	return 0;
+#endif
+}
+
+public int Native_HasPlayerSkin(Handle myself, int numParams)
+{
+#if defined Module_Skin
+	int client = GetNativeCell(1);
+	return (StrContains(g_szSkinModel[client], "maoling") != -1);
+#else
+	return false;
+#endif
+}
+
+public int Native_GetPlayerSkin(Handle myself, int numParams)
+{
+#if defined Module_Skin
+	int client = GetNativeCell(1);
+	if(StrContains(g_szSkinModel[client], "maoling") == -1)
+		return false;
+
+	if(SetNativeString(2, g_szSkinModel[client], GetNativeCell(3)) == SP_ERROR_NONE)
+		return true;
+#endif
 	return false;
 }
 

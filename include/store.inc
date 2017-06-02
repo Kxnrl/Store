@@ -13,10 +13,13 @@ native int Store_GiveItem(int client, int itemid, int purchase = 0, int expirati
 native int Store_RemoveItem(int client, int itemid);
 native int Store_GetClientID(int client);
 native int Store_GetItemExpiration(int client, int itemid);
+native int Store_GetSkinLevel(int client);
 native bool Store_IsClientBanned(int client);
 native bool Store_IsClientLoaded(int client);
 native bool Store_HasClientItem(int client, int itemid);
 native bool Store_ExtClientItem(int client, int itemid, int expiration);
 native bool Store_IsItemInBoughtPackage(int client, int itemid, int uid = -1);
+native bool Store_HasPlayerSkin(int client);
+native bool Store_GetPlayerSkin(int client, char[] skin, int maxLen);
 native void Store_SaveClientAll(int client);
 native void Store_ResetPlayerArms(int client);

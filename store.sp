@@ -24,25 +24,33 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.83 - 2017/06/02 17:28"
+#define PLUGIN_VERSION "1.84 - 2017/06/02 19:27"
 #define PLUGIN_URL ""
 
 // Server
-//#define GM_TT
+#define GM_TT
 //#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
-#define GM_JB //jail break server
+//#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
 //#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
-//Custom
-//#define Global_Skin		//skin does not match with team
-//#define TeamArms		//fix arms when client team
-//#define AllowHide		//Enable hide mode
-
+// Custom Module
+// skin does not match with team
+#if defined GM_TT || defined GM_ZE
+#define Global_Skin
+#endif
+//fix arms when client team
+#if defined GM_MG
+#define TeamArms
+#endif
+// hide mode
+#if defined GM_ZE
+#define AllowHide
+#endif
 
 //////////////////////////////////
 //		GLOBAL VARIABLES		//
@@ -90,24 +98,55 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 //////////////////////////////
 //			MODULES			//
 //////////////////////////////
-// player module
-#include "store/modules/hats.sp"
-#include "store/modules/skin.sp"
-#include "store/modules/neon.sp"
-#include "store/modules/aura.sp"
-#include "store/modules/part.sp"
-#include "store/modules/trail.sp"
-
-// global modules
+// Module Global Module
 #include "store/cpsupport.sp"
 #include "store/vipadmin.sp"
-#include "store/players.sp"
-#include "store/grenades.sp"
-#include "store/sprays.sp"
-#include "store/models.sp"
-#include "store/sounds.sp"
-//#include "store/tpmode.sp"
 
+// Module Hats
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR
+#include "store/modules/hats.sp"
+#endif
+// Module Skin
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ
+#include "store/modules/skin.sp"
+#endif
+// Module Neon
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR
+#include "store/modules/neon.sp"
+#endif
+// Module Aura & Part
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR
+#include "store/modules/aura.sp"
+#include "store/modules/part.sp"
+#endif
+// Module Trail
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR
+#include "store/modules/trail.sp"
+#endif
+// Module PLAYERS
+#if defined Module_Hats || defined Module_Skin || defined Module_Neon || defined Module_Aura || defined Module_Part || defined Module_Trail
+#include "store/players.sp"
+#endif
+// Module Grenade
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR
+#include "store/grenades.sp"
+#endif
+// Module Spray
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ
+#include "store/sprays.sp"
+#endif
+// Module FPVMI
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ
+#include "store/models.sp"
+#endif
+// Module Sound
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ
+#include "store/sounds.sp"
+#endif
+// Module TP
+#if defined GM_ZE || defined GM_MG || defined GM_HG || defined GM_SR || defined GM_KZ
+#include "store/tpmode.sp"
+#endif
 
 //////////////////////////////////
 //		PLUGIN DEFINITION		//

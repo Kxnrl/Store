@@ -195,7 +195,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_IsItemInBoughtPackage", Native_IsItemInBoughtPackage);
 	CreateNative("Store_DisplayConfirmMenu", Native_DisplayConfirmMenu);
 	CreateNative("Store_GiveItem", Native_GiveItem);
-	CreateNative("Store_GetItem", Native_GetItemId);
+	CreateNative("Store_GetItemId", Native_GetItemId);
 	CreateNative("Store_RemoveItem", Native_RemoveItem);
 	CreateNative("Store_HasClientItem", Native_HasClientItem);
 	CreateNative("Store_ExtClientItem", Native_ExtClientItem);

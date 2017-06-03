@@ -6,7 +6,7 @@
 
 #pragma newdecls required
 
-#define PF_CREDITS "\x01 \x04[Store]  "
+#define PF_CREDITS "[\x04Store\x01]  "
 #define PF_GLOBAL "[\x0CCG\x01]  "
 #define PF_ACTIVE "[\x10新年快乐\x01]  "
 
@@ -20,7 +20,7 @@ public Plugin myinfo =
 	name		= "Store - Online Credits",
 	author		= "Kyle",
 	description = "",
-	version		= "1.2",
+	version		= "1.21",
 	url			= "http://steamcommunity.com/id/_xQy_/"
 };
 
@@ -192,6 +192,7 @@ public Action CreditTimer(Handle timer, int client)
 			Format(auname, 32, "\x0A|\x0C%s+%d", auname, m_iPlus);
 		StrCat(szFrom, 128, auname);
 	}
+	else PrintToChat(client, "%s \x07输入!auth申请\x04玩家认证\x07享受更多加成", PF_CREDITS);
 
 	if(CG_IsClientVIP(client))
 	{
@@ -199,6 +200,7 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szFrom, 128, "\x0A|\x0EVIP+2");
 		StrCat(szReason, 128, " VIP ");
 	}
+	else PrintToChat(client, "%s \x07登录论坛开通\x04VIP\x07享受更多加成", PF_CREDITS);
 	
 	if(CG_IsClientRealName(client))
 	{
@@ -206,6 +208,7 @@ public Action CreditTimer(Handle timer, int client)
 		StrCat(szFrom, 128, "\x0A|\x0E实名认证+2");
 		StrCat(szReason, 128, " 实名认证 ");
 	}
+	else PrintToChat(client, "%s \x07登录论坛完成\x04实名认证\x07享受更多加成", PF_CREDITS);
 
 	StrCat(szFrom, 128, "\x10]");
 	StrCat(szReason, 128, "]");

@@ -1,5 +1,11 @@
 #define Module_Sound
 
+#undef REQUIRE_EXTENSIONS
+#undef REQUIRE_PLUGIN
+#include <clientprefs>
+#define REQUIRE_EXTENSIONS
+#define REQUIRE_PLUGIN
+
 enum Sound
 {
 	String:szName[128],
@@ -12,6 +18,7 @@ int g_iSounds = 0;
 int g_iSoundClient[MAXPLAYERS+1];
 int g_iSoundSpam[MAXPLAYERS+1];
 bool g_bClientDisable[MAXPLAYERS+1];
+bool g_bClientPrefs;
 
 Sound g_eSounds[STORE_MAX_ITEMS][Sound];
 
@@ -25,7 +32,11 @@ public void Sounds_OnPluginStart()
 	RegConsoleCmd("sm_cheer", Command_Cheer);
 	RegConsoleCmd("sm_crpb", Command_Silence);
 	
-	g_hCookieSounds = RegClientCookie("store_sounds", "", CookieAccess_Protected);
+	if(GetFeatureStatus(FeatureType_Native, "RegClientCookie") == FeatureStatus_Available)
+	{
+		g_bClientPrefs = true;
+		g_hCookieSounds = RegClientCookie("store_sounds", "", CookieAccess_Protected);
+	}
 }
 
 public void Sound_OnMapStart()
@@ -181,6 +192,9 @@ void StartSoundToAll(int client)
 
 public void OnClientCookiesCached(int client)
 {
+	if(!g_bClientPrefs)
+		return;
+
 	char buff[4];
 	GetClientCookie(client, g_hCookieSounds, buff, 4);
 	
@@ -193,13 +207,13 @@ public Action Command_Silence(int client, int args)
 	if(g_bClientDisable[client])
 	{
 		g_bClientDisable[client] = false;
-		SetClientCookie(client, g_hCookieSounds, "0");
+		if(g_bClientPrefs) SetClientCookie(client, g_hCookieSounds, "0");
 		tPrintToChat(client, "%T", "sound setting", client, "off");
 	}
 	else
 	{
 		g_bClientDisable[client] = true;
-		SetClientCookie(client, g_hCookieSounds, "1");
+		if(g_bClientPrefs) SetClientCookie(client, g_hCookieSounds, "1");
 		tPrintToChat(client, "%T", "sound setting", client, "on");
 	}
 	

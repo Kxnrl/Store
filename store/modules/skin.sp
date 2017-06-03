@@ -1,5 +1,11 @@
 #define Module_Skin
 
+#undef REQUIRE_EXTENSIONS
+#undef REQUIRE_PLUGIN
+#include <csc>
+#define REQUIRE_EXTENSIONS
+#define REQUIRE_PLUGIN
+
 #define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
 
 enum PlayerSkin
@@ -253,7 +259,7 @@ public Action Timer_ClearDecoy(Handle timer, int iRef)
 	int owner = GetEntPropEnt(decoy, Prop_Send, "m_hOwnerEntity");
 	
 	if(IsClientInGame(owner) && IsPlayerAlive(owner))
-		CS_DropWeapon(owner, decoy, true, true);
+		RemovePlayerItem(owner, decoy);
 	
 	AcceptEntityInput(decoy, "Kill");
 
@@ -395,7 +401,7 @@ bool ResetClientWeaponBySlot(int client, int slot)
 
 	char classname[32];
 	GetWeaponClassname(weapon, classname, 32);
-	CS_DropWeapon(client, weapon, true, true);
+	RemovePlayerItem(client, weapon);
 	AcceptEntityInput(weapon, "Kill");
 
 	Handle hPack;

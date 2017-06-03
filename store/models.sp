@@ -1,5 +1,11 @@
 #define Module_Model
 
+#undef REQUIRE_EXTENSIONS
+#undef REQUIRE_PLUGIN
+#include <fpvm_interface>
+#define REQUIRE_EXTENSIONS
+#define REQUIRE_PLUGIN
+
 enum CustomModel
 {
 	String:szModelV[PLATFORM_MAX_PATH],

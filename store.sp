@@ -10,14 +10,6 @@
 #include <store>
 #include <store_stock>
 
-#undef REQUIRE_EXTENSIONS
-#undef REQUIRE_PLUGIN
-#include <clientprefs>
-#include <cstrike>
-#include <chat-processor>
-#include <fpvm_interface>
-#include <csc>
-
 //////////////////////////////
 //		DEFINITIONS			//
 //////////////////////////////
@@ -29,12 +21,12 @@
 
 // Server
 //#define GM_TT
-//#define GM_ZE //zombie escape server
+#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-#define GM_PR //pure|competitive server
+//#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
@@ -256,6 +248,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 #if defined Module_Skin
 	MarkNativeAsOptional("CG_Broadcast");
+#endif
+
+#if defined Module_Sound
+	MarkNativeAsOptional("RegClientCookie");
+	MarkNativeAsOptional("GetClientCookie");
+	MarkNativeAsOptional("SetClientCookie");
 #endif
 
 	g_bLateLoad = late;
@@ -2314,7 +2312,6 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 				g_eClientItems[client][i][iDateOfPurchase] = SQL_FetchInt(hndl, 4);
 				g_eClientItems[client][i][iDateOfExpiration] = m_iExpiration;
 				g_eClientItems[client][i][iPriceOfPurchase] = SQL_FetchInt(hndl, 6);
-			
 				++i;
 			}
 		}
@@ -2869,7 +2866,24 @@ void UTIL_WalkConfig(Handle &kv, int parent = -1)
 		{
 			if(!KvGetNum(kv, "enabled", 1))
 				continue;
-				
+			
+			KvGetString(kv, "type", STRING(m_szType));
+			m_iHandler = UTIL_GetTypeHandler(m_szType);
+			if(m_iHandler == -1)
+				continue;
+			
+			m_bSuccess = true;
+			if(g_eTypeHandlers[m_iHandler][fnConfig]!=INVALID_FUNCTION)
+			{
+				Call_StartFunction(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][fnConfig]);
+				Call_PushCellRef(kv);
+				Call_PushCell(g_iItems);
+				Call_Finish(m_bSuccess); 
+			}
+			
+			if(!m_bSuccess)
+				continue;
+
 			g_eItems[g_iItems][iParent] = parent;
 			KvGetSectionName(kv, g_eItems[g_iItems][szName], ITEM_NAME_LENGTH);
 			g_eItems[g_iItems][iPrice] = KvGetNum(kv, "price");
@@ -2880,11 +2894,6 @@ void UTIL_WalkConfig(Handle &kv, int parent = -1)
 			g_eItems[g_iItems][bVIP] = (KvGetNum(kv, "vip", 0)?true:false);
 			g_eItems[g_iItems][bCase] = (KvGetNum(kv, "case", 0)?true:false);
 			g_eItems[g_iItems][bIgnore] = (KvGetNum(kv, "only", 0)?true:false);
-
-			KvGetString(kv, "type", STRING(m_szType));
-			m_iHandler = UTIL_GetTypeHandler(m_szType);
-			if(m_iHandler == -1)
-				continue;
 
 			if(StrContains(m_szType, "playerskin", false) != -1)
 			{
@@ -2899,7 +2908,7 @@ void UTIL_WalkConfig(Handle &kv, int parent = -1)
 					Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[CT] %s", g_eItems[g_iItems][szName]);
 #endif
 			}
-			
+
 			KvGetString(kv, "desc", STRING(m_szDesc));
 			KvGetString(kv, "auth", STRING(m_szAuth));
 			KvGetString(kv, "flag", STRING(m_szFlags));
@@ -2935,17 +2944,7 @@ void UTIL_WalkConfig(Handle &kv, int parent = -1)
 				KvGoBack(kv);
 			}
 			
-			m_bSuccess = true;
-			if(g_eTypeHandlers[m_iHandler][fnConfig]!=INVALID_FUNCTION)
-			{
-				Call_StartFunction(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][fnConfig]);
-				Call_PushCellRef(kv);
-				Call_PushCell(g_iItems);
-				Call_Finish(m_bSuccess); 
-			}
-			
-			if(m_bSuccess)
-				++g_iItems;
+			++g_iItems;
 		}
 	} while (KvGotoNextKey(kv));
 }

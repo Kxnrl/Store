@@ -22,7 +22,7 @@
 			"team"		"2"
 			"buyable"	"0"
 			"type"		"playerskin"
-			"desc"		"我雷日天还有谁不服"
+			"desc"		"[开箱限定] 我雷日天还有谁不服"
 			"lvls"		"3"
 			"case"		"1"
 		}
@@ -772,7 +772,7 @@
 			}
 			"type"		"playerskin"
 			"desc"		"CGAY社区原创人物"
-			"lvls"		"5"
+			"lvls"		"4"
 		}
 		"琴里.校服"
 		{
@@ -1009,7 +1009,7 @@
 			"auth"		"STEAM_1:1:82430760"
 			"type"		"playerskin"
 			"buyable"	"0"
-			"desc"		"[个人专属模型] ************"
+			"desc"		"[个人专属模型] "
 			"lvls"		"4"
 			"only"		"1"
 		}
@@ -3421,7 +3421,7 @@
 				"color"		"255 255 255 255"
 				"type"		"trail"
 			}
-			"彩虹"
+			"*彩虹*"
 			{
 				"material"		"materials/sprites/store/trails/rainbow.vmt"
 				"Plans"
@@ -4992,6 +4992,28 @@
 		}
 		"名字颜色"
 		{
+			"*彩虹*"
+			{
+				"color"		"rainbow"
+				"Plans"
+				{
+					"1天"
+					{
+						"price"		"360"
+						"time"		"86400"
+					}
+					"1月"
+					{
+						"price"		"9999"
+						"time"		"2678400"
+					}
+					"永久"
+					{
+						"price"		"50000"
+					}
+				}
+				"type"		"namecolor"
+			}
 			"白色"
 			{
 				"color"		"{white}"
@@ -5325,6 +5347,28 @@
 		}
 		"消息颜色"
 		{
+			"彩虹"
+			{
+				"color"		"rainbow"
+				"Plans"
+				{
+					"1天"
+					{
+						"price"		"360"
+						"time"		"86400"
+					}
+					"1月"
+					{
+						"price"		"9999"
+						"time"		"2678400"
+					}
+					"永久"
+					{
+						"price"		"50000"
+					}
+				}
+				"type"		"msgcolor"
+			}
 			"白色"
 			{
 				"color"		"{white}"

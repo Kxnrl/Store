@@ -96,18 +96,39 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 			StrCat(STRING(m_szNameTag), (CG_GetClientUId(client) > 0) ? "{lightblue}[CG社区] {teamcolor}" : "{lightblue}[未注册] {teamcolor}");
 	}
 
+	bool rainbowname = false;
 	if(m_iEquippedNameColor >= 0)
-		strcopy(STRING(m_szNameColor), g_szNameColors[Store_GetDataIndex(m_iEquippedNameColor)]);
+	{
+		int m_iData = Store_GetDataIndex(m_iEquippedNameColor);
+		if(StrEqual(g_szNameColors[m_iData], "rainbow"))
+			rainbowname = true;
+		else strcopy(STRING(m_szNameColor), g_szNameColors[m_iData]);
+	}
 
-	Format(name, 128, "%s%s%s", m_szNameTag, m_szNameColor, name);
+	if(rainbowname)
+	{
+		char buffer[128];
+		String_Rainbow(name, buffer, 128);
+		Format(name, 128, "%s%s", m_szNameTag, buffer);
+	}
+	else Format(name, 128, "%s%s%s", m_szNameTag, m_szNameColor, name);
 
 	if(m_iEquippedMsgColor >= 0)
-		Format(message, 256, "%s%s", g_szMessageColors[Store_GetDataIndex(m_iEquippedMsgColor)], message);
+	{
+		int m_iData = Store_GetDataIndex(m_iEquippedMsgColor);
+		if(StrEqual(g_szMessageColors[m_iData], "rainbow"))
+		{
+			char buffer[256];
+			String_Rainbow(message, buffer, 256);
+			strcopy(message, 256, buffer);
+		}
+		else Format(message, 256, "%s%s", g_szMessageColors[m_iData], message);
+	}
 
 	return Plugin_Changed;
 }
 
-stock void GetColorAuthName(int client, char[] buffer, int maxLen)
+void GetColorAuthName(int client, char[] buffer, int maxLen)
 {
 	int authorized = CG_GetClientGId(client);
 	CG_GetClientGName(client, buffer, maxLen);
@@ -120,4 +141,76 @@ stock void GetColorAuthName(int client, char[] buffer, int maxLen)
 		Format(buffer, maxLen, "{green}[{purple}%s{green}]", buffer);
 	else 
 		Format(buffer, maxLen, "{yellow}[{blue}%s{yellow}]", buffer);
+}
+
+void String_Rainbow(const char[] input, char[] output, int maxLen)
+{
+	int bytes, buffs;
+	int size = strlen(input)+1;
+	char[] copy = new char [size];
+
+	for(int x = 0; x < size; ++x)
+	{
+		if(input[x] == '\0')
+			break;
+		
+		if(buffs == 2)
+		{
+			strcopy(copy, size, input);
+			copy[x+1] = '\0';
+			output[bytes] = RandomColor();
+			bytes++;
+			bytes += StrCat(output, maxLen, copy[x-buffs]);
+			buffs = 0;
+			continue;
+		}
+
+		if(!IsChar(input[x]))
+		{
+			buffs++;
+			continue;
+		}
+
+		strcopy(copy, size, input);
+		copy[x+1] = '\0';
+		output[bytes] = RandomColor();
+		bytes++;
+		bytes += StrCat(output, maxLen, copy[x]);
+	}
+
+	output[++bytes] = '\0';
+}
+
+bool IsChar(char c)
+{
+	if(0 <= c <= 126)
+		return true;
+	
+	return false;
+}
+
+int RandomColor()
+{
+	switch(UTIL_GetRandomInt(1, 16))
+	{
+		case  1: return '\x01';
+		case  2: return '\x02';
+		case  3: return '\x03';
+		case  4: return '\x03';
+		case  5: return '\x04';
+		case  6: return '\x05';
+		case  7: return '\x06';
+		case  8: return '\x07';
+		case  9: return '\x08';
+		case 10: return '\x09';
+		case 11: return '\x10';
+		case 12: return '\x0A';
+		case 13: return '\x0B';
+		case 14: return '\x0C';
+		case 15: return '\x0E';
+		case 16: return '\x0F';
+		default: return '\x01';
+	}
+
+	return '\x01';
 }

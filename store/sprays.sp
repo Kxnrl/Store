@@ -39,7 +39,7 @@ public void Sprays_OnClientConnected(int client)
 
 public void Spray_OnClientDeath(int client)
 {
-	g_iSprayCache[client] = -1;
+	g_iSprayLimit[client] = -1;
 }
 
 public Action Command_Spray(int client, int args)

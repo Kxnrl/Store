@@ -24,17 +24,17 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.84 - 2017/06/02 19:27"
+#define PLUGIN_VERSION "1.85 - 2017/06/03 05:55"
 #define PLUGIN_URL ""
 
 // Server
-#define GM_TT
+//#define GM_TT
 //#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-//#define GM_PR //pure|competitive server
+#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
@@ -247,12 +247,16 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("Store_GetPlayerSkin", Native_GetPlayerSkin);
 	CreateNative("Store_GetSkinLevel", Native_GetSkinLevel);
 
+#if defined Module_Model
 	MarkNativeAsOptional("FPVMI_SetClientModel");
 	MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
 	MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
+#endif
 
+#if defined Module_Skin
 	MarkNativeAsOptional("CG_Broadcast");
+#endif
 
 	g_bLateLoad = late;
 
@@ -3250,6 +3254,20 @@ public void CG_OnClientDeath(int client, int attacker, int assister, bool headsh
 #if defined Module_Sound
 	Sound_OnClientDeath(client, attacker);
 #endif
+}
+
+public void CG_OnRoundStart()
+{
+	for(int client = 1; client <= MAXPLAYERS; ++client)
+	{
+#if defined Module_Spray
+		Spray_OnClientDeath(client);
+#endif
+
+#if defined Module_Sound
+		Sound_OnClientDeath(client, client);
+#endif
+	}
 }
 
 stock bool UTIL_IsPlayerTP(int client)

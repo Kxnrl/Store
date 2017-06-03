@@ -195,6 +195,9 @@ void Store_PreSetClientModel(int client)
 #if defined GM_ZE
 	if(g_iClientTeam[client] == 2)
 	{
+		if(g_bNeedFixArms)
+			SetDefaultSkin(client, g_iClientTeam[client]);
+
 		strcopy(g_szSkinModel[client], 256, "zombie");
 		return;
 	}
@@ -321,7 +324,7 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
 	if(g_iClientTeam[client] == 2)
 		return Plugin_Continue;
 #endif
-	
+
 	if(g_szDeathVoice[client][0] == '\0')
 		return Plugin_Continue;
 
@@ -345,7 +348,7 @@ void BroadcastDeathSound(int client)
 	if(!IsClientInGame(client))
 		return;
 
-	EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, client);
+	EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE);
 }
 
 public Action Timer_FixPlayerArms(Handle timer, int userid)

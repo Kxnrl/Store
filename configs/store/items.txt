@@ -1009,7 +1009,7 @@
 			"auth"		"STEAM_1:1:82430760"
 			"type"		"playerskin"
 			"buyable"	"0"
-			"desc"		"[个人专属模型] "
+			"desc"		"[个人专属模型] diva for baka"
 			"lvls"		"4"
 			"only"		"1"
 		}

@@ -16,17 +16,17 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.85 - 2017/06/03 05:55"
+#define PLUGIN_VERSION "1.86 - 2017/06/04 08:25"
 #define PLUGIN_URL ""
 
 // Server
 //#define GM_TT
-#define GM_ZE //zombie escape server
+//#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-//#define GM_PR //pure|competitive server
+#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
@@ -3296,6 +3296,7 @@ void BroadCastToAll(const char[] msg)
 {
 	if(GetFeatureStatus(FeatureType_Native, "CG_Broadcast") != FeatureStatus_Available)
 		return;
-	
+#if defined Module_Skin
 	CG_Broadcast(true, msg);
+#endif
 }

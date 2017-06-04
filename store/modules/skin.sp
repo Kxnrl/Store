@@ -30,7 +30,6 @@ char g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 ConVar mp_round_restart_delay;
 ConVar sv_disablefreezecam;
-bool g_bNeedFixArms;
 
 void Skin_OnPluginStart()
 {
@@ -161,8 +160,6 @@ public void PlayerSkins_OnMapStart()
 			}
 		}
 	}
-	
-	g_bNeedFixArms = false;
 
 	PrecacheDefaultModel();
 
@@ -201,9 +198,7 @@ void Store_PreSetClientModel(int client)
 #if defined GM_ZE
 	if(g_iClientTeam[client] == 2)
 	{
-		if(g_bNeedFixArms)
-			SetDefaultSkin(client, g_iClientTeam[client]);
-
+		SetDefaultSkin(client, g_iClientTeam[client]);
 		strcopy(g_szSkinModel[client], 256, "zombie");
 		return;
 	}
@@ -221,22 +216,13 @@ void Store_PreSetClientModel(int client)
 
 	if(m_iEquipped >= 0)
 	{
-		if(g_bNeedFixArms)
-			SetDefaultSkin(client, g_iClientTeam[client]);
+		SetDefaultSkin(client, g_iClientTeam[client]);
 
 		int m_iData = Store_GetDataIndex(m_iEquipped);
 		if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
 			SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
-
-		if(g_bNeedFixArms)
-		{
-			CreateTimer(0.2, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
-#if defined GM_MG
-			int decoy = GivePlayerItem(client, "weapon_decoy");
-			if(decoy != -1) CreateTimer(0.3, Timer_ClearDecoy, EntIndexToEntRef(decoy));
-#endif
-		}
-		else Store_SetClientModel(client, m_iData);
+		
+		CreateTimer(0.2, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
 
 		if(g_ePlayerSkins[m_iData][szSound][0] != 0)
 			Format(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
@@ -248,24 +234,6 @@ void Store_PreSetClientModel(int client)
 	}
 #endif
 }
-
-#if defined GM_MG
-public Action Timer_ClearDecoy(Handle timer, int iRef)
-{
-	int decoy = EntRefToEntIndex(iRef);
-	if(!IsValidEdict(decoy))
-		return Plugin_Stop;
-	
-	int owner = GetEntPropEnt(decoy, Prop_Send, "m_hOwnerEntity");
-	
-	if(IsClientInGame(owner) && IsPlayerAlive(owner))
-		RemovePlayerItem(owner, decoy);
-	
-	AcceptEntityInput(decoy, "Kill");
-
-	return Plugin_Stop;
-}
-#endif
 
 void Store_SetClientModel(int client, int m_iData)
 {
@@ -689,50 +657,4 @@ public Action Timer_DeathModel(Handle timer, Handle pack)
 	g_szSkinModel[client][0] = '\0';
 
 	return Plugin_Stop;
-}
-
-public void OnConfigsExecuted()
-{
-	char map[128];
-	GetCurrentMap(map, 128);
-	
-	char path[128];
-	Format(path, 128, "maps/%s.kv", map);
-	
-	Handle kv = CreateKeyValues(map);
-
-	FileToKeyValues(kv, path);
-	
-	if(KvJumpToKey(kv, "t_models", false))
-	{
-		if(KvGotoFirstSubKey(kv, false))
-		{
-			char kvalue[128];
-			KvGetSectionName(kv, kvalue, 128);
-			if(StrContains(kvalue, "tm_anarchist") != -1 || StrContains(kvalue, "ctm_sas") != -1 || StrContains(kvalue, "ctm_fbi") != -1 || StrContains(kvalue, "ctm_swat") != -1)
-			{
-				g_bNeedFixArms = true;
-				LogMessage("Found Kv -> %s", kvalue);
-			}
-		}
-	}
-	KvRewind(kv);
-
-	if(KvJumpToKey(kv, "ct_models", false))
-	{
-		if(KvGotoFirstSubKey(kv, false))
-		{
-			char kvalue[128];
-			KvGetSectionName(kv, kvalue, 128);
-			if(StrContains(kvalue, "tm_anarchist") != -1 || StrContains(kvalue, "ctm_sas") != -1 || StrContains(kvalue, "ctm_fbi") != -1 || StrContains(kvalue, "ctm_swat") != -1)
-			{
-				g_bNeedFixArms = true;
-				LogMessage("Found Kv -> %s", kvalue);
-			}
-		}
-	}
-	
-	LogMessage("Current Maps %s -> %s Need Fix Arms", map, !g_bNeedFixArms ? "NOT" : "");
-
-	CloseHandle(kv);
 }

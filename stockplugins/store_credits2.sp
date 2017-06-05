@@ -1,21 +1,34 @@
 #include <store>
+#include <steamworks>
 #include <cg_core>
+#include <smlib/math>
+#include <sourcebans>
 
 #pragma newdecls required
 
 #define PF_CREDITS "[\x04Store\x01]  "
 #define PF_GLOBAL "[\x0CCG\x01]  "
+#define PF_ACTIVE "[\x10新年快乐\x01]  "
 
 Handle g_hTimer[MAXPLAYERS+1];
+
+bool g_bInOfficalGroup[MAXPLAYERS+1];
+bool g_bIsCheck[MAXPLAYERS+1];
 
 public Plugin myinfo =
 {
 	name		= "Store - Online Credits",
 	author		= "Kyle",
 	description = "",
-	version		= "1.3",
+	version		= "1.21",
 	url			= "http://steamcommunity.com/id/_xQy_/"
 };
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	MarkNativeAsOptional("SBBanPlayer");
+	return APLRes_Success;
+}
 
 public void OnPluginStart()
 {
@@ -24,15 +37,64 @@ public void OnPluginStart()
 
 public void OnClientPostAdminCheck(int client)
 {
+	LookupPlayerGroups(client);
+
 	g_hTimer[client] = CreateTimer(300.0, CreditTimer, client, TIMER_REPEAT);
 }
 
 public void OnClientDisconnect(int client)
 {
+	g_bInOfficalGroup[client] = false;
+	g_bIsCheck[client] = false;
+
 	if(g_hTimer[client] != INVALID_HANDLE)
 		KillTimer(g_hTimer[client]);
 	
 	g_hTimer[client] = INVALID_HANDLE;
+}
+
+public void LookupPlayerGroups(int client)
+{
+	g_bIsCheck[client] = true;
+
+	//Check CG Group
+	SteamWorks_GetUserGroupStatus(client, 103582791438550612); // OFFICAL GROUP
+
+	//Check Blacklist
+	SteamWorks_GetUserGroupStatus(client, 103582791455638129); //4=1
+}
+
+public int SteamWorks_OnClientGroupStatus(int authid, int groupid, bool isMember, bool isOfficer)
+{
+	if(isMember || isOfficer) 
+	{
+		for(int client = 1; client <= MaxClients; ++client)
+		{
+            if(!g_bIsCheck[client])
+                continue;
+
+            if(!IsClientInGame(client))
+                continue;
+
+            char authidb[32];
+            GetClientAuthId(client, AuthId_Engine, authidb, 32);
+            char part[4];
+            SplitString(authidb[8], ":", part, 4);
+            if(authid == (StringToInt(authidb[10]) << 1) + StringToInt(part)) 
+            {
+				if(groupid == 103582791438550612)
+					g_bInOfficalGroup[client] = true;
+
+				if(groupid == 103582791455638129)
+				{
+					SBBanPlayer(0, client, 0, "CAT: 自动封禁4=1作弊狗");
+					return;
+				}
+
+				break;
+			}
+		}
+	}
 }
 
 public Action CreditTimer(Handle timer, int client)
@@ -43,7 +105,7 @@ public Action CreditTimer(Handle timer, int client)
 		return Plugin_Stop;
 	}
 
-	if(!CG_InOfficalGroup(client))
+	if(!g_bInOfficalGroup[client])
 	{
 		PrintToChat(client, "%s  \x07你尚未加入官方Steam组,不能通过游戏在线获得信用点", PF_CREDITS);
 		PrintToChat(client, "%s  \x04按Y输入\x07!group\x04即可加入官方组", PF_CREDITS);
@@ -172,7 +234,7 @@ public Action Command_SignTest(int client, int args)
 
 public void CG_OnClientDailySign(int client)
 {
-	if(!CG_InOfficalGroup(client))
+	if(!g_bInOfficalGroup[client])
 	{
 		PrintToChat(client, "%s  检测到你当前未加入\x0C官方组\x01  你无法获得签到奖励", PF_GLOBAL);
 		return;	
@@ -183,18 +245,7 @@ public void CG_OnClientDailySign(int client)
 
 void Active_GiveSignCredits(int client)
 {
-	int Credits = UTIL_GetRandomInt(1, 500);
+	int Credits = Math_GetRandomInt(1, 500);
 	Store_SetClientCredits(client, Store_GetClientCredits(client) + Credits, "PA-签到");
 	PrintToChatAll("%s \x0E%N\x01签到获得\x04 %d\x0F信用点\x01", PF_GLOBAL, client, Credits);
-}
-
-#define SIZE_OF_INT 2147483647
-int UTIL_GetRandomInt(int min, int max)
-{
-	int random = GetURandomInt();
-	
-	if(random == 0)
-		random++;
-
-	return RoundToCeil(float(random) / (float(SIZE_OF_INT) / float(max - min + 1))) + min - 1;
 }

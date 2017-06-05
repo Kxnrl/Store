@@ -125,9 +125,6 @@ public int PlayerSkins_Config(Handle &kv, int itemid)
 
 	if(FileExists(g_ePlayerSkins[g_iPlayerSkins][szModel], true))
 	{
-		if(!g_eItems[itemid][bIgnore])
-			PushArrayString(g_ArraySkin, g_ePlayerSkins[g_iPlayerSkins][szModel]);
-
 		++g_iPlayerSkins;
 		return true;
 	}

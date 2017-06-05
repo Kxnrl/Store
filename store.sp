@@ -16,7 +16,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.86 - 2017/06/04 08:25"
+#define PLUGIN_VERSION "1.86 - 2017/06/04 18:22"
 #define PLUGIN_URL ""
 
 // Server
@@ -2895,7 +2895,7 @@ void UTIL_WalkConfig(Handle &kv, int parent = -1)
 			g_eItems[g_iItems][bCase] = (KvGetNum(kv, "case", 0)?true:false);
 			g_eItems[g_iItems][bIgnore] = (KvGetNum(kv, "only", 0)?true:false);
 
-			if(StrContains(m_szType, "playerskin", false) != -1)
+			if(StrEqual(m_szType, "playerskin"))
 			{
 #if defined Global_Skin
 				Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[通用] %s", g_eItems[g_iItems][szName]);
@@ -2907,6 +2907,14 @@ void UTIL_WalkConfig(Handle &kv, int parent = -1)
 				if(team == 3)
 					Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[CT] %s", g_eItems[g_iItems][szName]);
 #endif
+
+				if(!g_eItems[g_iItems][bIgnore])
+				{
+					char model[128];
+					KvGetString(kv, "model", STRING(model));
+					PushArrayString(g_ArraySkin, model);
+					//LogMessage("Push ->  [%s] %s", g_eItems[g_iItems][szName], model);
+				}
 			}
 
 			KvGetString(kv, "desc", STRING(m_szDesc));

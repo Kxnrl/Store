@@ -16,7 +16,7 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.86b - 2017/06/12 08:34"
+#define PLUGIN_VERSION "1.86c - 2017/06/12 08:59"
 #define PLUGIN_URL ""
 
 // Server
@@ -2254,6 +2254,8 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 			g_eClients[client][iDateOfLastJoin] = m_iTime;
 			g_eClients[client][bLoaded] = true;
 			g_eClients[client][iItems] = 0;
+			
+			g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
 		}
 	}
 }
@@ -2360,6 +2362,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 				UTIL_UnequipItem(client, m_iUniqueId);
 		}
 		g_eClients[client][bLoaded] = true;
+		g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
 	}
 }
 
@@ -2536,6 +2539,7 @@ void UTIL_SaveClientData(int client)
 
 void UTIL_DisconnectClient(int client)
 {
+	ClearTimer(g_eClients[client][hTimer]);
 	UTIL_LogMessage(client, g_eClients[client][iCredits], true, "离开服务器时");
 	g_eClients[client][iCredits] = -1;
 	g_eClients[client][iOriginalCredits] = -1;
@@ -3309,4 +3313,144 @@ void BroadCastToAll(const char[] msg)
 #if defined Module_Skin
 	CG_Broadcast(true, msg);
 #endif
+}
+
+public Action Timer_OnlineCredit(Handle timer, int client)
+{
+	if(!IsClientInGame(client))
+	{
+		g_eClients[client][hTimer] = INVALID_HANDLE;
+		return Plugin_Stop;
+	}
+
+	if(!CG_InOfficalGroup(client))
+	{
+		tPrintToChat(client, "\x07你尚未加入官方Steam组,不能通过游戏在线获得信用点");
+		tPrintToChat(client, "\x04按Y输入\x07!group\x04即可加入官方组");
+		g_eClients[client][hTimer] = INVALID_HANDLE;
+		return Plugin_Stop;
+	}
+
+	int m_iCredits = 0;
+	char szFrom[128], szReason[128];
+	strcopy(szFrom, 128, "\x10[");
+	strcopy(szReason, 128, "store_credits[");
+
+	int m_iVitality = CG_GetClientVitality(client);
+	if(m_iVitality)
+	{
+		StrCat(szReason, 128, " 热度");	
+		if(200 > m_iVitality >= 100)
+		{
+			m_iCredits += 2;
+			StrCat(szFrom, 128, "\x07热度+2");
+		}
+		else if(400 > m_iVitality >= 200)
+		{
+			m_iCredits += 3;
+			StrCat(szFrom, 128, "\x07热度+3");
+		}
+		else if(700 > m_iVitality >= 400)
+		{
+			m_iCredits += 4;
+			StrCat(szFrom, 128, "\x07热度+4");
+		}
+		else if(m_iVitality >= 700)
+		{
+			m_iCredits += 5;
+			StrCat(szFrom, 128, "\x07热度+5");
+		}
+		else if(m_iVitality >= 999)
+		{
+			m_iCredits += 6;
+			StrCat(szFrom, 128, "\x07热度+6");
+		}
+		else
+		{
+			m_iCredits += 1;
+			StrCat(szFrom, 128, "\x07热度+1");
+		}
+	}
+
+	int authid = CG_GetClientGId(client);
+	if(authid)
+	{
+		int m_iPlus = 0;
+		if(authid < 401)
+		{
+			m_iPlus += 2;
+		}
+		else if(500 > authid >= 401)
+		{
+			switch(authid)
+			{
+				case 401: m_iPlus += 2;
+				case 402: m_iPlus += 2;
+				case 403: m_iPlus += 3;
+				case 404: m_iPlus += 3;
+				case 405: m_iPlus += 4;
+			}
+		}
+		else if(9000 > authid >= 500)
+		{
+			m_iPlus += 2;
+		}
+		else if(authid >= 9101)
+		{
+			m_iPlus += 3;
+		}
+
+		m_iCredits += m_iPlus;
+		char auname[32];
+		CG_GetClientGName(client, auname, 32);
+		StrCat(szReason, 128, auname);
+		if(authid == 9999)
+			Format(auname, 32, "\x0A|\x0E%s+%d", auname, m_iPlus);
+		else
+			Format(auname, 32, "\x0A|\x0C%s+%d", auname, m_iPlus);
+		StrCat(szFrom, 128, auname);
+	}
+	else tPrintToChat(client, "\x07输入!auth申请\x04玩家认证\x07享受更多加成");
+
+	if(CG_IsClientVIP(client))
+	{
+		m_iCredits += 2;
+		StrCat(szFrom, 128, "\x0A|\x0EVIP+2");
+		StrCat(szReason, 128, " VIP ");
+	}
+	else tPrintToChat(client, "\x07登录论坛开通\x04VIP\x07享受更多加成");
+
+	if(CG_IsClientRealName(client))
+	{
+		m_iCredits += 2;
+		StrCat(szFrom, 128, "\x0A|\x0E实名认证+2");
+		StrCat(szReason, 128, " 实名认证 ");
+	}
+	else tPrintToChat(client, "\x07登录论坛完成\x04实名认证\x07享受更多加成");
+
+	StrCat(szFrom, 128, "\x10]");
+	StrCat(szReason, 128, "]");
+
+	if(!m_iCredits)
+		return Plugin_Continue;
+
+	Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
+
+	tPrintToChat(client, "\x10你获得了\x04 %d 信用点", m_iCredits);
+	PrintToChat(client, " \x0A积分来自%s", szFrom);
+
+	return Plugin_Continue;
+}
+
+public void CG_OnClientDailySign(int client)
+{
+	if(!CG_InOfficalGroup(client))
+	{
+		tPrintToChat(client, "检测到你当前未加入\x0C官方组\x01,你无法获得签到奖励");
+		return;	
+	}
+
+	int m_iCredits = UTIL_GetRandomInt(1, 500);
+	Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, "每日签到");
+	tPrintToChatAll("\x0E%N\x01签到获得\x04%d信用点\x01.", client, m_iCredits);
 }

@@ -74,7 +74,8 @@ enum Client_Data
 	aEquipment[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
 	aEquipmentSynced[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
 	bool:bBan,
-	bool:bLoaded
+	bool:bLoaded,
+	Handle:hTimer
 }
 
 enum Menu_Handler

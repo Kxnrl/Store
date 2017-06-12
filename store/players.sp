@@ -66,8 +66,8 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 	g_iSkinLevel[client] = 0;
 	g_szDeathVoice[client][0] = '\0';
 	Store_PreSetClientModel(client);
-	CreateTimer(0.0, Timer_ClearCamera, client);
-	CreateTimer(0.0, Timer_KillPreview, client);
+	CreateTimer(0.1, Timer_ClearCamera, client);
+	CreateTimer(0.1, Timer_KillPreview, client);
 #endif
 
 	return Plugin_Continue;
@@ -197,5 +197,5 @@ public void OnClientTeamPost(int client)
 		return;
 
 	Store_PreSetClientModel(client);
-	CreateTimer(0.1, Timer_FixPlayerArms, GetClientUserId(client));
+	CreateTimer(0.2, Timer_FixPlayerArms, GetClientUserId(client));
 }

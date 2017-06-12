@@ -37,7 +37,6 @@ void Skin_OnPluginStart()
 
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
 
-	RegConsoleCmd("sm_arm", Command_Arm, "Draw Player Arms");
 	RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
 	
 	//DEATH CAMERA CCVAR
@@ -75,19 +74,9 @@ void Skin_OnClientDisconnect(int client)
 	
 	if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
 		CreateTimer(0.0, Timer_ClearCamera, client);
-	
+
 	if(g_bSpecJoinPending[client])
 		g_bSpecJoinPending[client] = false;
-}
-
-public Action Command_Arm(int client, int args)
-{
-	if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
-		return Plugin_Handled;
-
-	SetEntProp(client, Prop_Send, "m_bDrawViewmodel", true);
-
-	return Plugin_Handled;
 }
 
 public Action Command_Arms(int client, int args)
@@ -103,7 +92,7 @@ public Action Command_Arms(int client, int args)
 	Store_PreSetClientModel(client);
 
 	CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
-	
+
 	return Plugin_Handled;
 }
 

@@ -181,15 +181,6 @@ public int PlayerSkins_Remove(int client, int id)
 
 void Store_PreSetClientModel(int client)
 {
-#if defined GM_ZE
-	if(g_iClientTeam[client] == 2)
-	{
-		SetDefaultSkin(client, g_iClientTeam[client]);
-		strcopy(g_szSkinModel[client], 256, "zombie");
-		return;
-	}
-#endif
-
 	strcopy(g_szSkinModel[client], 256, "default");
 
 #if defined Global_Skin
@@ -208,7 +199,7 @@ void Store_PreSetClientModel(int client)
 		if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
 			SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
 		
-		CreateTimer(0.2, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.3, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
 
 		if(g_ePlayerSkins[m_iData][szSound][0] != 0)
 			Format(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
@@ -216,7 +207,7 @@ void Store_PreSetClientModel(int client)
 #if defined GM_ZE
 	else
 	{
-		CreateTimer(0.2, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.3, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 #endif
 }
@@ -644,3 +635,11 @@ public Action Timer_DeathModel(Handle timer, Handle pack)
 
 	return Plugin_Stop;
 }
+
+#if defined GM_ZE
+public void CG_OnRoundEnd(int winner)
+{
+	for(int client = 1; client <= MaxClients; ++client)
+		g_iClientTeam[client] = 3;
+}
+#endif

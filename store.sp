@@ -16,17 +16,17 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.86c - 2017/06/12 08:59"
+#define PLUGIN_VERSION "1.86d - 2017/06/13 11:47"
 #define PLUGIN_URL ""
 
 // Server
 //#define GM_TT
-//#define GM_ZE //zombie escape server
+#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-#define GM_PR //pure|competitive server
+//#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 

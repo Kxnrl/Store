@@ -8,7 +8,6 @@ UserMsg MsgId;
 Handle g_tMsgFmt;
 Handle g_fwdOnChatMessage;
 Handle g_fwdOnChatMessagePost;
-bool g_bProto;
 bool g_bDeathChat;
 bool g_bChat[MAXPLAYERS+1];
 int g_iTeam[MAXPLAYERS+1];
@@ -19,7 +18,7 @@ public Plugin myinfo =
 	name		= "Chat-Processor",
 	author		= "Kyle",
 	description = "",
-	version		= "2.7 > CG Edition ver.7 - Include CSC",
+	version		= "2.7 > CG Edition ver.8 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
@@ -35,8 +34,6 @@ public void OnPluginStart()
 
 	if((MsgId = GetUserMessageId("SayText2")) != INVALID_MESSAGE_ID)
 	{
-		if(GetUserMessageType() == UM_Protobuf)
-			g_bProto = true;
 		HookUserMessage(MsgId, OnSayText2, true);
 		if(!GenerateMessageFormats())
 			SetFailState("Error loading Chat Format");
@@ -47,7 +44,7 @@ public void OnPluginStart()
 
 public void OnAllPluginsLoaded()
 {
-	if(FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("mg_stats.smx"))
+	if(FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("mg_stats.smx") || FindPluginByFile("sm_hosties.smx"))
 		g_bDeathChat = true;
 }
 
@@ -80,7 +77,7 @@ public Action Timer_Say(Handle timer, int client)
 
 public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int playersNum, bool reliable, bool init)
 {
-	int m_iSender = g_bProto ? PbReadInt(msg, "ent_idx") : BfReadByte(msg);
+	int m_iSender = PbReadInt(msg, "ent_idx");
 	
 	if(m_iSender <= 0)
 		return Plugin_Continue;
@@ -90,22 +87,13 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 	
 	g_bChat[m_iSender] = false;
 
-	bool m_bChat = g_bProto ? PbReadBool(msg, "chat") : view_as<bool>(BfReadByte(msg));
+	bool m_bChat = PbReadBool(msg, "chat");
 
 	char m_szFlag[32], m_szName[128], m_szMsg[256], m_szFmt[256];
 
-	if(g_bProto)
-	{
-		PbReadString(msg, "msg_name", m_szFlag, 32);
-		PbReadString(msg, "params", m_szName, 128, 0);
-		PbReadString(msg, "params", m_szMsg, 256, 1);
-	}
-	else
-	{
-		BfReadString(msg, m_szFlag, 32);
-		if(BfGetNumBytesLeft(msg)) BfReadString(msg, m_szName, 128);
-		if(BfGetNumBytesLeft(msg)) BfReadString(msg, m_szMsg, 256);
-	}
+	PbReadString(msg, "msg_name", m_szFlag, 32);
+	PbReadString(msg, "params", m_szName, 128, 0);
+	PbReadString(msg, "params", m_szMsg, 256, 1);
 	
 	if(!GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, 256))
 		return Plugin_Continue;

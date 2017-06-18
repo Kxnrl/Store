@@ -1013,6 +1013,19 @@
 			"lvls"		"4"
 			"only"		"1"
 		}
+		"Haku(Wedding Dress)"
+		{
+			"model"		"models/player/custom_player/maoling/vocaloid/haku/weddingdress/weddingdress.mdl"
+			"arms"		"models/player/custom_player/maoling/vocaloid/haku/weddingdress/weddingdress_arms.mdl"
+			"sound"		"maoling/deathsound/haku.mp3"
+			"team"		"2"
+			"auth"		"STEAM_1:0:79855581"
+			"type"		"playerskin"
+			"buyable"	"0"
+			"desc"		"[个人专属模型] waifu for Ejaculation-fish ."
+			"lvls"		"4"
+			"only"		"1"
+		}
 		"琴里.指挥官"
 		{
 			"model"		"models/player/custom_player/maoling/date_a_live/kotori/commander/kotori.mdl"

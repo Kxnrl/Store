@@ -4857,6 +4857,12 @@
 					"type"		"nametag"
 					"auth"		"STEAM_1:1:161803745"
 				}
+				"依依"
+				{
+					"tag"		"{green}[{darkred}フラン{green}]{teamcolor} "
+					"type"		"nametag"
+					"auth"		"STEAM_1:1:105159493"
+				}
 			}
 			"[东山大法]"
 			{

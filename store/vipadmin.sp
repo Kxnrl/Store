@@ -22,7 +22,7 @@ public bool VIP_Config(Handle &kv, int itemid)
 
 public int VIP_Equip(int client, int id)
 {
-	if(CG_IsClientVIP(client))
+	if(CG_ClientIsVIP(client))
 	{
 		tPrintToChat(client, "\x04%t", "you are already vip");
 		return -1;

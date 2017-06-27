@@ -83,17 +83,17 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 
 	if(m_iEquippedNameTag >= 0)
 	{
-		if(CG_GetClientUId(client) <= 0)
+		if(CG_ClientGetUId(client) <= 0)
 			StrCat(STRING(m_szNameTag), "{lightblue}[未注册]{teamcolor}");
 
 		StrCat(STRING(m_szNameTag), g_szNameTags[Store_GetDataIndex(m_iEquippedNameTag)]);
 	}
 	else
 	{
-		if(CG_IsClientVIP(client))
+		if(CG_ClientIsVIP(client))
 			StrCat(STRING(m_szNameTag), "{purple}[VIP] {teamcolor}");
 		else
-			StrCat(STRING(m_szNameTag), (CG_GetClientUId(client) > 0) ? "{lightblue}[CG社区] {teamcolor}" : "{lightblue}[未注册] {teamcolor}");
+			StrCat(STRING(m_szNameTag), (CG_ClientGetUId(client) > 0) ? "{lightblue}[CG社区] {teamcolor}" : "{lightblue}[未注册] {teamcolor}");
 	}
 
 	bool rainbowname = false;
@@ -130,8 +130,8 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 
 void GetColorAuthName(int client, char[] buffer, int maxLen)
 {
-	int authorized = CG_GetClientGId(client);
-	CG_GetClientGName(client, buffer, maxLen);
+	int authorized = CG_ClientGetGId(client);
+	CG_ClientGetGroupName(client, buffer, maxLen);
 	
 	if(!authorized)
 		Format(buffer, maxLen, " ");

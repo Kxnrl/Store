@@ -16,12 +16,12 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.86d - 2017/06/13 11:47"
+#define PLUGIN_VERSION "1.87 - 2017/06/27 06:54"
 #define PLUGIN_URL ""
 
 // Server
-//#define GM_TT
-#define GM_ZE //zombie escape server
+#define GM_TT
+//#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
@@ -1269,7 +1269,7 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
 
 void UTIL_OpenSkinCase(int client)
 {
-	if(CG_GetClientUId(client) < 1)
+	if(CG_ClientGetUId(client) < 1)
 	{
 		tPrintToChat(client, "%T", "Open Case not available", client);
 		return;
@@ -1694,7 +1694,7 @@ public void DisplayItemMenu(int client, int itemid)
 	{
 		if(StrEqual(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "buyvip"))
 		{
-			if(CG_IsClientVIP(client))
+			if(CG_ClientIsVIP(client))
 				AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "you are already vip", client);
 			else
 				AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "go to forum to buy vip", client);
@@ -3252,8 +3252,8 @@ public void CG_OnClientDeath(int client, int attacker, int assister, bool headsh
 		Handle pack;
 		CreateDataTimer(0.5, Timer_DeathModel, pack, TIMER_FLAG_NO_MAPCHANGE);
 		WritePackCell(pack, client);
-		WritePackCell(pack, CG_GetClientId(client));
-		WritePackCell(pack, CG_GetClientId(attacker));
+		WritePackCell(pack, CG_ClientGetPId(client));
+		WritePackCell(pack, CG_ClientGetPId(attacker));
 		WritePackCell(pack, headshot);
 		WritePackString(pack, weapon);
 		ResetPack(pack);
@@ -3323,7 +3323,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 		return Plugin_Stop;
 	}
 
-	if(!CG_InOfficalGroup(client))
+	if(!CG_ClientInGroup(client))
 	{
 		tPrintToChat(client, "\x07你尚未加入官方Steam组,不能通过游戏在线获得信用点");
 		tPrintToChat(client, "\x04按Y输入\x07!group\x04即可加入官方组");
@@ -3336,7 +3336,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 	strcopy(szFrom, 128, "\x10[");
 	strcopy(szReason, 128, "store_credits[");
 
-	int m_iVitality = CG_GetClientVitality(client);
+	int m_iVitality = CG_ClientGetVitality(client);
 	if(m_iVitality)
 	{
 		StrCat(szReason, 128, " 热度");	
@@ -3372,7 +3372,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 		}
 	}
 
-	int authid = CG_GetClientGId(client);
+	int authid = CG_ClientGetGId(client);
 	if(authid)
 	{
 		int m_iPlus = 0;
@@ -3402,7 +3402,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 
 		m_iCredits += m_iPlus;
 		char auname[32];
-		CG_GetClientGName(client, auname, 32);
+		CG_ClientGetGroupName(client, auname, 32);
 		StrCat(szReason, 128, auname);
 		if(authid == 9999)
 			Format(auname, 32, "\x0A|\x0E%s+%d", auname, m_iPlus);
@@ -3412,7 +3412,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 	}
 	else tPrintToChat(client, "\x07输入!auth申请\x04玩家认证\x07享受更多加成");
 
-	if(CG_IsClientVIP(client))
+	if(CG_ClientIsVIP(client))
 	{
 		m_iCredits += 2;
 		StrCat(szFrom, 128, "\x0A|\x0EVIP+2");
@@ -3420,7 +3420,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 	}
 	else tPrintToChat(client, "\x07登录论坛开通\x04VIP\x07享受更多加成");
 
-	if(CG_IsClientRealName(client))
+	if(CG_ClientIsRealName(client))
 	{
 		m_iCredits += 2;
 		StrCat(szFrom, 128, "\x0A|\x0E实名认证+2");
@@ -3442,9 +3442,9 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 	return Plugin_Continue;
 }
 
-public void CG_OnClientDailySign(int client)
+public void CG_OnDailySigned(int client)
 {
-	if(!CG_InOfficalGroup(client))
+	if(!CG_ClientInGroup(client))
 	{
 		tPrintToChat(client, "检测到你当前未加入\x0C官方组\x01,你无法获得签到奖励");
 		return;	

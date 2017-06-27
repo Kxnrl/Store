@@ -163,7 +163,7 @@ public Action Command_Cheer(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	if(CG_GetClientGId(client) == 9999)
+	if(CG_ClientGetGId(client) == 9999)
 		g_iSoundSpam[client] = GetTime() + 5;
 	else
 		g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]][iCooldown];

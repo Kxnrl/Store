@@ -18,7 +18,7 @@ public Plugin myinfo =
 	name		= "Chat-Processor",
 	author		= "Kyle",
 	description = "",
-	version		= "2.7 > CG Edition ver.8 - Include CSC",
+	version		= "2.7 > CG Edition ver.9 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
@@ -56,7 +56,7 @@ public void OnClientConnected(int client)
 
 public void CG_OnClientSpawn(int client)
 {
-	g_iAuth[client] = CG_GetClientId(client);
+	g_iAuth[client] = CG_ClientGetPId(client);
 }
 
 public void CG_OnClientTeam(int client, int oldteam, int newteam)

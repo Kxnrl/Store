@@ -458,7 +458,7 @@ stock bool AllowItemForVIP(int client, bool vip)
 	if(!vip)
 		return true;
 
-	return CG_IsClientVIP(client);
+	return CG_ClientIsVIP(client);
 }
 
 stock void SetDefaultSkin(int client, int team)

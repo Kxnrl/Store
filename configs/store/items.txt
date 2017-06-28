@@ -801,6 +801,43 @@
 			"desc"		"约炮大作战中的精灵.校服版本"
 			"lvls"		"0"
 		}
+        "Seulbi.Agent"
+		{
+			"model"		"models/player/custom_player/maoling/closeronline/seulbi/seulbi.mdl"
+			"arms"		"models/player/custom_player/maoling/closeronline/seulbi/seulbi_arms.mdl"
+			"team"		"2"
+			"Plans"
+			{
+				"1天"
+				{
+					"price"		"688"
+					"time"		"86400"
+				}
+				"1月"
+				{
+					"price"		"16888"
+					"time"		"2678400"
+				}
+				"永久"
+				{
+					"price"		"68888"
+				}
+			}
+			"type"		"playerskin"
+			"desc"		"Closer Online: Seulbi - Agent"
+			"lvls"		"0"
+		}
+        "Seulbi.Queen"
+		{
+			"model"		"models/player/custom_player/maoling/closeronline/violet/violet.mdl"
+			"arms"		"models/player/custom_player/maoling/closeronline/violet/violet_arms.mdl"
+			"team"		"3"
+			"price"		"99999"
+			"buyable"   "0"
+			"type"		"playerskin"
+			"desc"		"Closer Online: Seulbi - Queen of the Darkness"
+			"lvls"		"4"
+		}
 		"蕾姆"
 		{
 			"model"		"models/player/custom_player/maoling/re0/rem/rem.mdl"

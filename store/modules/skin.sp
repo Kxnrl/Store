@@ -47,7 +47,7 @@ void Skin_OnPluginStart()
 	sv_disablefreezecam = FindConVar("sv_disablefreezecam");
 	HookConVarChange(sv_disablefreezecam, Skin_OnConVarChanged);
 	SetConVarString(sv_disablefreezecam, "1", true);
-	
+
 	mp_round_restart_delay = FindConVar("mp_round_restart_delay");
 	HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
 	SetConVarString(mp_round_restart_delay, "12", true);
@@ -187,8 +187,6 @@ void Store_PreSetClientModel(int client)
 	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 #else
 	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
-	if(g_eClients[client][iId] == 1)
-		m_iEquipped = Store_GetEquippedItem(client, "playerskin", 1);
 #endif
 
 	if(m_iEquipped >= 0)

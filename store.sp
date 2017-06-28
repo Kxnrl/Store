@@ -16,17 +16,17 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.87 - 2017/06/27 06:54"
+#define PLUGIN_VERSION "1.88 - 2017/06/28 23:27"
 #define PLUGIN_URL ""
 
 // Server
-#define GM_TT
+//#define GM_TT
 //#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-//#define GM_PR //pure|competitive server
+#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
@@ -40,7 +40,7 @@
 #define TeamArms
 #endif
 // hide mode
-#if defined GM_ZE
+#if defined GM_ZE || defined GM_JB
 #define AllowHide
 #endif
 
@@ -3306,7 +3306,7 @@ int UTIL_GetRandomInt(int min, int max)
 	return RoundToCeil(float(random) / (float(SIZE_OF_INT) / float(max - min + 1))) + min - 1;
 }
 
-void BroadCastToAll(const char[] msg)
+public void BroadCastToAll(const char[] msg)
 {
 	if(GetFeatureStatus(FeatureType_Native, "CG_Broadcast") != FeatureStatus_Available)
 		return;

@@ -18,7 +18,7 @@ public Plugin myinfo =
 	name		= "Chat-Processor",
 	author		= "Kyle",
 	description = "",
-	version		= "2.7 > CG Edition ver.9 - Include CSC",
+	version		= "2.7a > CG Edition ver.10 - Include CSC",
 	url			= "http://steamcommunity.com/id/_xQy_"
 };
 
@@ -154,7 +154,14 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 	}
 
 	if(StrEqual(m_szNameCopy, m_szName))
-		Format(m_szName, 128, "\x03%s", m_szName);
+    {
+        switch(g_iTeam[m_iSender])
+        {
+            case  3: Format(m_szName, 128, "\x0B%s", m_szName);
+            case  2: Format(m_szName, 128, "\x05%s", m_szName);
+            default: Format(m_szName, 128, "\x01%s", m_szName);
+        }
+    }
 
 	Handle hPack = CreateDataPack();
 	WritePackCell(hPack, m_iSender);
@@ -182,13 +189,6 @@ public void Frame_OnChatMessage_SayText2(Handle data)
 
 	char m_szName[128];
 	ReadPackString(data, m_szName, 128);
-	ReplaceString(m_szName, 32, "◇ ", "");
-	ReplaceString(m_szName, 32, "◆ ", "");
-	ReplaceString(m_szName, 32, "☆ ", "");
-	ReplaceString(m_szName, 32, "★ ", "");
-	ReplaceString(m_szName, 32, "✪ ", "");
-	ReplaceString(m_szName, 32, "♜ ", "");
-	ReplaceString(m_szName, 32, "♚ ", "");
 
 	char m_szMsg[256];
 	ReadPackString(data, m_szMsg, 256);

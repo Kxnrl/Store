@@ -16,17 +16,17 @@
 #define PLUGIN_NAME "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.88 - 2017/06/28 23:27"
+#define PLUGIN_VERSION "1.88 - 2017/07/08 04:53"
 #define PLUGIN_URL ""
 
 // Server
 //#define GM_TT
 //#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
-//#define GM_JB //jail break server
+#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-#define GM_PR //pure|competitive server
+//#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
@@ -136,8 +136,13 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 #include "store/sounds.sp"
 #endif
 // Module TP
-#if defined GM_ZE || defined GM_MG || defined GM_HG || defined GM_SR || defined GM_KZ
+#if defined GM_ZE || defined GM_MG || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_JB
 #include "store/tpmode.sp"
+#endif
+
+//ZE Credits timer
+#if defined GM_ZE
+#include <cstrike>
 #endif
 
 //////////////////////////////////
@@ -3410,7 +3415,6 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 			Format(auname, 32, "\x0A|\x0C%s+%d", auname, m_iPlus);
 		StrCat(szFrom, 128, auname);
 	}
-	else tPrintToChat(client, "\x07输入!auth申请\x04玩家认证\x07享受更多加成");
 
 	if(CG_ClientIsVIP(client))
 	{
@@ -3418,15 +3422,24 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 		StrCat(szFrom, 128, "\x0A|\x0EVIP+2");
 		StrCat(szReason, 128, " VIP ");
 	}
-	else tPrintToChat(client, "\x07登录论坛开通\x04VIP\x07享受更多加成");
 
 	if(CG_ClientIsRealName(client))
 	{
 		m_iCredits += 2;
-		StrCat(szFrom, 128, "\x0A|\x0E实名认证+2");
+		StrCat(szFrom, 128, "\x0A|\x04实名认证+2");
 		StrCat(szReason, 128, " 实名认证 ");
 	}
-	else tPrintToChat(client, "\x07登录论坛完成\x04实名认证\x07享受更多加成");
+    
+#if defined GM_ZE
+    char tag[32];
+    CS_GetClientClanTag(client, tag, 32);
+    if(StrEqual(tag, "[CG社区]") || StrEqual(tag, "祈り~") || StrEqual(tag, "江ノ島盾子") || StrEqual(tag, "KyleL"))
+    {
+        m_iCredits += 2;
+        Format(szFrom, 128, "%s\x0A|\x10%s+2", szFrom, tag);
+        StrCat(szReason, 128, " 组标 ");
+    } else tPrintToChat(client, "\x10佩戴CG社区组标签可获得额外的信用点");
+#endif
 
 	StrCat(szFrom, 128, "\x10]");
 	StrCat(szReason, 128, "]");

@@ -13,20 +13,20 @@
 //////////////////////////////
 //		DEFINITIONS			//
 //////////////////////////////
-#define PLUGIN_NAME "Store - The Resurrection [Redux]"
-#define PLUGIN_AUTHOR "Zephyrus | Kyle"
-#define PLUGIN_DESCRIPTION "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION "1.88 - 2017/07/08 04:53"
-#define PLUGIN_URL ""
+#define PLUGIN_NAME         "Store - The Resurrection [Redux]"
+#define PLUGIN_AUTHOR       "Zephyrus | Kyle"
+#define PLUGIN_DESCRIPTION  "ALL REWRITE WITH NEW SYNTAX!!!"
+#define PLUGIN_VERSION      "1.88b - 2017/07/20 11:15"
+#define PLUGIN_URL          "http://steamcommunity.com/id/_xQy_"
 
 // Server
 //#define GM_TT
 //#define GM_ZE //zombie escape server
 //#define GM_MG //mini games server
-#define GM_JB //jail break server
+//#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
-//#define GM_PR //pure|competitive server
+#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
 
@@ -40,7 +40,7 @@
 #define TeamArms
 #endif
 // hide mode
-#if defined GM_ZE || defined GM_JB
+#if defined GM_ZE || defined GM_JB || defined GM_MG
 #define AllowHide
 #endif
 

@@ -51,7 +51,7 @@ void Skin_OnPluginStart()
 	mp_round_restart_delay = FindConVar("mp_round_restart_delay");
 	HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
 	SetConVarString(mp_round_restart_delay, "12", true);
-	
+
 	g_ArraySkin = CreateArray(ByteCountToCells(256));
 }
 
@@ -186,7 +186,7 @@ void Store_PreSetClientModel(int client)
 #if defined Global_Skin
 	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 #else
-	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
+	int m_iEquipped = (g_eClients[client][iId] == 1) ? Store_GetEquippedItem(client, "playerskin", 1) : Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
 #endif
 
 	if(m_iEquipped >= 0)
@@ -266,7 +266,7 @@ public Action Store_SetClientModelZE(Handle timer, int client)
 
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-	if(channel != SNDCHAN_VOICE || !(1 <= client <= MaxClients) || !IsClientInGame(client))
+	if(channel != SNDCHAN_VOICE || !IsValidClient(client))
 		return Plugin_Continue;
 	
 #if defined GM_ZE
@@ -296,8 +296,30 @@ void BroadcastDeathSound(int client)
 {
 	if(!IsClientInGame(client))
 		return;
+    
+	int speaker = CreateEntityByName("info_target");
 
-	EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE);
+	float fPos[3], fAgl[3];
+	GetClientEyePosition(client, fPos);
+	GetClientEyeAngles(client, fAgl);
+
+	// Move to mouth.
+	fPos[2] -= 3.0;
+	TeleportEntity(speaker, fPos, fAgl, NULL_VECTOR);
+
+	EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, speaker, fPos, NULL_VECTOR, false);
+
+	if(speaker != -1)
+		CreateTimer(3.0, Timer_RemoveSpeaker, EntIndexToEntRef(speaker), TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_RemoveSpeaker(Handle timer, int iRef)
+{
+    int entity = EntRefToEntIndex(iRef);
+    if(IsValidEdict(entity))
+        AcceptEntityInput(entity, "Kill");
+
+    return Plugin_Stop;
 }
 
 public Action Timer_FixPlayerArms(Handle timer, int userid)

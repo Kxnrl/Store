@@ -154,6 +154,31 @@ public int ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool
 public void CG_OnClientTeam(int client, int oldteam, int newteam)
 {
 	g_iClientTeam[client] = newteam;
+    
+	if(oldteam > 1 && newteam <= 1)
+	{
+#if defined Module_Aura
+		Store_RemoveClientAura(client);
+#endif
+        
+#if defined Module_Neon
+		Store_RemoveClientNeon(client);
+#endif
+
+#if defined Module_Part
+		Store_RemoveClientPart(client);
+#endif
+
+#if defined Module_Trail
+        for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+            Store_RemoveClientTrail(client, i);
+#endif
+
+#if defined Module_Hats
+		for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+			Store_RemoveClientHats(client, i);
+#endif
+	}
 	
 #if defined TeamArms
 	RequestFrame(OnClientTeamPost, client);
@@ -193,7 +218,7 @@ public void OnClientSettingsChanged(int client)
 
 public void OnClientTeamPost(int client)
 {
-	if(!IsClientInGame(client) || !IsPlayerAlive(client))
+	if(!IsClientInGame(client) || !IsPlayerAlive(client) || g_iClientTeam[client] > 1)
 		return;
 
 	Store_PreSetClientModel(client);

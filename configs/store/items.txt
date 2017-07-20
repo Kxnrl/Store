@@ -832,24 +832,22 @@
 			"model"		"models/player/custom_player/maoling/closeronline/cybernetic/cybernetic.mdl"
 			"arms"		"models/player/custom_player/maoling/closeronline/cybernetic/cybernetic_arms.mdl"
 			"team"		"2"
-			"price"		"99999"
 			"buyable"   "0"
 			"type"		"playerskin"
 			"desc"		"Closer Online: Violet - Cybernetic"
-			"lvls"		"4"
-			"only"		"1"
+			"lvls"		"2"
+			"case"		"1"
 		}
         "Seulbi.Queen"
 		{
 			"model"		"models/player/custom_player/maoling/closeronline/violet/violet.mdl"
 			"arms"		"models/player/custom_player/maoling/closeronline/violet/violet_arms.mdl"
 			"team"		"2"
-			"price"		"99999"
 			"buyable"   "0"
 			"type"		"playerskin"
 			"desc"		"Closer Online: Seulbi - Queen of the Darkness"
-			"lvls"		"4"
-			"only"		"1"
+			"lvls"		"2"
+			"case"		"1"
 		}
 		"蕾姆"
 		{

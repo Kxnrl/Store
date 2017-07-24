@@ -2,7 +2,13 @@
 compile.dat
 compile.exe
 spcomp.exe
-
+compiled/casual/*
+compiled/jb/*
+compiled/kz/*
+compiled/mg/*
+compiled/pure/*
+compiled/ttt/*
+compiled/ze/*
 
 # Windows image file caches
 Thumbs.db

@@ -30,6 +30,7 @@ char g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 ConVar mp_round_restart_delay;
 ConVar sv_disablefreezecam;
+ConVar spec_replay_enable;
 
 void Skin_OnPluginStart()
 {
@@ -38,7 +39,7 @@ void Skin_OnPluginStart()
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
 
 	RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
-	
+
 	//DEATH CAMERA CCVAR
 	spec_freeze_time = FindConVar("spec_freeze_time");
 	HookConVarChange(spec_freeze_time, Skin_OnConVarChanged);
@@ -51,6 +52,10 @@ void Skin_OnPluginStart()
 	mp_round_restart_delay = FindConVar("mp_round_restart_delay");
 	HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
 	SetConVarString(mp_round_restart_delay, "12", true);
+    
+	spec_replay_enable = FindConVar("spec_replay_enable");
+	HookConVarChange(spec_replay_enable, Skin_OnConVarChanged);
+	SetConVarString(spec_replay_enable, "0", true);
 
 	g_ArraySkin = CreateArray(ByteCountToCells(256));
 }
@@ -65,6 +70,9 @@ public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const cha
 
 	if(convar == mp_round_restart_delay)
 		SetConVarString(mp_round_restart_delay, "12", true);
+    
+	if(convar == spec_replay_enable)
+		SetConVarString(spec_replay_enable, "0", true);
 }
 
 void Skin_OnClientDisconnect(int client)
@@ -278,25 +286,28 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
 		return Plugin_Continue;
 
 	if	( 
-			StrEqual(sample, "player/death1.wav", false)||
-			StrEqual(sample, "player/death2.wav", false)||
-			StrEqual(sample, "player/death3.wav", false)||
-			StrEqual(sample, "player/death4.wav", false)||
-			StrEqual(sample, "player/death5.wav", false)
+			StrEqual(sample, "~player/death1.wav", false)||
+			StrEqual(sample, "~player/death2.wav", false)||
+			StrEqual(sample, "~player/death3.wav", false)||
+			StrEqual(sample, "~player/death4.wav", false)||
+			StrEqual(sample, "~player/death5.wav", false)||
+			StrEqual(sample, "~player/death6.wav", false)
 		)
 		{
-			RequestFrame(BroadcastDeathSound, client);
-			return Plugin_Stop;
+			//RequestFrame(BroadcastDeathSound, client);
+			strcopy(sample, 128, g_szDeathVoice[client]);
+			volume = 1.0;
+			return Plugin_Changed;
 		}
 
 	return Plugin_Continue;
 }
-
+/*
 void BroadcastDeathSound(int client)
 {
 	if(!IsClientInGame(client))
 		return;
-    
+	
 	int speaker = CreateEntityByName("info_target");
 
 	float fPos[3], fAgl[3];
@@ -311,15 +322,17 @@ void BroadcastDeathSound(int client)
 
 	if(speaker != -1)
 		CreateTimer(3.0, Timer_RemoveSpeaker, EntIndexToEntRef(speaker), TIMER_FLAG_NO_MAPCHANGE);
+	
+	PrintToChat(client, "BoradcastSound: %s", g_szDeathVoice[client]);
 }
-
+*/
 public Action Timer_RemoveSpeaker(Handle timer, int iRef)
 {
-    int entity = EntRefToEntIndex(iRef);
-    if(IsValidEdict(entity))
-        AcceptEntityInput(entity, "Kill");
+	int entity = EntRefToEntIndex(iRef);
+	if(IsValidEdict(entity))
+		AcceptEntityInput(entity, "Kill");
 
-    return Plugin_Stop;
+	return Plugin_Stop;
 }
 
 public Action Timer_FixPlayerArms(Handle timer, int userid)
@@ -415,7 +428,7 @@ void Store_PreviewSkin(int client, int itemid)
 	SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 2000.0);
 
 	//Miku Green
-	SetEntData(m_iViewModel, offset    ,  57, _, true);
+	SetEntData(m_iViewModel, offset	,  57, _, true);
 	SetEntData(m_iViewModel, offset + 1, 197, _, true);
 	SetEntData(m_iViewModel, offset + 2, 187, _, true);
 	SetEntData(m_iViewModel, offset + 3, 255, _, true);
@@ -559,20 +572,20 @@ public Action Timer_ClearCamera(Handle timer, int client)
 		{
 			char m_szName[32];
 			GetEntPropString(entity, Prop_Data, "m_iName", m_szName, 32);
-			if(!StrContains(m_szName, "ragdollCam", false))
+			if(StrContains(m_szName, "ragdollCam", false) == 0)
 				AcceptEntityInput(entity, "Kill");
 		}
-
-		if(IsClientInGame(client))
-		{
-			SetClientViewEntity(client, client);
-#if !defined GM_TT
-			FadeScreenWhite(client);
-#endif
-		}
+        
+		g_iCameraRef[client] = INVALID_ENT_REFERENCE;
 	}
 
-	g_iCameraRef[client] = INVALID_ENT_REFERENCE;
+	if(IsClientInGame(client))
+	{
+		SetClientViewEntity(client, client);
+#if !defined GM_TT
+		FadeScreenWhite(client);
+#endif
+	}
 
 	return Plugin_Stop;
 }

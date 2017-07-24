@@ -67,6 +67,7 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 	g_szDeathVoice[client][0] = '\0';
 	Store_PreSetClientModel(client);
 	CreateTimer(0.1, Timer_ClearCamera, client);
+	CreateTimer(1.0, Timer_ClearCamera, client);
 	CreateTimer(0.1, Timer_KillPreview, client);
 #endif
 

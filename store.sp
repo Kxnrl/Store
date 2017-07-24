@@ -16,7 +16,7 @@
 #define PLUGIN_NAME         "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR       "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION  "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION      "1.88b - 2017/07/20 11:15"
+#define PLUGIN_VERSION      "1.89 - 2017/07/25 03:25"
 #define PLUGIN_URL          "http://steamcommunity.com/id/_xQy_"
 
 // Server

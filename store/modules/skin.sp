@@ -194,7 +194,7 @@ void Store_PreSetClientModel(int client)
 #if defined Global_Skin
 	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 #else
-	int m_iEquipped = (g_eClients[client][iId] == 1) ? Store_GetEquippedItem(client, "playerskin", 1) : Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
+	int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
 #endif
 
 	if(m_iEquipped >= 0)
@@ -202,9 +202,16 @@ void Store_PreSetClientModel(int client)
 		SetDefaultSkin(client, g_iClientTeam[client]);
 
 		int m_iData = Store_GetDataIndex(m_iEquipped);
+        
+		if(g_eClients[client][iId] == 5219 && g_iClientTeam[client] == 2 && StrContains(g_ePlayerSkins[m_iData][szArms], "nightmare") != -1 && !UTIL_AllowNightmare())
+		{
+			tPrintToChat(client, "服务器内最多同时1人装备此个人专属模型,请更换1个模型来装备");
+			return;
+		}
+
 		if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
 			SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
-		
+
 		CreateTimer(0.3, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
 
 		if(g_ePlayerSkins[m_iData][szSound][0] != 0)
@@ -216,6 +223,16 @@ void Store_PreSetClientModel(int client)
 		CreateTimer(0.3, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 #endif
+}
+
+bool UTIL_AllowNightmare()
+{
+    for(int client = 1; client <= MaxClients; ++client)
+        if(IsClientAuthorized(client))
+            if(CG_ClientGetUId(client) == 7804)
+                return false;
+
+    return true;
 }
 
 void Store_SetClientModel(int client, int m_iData)

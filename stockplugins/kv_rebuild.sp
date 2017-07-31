@@ -1,6 +1,6 @@
 #include <sourcemod>
 #include <cstrike>
-#include <cg_core>
+//#include <cg_core>
 #include <store>
 
 char g_szLogFile[128];
@@ -8,17 +8,17 @@ Handle g_hKeyValue;
 
 public OnPluginStart()
 {
-	RegConsoleCmd("ctest", cmd_test);
-	RegConsoleCmd("sm_xtest", Cmd_x);
-	RegAdminCmd("sm_giveme", Cmd_Give, ADMFLAG_CONVARS);
+	//RegConsoleCmd("ctest", cmd_test);
+	//RegConsoleCmd("sm_xtest", Cmd_x);
+	//RegAdminCmd("sm_giveme", Cmd_Give, ADMFLAG_CONVARS);
 	
 	char m_szFile[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, m_szFile, 128, "data/1.txt");
+	BuildPath(Path_SM, m_szFile, 128, "configs/store/items.txt");
 	Handle m_hKV = CreateKeyValues("Phrases");
 	FileToKeyValues(m_hKV, m_szFile);
 	KeyValuesToFile(m_hKV, m_szFile);
 }
-
+/*
 public Action Cmd_Give(int client, int args)
 {
 	Store_SetClientCredits(client, Store_GetClientCredits(client)+GetRandomInt(1,999), "Cmd_GiveMe");

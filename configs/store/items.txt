@@ -1086,6 +1086,18 @@
 			"lvls"		"4"
 			"only"		"1"
 		}
+        "歌幡meiji"
+		{
+			"model"		"models/player/custom_player/maoling/utau/meiji/one_dress/meiji.mdl"
+			"arms"		"models/player/custom_player/maoling/utau/meiji/one_dress/meiji_arms.mdl"
+			"team"		"2"
+			"auth"		"STEAM_1:1:69539801"
+			"type"		"playerskin"
+			"buyable"	"0"
+			"desc"		"[个人专属模型] MeiJi: Akari"
+			"lvls"		"4"
+			"only"		"1"
+		}
 		"Luka(Kimono)"
 		{
 			"model"		"models/player/custom_player/maoling/vocaloid/luka/baka/luka.mdl"

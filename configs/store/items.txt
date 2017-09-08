@@ -827,6 +827,32 @@
 			"desc"		"Closer Online: Seulbi - Agent"
 			"lvls"		"0"
 		}
+        "U-511"
+		{
+			"model"		"models/player/custom_player/maoling/kantai_collection/U511/u511.mdl"
+			"arms"		"models/player/custom_player/maoling/kantai_collection/U511/u511_arms.mdl"
+			"team"		"3"
+			"Plans"
+			{
+				"1天"
+				{
+					"price"		"688"
+					"time"		"86400"
+				}
+				"1月"
+				{
+					"price"		"16888"
+					"time"		"2678400"
+				}
+				"永久"
+				{
+					"price"		"68888"
+				}
+			}
+			"type"		"playerskin"
+			"desc"		"舰队Collection中的角色: U-511"
+			"lvls"		"1"
+		}
         "Violet.Cybernetic"
 		{
 			"model"		"models/player/custom_player/maoling/closeronline/cybernetic/cybernetic.mdl"
@@ -847,6 +873,17 @@
 			"type"		"playerskin"
 			"desc"		"Closer Online: Seulbi - Queen of the Darkness"
 			"lvls"		"2"
+			"case"		"1"
+		}
+        "洛天依.金丝雀旗袍(TDA)"
+		{
+			"model"		"models/player/custom_player/maoling/vocaloid/luotianyi/canary/lty.mdl"
+			"arms"		"models/player/custom_player/maoling/vocaloid/luotianyi/canary/lty_arms.mdl"
+			"team"		"3"
+			"buyable"   "0"
+			"type"		"playerskin"
+			"desc"		"TDA式洛天依 - 金丝雀旗袍版本 - 测试版本"
+			"lvls"		"3"
 			"case"		"1"
 		}
 		"蕾姆"

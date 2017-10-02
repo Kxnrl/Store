@@ -15,6 +15,32 @@
 			"lvls"		"3"
 			"only"		"1"
 		}
+        "神崎兰子"
+		{
+			"model"		"models/player/custom_player/maoling/idolm@ster/kanzaki_ranko/kanzaki.mdl"
+			"arms"		"models/player/custom_player/maoling/idolm@ster/kanzaki_ranko/kanzaki_arms.mdl"
+			"team"		"3"
+			"buyable"	"0"
+            "giftable"  "0"
+			"price"		"99999"
+			"type"		"playerskin"
+			"desc"		"该模型为新玩家常驻活动限定模型"
+			"lvls"		"4"
+			"only"		"1"
+		}
+        "IA.Orignal(TDA)"
+		{
+			"model"		"models/player/custom_player/maoling/vocaloid/ia/ia.mdl"
+			"arms"		"models/player/custom_player/maoling/vocaloid/ia/ia_arms.mdl"
+			"team"		"2"
+			"buyable"	"0"
+            "giftable"  "0"
+			"price"		"99999"
+			"type"		"playerskin"
+			"desc"		"该模型为老玩家回流活动限定模型"
+			"lvls"		"4"
+			"only"		"1"
+		}
 		"Jim.Raynor雷日天"
 		{
 			"model"		"models/player/custom_player/maoling/starcraft2/terran/raynor/raynor.mdl"
@@ -882,7 +908,18 @@
 			"team"		"3"
 			"buyable"   "0"
 			"type"		"playerskin"
-			"desc"		"TDA式洛天依 - 金丝雀旗袍版本 - 测试版本"
+			"desc"		"TDA式洛天依 - 金丝雀旗袍版本"
+			"lvls"		"3"
+			"case"		"1"
+		}
+        "乐正绫.金丝雀旗袍(TDA)"
+		{
+			"model"		"models/player/custom_player/maoling/vocaloid/yuezhengling/canary/yzl.mdl"
+			"arms"		"models/player/custom_player/maoling/vocaloid/yuezhengling/canary/yzl_arms.mdl"
+			"team"		"2"
+			"buyable"   "0"
+			"type"		"playerskin"
+			"desc"		"TDA式乐正绫 - 金丝雀旗袍版本"
 			"lvls"		"3"
 			"case"		"1"
 		}
@@ -1043,7 +1080,7 @@
 			"type"		"playerskin"
 			"buyable"	"0"
 			"desc"		"[周年庆专属] 舰队Collection中的角色"
-			"lvls"		"3"
+			"lvls"		"4"
 			"only"		"1"
 		}
 		"巡音露卡.摇滚"

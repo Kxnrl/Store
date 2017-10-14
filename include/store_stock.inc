@@ -243,12 +243,12 @@ stock int Downloader_GetMaterialsFromVMT(const char[] vmt, char[][] materials, i
             if((m_iPos = StrContains(m_szLine, g_szMaterialKeys[i], false)) > 0)
             {
                 m_bFound[i]=true;
-                while(m_szLine[m_iPos] != '"' && m_szLine[m_iPos] != ' ' && m_szLine[m_iPos] != '    ')
+                while(m_szLine[m_iPos] != '"' && m_szLine[m_iPos] != ' ' && m_szLine[m_iPos] != '	')
                     ++m_iPos;
-                while(m_szLine[m_iPos] == ' ' || m_szLine[m_iPos] == '    ' || m_szLine[m_iPos] == '"')
+                while(m_szLine[m_iPos] == ' ' || m_szLine[m_iPos] == '	' || m_szLine[m_iPos] == '"')
                     ++m_iPos;
                 m_iLast = m_iPos;
-                while(m_szLine[m_iLast] != '"' && m_szLine[m_iLast] != '\r' && m_szLine[m_iLast] != '\n' && m_szLine[m_iLast] != ' ' && m_szLine[m_iLast] != '    ' && m_szLine[m_iLast] != 0)
+                while(m_szLine[m_iLast] != '"' && m_szLine[m_iLast] != '\r' && m_szLine[m_iLast] != '\n' && m_szLine[m_iLast] != ' ' && m_szLine[m_iLast] != '	' && m_szLine[m_iLast] != 0)
                     ++m_iLast;
                 m_szLine[m_iLast] = 0;
                 strcopy(materials[m_iNum], maxlen, m_szLine[m_iPos]);

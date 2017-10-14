@@ -75,6 +75,7 @@ enum Client_Data
     aEquipmentSynced[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
     bool:bBan,
     bool:bLoaded,
+    bool:bRefresh,
     Handle:hTimer
 }
 

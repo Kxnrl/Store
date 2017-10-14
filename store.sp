@@ -2,7 +2,7 @@
 #pragma newdecls required
 
 //////////////////////////////
-//            INCLUDES        //
+//          INCLUDES        //
 //////////////////////////////
 #include <sdkhooks>
 #include <cg_core>
@@ -11,21 +11,21 @@
 #include <store_stock>
 
 //////////////////////////////
-//        DEFINITIONS            //
+//        DEFINITIONS       //
 //////////////////////////////
 #define PLUGIN_NAME         "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR       "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION  "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION      "1.90a - 2017/09/04 13:28"
+#define PLUGIN_VERSION      "1.91 - 2017/10/14 17:29"
 #define PLUGIN_URL          "http://steamcommunity.com/id/_xQy_"
 
 // Server
 //#define GM_TT
 //#define GM_ZE //zombie escape server
-//#define GM_MG //mini games server
+#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
-#define GM_HZ //casual server
+//#define GM_HZ //casual server
 //#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
 //#define GM_SR //death surf server
@@ -45,10 +45,9 @@
 #endif
 
 //////////////////////////////////
-//        GLOBAL VARIABLES        //
+//      GLOBAL VARIABLES        //
 //////////////////////////////////
 Handle g_hDatabase = INVALID_HANDLE;
-Handle g_hKeyValue = INVALID_HANDLE;
 Handle g_ArraySkin = INVALID_HANDLE;
 
 Store_Item g_eItems[STORE_MAX_ITEMS][Store_Item];
@@ -82,13 +81,11 @@ bool g_bHideMode[MAXPLAYERS+1];
 bool g_bInvMode[MAXPLAYERS+1];
 
 bool g_bLateLoad;
-char g_szLogFile[128];
-char g_szTempole[128];
 char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极皮肤箱"};
 
 
 //////////////////////////////
-//            MODULES            //
+//         MODULES          //
 //////////////////////////////
 // Module Global Module
 #include "store/cpsupport.sp"
@@ -313,7 +310,7 @@ public bool CG_APIStoreSetCredits(int client, int credits, const char[] reason, 
 
 public int CG_APIStoreGetCredits(int client)
 {
-    if(!g_eClients[client][bLoaded] || g_eClients[client][bBan] || g_eClients[client][iCredits] == -1)
+    if(!g_eClients[client][bLoaded] || g_eClients[client][bBan])
         return -1;
     
     return g_eClients[client][iCredits];
@@ -336,7 +333,7 @@ public int Native_GetItemId(Handle myself, int numParams)
 public int Native_SaveClientAll(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
-    UTIL_SaveClientData(client);
+    UTIL_SaveClientData(client, false);
     UTIL_SaveClientInventory(client);
     UTIL_SaveClientEquipment(client);
 }
@@ -467,20 +464,83 @@ public int Native_GetClientCredits(Handle myself, int numParams)
 public int Native_SetClientCredits(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
-    if(!IsFakeClient(client))
-    {
-        int m_iCredits = GetNativeCell(2);
-        char logMsg[128];
-        if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
-            UTIL_LogMessage(client, m_iCredits-g_eClients[client][iCredits], false, "未知来源");
-        else
-            UTIL_LogMessage(client, m_iCredits-g_eClients[client][iCredits], false, logMsg);
+    if(IsFakeClient(client) || !g_eClients[client][bLoaded] || g_eClients[client][bBan])
+        return false;
+    
+    int m_iCredits = GetNativeCell(2);
+    int difference = m_iCredits-g_eClients[client][iCredits];
 
-        g_eClients[client][iCredits] = m_iCredits;
+    char logMsg[128];
+    if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
+        strcopy(STRING(logMsg), "未知来源 SP_ERROR");
+    
+    if(g_eClients[client][bRefresh])
+    {
+        DataPack pack = new DataPack();
+        pack.WriteCell(client);
+        pack.WriteCell(m_iCredits);
+        pack.WriteCell(difference);
+        pack.WriteCell(g_eClients[client][iId]);
+        pack.WriteCell(g_eClients[client][iCredits]);
+        pack.WriteCell(GetTime());
+        pack.WriteString(logMsg);
+        CreateTimer(1.0, Timer_SetCreditsDelay, pack, TIMER_REPEAT);
+        return true;
+    }
+    
+    g_eClients[client][iCredits] = m_iCredits;
+
+    UTIL_LogMessage(client, difference, logMsg);
+    
+    UTIL_SaveClientData(client, false);
+
+    return true;
+}
+
+public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
+{
+    pack.Reset();
+    int client = pack.ReadCell();
+    int m_iCredits = pack.ReadCell();
+    int difference = pack.ReadCell();
+    int m_iStoreId = pack.ReadCell();
+    int OrgCredits = pack.ReadCell();
+    int iTimeStamp = pack.ReadCell();
+    char logMsg[256];
+    pack.ReadString(STRING(logMsg));
+    
+    if(!IsClientInGame(client))
+    {
+        delete pack;
+        LogError("SetCreditsDelay -> id.%d -> diff.%d -> reason.%s", m_iStoreId, difference, logMsg);
+        char m_szQuery[512], eReason[256];
+        Format(STRING(m_szQuery), "UPDATE store_players SET credits=credits+%d WHERE id=%d", difference, m_iStoreId);
+        SQL_TVoid(g_hDatabase, m_szQuery);
+        SQL_EscapeString(g_hDatabase, logMsg, eReason, 256);
+        Format(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", m_iStoreId, OrgCredits, difference, eReason, iTimeStamp);
+        SQL_TVoid(g_hDatabase, m_szQuery);
+        return Plugin_Stop;
     }
 
-    return 1;
-}
+    if(g_eClients[client][bRefresh])
+        return Plugin_Continue;
+    
+    if(m_iStoreId != g_eClients[client][iId])
+    {
+        LogError("SetCreditsDelay -> id not match -> id.%d ? real.%d -> \"%L\" ", m_iStoreId, g_eClients[client][iId], client);
+        return Plugin_Stop;
+    }
+    
+    delete pack;
+    
+    g_eClients[client][iCredits] = m_iCredits;
+
+    UTIL_LogMessage(client, difference, logMsg);
+    
+    UTIL_SaveClientData(client, false);
+    
+    return Plugin_Stop;
+} 
 
 public int Native_IsItemInBoughtPackage(Handle myself, int numParams)
 {
@@ -535,7 +595,7 @@ public int Native_GiveItem(Handle myself, int numParams)
     
     if(itemid < 0)
     {
-        LogToFileEx(g_szLogFile, "Give %N itemid %d purchase %d expiration %d price %d", client, itemid, purchase, expiration, price);
+        LogError("Give %N itemid %d purchase %d expiration %d price %d", client, itemid, purchase, expiration, price);
         return;
     }
 
@@ -559,7 +619,7 @@ public int Native_GiveItem(Handle myself, int numParams)
         if(exp > 0 && exp < expiration)
         {
             if(!Store_ExtClientItem(client, itemid, expiration-exp))
-                LogToFileEx(g_szLogFile, "Ext %N %s failed. purchase %d expiration %d price %d", client, g_eItems[itemid][szName] , purchase, expiration, price);
+                LogError("Ext %N %s failed. purchase %d expiration %d price %d", client, g_eItems[itemid][szName] , purchase, expiration, price);
         }
     }
 }
@@ -787,7 +847,7 @@ public void OnClientDisconnect(int client)
     Players_OnClientDisconnect(client);
 #endif
 
-    UTIL_SaveClientData(client);
+    UTIL_SaveClientData(client, true);
     UTIL_SaveClientInventory(client);
     UTIL_SaveClientEquipment(client);
     UTIL_DisconnectClient(client);
@@ -2224,9 +2284,6 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
                 OnClientPostAdminCheck(client);
             }
         }
-
-        // Build Log Path
-        UTIL_BuildTempLogFile();
     }
 }
 
@@ -2246,12 +2303,6 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
         g_eClients[client][iItems] = -1;
         GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), true);
         strcopy(g_eClients[client][szAuthId], 32, m_szSteamID[8]);
-        if(KvJumpToKey(g_hKeyValue, m_szSteamID, true))
-        {
-            KvSetNum(g_hKeyValue, "Connect", GetTime());
-            KvRewind(g_hKeyValue);
-            KeyValuesToFile(g_hKeyValue, g_szLogFile);
-        }
         
         if(SQL_FetchRow(hndl))
         {
@@ -2271,7 +2322,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             Format(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
             SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
 
-            UTIL_LogMessage(client, g_eClients[client][iCredits], true, "本次进入服务器时的Credits");
+            UTIL_LogMessage(client, 0, "进入服务器时");
         }
         else
         {
@@ -2506,7 +2557,7 @@ void UTIL_SaveClientEquipment(int client)
     }
 }
 
-void UTIL_SaveClientData(int client)
+void UTIL_SaveClientData(int client, bool disconnect)
 {
     if(g_hDatabase == INVALID_HANDLE)
     {
@@ -2517,62 +2568,47 @@ void UTIL_SaveClientData(int client)
     if((g_eClients[client][iCredits]==-1 && g_eClients[client][iItems]==-1) || !g_eClients[client][bLoaded])
         return;
     
+    if(!disconnect && g_eClients[client][bRefresh])
+        return;
+    
     char m_szQuery[512], m_szName[64], m_szEName[128];
     GetClientName(client, m_szName, 64);
     SQL_EscapeString(g_hDatabase, m_szName, m_szEName, 128);
     Format(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`+%d, `date_of_last_join`=%d, `name`='%s' WHERE `id`=%d", g_eClients[client][iCredits]-g_eClients[client][iOriginalCredits], g_eClients[client][iDateOfLastJoin], m_szEName, g_eClients[client][iId]);
 
-    g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
-
-    SQL_TVoid(g_hDatabase, m_szQuery);
-    
-    char m_szAuthId[32];
-    GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true);
-    if(KvJumpToKey(g_hKeyValue, m_szAuthId))
+    if(disconnect)
     {
-        int connect = KvGetNum(g_hKeyValue, "Connect", 0);
-        
-        while(KvGotoFirstSubKey(g_hKeyValue, true))
-        {
-            char m_szReason[128];
-            KvGetSectionName(g_hKeyValue, m_szReason, 128);
-
-            if(StrEqual(m_szReason, "Connect"))
-            {
-                KvDeleteThis(g_hKeyValue);
-                KvGetSectionName(g_hKeyValue, m_szReason, 128);
-            }
-            
-            int credits = KvGetNum(g_hKeyValue, "Credits", 0);
-            int endtime = KvGetNum(g_hKeyValue, "LastTime", 0);
-            int Counts = KvGetNum(g_hKeyValue, "Counts", 1);
-
-            char m_szEreason[192];
-            SQL_EscapeString(g_hDatabase, m_szReason, m_szEreason, 192);
-            Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES(%d, %d, \"%d_%d_%s\", %d)", g_eClients[client][iId], credits, connect, Counts, m_szEreason, endtime);
-            SQL_TVoid(g_hDatabase, m_szQuery);
-            
-            if(KvDeleteThis(g_hKeyValue))
-            {
-                char m_szAfter[32];
-                KvGetSectionName(g_hKeyValue, m_szAfter, 32);
-                if(StrContains(m_szAfter, "STEAM", false) != -1)
-                    break;
-                else
-                    KvGoBack(g_hKeyValue);
-            }
-        }
-
-        KvDeleteThis(g_hKeyValue);
-        KvRewind(g_hKeyValue);
-        KeyValuesToFile(g_hKeyValue, g_szLogFile);
+        g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
+        SQL_TVoid(g_hDatabase, m_szQuery);
+        UTIL_LogMessage(client, 0, "离开服务器时");
     }
+    else
+    {
+        g_eClients[client][bRefresh] = true;
+        SQL_TQuery(g_hDatabase, SQLCallback_RefreshCredits, m_szQuery, GetClientUserId(client));
+    }
+}
+
+public void SQLCallback_RefreshCredits(Handle owner, Handle hndl, const char[] error, int userid)
+{
+    int client = GetClientOfUserId(userid);
+    if(!client)
+        return;
+    
+    g_eClients[client][bRefresh] = false;
+    
+    if(hndl == INVALID_HANDLE)
+    {
+        LogError("Refresh \"%L\" data failed :  %s", client, error);
+        return;
+    }
+
+    g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
 }
 
 void UTIL_DisconnectClient(int client)
 {
     ClearTimer(g_eClients[client][hTimer]);
-    UTIL_LogMessage(client, g_eClients[client][iCredits], true, "离开服务器时");
     g_eClients[client][iCredits] = -1;
     g_eClients[client][iOriginalCredits] = -1;
     g_eClients[client][iItems] = -1;
@@ -2613,11 +2649,14 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
             
             if(dbCredits != g_eClients[client][iOriginalCredits])
             {
-                int diff = g_eClients[client][iOriginalCredits] - dbCredits;
+                int diff = dbCredits - g_eClients[client][iOriginalCredits];
                 g_eClients[client][iOriginalCredits] = dbCredits;
-                g_eClients[client][iCredits] -= diff;
+                g_eClients[client][iCredits] += diff;
+                UTIL_LogMessage(client, diff, "外部信用点转换(购物前刷新信用点)");
             }
             
+            g_eClients[client][bRefresh] = false;
+
             if(g_eClients[client][iCredits]<m_iPrice || g_eItems[itemid][bCompose])
             {
                 DisplayItemMenu(client, g_iSelectedItem[client]);
@@ -2634,14 +2673,12 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
             g_eClientItems[client][m_iId][bDeleted] = false;
 
             g_eClients[client][iCredits] -= m_iPrice;
-
-            UTIL_LogMessage(client, -m_iPrice, true, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-            LogToFileEx(g_szTempole, "%N 购买了 %s %s[%d]", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], m_iPrice);
+            UTIL_LogMessage(client, -m_iPrice, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
             Store_SaveClientAll(client);
 
             tPrintToChat(client, "%T", "Chat Bought Item", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-            
+
             DisplayItemMenu(client, g_iSelectedItem[client]);
         }
     }
@@ -2734,6 +2771,7 @@ void UTIL_BuyItem(int client)
     char m_szQuery[255];
     Format(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[client][iId]);
     SQL_TQuery(g_hDatabase, SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
+    g_eClients[client][bRefresh] = true;
 }
 
 void UTIL_SellItem(int client, int itemid)
@@ -2759,8 +2797,7 @@ void UTIL_SellItem(int client, int itemid)
     g_eClients[client][iCredits] += m_iCredits;
     tPrintToChat(client, "%T", "Chat Sold Item", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
-    UTIL_LogMessage(client, m_iCredits, false, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
-    LogToFileEx(g_szTempole, "%N 卖掉了 %s %s", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+    UTIL_LogMessage(client, m_iCredits, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
     Store_RemoveItem(client, itemid);
 
@@ -2819,8 +2856,8 @@ void UTIL_GiftItem(int client, int receiver, int item)
     tPrintToChat(client, "%T", "Chat Gift Item Sent", client, receiver, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
     tPrintToChat(receiver, "%T", "Chat Gift Item Received", receiver, client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
 
-    UTIL_LogMessage(client, 0, true, "赠送了 %s 给 %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
-    UTIL_LogMessage(receiver, 0, true, "收到了 %s 来自 %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);
+    UTIL_LogMessage(client  , 0, "赠送了 %s 给 %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
+    UTIL_LogMessage(receiver, 0, "收到了 %s 来自 %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);
     
     Store_SaveClientAll(client);
     Store_SaveClientAll(receiver);
@@ -3114,39 +3151,21 @@ bool UTIL_PackageHasClientItem(int client, int packageid, bool invmode = false)
     return false;
 }
 
-void UTIL_LogMessage(int client, int credits, bool immediately = false, const char[] message, any ...)
+// new table 
+// field -> id  storeid  credits  diff  reason  timestamp
+// modify in 1.91
+void UTIL_LogMessage(int client, int diff, const char[] message, any ...)
 {
     if(IsFakeClient(client))
         return;
 
     char m_szReason[256];
-    VFormat(STRING(m_szReason), message, 5);
+    VFormat(STRING(m_szReason), message, 4);
 
-    if(!immediately)
-    {
-        StripQuotes(m_szReason);
-        
-        char m_szAuthId[32];
-        GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true);
-
-        KvJumpToKey(g_hKeyValue, m_szAuthId, true);
-        KvJumpToKey(g_hKeyValue, m_szReason, true);
-
-        KvSetNum(g_hKeyValue, "Credits", KvGetNum(g_hKeyValue, "Credits", 0)+credits);
-        KvSetNum(g_hKeyValue, "LastTime", GetTime());
-        KvSetNum(g_hKeyValue, "Counts", KvGetNum(g_hKeyValue, "Counts", 0)+1);
-
-        KvRewind(g_hKeyValue);
-
-        KeyValuesToFile(g_hKeyValue, g_szLogFile);
-    }
-    else
-    {
-        char m_szQuery[512], EszReason[513];
-        SQL_EscapeString(g_hDatabase, m_szReason, EszReason, 513);
-        Format(STRING(m_szQuery), "INSERT INTO store_logs (player_id, credits, reason, date) VALUES(%d, %d, \"%s\", %d)", g_eClients[client][iId], credits, EszReason, GetTime());
-        SQL_TVoid(g_hDatabase, m_szQuery);
-    }
+    char m_szQuery[512], EszReason[513];
+    SQL_EscapeString(g_hDatabase, m_szReason, EszReason, 513);
+    Format(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", g_eClients[client][iId], g_eClients[client][iCredits], diff, EszReason, GetTime());
+    SQL_TVoid(g_hDatabase, m_szQuery);
 }
 
 int UTIL_GetLowestPrice(int itemid)
@@ -3255,19 +3274,6 @@ void UTIL_CheckModules()
 #if defined Module_VIP
     VIP_OnPluginStart();
 #endif
-}
-
-void UTIL_BuildTempLogFile()
-{
-    BuildPath(Path_SM, g_szLogFile, 128, "data/store.log.kv.txt");
-    BuildPath(Path_SM, g_szTempole, 128, "data/store.buy.sell.txt");
-
-    if(g_hKeyValue != INVALID_HANDLE)
-        CloseHandle(g_hKeyValue);
-    
-    g_hKeyValue = CreateKeyValues("store_logs", "", "");
-
-    KeyValuesToFile(g_hKeyValue, g_szLogFile);
 }
 
 public void CG_OnClientDeath(int client, int attacker, int assister, bool headshot, const char[] weapon)

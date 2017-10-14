@@ -93,6 +93,7 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 // Module Global Module
 #include "store/cpsupport.sp"
 #include "store/vipadmin.sp"
+#include "store/tpmode.sp" // Module TP
 
 // Module Hats
 #if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR
@@ -134,10 +135,6 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 // Module Sound
 #if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ
 #include "store/sounds.sp"
-#endif
-// Module TP
-#if defined GM_ZE || defined GM_MG || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_JB
-#include "store/tpmode.sp"
 #endif
 
 //ZE Credits timer
@@ -769,9 +766,7 @@ public void OnClientConnected(int client)
     Sound_OnClientConnected(client);
 #endif
 
-#if defined Module_TPMode
     TPMode_OnClientConnected(client);
-#endif
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -3251,9 +3246,7 @@ void UTIL_CheckModules()
     Sounds_OnPluginStart();
 #endif
 
-#if defined Module_TPMode
     TPMode_OnPluginStart();
-#endif
 
 #if defined Module_Player
     Players_OnPluginStart();
@@ -3279,9 +3272,7 @@ void UTIL_BuildTempLogFile()
 
 public void CG_OnClientDeath(int client, int attacker, int assister, bool headshot, const char[] weapon)
 {
-#if defined Module_TPMode
     CheckClientTP(client);
-#endif
 
 #if defined Module_Skin
     if(IsValidClient(attacker))

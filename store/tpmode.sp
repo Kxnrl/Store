@@ -1,4 +1,8 @@
-#define Module_TPMode
+#if defined GM_ZE || defined GM_KZ
+
+    #define Module_TPMode
+
+#endif
 
 bool g_bMirror[MAXPLAYERS+1];
 bool g_bThirdperson[MAXPLAYERS+1];

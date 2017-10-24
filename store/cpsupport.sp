@@ -80,6 +80,7 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
     char m_szNameColor[32];
 
     GetColorAuthName(client,  m_szNameTag, 128);
+    strcopy(STRING(m_szNameColor), "{teamcolor}");
 
     if(m_iEquippedNameTag >= 0)
     {
@@ -92,8 +93,8 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
     {
         if(CG_ClientIsVIP(client))
             StrCat(STRING(m_szNameTag), "{purple}[VIP] {teamcolor}");
-        else
-            StrCat(STRING(m_szNameTag), (CG_ClientGetUId(client) > 0) ? "{lightblue}[CG社区] {teamcolor}" : "{lightblue}[未注册] {teamcolor}");
+        else if(CG_ClientGetUId(client) < 0)
+            StrCat(STRING(m_szNameTag), "{lightblue}[未注册] {teamcolor}");
     }
 
     bool rainbowname = false;

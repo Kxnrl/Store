@@ -16,15 +16,15 @@
 #define PLUGIN_NAME         "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR       "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION  "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION      "1.91 - 2017/10/14 17:29"
+#define PLUGIN_VERSION      "1.91 - 2017/10/22 10:17"
 #define PLUGIN_URL          "http://steamcommunity.com/id/_xQy_"
 
 // Server
 //#define GM_TT
 //#define GM_ZE //zombie escape server
-#define GM_MG //mini games server
+//#define GM_MG //mini games server
 //#define GM_JB //jail break server
-//#define GM_KZ //kreedz server
+#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
 //#define GM_PR //pure|competitive server
 //#define GM_HG //hunger game server
@@ -292,8 +292,8 @@ public bool CG_APIStoreSetCredits(int client, int credits, const char[] reason, 
         
         Store_SetClientCredits(client, Store_GetClientCredits(client)-icredits, reason);
         
-        if(immed)
-            Store_SaveClientAll(client);
+        //if(immed)
+        //    Store_SaveClientAll(client);
         
         return true;
     }
@@ -3221,16 +3221,16 @@ int UTIL_GetClientHandleFees(int client, int itemid)
         if(!g_eItems[itemid][bBuyable])
         {
             if(g_eItems[itemid][bCompose])
-                return 50000;
+                return 15000;
             else
-                return 20000;
+                return 30000;
         }
         else
         {
             if(g_eClientItems[client][uid][iPriceOfPurchase] < 1000)
-                return RoundToFloor(UTIL_GetHighestPrice(itemid)*0.15);
+                return RoundToFloor(UTIL_GetHighestPrice(itemid)*0.2);
             else
-                return RoundToFloor(g_eClientItems[client][uid][iPriceOfPurchase]*0.15);
+                return RoundToFloor(g_eClientItems[client][uid][iPriceOfPurchase]*0.1);
         }
     }
 
@@ -3240,7 +3240,7 @@ int UTIL_GetClientHandleFees(int client, int itemid)
     if(g_eClientItems[client][uid][iPriceOfPurchase] < 1000)
         return RoundToFloor(UTIL_GetHighestPrice(itemid)*0.2);
     else
-        return RoundToFloor(g_eClientItems[client][uid][iPriceOfPurchase]*0.2);
+        return RoundToFloor(g_eClientItems[client][uid][iPriceOfPurchase]*0.1);
 }
 
 void UTIL_CheckModules()

@@ -202,12 +202,6 @@ void Store_PreSetClientModel(int client)
         SetDefaultSkin(client, g_iClientTeam[client]);
 
         int m_iData = Store_GetDataIndex(m_iEquipped);
-        
-        if(g_eClients[client][iId] == 5219 && g_iClientTeam[client] == 2 && StrContains(g_ePlayerSkins[m_iData][szArms], "nightmare") != -1 && !UTIL_AllowNightmare())
-        {
-            tPrintToChat(client, "服务器内最多同时1人装备此个人专属模型,请更换1个模型来装备");
-            return;
-        }
 
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
             SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
@@ -223,16 +217,6 @@ void Store_PreSetClientModel(int client)
         CreateTimer(0.3, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
     }
 #endif
-}
-
-bool UTIL_AllowNightmare()
-{
-    for(int client = 1; client <= MaxClients; ++client)
-        if(IsClientAuthorized(client))
-            if(CG_ClientGetUId(client) == 7804)
-                return false;
-
-    return true;
 }
 
 void Store_SetClientModel(int client, int m_iData)
@@ -302,7 +286,7 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
     if(g_szDeathVoice[client][0] == '\0')
         return Plugin_Continue;
 
-    if    ( 
+    if  ( 
             StrEqual(sample, "~player/death1.wav", false)||
             StrEqual(sample, "~player/death2.wav", false)||
             StrEqual(sample, "~player/death3.wav", false)||
@@ -311,7 +295,6 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
             StrEqual(sample, "~player/death6.wav", false)
         )
         {
-            //RequestFrame(BroadcastDeathSound, client);
             strcopy(sample, 128, g_szDeathVoice[client]);
             volume = 1.0;
             return Plugin_Changed;
@@ -319,30 +302,7 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
 
     return Plugin_Continue;
 }
-/*
-void BroadcastDeathSound(int client)
-{
-    if(!IsClientInGame(client))
-        return;
-    
-    int speaker = CreateEntityByName("info_target");
 
-    float fPos[3], fAgl[3];
-    GetClientEyePosition(client, fPos);
-    GetClientEyeAngles(client, fAgl);
-
-    // Move to mouth.
-    fPos[2] -= 3.0;
-    TeleportEntity(speaker, fPos, fAgl, NULL_VECTOR);
-
-    EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, speaker, fPos, NULL_VECTOR, false);
-
-    if(speaker != -1)
-        CreateTimer(3.0, Timer_RemoveSpeaker, EntIndexToEntRef(speaker), TIMER_FLAG_NO_MAPCHANGE);
-    
-    PrintToChat(client, "BoradcastSound: %s", g_szDeathVoice[client]);
-}
-*/
 public Action Timer_RemoveSpeaker(Handle timer, int iRef)
 {
     int entity = EntRefToEntIndex(iRef);

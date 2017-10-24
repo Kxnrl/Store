@@ -110,7 +110,7 @@ stock void ReplaceColorsCode(char[] message, int maxLen)
 	ReplaceString(message, maxLen, "{default}", "\x01", false);
 	ReplaceString(message, maxLen, "{white}", "\x01", false);
 	ReplaceString(message, maxLen, "{darkred}", "\x02", false);
-	ReplaceString(message, maxLen, "{teamcolor}", "\x03", false);
+	ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
 	ReplaceString(message, maxLen, "{pink}", "\x03", false);
 	ReplaceString(message, maxLen, "{green}", "\x04", false);
 	ReplaceString(message, maxLen, "{highlight}", "\x04", false);

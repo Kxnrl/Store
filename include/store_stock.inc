@@ -461,7 +461,7 @@ stock bool AllowItemForVIP(int client, bool vip)
 
     return CG_ClientIsVIP(client);
 }
-
+/*
 stock void SetDefaultSkin(int client, int team)
 {
     char m_szModel[128];
@@ -489,3 +489,4 @@ stock void PrecacheDefaultModel()
     PrecacheModel("models/weapons/t_arms.mdl");
     PrecacheModel("models/weapons/ct_arms.mdl");
 }
+*/

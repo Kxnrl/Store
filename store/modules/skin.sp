@@ -155,7 +155,7 @@ public void PlayerSkins_OnMapStart()
         }
     }
 
-    PrecacheDefaultModel();
+    //PrecacheDefaultModel();
 
 #if defined GM_ZE
     if(FileExists(Model_ZE_Newbee))
@@ -199,14 +199,14 @@ void Store_PreSetClientModel(int client)
 
     if(m_iEquipped >= 0)
     {
-        SetDefaultSkin(client, g_iClientTeam[client]);
+        //SetDefaultSkin(client, g_iClientTeam[client]);
 
         int m_iData = Store_GetDataIndex(m_iEquipped);
 
-        if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
-            SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
+        //if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+        //    SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
 
-        CreateTimer(0.3, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(0.02, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
 
         if(g_ePlayerSkins[m_iData][szSound][0] != 0)
             Format(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
@@ -214,7 +214,7 @@ void Store_PreSetClientModel(int client)
 #if defined GM_ZE
     else
     {
-        CreateTimer(0.3, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(0.02, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
     }
 #endif
 }
@@ -233,6 +233,9 @@ void Store_SetClientModel(int client, int m_iData)
 #endif
 
     SetEntityModel(client, g_ePlayerSkins[m_iData][szModel]);
+    
+    if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+        SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
     
     strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
     

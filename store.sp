@@ -514,10 +514,10 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
         delete pack;
         LogError("SetCreditsDelay -> id.%d -> diff.%d -> reason.%s", m_iStoreId, difference, logMsg);
         char m_szQuery[512], eReason[256];
-        Format(STRING(m_szQuery), "UPDATE store_players SET credits=credits+%d WHERE id=%d", difference, m_iStoreId);
+        FormatEx(STRING(m_szQuery), "UPDATE store_players SET credits=credits+%d WHERE id=%d", difference, m_iStoreId);
         SQL_TVoid(g_hDatabase, m_szQuery);
         SQL_EscapeString(g_hDatabase, logMsg, eReason, 256);
-        Format(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", m_iStoreId, OrgCredits, difference, eReason, iTimeStamp);
+        FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", m_iStoreId, OrgCredits, difference, eReason, iTimeStamp);
         SQL_TVoid(g_hDatabase, m_szQuery);
         return Plugin_Stop;
     }
@@ -744,7 +744,7 @@ public int Native_ExtClientItem(Handle myself, int numParams)
                 return true;
 
             char m_szQuery[256];
-            Format(STRING(m_szQuery), "UPDATE `store_items` SET `date_of_expiration` = '%d' WHERE `id`=%d AND `player_id`=%d", g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iId], g_eClients[client][iId]);
+            FormatEx(STRING(m_szQuery), "UPDATE `store_items` SET `date_of_expiration` = '%d' WHERE `id`=%d AND `player_id`=%d", g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iId], g_eClients[client][iId]);
             SQL_TVoid(g_hDatabase, m_szQuery);
 
             return true;
@@ -1091,7 +1091,7 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
             if(strcmp(m_szId, "sell_package")==0)
             {
                 char m_szTitle[128];
-                Format(STRING(m_szTitle), "%T", "Confirm_Sell", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], RoundToFloor(g_eItems[g_iSelectedItem[client]][iPrice]*0.6));
+                FormatEx(STRING(m_szTitle), "%T", "Confirm_Sell", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], RoundToFloor(g_eItems[g_iSelectedItem[client]][iPrice]*0.6));
                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 1);
                 return;
             }
@@ -1154,7 +1154,7 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
                             else
                             {
                                 char m_szTitle[128];
-                                Format(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+                                FormatEx(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
                                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
                             }
                             return;
@@ -1290,7 +1290,7 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
                 else
                 {
                     char m_szTitle[128];
-                    Format(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
+                    FormatEx(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
                     Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
                 }
             }
@@ -1575,9 +1575,9 @@ void EndingCaseMenu(int client, int days, int itemid)
 {
     switch(g_iClientCase[client])
     {
-        case 1: Store_SetClientCredits(client, Store_GetClientCredits(client)- 8888, "OpenCase1");
-        case 2: Store_SetClientCredits(client, Store_GetClientCredits(client)-23333, "OpenCase2");
-        case 3: Store_SetClientCredits(client, Store_GetClientCredits(client)-68888, "OpenCase3");
+        case 1: Store_SetClientCredits(client, Store_GetClientCredits(client)- 8888, "开启普通皮肤箱");
+        case 2: Store_SetClientCredits(client, Store_GetClientCredits(client)-23333, "开启高级皮肤箱");
+        case 3: Store_SetClientCredits(client, Store_GetClientCredits(client)-68888, "开启终极皮肤箱");
         default: return;
     }
 
@@ -1606,7 +1606,7 @@ void EndingCaseMenu(int client, int days, int itemid)
         PrintCenterText(client, "<big><u><b><font color='#dd2f2f' size='25'><center>%s</font> <font color='#15fb00' size='25'>Permanent</center>", name);
         tPrintToChatAll("\x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
         char msg[256];
-        Format(msg, 256, "[\x10Store\x01] \x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
+        FormatEx(msg, 256, "[\x10Store\x01] \x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
         BroadCastToAll(msg);
     }
 
@@ -1615,9 +1615,9 @@ void EndingCaseMenu(int client, int days, int itemid)
 
     int crd = UTIL_GetSkinSellPrice(client, days);
     char fmt[32];
-    Format(fmt, 32, "sell_%d_%d", itemid, days);
+    FormatEx(fmt, 32, "sell_%d_%d", itemid, days);
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, fmt, "快速卖出该皮肤(%d)", crd);
-    Format(fmt, 32, "add_%d_%d", itemid, days);
+    FormatEx(fmt, 32, "add_%d_%d", itemid, days);
     AddMenuItemEx(menu, Store_HasClientItem(client, itemid) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT, fmt, "添加到我的库存");
     
     DisplayMenu(menu, client, 0);
@@ -1652,10 +1652,12 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
             if(StrEqual(data[0], "sell"))
             {
                 int crd = UTIL_GetSkinSellPrice(client, days);
-                Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, "Quick sell case skin Select");
+                char reason[128];
+                FormatEx(STRING(reason), "开启皮肤箱后快速卖出皮肤[%s]", name);
+                Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, reason);
                 if(days) tPrintToChat(client, "你出售了[\x04%s\x01](\x05%d天\x01)获得了\x04%d\x01信用点", name, days, crd);
                 else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
-                Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
+                FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);
                 g_iDataProtect[client] = GetTime()+5;
                 UTIL_OpenSkinCase(client);
@@ -1671,7 +1673,7 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 if(days) tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05%d天\x01)", g_szCase[g_iClientCase[client]], name, days);
                 else tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05永久\x01)", g_szCase[g_iClientCase[client]], name);            
                 Store_SaveClientAll(client);
-                Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
+                FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);
                 g_iDataProtect[client] = GetTime()+30;
                 g_iSelectedItem[client] = itemid;
@@ -1704,7 +1706,9 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 if(Store_HasClientItem(client, itemid))
                 {
                     int crd = UTIL_GetSkinSellPrice(client, days);
-                    Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, "Quick sell case skin Exitback");
+                    char reason[128];
+                    FormatEx(STRING(reason), "开启皮肤箱后因选择退出而快速卖出皮肤[%s]", name);
+                    Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, reason);
                     if(days) tPrintToChat(client, "你出售了[\x04%s\x01](\x05%d天\x01)获得了\x04%d\x01信用点", name, days, crd);
                     else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
                     if(g_iClientCase[client] > 1)
@@ -1712,7 +1716,7 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                         g_iDataProtect[client] = GetTime()+30;
                         Store_SaveClientAll(client);
                     } else g_iDataProtect[client] = GetTime()+5;
-                    Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
+                    FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 }
                 else
                 {
@@ -1722,7 +1726,7 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                     Store_SaveClientAll(client);
                     g_iDataProtect[client] = GetTime()+30;
                     g_iSelectedItem[client] = itemid;
-                    Format(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
+                    FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 }
 
                 SQL_TVoid(g_hDatabase, m_szQuery);
@@ -1750,9 +1754,9 @@ public void DisplayItemMenu(int client, int itemid)
     char m_szTitle[256];
     int idx = 0;
     if(m_bEquipped)
-        idx = Format(STRING(m_szTitle), "%T\n%T", "Item Equipped", client, g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
+        idx = FormatEx(STRING(m_szTitle), "%T\n%T", "Item Equipped", client, g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
     else
-        idx = Format(STRING(m_szTitle), "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
+        idx = FormatEx(STRING(m_szTitle), "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
 
     int m_iExpiration = UTIL_GetExpiration(client, itemid);
     if(m_iExpiration != 0)
@@ -1760,7 +1764,7 @@ public void DisplayItemMenu(int client, int itemid)
         m_iExpiration = m_iExpiration-GetTime();
         int m_iDays = m_iExpiration/(24*60*60);
         int m_iHours = (m_iExpiration-m_iDays*24*60*60)/(60*60);
-        Format(m_szTitle[idx-1], sizeof(m_szTitle)-idx-1, "\n%T", "Title Expiration", client, m_iDays, m_iHours);
+        FormatEx(m_szTitle[idx-1], sizeof(m_szTitle)-idx-1, "\n%T", "Title Expiration", client, m_iDays, m_iHours);
     }
     
     SetMenuTitleEx(m_hMenu, m_szTitle);
@@ -1864,13 +1868,13 @@ public void DisplayComposeMenu(int client, bool last)
     if(g_eCompose[client][item1] >= 0)
         strcopy(sitem1, 64, g_eItems[g_eCompose[client][item1]][szName]);
     else
-        Format(sitem1, 64, "%T", "unselect", client);
+        FormatEx(sitem1, 64, "%T", "unselect", client);
     
     char sitem2[64];
     if(g_eCompose[client][item2] >= 0)
         strcopy(sitem2, 64, g_eItems[g_eCompose[client][item2]][szName]);
     else
-        Format(sitem2, 64, "%T", "unselect", client);
+        FormatEx(sitem2, 64, "%T", "unselect", client);
 
     SetMenuTitleEx(m_hMenu, "%T", "Title Compose", client, g_eItems[g_iSelectedItem[client]][szName], sitem1, sitem2);
 
@@ -1970,7 +1974,7 @@ public int MenuHandler_Compose(Handle menu, MenuAction action, int client, int p
                     case 4: strcopy(m_szTypes, 32, "25000");
                     case 5: strcopy(m_szTypes, 32, "88888");
                 }
-                Format(m_szTitle, 256, "%T", "Confirm_Compose", client, g_eItems[g_iSelectedItem[client]][szName], g_eItems[g_eCompose[client][item1]][szName], g_eItems[g_eCompose[client][item2]][szName], m_szTypes);
+                FormatEx(m_szTitle, 256, "%T", "Confirm_Compose", client, g_eItems[g_iSelectedItem[client]][szName], g_eItems[g_eCompose[client][item1]][szName], g_eItems[g_eCompose[client][item2]][szName], m_szTypes);
                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Compose, 0);
             }
         }
@@ -1995,7 +1999,7 @@ public int MenuHandler_Plan(Handle menu, MenuAction action, int client, int para
         g_iMenuNum[client]=5;
 
         char m_szTitle[128];
-        Format(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType]);
+        FormatEx(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType]);
         Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
         return;
     }
@@ -2066,7 +2070,7 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
                 }
 
                 char m_szTitle[128];
-                Format(STRING(m_szTitle), "%T", "Confirm_Sell", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], m_iCredits);
+                FormatEx(STRING(m_szTitle), "%T", "Confirm_Sell", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], m_iCredits);
                 g_iMenuNum[client] = 2;
                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Item, 0);
             }
@@ -2180,7 +2184,7 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
             int m_iFees = UTIL_GetClientHandleFees(client, g_iSelectedItem[client]);
             if(m_iFees > 0)
             {
-                Format(STRING(m_szTitle), "%T\n%T", "Confirm_Gift", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], m_iReceiver, "Gift_Handing", client, m_iFees);
+                FormatEx(STRING(m_szTitle), "%T\n%T", "Confirm_Gift", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType], m_iReceiver, "Gift_Handing", client, m_iFees);
                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Gift, m_iId);
             }
             else
@@ -2269,7 +2273,7 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
         SQL_SetCharset(g_hDatabase, "utf8");
         
         char m_szQuery[256];
-        Format(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
+        FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
         SQL_TVoid(g_hDatabase, m_szQuery);
         
         // if Loaded late.
@@ -2319,7 +2323,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
                 return;
             }
 
-            Format(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
+            FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
             SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
 
             UTIL_LogMessage(client, 0, "进入服务器时");
@@ -2329,7 +2333,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             char m_szName[64], m_szEName[128];
             GetClientName(client, m_szName, 64);
             SQL_EscapeString(g_hDatabase, m_szName, m_szEName, 128);
-            Format(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', 300, %d, %d, '0')", g_eClients[client][szAuthId], m_szEName, m_iTime, m_iTime);
+            FormatEx(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', 300, %d, %d, '0')", g_eClients[client][szAuthId], m_szEName, m_iTime, m_iTime);
             SQL_TQuery(g_hDatabase, SQLCallback_InsertClient, m_szQuery, userid);
             g_eClients[client][iCredits] = 0;
             g_eClients[client][iOriginalCredits] = 0;
@@ -2368,7 +2372,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
         }
         
         char m_szQuery[512];
-        Format(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+        FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
         SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
 
         char m_szUniqueId[PLATFORM_MAX_PATH];
@@ -2481,7 +2485,7 @@ void UTIL_LoadClientInventory(int client)
     if(m_szAuthId[0] == 0)
         return;
 
-    Format(STRING(m_szQuery), "SELECT * FROM store_players WHERE `authid`=\"%s\"", m_szAuthId[8]);
+    FormatEx(STRING(m_szQuery), "SELECT * FROM store_players WHERE `authid`=\"%s\"", m_szAuthId[8]);
 
     SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Credits, m_szQuery, g_eClients[client][iUserId]);
 }
@@ -2510,16 +2514,16 @@ void UTIL_SaveClientInventory(int client)
         if(!g_eClientItems[client][i][bSynced] && !g_eClientItems[client][i][bDeleted])
         {
             g_eClientItems[client][i][bSynced] = true;
-            Format(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[client][iId], m_szType, m_szUniqueId, g_eClientItems[client][i][iDateOfPurchase], g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iPriceOfPurchase]);
+            FormatEx(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[client][iId], m_szType, m_szUniqueId, g_eClientItems[client][i][iDateOfPurchase], g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iPriceOfPurchase]);
             SQL_TVoid(g_hDatabase, m_szQuery);
         }
         else if(g_eClientItems[client][i][bSynced] && g_eClientItems[client][i][bDeleted])
         {
             // Might have been synced already but ID wasn't acquired
             if(g_eClientItems[client][i][iId]==-1)
-                Format(STRING(m_szQuery), "DELETE FROM store_items WHERE `player_id`=%d AND `type`=\"%s\" AND `unique_id`=\"%s\"", g_eClients[client][iId], m_szType, m_szUniqueId);
+                FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `player_id`=%d AND `type`=\"%s\" AND `unique_id`=\"%s\"", g_eClients[client][iId], m_szType, m_szUniqueId);
             else
-                Format(STRING(m_szQuery), "DELETE FROM store_items WHERE `id`=%d", g_eClientItems[client][i][iId]);
+                FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `id`=%d", g_eClientItems[client][i][iId]);
             SQL_TVoid(g_hDatabase, m_szQuery);
             g_eClientItems[client][i][bSynced] = false;
         }
@@ -2540,16 +2544,16 @@ void UTIL_SaveClientEquipment(int client)
             else if(g_eClients[client][aEquipmentSynced][m_iId] != -2)
             {
                 if(g_eClients[client][aEquipment][m_iId]==-1)
-                    Format(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d AND `type`=\"%s\" AND `slot`=%d", g_eClients[client][iId], g_eTypeHandlers[i][szType], a);
+                    FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d AND `type`=\"%s\" AND `slot`=%d", g_eClients[client][iId], g_eTypeHandlers[i][szType], a);
                 else
-                    Format(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d) ON DUPLICATE KEY UPDATE `unique_id` = VALUES(`unique_id`)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
+                    FormatEx(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d) ON DUPLICATE KEY UPDATE `unique_id` = VALUES(`unique_id`)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
 
-                //Format(STRING(m_szQuery), "UPDATE store_equipment SET `unique_id`=\"%s\" WHERE `player_id`=%d AND `type`=\"%s\" AND `slot`=%d", g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], g_eClients[client][iId], g_eTypeHandlers[i][szType], a);
+                //FormatEx(STRING(m_szQuery), "UPDATE store_equipment SET `unique_id`=\"%s\" WHERE `player_id`=%d AND `type`=\"%s\" AND `slot`=%d", g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], g_eClients[client][iId], g_eTypeHandlers[i][szType], a);
             }
             else
-                Format(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d) ON DUPLICATE KEY UPDATE `unique_id` = VALUES(`unique_id`)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
+                FormatEx(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d) ON DUPLICATE KEY UPDATE `unique_id` = VALUES(`unique_id`)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
             
-            //Format(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
+            //FormatEx(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
 
             SQL_TVoid(g_hDatabase, m_szQuery);
             g_eClients[client][aEquipmentSynced][m_iId] = g_eClients[client][aEquipment][m_iId];
@@ -2574,7 +2578,7 @@ void UTIL_SaveClientData(int client, bool disconnect)
     char m_szQuery[512], m_szName[64], m_szEName[128];
     GetClientName(client, m_szName, 64);
     SQL_EscapeString(g_hDatabase, m_szName, m_szEName, 128);
-    Format(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`+%d, `date_of_last_join`=%d, `name`='%s' WHERE `id`=%d", g_eClients[client][iCredits]-g_eClients[client][iOriginalCredits], g_eClients[client][iDateOfLastJoin], m_szEName, g_eClients[client][iId]);
+    FormatEx(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`+%d, `date_of_last_join`=%d, `name`='%s' WHERE `id`=%d", g_eClients[client][iCredits]-g_eClients[client][iOriginalCredits], g_eClients[client][iDateOfLastJoin], m_szEName, g_eClients[client][iId]);
 
     if(disconnect)
     {
@@ -2713,7 +2717,9 @@ void UTIL_ComposeItem(int client)
     Store_RemoveItem(client, g_eCompose[client][item2]);
     Store_RemoveItem(client, g_eCompose[client][item1]);
     
-    Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, "合成手续费");
+    char reason[128];
+    FormatEx(STRING(reason), "合成皮肤手续费[%s]", g_eItems[g_iSelectedItem[client]][szName]);
+    Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
     
     int probability = 0;
     switch(g_eCompose[client][types])
@@ -2769,7 +2775,7 @@ void UTIL_BuyItem(int client)
     }
     g_iDataProtect[client] = GetTime()+30;
     char m_szQuery[255];
-    Format(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[client][iId]);
+    FormatEx(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[client][iId]);
     SQL_TQuery(g_hDatabase, SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
     g_eClients[client][bRefresh] = true;
 }
@@ -2838,7 +2844,10 @@ void UTIL_GiftItem(int client, int receiver, int item)
         tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, m_iFees);
         return;
     }
-    Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, "赠送物品_手续费");
+    
+    char reason[128];
+    FormatEx(STRING(reason), "赠送[%s]支付手续费", g_eItems[m_iId][szName]);
+    Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
 
     g_eClientItems[client][item][bDeleted] = true;
     UTIL_UnequipItem(client, m_iId);
@@ -3164,7 +3173,7 @@ void UTIL_LogMessage(int client, int diff, const char[] message, any ...)
 
     char m_szQuery[512], EszReason[513];
     SQL_EscapeString(g_hDatabase, m_szReason, EszReason, 513);
-    Format(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", g_eClients[client][iId], g_eClients[client][iCredits], diff, EszReason, GetTime());
+    FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", g_eClients[client][iId], g_eClients[client][iCredits], diff, EszReason, GetTime());
     SQL_TVoid(g_hDatabase, m_szQuery);
 }
 
@@ -3368,12 +3377,12 @@ public Action Timer_OnlineCredit(Handle timer, int client)
     int m_iCredits = 0;
     char szFrom[128], szReason[128];
     strcopy(szFrom, 128, "\x10[");
-    strcopy(szReason, 128, "store_credits[");
+    strcopy(szReason, 128, "游戏在线获得信用点[");
 
     int m_iVitality = CG_ClientGetVitality(client);
     if(m_iVitality)
     {
-        StrCat(szReason, 128, " 热度");    
+        StrCat(szReason, 128, "热度");    
         if(200 > m_iVitality >= 100)
         {
             m_iCredits += 2;
@@ -3409,56 +3418,27 @@ public Action Timer_OnlineCredit(Handle timer, int client)
     int authid = CG_ClientGetGId(client);
     if(authid)
     {
-        int m_iPlus = 0;
-        if(authid < 401)
-        {
-            m_iPlus += 2;
-        }
-        else if(500 > authid >= 401)
-        {
-            switch(authid)
-            {
-                case 401: m_iPlus += 2;
-                case 402: m_iPlus += 2;
-                case 403: m_iPlus += 3;
-                case 404: m_iPlus += 3;
-                case 405: m_iPlus += 4;
-            }
-        }
-        else if(9000 > authid >= 500)
-        {
-            m_iPlus += 2;
-        }
-        else if(authid >= 9101)
-        {
-            m_iPlus += 3;
-        }
-
-        m_iCredits += m_iPlus;
+        m_iCredits += 2;
         char auname[32];
         CG_ClientGetGroupName(client, auname, 32);
-        StrCat(szReason, 128, auname);
-        if(authid == 9999)
-            Format(auname, 32, "\x0A|\x0E%s+%d", auname, m_iPlus);
-        else
-            Format(auname, 32, "\x0A|\x0C%s+%d", auname, m_iPlus);
-        StrCat(szFrom, 128, auname);
+        Format(szReason, 128, "%s|认证(%s)", szReason, auname);
+        Format(szFrom, 128, "%s\x0A|\x0C%s+2", szFrom, auname);
     }
 
     if(CG_ClientIsVIP(client))
     {
         m_iCredits += 2;
         StrCat(szFrom, 128, "\x0A|\x0EVIP+2");
-        StrCat(szReason, 128, " VIP ");
+        StrCat(szReason, 128, "|VIP");
     }
 
     if(CG_ClientIsRealName(client))
     {
         m_iCredits += 2;
         StrCat(szFrom, 128, "\x0A|\x04实名认证+2");
-        StrCat(szReason, 128, " 实名认证 ");
+        StrCat(szReason, 128, "|实名认证");
     }
-    
+
 #if defined GM_ZE
     char tag[32];
     CS_GetClientClanTag(client, tag, 32);
@@ -3466,7 +3446,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
     {
         m_iCredits += 2;
         Format(szFrom, 128, "%s\x0A|\x10%s+2", szFrom, tag);
-        StrCat(szReason, 128, " 组标 ");
+        Format(szReason, 128, "%s|组标(%s)", szReason, tag);
     } else tPrintToChat(client, "\x10佩戴CG社区组标签可获得额外的信用点");
 #endif
 
@@ -3493,6 +3473,6 @@ public void CG_OnDailySigned(int client)
     }
 
     int m_iCredits = UTIL_GetRandomInt(1, 500);
-    Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, "每日签到");
+    Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, "服务器内完成每日签到");
     tPrintToChatAll("\x0E%N\x01签到获得\x04%d信用点\x01.", client, m_iCredits);
 }

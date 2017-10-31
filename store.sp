@@ -1201,8 +1201,8 @@ void UTIL_GetLevelType(int itemid, char[] buffer, int maxLen)
         case  2: strcopy(buffer, maxLen, "保密"); //合成
         case  3: strcopy(buffer, maxLen, "隐秘"); //开箱
         case  4: strcopy(buffer, maxLen, "违禁"); //活动
-        case  5: strcopy(buffer, maxLen, "史诗"); //专属
-        case  6: strcopy(buffer, maxLen, "神圣"); //专属
+        case  5: strcopy(buffer, maxLen, "专属"); //专属
+        case  6: strcopy(buffer, maxLen, "隐藏"); //专属
         default: strcopy(buffer, maxLen, "受限"); //普通
     }
 }
@@ -2031,7 +2031,7 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
             int m_iId = StringToInt(m_szId);
             
             // Menu handlers
-            if(!(48 <= m_szId[0] <= 57))
+            if(!(48 <= m_szId[0] <= 57)) //ASCII 0~9
             {
                 int ret;
                 for(int i=0;i<g_iMenuHandlers;++i)
@@ -2910,6 +2910,13 @@ void UTIL_ReloadConfig()
     OnMapStart();
 }
 
+void LogEx(const char[] buffer, any ...)
+{
+    char vf[256];
+    VFormat(STRING(vf), buffer, 2);
+    LogToFileEx("addons/sourcemod/store.item.log", vf);
+}
+
 void UTIL_WalkConfig(Handle &kv, int parent = -1)
 {
     char m_szType[32];
@@ -2938,6 +2945,8 @@ void UTIL_WalkConfig(Handle &kv, int parent = -1)
             g_eItems[g_iItems][bCompose] = (KvGetNum(kv, "compose", 0)?true:false);
             g_eItems[g_iItems][bVIP] = (KvGetNum(kv, "vip", 0)?true:false);
             g_eItems[g_iItems][iHandler] = g_iPackageHandler;
+            
+            LogEx("Current[0] -> Index: %d -> Parent: %d -> Name: %s -> Type: -1 -> Uid: %s", g_iItems, parent, g_eItems[g_iItems][szName], g_eItems[g_iItems][szUniqueId]);
             
             KvGotoFirstSubKey(kv);
             
@@ -3035,6 +3044,8 @@ void UTIL_WalkConfig(Handle &kv, int parent = -1)
                 KvGoBack(kv);
                 KvGoBack(kv);
             }
+            
+            LogEx("Current[1] -> Index: %d -> Parent: %d -> Name: %s -> Type: %s -> Uid: %s",  g_iItems, g_eItems[g_iItems][iParent], g_eItems[g_iItems][szName], m_szType, g_eItems[g_iItems][szUniqueId]);
             
             ++g_iItems;
         }

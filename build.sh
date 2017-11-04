@@ -117,9 +117,6 @@ fi
 mkdir build/plugins/smx/jb
 mv store.smx build/plugins/smx/jb
 
-mkdir build/plugins/smx/mg
-mv store.smx build/plugins/smx/mg
-
 echo -e "Compiling store [kz] ..."
 for file in addons/sourcemod/scripting/store.sp
 do
@@ -137,6 +134,7 @@ mkdir build/plugins/smx/kz
 mv store.smx build/plugins/smx/kz
 
 echo -e "Compiling fpvmi ..."
+cp fpvm_interface.sp addons/sourcemod/scripting
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/fpvm_interface.sp
 
 if [ ! -f "fpvm_interface.smx" ]; then
@@ -147,6 +145,7 @@ fi
 mv fpvm_interface.smx build/plugins
 
 echo -e "Compiling chat-processor ..."
+cp processor.sp addons/sourcemod/scripting
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/chat-processor.sp
 
 if [ ! -f "chat-processor.smx" ]; then

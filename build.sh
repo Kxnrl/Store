@@ -47,7 +47,7 @@ fi
 
 echo -e "Copy scripts to compiler folder ..."
 cp -r store/* addons/sourcemod/scripting/store
-cp include/* addons/sourcemod/scripting/include
+cp -r include/* addons/sourcemod/scripting/include
 cp store.sp addons/sourcemod/scripting
 
 echo -e "Check build folder"

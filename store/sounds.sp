@@ -70,10 +70,10 @@ public int Sound_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSounds);
     KvGetString(kv, "sound", g_eSounds[g_iSounds][szSound], 128);
-    KvGetString(kv, "name", g_eSounds[g_iSounds][szName], 128);
+    KvGetString(kv, "shortname", g_eSounds[g_iSounds][szName], 128);
     g_eSounds[g_iSounds][fVolume] = KvGetFloat(kv, "volume", 0.3);
     g_eSounds[g_iSounds][iCooldown] = KvGetNum(kv, "cooldown", 30);
-    
+
     if(g_eSounds[g_iSounds][iCooldown] < 30)
         g_eSounds[g_iSounds][iCooldown] = 30;
     

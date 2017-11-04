@@ -14,15 +14,17 @@ void Players_OnPluginStart()
 #endif
 
 #if defined Module_Neon
-    Store_RegisterHandler("neon", "ID", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true); 
+    //  neon id -> color
+    //  modify in dev1.92
+    Store_RegisterHandler("neon", "color", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true); 
 #endif
 
 #if defined Module_Aura
-    Store_RegisterHandler("Aura", "Name", Aura_OnMapStart, Aura_Reset, Aura_Config, Aura_Equip, Aura_Remove, true);
+    Store_RegisterHandler("Aura", "aura", Aura_OnMapStart, Aura_Reset, Aura_Config, Aura_Equip, Aura_Remove, true);
 #endif
 
 #if defined Module_Part
-    Store_RegisterHandler("Particles", "Name", Part_OnMapStart, Part_Reset, Part_Config, Part_Equip, Part_Remove, true);
+    Store_RegisterHandler("Particles", "particle", Part_OnMapStart, Part_Reset, Part_Config, Part_Equip, Part_Remove, true);
 #endif
 
 #if defined Module_Trail

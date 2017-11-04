@@ -17,7 +17,6 @@ enum Store_Item
 {
     String:szName[ITEM_NAME_LENGTH],
     String:szUniqueId[PLATFORM_MAX_PATH],
-    String:szShortcut[64],
     String:szDesc[128],
     String:szSteam[256],
     iId,

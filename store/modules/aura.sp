@@ -28,10 +28,12 @@ public void Aura_OnClientDisconnect(int client)
 public int Aura_Config(Handle &kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iAuras); 
-    KvGetString(kv, "Name", g_szAuraName[g_iAuras], PLATFORM_MAX_PATH);
-    ++g_iAuras;
+    KvGetString(kv, "effect", g_szAuraName[g_iAuras], PLATFORM_MAX_PATH);
+    
     if(!FileExists("particles/FX.pcf"))
         return false;
+    
+    ++g_iAuras;
 
     return true; 
 }

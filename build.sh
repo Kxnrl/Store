@@ -56,7 +56,7 @@ mkdir build/sound
 echo -e "Compiling store [ttt] ..."
 for file in addons/sourcemod/scripting/store.sp
 do
-  sed -i "s%<Compile_Environment>%#define GM_TT%g" $file > output.txt
+  sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
   rm output.txt
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp

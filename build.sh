@@ -17,6 +17,12 @@ tar -xzf sourcemod.tar.gz
 echo -e "Download cg_core.inc ..."
 wget "https://github.com/Kxnrl/Core/raw/master/include/cg_core.inc" -q -O include/cg_core.inc
 
+echo -e "Download smlib"
+mkdir smlib
+wget "https://codeload.github.com/bcserv/smlib/zip/master" -q -O smlib.zip
+unzip -qo smlib.zip -d smlib/
+mv smlib/smlib-master/scripting/include/* include
+
 echo -e "Set compiler env ..."
 chmod +x addons/sourcemod/scripting/spcomp
 
@@ -47,6 +53,7 @@ cp store.sp addons/sourcemod/scripting
 echo -e "Check build folder"
 mkdir build
 mkdir build/plugins
+mkdir build/plugins/sp
 mkdir build/plugins/smx
 mkdir build/models
 mkdir build/materials
@@ -66,7 +73,9 @@ if [ ! -f "store.smx" ]; then
     exit 1;
 fi
 
+mkdir build/plugins/sp/ttt
 mkdir build/plugins/smx/ttt
+cp addons/sourcemod/scripting/store.sp build/plugins/sp/ttt
 mv store.smx build/plugins/smx/ttt
 
 echo -e "Compiling store [ze] ..."
@@ -82,7 +91,9 @@ if [ ! -f "store.smx" ]; then
     exit 1;
 fi
 
+mkdir build/plugins/sp/ze
 mkdir build/plugins/smx/ze
+cp addons/sourcemod/scripting/store.sp build/plugins/sp/ze
 mv store.smx build/plugins/smx/ze
 
 echo -e "Compiling store [mg] ..."
@@ -98,7 +109,9 @@ if [ ! -f "store.smx" ]; then
     exit 1;
 fi
 
+mkdir build/plugins/sp/mg
 mkdir build/plugins/smx/mg
+cp addons/sourcemod/scripting/store.sp build/plugins/sp/mg
 mv store.smx build/plugins/smx/mg
 
 echo -e "Compiling store [jb] ..."
@@ -114,7 +127,9 @@ if [ ! -f "store.smx" ]; then
     exit 1;
 fi
 
+mkdir build/plugins/sp/jb
 mkdir build/plugins/smx/jb
+cp addons/sourcemod/scripting/store.sp build/plugins/sp/jb
 mv store.smx build/plugins/smx/jb
 
 echo -e "Compiling store [kz] ..."
@@ -130,7 +145,9 @@ if [ ! -f "store.smx" ]; then
     exit 1;
 fi
 
+mkdir build/plugins/sp/kz
 mkdir build/plugins/smx/kz
+cp addons/sourcemod/scripting/store.sp build/plugins/sp/kz
 mv store.smx build/plugins/smx/kz
 
 echo -e "Compiling fpvmi ..."

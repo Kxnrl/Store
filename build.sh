@@ -162,7 +162,7 @@ fi
 mv fpvm_interface.smx build/plugins
 
 echo -e "Compiling chat-processor ..."
-cp processor.sp addons/sourcemod/scripting
+cp chat-processor.sp addons/sourcemod/scripting
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/chat-processor.sp
 
 if [ ! -f "chat-processor.smx" ]; then

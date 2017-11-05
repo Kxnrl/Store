@@ -1476,7 +1476,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
     return Plugin_Stop;
 }
 
-void OpeningCaseMenu(int client, int days, const char[] sname)
+void OpeningCaseMenu(int client, int days, const char[] name)
 {
     Handle menu = CreateMenu(MenuHandler_OpeningCase);
     SetMenuTitleEx(menu, "Opening Case...\n%s", g_szCase[g_iClientCase[client]]);
@@ -1485,11 +1485,6 @@ void OpeningCaseMenu(int client, int days, const char[] sname)
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "░░░░░░░░░░░░░░░░░░");
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "░░░░░░░░░░░░░░░░░░");
 
-    char name[128];
-    strcopy(name, 128, sname);
-    ReplaceString(name, 128, "[CT] ", "");
-    ReplaceString(name, 128, "[TE] ", "");
-    ReplaceString(name, 128, "[通用] ", "");
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "   %s", name);
     if(days)
     {
@@ -1554,9 +1549,6 @@ void EndingCaseMenu(int client, int days, int itemid)
 
     char name[128];
     strcopy(name, 128, g_eItems[itemid][szName]);
-    ReplaceString(name, 128, "[CT] ", "");
-    ReplaceString(name, 128, "[TE] ", "");
-    ReplaceString(name, 128, "[通用] ", "");
     
     char leveltype[32];
     UTIL_GetLevelType(itemid, leveltype, 32);
@@ -1610,9 +1602,6 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
             
             char name[128];
             strcopy(name, 128, g_eItems[itemid][szName]);
-            ReplaceString(name, 128, "[CT] ", "");
-            ReplaceString(name, 128, "[TE] ", "");
-            ReplaceString(name, 128, "[通用] ", "");
 
             char m_szQuery[256];
 
@@ -1664,9 +1653,6 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 
                 char name[128];
                 strcopy(name, 128, g_eItems[itemid][szName]);
-                ReplaceString(name, 128, "[CT] ", "");
-                ReplaceString(name, 128, "[TE] ", "");
-                ReplaceString(name, 128, "[通用] ", "");
                 
                 char m_szQuery[256];
                 
@@ -3037,7 +3023,7 @@ void UTIL_ReloadConfig()
         //FormatEx(path, 128, "addons/sourcemod/data/store.%d.kv", g_iItems);
         //kv.ExportToFile(path);
         delete kv;
-        
+
         if(!m_bSuccess)
             continue;
 

@@ -174,6 +174,8 @@ mv chat-processor.smx build/plugins
 
 echo -e "Compress file ..."
 cd build
+
+echo -e "Upload file ..."
 zip -9rq $FILE LICENSE plugins
 
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O Store/$5/$1/ $FILE"

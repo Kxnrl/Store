@@ -9,7 +9,7 @@ int g_iCGLOGO = -1;
 
 public void Sprays_OnPluginStart()
 {
-    Store_RegisterHandler("spray", "material", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
+    Store_RegisterHandler("spray", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
     
     RegConsoleCmd("spray", Command_Spray);
     RegConsoleCmd("sprays", Command_Spray);

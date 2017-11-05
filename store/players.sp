@@ -10,25 +10,25 @@ void Players_OnPluginStart()
 #endif
 
 #if defined Module_Hats
-    Store_RegisterHandler("hat", "model", Hats_OnMapStart, Hats_Reset, Hats_Config, Hats_Equip, Hats_Remove, true);
+    Store_RegisterHandler("hat", Hats_OnMapStart, Hats_Reset, Hats_Config, Hats_Equip, Hats_Remove, true);
 #endif
 
 #if defined Module_Neon
     //  neon id -> color
     //  modify in dev1.92
-    Store_RegisterHandler("neon", "color", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true); 
+    Store_RegisterHandler("neon", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true); 
 #endif
 
 #if defined Module_Aura
-    Store_RegisterHandler("aura", "aura", Aura_OnMapStart, Aura_Reset, Aura_Config, Aura_Equip, Aura_Remove, true);
+    Store_RegisterHandler("aura", Aura_OnMapStart, Aura_Reset, Aura_Config, Aura_Equip, Aura_Remove, true);
 #endif
 
 #if defined Module_Part
-    Store_RegisterHandler("particle", "particle", Part_OnMapStart, Part_Reset, Part_Config, Part_Equip, Part_Remove, true);
+    Store_RegisterHandler("particle", Part_OnMapStart, Part_Reset, Part_Config, Part_Equip, Part_Remove, true);
 #endif
 
 #if defined Module_Trail
-    Store_RegisterHandler("trail", "material", Trails_OnMapStart, Trails_Reset, Trails_Config, Trails_Equip, Trails_Remove, true);
+    Store_RegisterHandler("trail", Trails_OnMapStart, Trails_Reset, Trails_Config, Trails_Equip, Trails_Remove, true);
 #endif
 }
 

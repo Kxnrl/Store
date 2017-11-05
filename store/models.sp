@@ -28,7 +28,7 @@ public void Models_OnPluginStart()
         return;
     }
 
-    Store_RegisterHandler("vwmodel", "model", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
+    Store_RegisterHandler("vwmodel", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
 }
 
 public void Models_OnMapStart() 

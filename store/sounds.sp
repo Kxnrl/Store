@@ -26,7 +26,7 @@ Handle g_hCookieSounds;
 
 public void Sounds_OnPluginStart()
 {
-    Store_RegisterHandler("sound", "sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
+    Store_RegisterHandler("sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
 
     RegConsoleCmd("cheer", Command_Cheer);
     RegConsoleCmd("sm_cheer", Command_Cheer);

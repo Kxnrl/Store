@@ -29,8 +29,8 @@ char g_szSlots[6][64];
 
 public void Grenades_OnPluginStart()
 {
-    Store_RegisterHandler("nadetrail", "uid", GrenadeTrails_OnMapStart, GrenadeTrails_Reset, GrenadeTrails_Config, GrenadeTrails_Equip, GrenadeTrails_Remove, true);
-    Store_RegisterHandler("nadeskin", "uid", GrenadeSkins_OnMapStart, GrenadeSkins_Reset, GrenadeSkins_Config, GrenadeSkins_Equip, GrenadeSkins_Remove, true);
+    Store_RegisterHandler("nadetrail", GrenadeTrails_OnMapStart, GrenadeTrails_Reset, GrenadeTrails_Config, GrenadeTrails_Equip, GrenadeTrails_Remove, true);
+    Store_RegisterHandler("nadeskin", GrenadeSkins_OnMapStart, GrenadeSkins_Reset, GrenadeSkins_Config, GrenadeSkins_Equip, GrenadeSkins_Remove, true);
 }
 
 public void GrenadeSkins_OnMapStart()

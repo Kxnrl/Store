@@ -2334,12 +2334,9 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
             
             SQL_FetchString(hndl, 2, STRING(m_szType));
             SQL_FetchString(hndl, 3, STRING(m_szUniqueId));
-            
-            LogToFileEx("addons/sourcemod/data/store.load.log", "%N -> inventory -> %s.%s", client, m_szType, m_szUniqueId);
 
             while((m_iUniqueId = UTIL_GetItemId(m_szUniqueId, m_iUniqueId))!=-1)
             {
-                LogToFileEx("addons/sourcemod/data/store.load.log", "%N -> retrieve -> %d.%s", client, m_iUniqueId, g_eItems[m_iUniqueId][szName]);
                 g_eClientItems[client][i][iId] = SQL_FetchInt(hndl, 0);
                 g_eClientItems[client][i][iUniqueId] = m_iUniqueId;
                 g_eClientItems[client][i][bSynced] = true;
@@ -2612,6 +2609,12 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
                 DisplayItemMenu(client, g_iSelectedItem[client]);
                 return;
             }
+            
+            if(g_eClients[client][iId] != 1)
+            {
+                tPrintToChat(client, "\x04因商店进行重大升级,暂时关闭购买功能,请见谅...");
+                return;
+            }
 
             int m_iId = g_eClients[client][iItems]++;
             g_eClientItems[client][m_iId][iId] = -1;
@@ -2734,6 +2737,12 @@ void UTIL_SellItem(int client, int itemid)
         DisplayItemMenu(client, itemid);
         return;
     }
+    
+    if(g_eClients[client][iId] != 1)
+    {
+        tPrintToChat(client, "\x04因商店进行重大升级,暂时关闭卖出功能,请见谅...");
+        return;
+    }
 
     g_iDataProtect[client] = GetTime()+30;
     int m_iCredits = RoundToFloor(UTIL_GetClientItemPrice(client, itemid)*0.6);
@@ -2788,6 +2797,12 @@ void UTIL_GiftItem(int client, int receiver, int item)
     if(m_iFees > g_eClients[client][iCredits])
     {
         tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, m_iFees);
+        return;
+    }
+    
+    if(g_eClients[client][iId] != 1)
+    {
+        tPrintToChat(client, "\x04因商店进行重大升级,暂时关闭赠送功能,请见谅...");
         return;
     }
     

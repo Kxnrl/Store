@@ -48,7 +48,6 @@ fi
 echo -e "Copy scripts to compiler folder ..."
 cp -r store/* addons/sourcemod/scripting/store
 cp -r include/* addons/sourcemod/scripting/include
-cp store.sp addons/sourcemod/scripting
 
 echo -e "Check build folder"
 mkdir build
@@ -61,6 +60,7 @@ mkdir build/particles
 mkdir build/sound
 
 echo -e "Compiling store [ttt] ..."
+cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
@@ -75,13 +75,14 @@ fi
 
 mkdir build/plugins/sp/ttt
 mkdir build/plugins/smx/ttt
-cp addons/sourcemod/scripting/store.sp build/plugins/sp/ttt
+mv addons/sourcemod/scripting/store.sp build/plugins/sp/ttt
 mv store.smx build/plugins/smx/ttt
 
 echo -e "Compiling store [ze] ..."
+cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
-  sed -i "s%GM_TT%GM_ZE%g" $file > output.txt
+  sed -i "s%<Compile_Environment>%GM_ZE%g" $file > output.txt
   rm output.txt
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
@@ -93,13 +94,14 @@ fi
 
 mkdir build/plugins/sp/ze
 mkdir build/plugins/smx/ze
-cp addons/sourcemod/scripting/store.sp build/plugins/sp/ze
+mv addons/sourcemod/scripting/store.sp build/plugins/sp/ze
 mv store.smx build/plugins/smx/ze
 
 echo -e "Compiling store [mg] ..."
+cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
-  sed -i "s%GM_ZE%GM_MG%g" $file > output.txt
+  sed -i "s%<Compile_Environment>%GM_MG%g" $file > output.txt
   rm output.txt
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
@@ -111,13 +113,14 @@ fi
 
 mkdir build/plugins/sp/mg
 mkdir build/plugins/smx/mg
-cp addons/sourcemod/scripting/store.sp build/plugins/sp/mg
+mv addons/sourcemod/scripting/store.sp build/plugins/sp/mg
 mv store.smx build/plugins/smx/mg
 
 echo -e "Compiling store [jb] ..."
+cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
-  sed -i "s%GM_MG%GM_JB%g" $file > output.txt
+  sed -i "s%<Compile_Environment>%GM_JB%g" $file > output.txt
   rm output.txt
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
@@ -129,13 +132,14 @@ fi
 
 mkdir build/plugins/sp/jb
 mkdir build/plugins/smx/jb
-cp addons/sourcemod/scripting/store.sp build/plugins/sp/jb
+mv addons/sourcemod/scripting/store.sp build/plugins/sp/jb
 mv store.smx build/plugins/smx/jb
 
 echo -e "Compiling store [kz] ..."
+cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
-  sed -i "s%GM_JB%GM_KZ%g" $file > output.txt
+  sed -i "s%<Compile_Environment>%GM_KZ%g" $file > output.txt
   rm output.txt
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
@@ -147,7 +151,7 @@ fi
 
 mkdir build/plugins/sp/kz
 mkdir build/plugins/smx/kz
-cp addons/sourcemod/scripting/store.sp build/plugins/sp/kz
+mv addons/sourcemod/scripting/store.sp build/plugins/sp/kz
 mv store.smx build/plugins/smx/kz
 
 echo -e "Compiling fpvmi ..."

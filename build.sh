@@ -198,10 +198,21 @@ fi
 
 mv chat-processor.smx build/plugins
 
+echo -e "Prepare file ..."
+cd resources
+7za -e ./materials/materials.7z
+7za -e ./models/models.7z
+7za -e ./particles/particles.7z
+7za -e ./sound/sound.7z
+mv -rf ./materials/* build/materials
+mv -rf ./models/* build/models
+mv -rf ./particles/* build/particles
+mv -rf ./sound/* build/sound
+
 echo -e "Compress file ..."
-cd build
+cd ../build
+zip -9rq $FILE LICENSE plugins models materials particles sound
+
 
 echo -e "Upload file ..."
-zip -9rq $FILE LICENSE plugins
-
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O Store/$5/$1/ $FILE"

@@ -62,14 +62,14 @@ mkdir build/materials
 mkdir build/particles
 mkdir build/sound
 
-echo -e "Compiling store [ttt] ..."
+echo -e "Compiling store core [ttt] ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
 
 if [ ! -f "store.smx" ]; then
     echo "Compile store[ttt] failed!"
@@ -81,14 +81,14 @@ mkdir build/plugins/smx/ttt
 mv addons/sourcemod/scripting/store.sp build/plugins/sp/ttt
 mv store.smx build/plugins/smx/ttt
 
-echo -e "Compiling store [ze] ..."
+echo -e "Compiling store core [ze] ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_ZE%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
 
 if [ ! -f "store.smx" ]; then
     echo "Compile store[ze] failed!"
@@ -100,14 +100,14 @@ mkdir build/plugins/smx/ze
 mv addons/sourcemod/scripting/store.sp build/plugins/sp/ze
 mv store.smx build/plugins/smx/ze
 
-echo -e "Compiling store [mg] ..."
+echo -e "Compiling store core [mg] ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_MG%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
 
 if [ ! -f "store.smx" ]; then
     echo "Compile store[mg] failed!"
@@ -119,14 +119,14 @@ mkdir build/plugins/smx/mg
 mv addons/sourcemod/scripting/store.sp build/plugins/sp/mg
 mv store.smx build/plugins/smx/mg
 
-echo -e "Compiling store [jb] ..."
+echo -e "Compiling store core [jb] ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_JB%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
 
 if [ ! -f "store.smx" ]; then
     echo "Compile store[jb] failed!"
@@ -138,14 +138,14 @@ mkdir build/plugins/smx/jb
 mv addons/sourcemod/scripting/store.sp build/plugins/sp/jb
 mv store.smx build/plugins/smx/jb
 
-echo -e "Compiling store [kz] ..."
+echo -e "Compiling store core [kz] ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_KZ%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
 
 if [ ! -f "store.smx" ]; then
     echo "Compile store[kz] failed!"
@@ -157,7 +157,7 @@ mkdir build/plugins/smx/kz
 mv addons/sourcemod/scripting/store.sp build/plugins/sp/kz
 mv store.smx build/plugins/smx/kz
 
-echo -e "Compiling store module[pet] ..."
+echo -e "Compiling store module [pet] ..."
 cp modules/store_pet.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store_pet.sp
 do
@@ -166,7 +166,7 @@ do
   sed -i "s%<commit_date>%$DATE%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp >nul
 
 if [ ! -f "store_pet.smx" ]; then
     echo "Compile store module[pet] failed!"
@@ -178,7 +178,7 @@ mv store_pet.smx build/plugins/modules/smx
 
 echo -e "Compiling fpvmi ..."
 cp fpvm_interface.sp addons/sourcemod/scripting
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/fpvm_interface.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/fpvm_interface.sp >nul
 
 if [ ! -f "fpvm_interface.smx" ]; then
     echo "Compile fpvm_interface failed!"
@@ -189,7 +189,7 @@ mv fpvm_interface.smx build/plugins
 
 echo -e "Compiling chat-processor ..."
 cp chat-processor.sp addons/sourcemod/scripting
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/chat-processor.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/chat-processor.sp >nul
 
 if [ ! -f "chat-processor.smx" ]; then
     echo "Compile chat-processor failed!"
@@ -199,14 +199,22 @@ fi
 mv chat-processor.smx build/plugins
 
 echo -e "Extract resource file ..."
-7za x "resources/materials/materials.7z" -o"build/materials"
-7za x "resources/models/models.7z" -o"build/models"
-7za x "resources/particles/particles.7z" -o"build/particles"
-7za x "resources/sound/sound.7z" -o"build/sound"
+echo -e "Processing archive: resources/materials/materials.7z"
+7za x "resources/materials/materials.7z" -o"build/materials" >nul
+echo -e "Processing archive: resources/materials/models.7z"
+7za x "resources/models/models.7z" -o"build/models" >nul
+echo -e "Processing archive: resources/materials/particles.7z"
+7za x "resources/particles/particles.7z" -o"build/particles" >nul
+echo -e "Processing archive: resources/materials/sound.7z"
+7za x "resources/sound/sound.7z" -o"build/sound" >nul
 
 echo -e "Compress file ..."
 cd build
-zip -9rq $FILE LICENSE plugins models materials particles sound
+if [ "$5" = "master" ]; then
+    zip -9rq $FILE LICENSE plugins models materials particles sound
+else
+    zip -9rq $FILE LICENSE plugins
+fi
 
 echo -e "Upload file ..."
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /plugins/Store/$5/$1/ $FILE"

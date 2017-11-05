@@ -2998,12 +2998,12 @@ void UTIL_ReloadConfig()
             g_ePlans[g_iItems][0][iTime] = 86400;
             
             strcopy(g_ePlans[g_iItems][1][szName], 32, "1月");
-            g_ePlans[g_iItems][1][iPrice] = price_1d;
+            g_ePlans[g_iItems][1][iPrice] = price_1m;
             g_ePlans[g_iItems][1][iTime] = 2592000;
             
-            strcopy(g_ePlans[g_iItems][2][szName], 32, "1月");
-            g_ePlans[g_iItems][2][iPrice] = price_1d;
-            g_ePlans[g_iItems][2][iTime] = 2592000;
+            strcopy(g_ePlans[g_iItems][2][szName], 32, "永久");
+            g_ePlans[g_iItems][2][iPrice] = price_pm;
+            g_ePlans[g_iItems][2][iTime] = 0;
    
             g_eItems[g_iItems][iPlans] = 3;
         }

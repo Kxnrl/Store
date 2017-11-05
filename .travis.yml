@@ -9,6 +9,7 @@ language: c
 sudo: false
 
 env:
+  - SOURCEMOD=1.7
   - SOURCEMOD=1.8
   - SOURCEMOD=1.9
 

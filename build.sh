@@ -54,6 +54,9 @@ mkdir build
 mkdir build/plugins
 mkdir build/plugins/sp
 mkdir build/plugins/smx
+mkdir build/plugins/modules
+mkdir build/plugins/modules/sp
+mkdir build/plugins/modules/smx
 mkdir build/models
 mkdir build/materials
 mkdir build/particles
@@ -153,6 +156,25 @@ mkdir build/plugins/sp/kz
 mkdir build/plugins/smx/kz
 mv addons/sourcemod/scripting/store.sp build/plugins/sp/kz
 mv store.smx build/plugins/smx/kz
+
+echo -e "Compiling store module[pet] ..."
+cp modules/store_pet.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_pet.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  sed -i "s%<commit_branch>%$5%g" $file > output.txt
+  sed -i "s%<commit_date>%$DATE%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp
+
+if [ ! -f "store_pet.smx" ]; then
+    echo "Compile store module[pet] failed!"
+    exit 1;
+fi
+
+mv addons/sourcemod/scripting/store_pet.sp build/plugins/modules/sp
+mv store_pet.smx build/plugins/modules/smx
 
 echo -e "Compiling fpvmi ..."
 cp fpvm_interface.sp addons/sourcemod/scripting

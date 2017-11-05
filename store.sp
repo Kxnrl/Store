@@ -22,15 +22,15 @@
 
 // Server
 #define <Compile_Environment>
-//#define GM_TT //ttt server
-//#define GM_ZE //zombie escape server
-//#define GM_MG //mini games server
-//#define GM_JB //jail break server
-//#define GM_KZ //kreedz server
-//#define GM_HZ //casual server
-//#define GM_PR //pure|competitive server
-//#define GM_HG //hunger game server
-//#define GM_SR //death surf server
+//GM_TT -> ttt server
+//GM_ZE -> zombie escape server
+//GM_MG -> mini games server
+//GM_JB -> jail break server
+//GM_KZ -> kreedz server
+//GM_HZ -> casual server
+//GM_PR -> pure|competitive server
+//GM_HG -> hunger game server
+//GM_SR -> death surf server
 
 // Custom Module
 // skin does not match with team
@@ -46,9 +46,9 @@
 #define AllowHide
 #endif
 
-//////////////////////////////////
-//      GLOBAL VARIABLES        //
-//////////////////////////////////
+//////////////////////////////
+//     GLOBAL VARIABLES     //
+//////////////////////////////
 Handle g_hDatabase = INVALID_HANDLE;
 Handle g_ArraySkin = INVALID_HANDLE;
 
@@ -141,9 +141,9 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 #include <cstrike>
 #endif
 
-//////////////////////////////////
-//        PLUGIN DEFINITION        //
-//////////////////////////////////
+//////////////////////////////
+//    PLUGIN DEFINITION     //
+//////////////////////////////
 public Plugin myinfo = 
 {
     name        = PLUGIN_NAME,
@@ -155,7 +155,7 @@ public Plugin myinfo =
 
 
 //////////////////////////////
-//        PLUGIN FORWARDS        //
+//     PLUGIN FORWARDS      //
 //////////////////////////////
 public void OnPluginStart()
 {
@@ -259,9 +259,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     return APLRes_Success;
 }
 
-//////////////////////////////////////
-//      REST OF PLUGIN FORWARDS     //
-//////////////////////////////////////
+//////////////////////////////
+//  REST OF PLUGIN FORWARD  //
+//////////////////////////////
 public void OnMapStart()
 {
     for(int i = 0; i < g_iTypeHandlers; ++i)
@@ -274,9 +274,9 @@ public void OnMapStart()
     }
 }
 
-//////////////////////////////////////
-//        Global API FROM CORE        //
-//////////////////////////////////////
+//////////////////////////////
+//   Global API FROM CORE   //
+//////////////////////////////
 public bool CG_APIStoreSetCredits(int client, int credits, const char[] reason, bool immed)
 {
     if(!g_eClients[client][bLoaded] || g_eClients[client][bBan] || g_eClients[client][iCredits] == -1)
@@ -316,7 +316,7 @@ public int CG_APIStoreGetCredits(int client)
 }
 
 //////////////////////////////
-//            NATIVES            //
+//         NATIVES          //
 //////////////////////////////
 public int Native_GetItemId(Handle myself, int numParams)
 {
@@ -776,7 +776,7 @@ public int Native_GetPlayerSkin(Handle myself, int numParams)
 }
 
 //////////////////////////////
-//        CLIENT FORWARDS        //
+//      CLIENT FORWARD      //
 //////////////////////////////
 public void OnClientConnected(int client)
 {
@@ -842,9 +842,9 @@ public void OnClientDisconnect(int client)
     UTIL_DisconnectClient(client);
 }
 
-//////////////////////////////////
-//            COMMANDS             //
-//////////////////////////////////
+//////////////////////////////
+//         COMMAND          //
+//////////////////////////////
 public Action Command_Store(int client, int args)
 {
     if(!IsClientInGame(client))
@@ -925,7 +925,7 @@ public Action Command_Hide(int client, int args)
 #endif
 
 //////////////////////////////
-//            MENUS             //
+//           MENU           //
 //////////////////////////////
 int DisplayStoreMenu(int client, int parent = -1, int last = -1)
 {
@@ -2172,7 +2172,7 @@ public int MenuHandler_Confirm(Handle menu, MenuAction action, int client, int p
 }
 
 //////////////////////////////
-//            TIMERS             //
+//          TIMER           //
 //////////////////////////////
 public Action Timer_DatabaseTimeout(Handle timer, int userid)
 {
@@ -2195,7 +2195,7 @@ public Action Timer_DatabaseTimeout(Handle timer, int userid)
 }
 
 //////////////////////////////
-//        SQL CALLBACKS        //
+//       SQL CALLBACK       //
 //////////////////////////////
 public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, any data)
 {
@@ -2411,7 +2411,7 @@ public void SQLCallback_InsertClient(Handle owner, Handle hndl, const char[] err
 }
 
 //////////////////////////////
-//            STOCKS            //
+//          STOCK           //
 //////////////////////////////
 void UTIL_LoadClientInventory(int client)
 {
@@ -2609,12 +2609,6 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
                 DisplayItemMenu(client, g_iSelectedItem[client]);
                 return;
             }
-            
-            if(g_eClients[client][iId] != 1)
-            {
-                tPrintToChat(client, "\x04因商店进行重大升级,暂时关闭购买功能,请见谅...");
-                return;
-            }
 
             int m_iId = g_eClients[client][iItems]++;
             g_eClientItems[client][m_iId][iId] = -1;
@@ -2737,12 +2731,6 @@ void UTIL_SellItem(int client, int itemid)
         DisplayItemMenu(client, itemid);
         return;
     }
-    
-    if(g_eClients[client][iId] != 1)
-    {
-        tPrintToChat(client, "\x04因商店进行重大升级,暂时关闭卖出功能,请见谅...");
-        return;
-    }
 
     g_iDataProtect[client] = GetTime()+30;
     int m_iCredits = RoundToFloor(UTIL_GetClientItemPrice(client, itemid)*0.6);
@@ -2799,13 +2787,7 @@ void UTIL_GiftItem(int client, int receiver, int item)
         tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, m_iFees);
         return;
     }
-    
-    if(g_eClients[client][iId] != 1)
-    {
-        tPrintToChat(client, "\x04因商店进行重大升级,暂时关闭赠送功能,请见谅...");
-        return;
-    }
-    
+
     char reason[128];
     FormatEx(STRING(reason), "赠送[%s]支付手续费", g_eItems[m_iId][szName]);
     Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);

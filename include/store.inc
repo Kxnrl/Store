@@ -1,4 +1,4 @@
-native int Store_RegisterHandler(char[] type, char[] uniquekey, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false);
+native int Store_RegisterHandler(char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false);
 native int Store_RegisterMenuHandler(char[] identifier, Function menu, Function handler);
 native int Store_SetDataIndex(int itemid, int index);
 native int Store_GetDataIndex(int itemid);
@@ -8,7 +8,7 @@ native int Store_SetClientMenu(int client, int num);
 native int Store_GetClientCredits(int client);
 native int Store_SetClientCredits(int client, int credits, const char[] log = "未知");
 native int Store_DisplayConfirmMenu(int client, char[] title, Function callback, any data);
-native int Store_GetItemId(char[] type, char[] uid);
+native int Store_GetItemId(char[] uid);
 native int Store_GiveItem(int client, int itemid, int purchase = 0, int expiration = 0, int price = 0);
 native int Store_RemoveItem(int client, int itemid);
 native int Store_GetClientID(int client);

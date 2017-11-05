@@ -23,7 +23,6 @@ enum Store_Item
     iPrice,
     iParent,
     iHandler,
-    iFlagBits,
     iData,
     iPlans,
     iLevels,
@@ -38,7 +37,6 @@ enum Store_Item
 enum Type_Handler
 {
     String:szType[64],
-    String:szUniqueKey[32],
     bool:bEquipable,
     bool:bRaw,
     Handle:hPlugin,

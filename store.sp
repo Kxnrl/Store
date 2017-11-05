@@ -320,13 +320,11 @@ public int CG_APIStoreGetCredits(int client)
 //////////////////////////////
 public int Native_GetItemId(Handle myself, int numParams)
 {
-    char type[32], uid[256];
-    if(GetNativeString(1, type, 32) != SP_ERROR_NONE)
+    char uid[256];
+    if(GetNativeString(1, uid, 256) != SP_ERROR_NONE)
         return -1;
-    if(GetNativeString(2, uid, 256) != SP_ERROR_NONE)
-        return -1;
-    
-    return UTIL_GetItemId(type, uid, -1);
+
+    return UTIL_GetItemId(uid, -1);
 }
 
 public int Native_SaveClientAll(Handle myself, int numParams)
@@ -372,15 +370,14 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
         ++g_iTypeHandlers;
     
     g_eTypeHandlers[m_iId][hPlugin] = plugin;
-    g_eTypeHandlers[m_iId][fnMapStart] = GetNativeCell(3);
-    g_eTypeHandlers[m_iId][fnReset] = GetNativeCell(4);
-    g_eTypeHandlers[m_iId][fnConfig] = GetNativeCell(5);
-    g_eTypeHandlers[m_iId][fnUse] = GetNativeCell(6);
-    g_eTypeHandlers[m_iId][fnRemove] = GetNativeCell(7);
-    g_eTypeHandlers[m_iId][bEquipable] = GetNativeCell(8);
-    g_eTypeHandlers[m_iId][bRaw] = GetNativeCell(9);
+    g_eTypeHandlers[m_iId][fnMapStart] = GetNativeCell(2);
+    g_eTypeHandlers[m_iId][fnReset] = GetNativeCell(3);
+    g_eTypeHandlers[m_iId][fnConfig] = GetNativeCell(4);
+    g_eTypeHandlers[m_iId][fnUse] = GetNativeCell(5);
+    g_eTypeHandlers[m_iId][fnRemove] = GetNativeCell(6);
+    g_eTypeHandlers[m_iId][bEquipable] = GetNativeCell(7);
+    g_eTypeHandlers[m_iId][bRaw] = GetNativeCell(8);
     strcopy(g_eTypeHandlers[m_iId][szType], 32, m_szType);
-    GetNativeString(2, g_eTypeHandlers[m_iId][szUniqueKey], 32);
 
     return m_iId;
 }
@@ -655,9 +652,6 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
         return -1;
     
     // Can he even have it?    
-    if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
-        return -1;
-
     if(g_eItems[itemid][szSteam][0] != 0)
         return (AllowItemForAuth(client, g_eItems[itemid][szSteam])) ? 0 : -1;
 
@@ -686,10 +680,6 @@ public int Native_HasClientItem(Handle myself, int numParams)
     if(itemid < 0)
         return false;
 
-    // Can he even have it?    
-    if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
-        return false;
-    
     // Personal item?
     if(g_eItems[itemid][szSteam][0] != 0)
         return AllowItemForAuth(client, g_eItems[itemid][szSteam]);
@@ -955,7 +945,6 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
         SetMenuTitleEx(m_hMenu, "%T\n%T", "Title Store", client, "Title Credits", client, g_eClients[client][iCredits]);
     
     char m_szId[11];
-    int m_iFlags = GetUserFlagBits(client);
     int m_iPosition = 0;
     
     g_iSelectedItem[client] = parent;
@@ -1002,7 +991,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
                     continue;
 
                 int m_iStyle = ITEMDRAW_DEFAULT;
-                if(!GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
+                if(!AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
                     m_iStyle = ITEMDRAW_DISABLED;
 
                 IntToString(i, STRING(m_szId));
@@ -1028,7 +1017,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
                 else if(!g_bInvMode[client])
                 {                
                     int m_iStyle = ITEMDRAW_DEFAULT;
-                    if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
+                    if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
                         m_iStyle = ITEMDRAW_DISABLED;
 
                     if(StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
@@ -1240,7 +1229,7 @@ public void DisplayPreviewMenu(int client, int itemid)
         if(g_eItems[itemid][bBuyable])
         {
             int m_iStyle = ITEMDRAW_DEFAULT;
-            if((g_eItems[itemid][iPlans]==0 && g_eClients[client][iCredits]<UTIL_GetLowestPrice(itemid)) || !GetClientPrivilege(client, g_eItems[itemid][iFlagBits]) || !AllowItemForAuth(client, g_eItems[itemid][szSteam]) || !AllowItemForVIP(client, g_eItems[itemid][bVIP]))
+            if((g_eItems[itemid][iPlans]==0 && g_eClients[client][iCredits]<UTIL_GetLowestPrice(itemid)) || !AllowItemForAuth(client, g_eItems[itemid][szSteam]) || !AllowItemForVIP(client, g_eItems[itemid][bVIP]))
                 m_iStyle = ITEMDRAW_DISABLED;
             
             if(g_eItems[itemid][iPlans]==0)
@@ -1425,7 +1414,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
         }
     }
 
-    int itemid = UTIL_GetItemId("playerskin", modelname);
+    int itemid = UTIL_GetItemId(modelname);
 
     if(itemid < 0)
     {
@@ -2068,14 +2057,12 @@ public void DisplayPlayerMenu(int client)
     SetMenuTitleEx(m_hMenu, "%T\n%T", "Title Gift", client, "Title Credits", client, g_eClients[client][iCredits]);
     
     char m_szID[11];
-    int m_iFlags;
     for(int i = 1; i <= MaxClients; ++i)
     {
         if(!IsClientInGame(i))
             continue;
 
-        m_iFlags = GetUserFlagBits(i);
-        if(!GetClientPrivilege(i, g_eItems[g_iSelectedItem[client]][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szSteam]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
+        if(!AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szSteam]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
             continue;
         if(i != client && IsClientInGame(i) && !Store_HasClientItem(i, g_iSelectedItem[client]))
         {
@@ -2350,7 +2337,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
             
             LogToFileEx("addons/sourcemod/data/store.load.log", "%N -> inventory -> %s.%s", client, m_szType, m_szUniqueId);
 
-            while((m_iUniqueId = UTIL_GetItemId(m_szType, m_szUniqueId, m_iUniqueId))!=-1)
+            while((m_iUniqueId = UTIL_GetItemId(m_szUniqueId, m_iUniqueId))!=-1)
             {
                 LogToFileEx("addons/sourcemod/data/store.load.log", "%N -> retrieve -> %d.%s", client, m_iUniqueId, g_eItems[m_iUniqueId][szName]);
                 g_eClientItems[client][i][iId] = SQL_FetchInt(hndl, 0);
@@ -2385,7 +2372,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
         {
             SQL_FetchString(hndl, 1, STRING(m_szType));
             SQL_FetchString(hndl, 2, STRING(m_szUniqueId));
-            m_iUniqueId = UTIL_GetItemId(m_szType, m_szUniqueId);
+            m_iUniqueId = UTIL_GetItemId(m_szUniqueId);
             if(m_iUniqueId == -1)
                 continue;
 
@@ -2578,10 +2565,10 @@ void UTIL_DisconnectClient(int client)
     g_eClients[client][bLoaded] = false;
 }
 
-int UTIL_GetItemId(char[] type, char[] uid, int start = -1)
+int UTIL_GetItemId(const char[] uid, int start = -1)
 {
     for(int i = start+1; i < g_iItems; ++i)
-        if(strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], type)==0 && strcmp(g_eItems[i][szUniqueId], uid)==0 && g_eItems[i][iPrice] >= 0)
+        if(strcmp(g_eItems[i][szUniqueId], uid)==0 && g_eItems[i][iPrice] >= 0)
             return i;
     return -1;
 }
@@ -3156,9 +3143,8 @@ int UTIL_GetEquippedItemFromHandler(int client, int handler, int slot = 0)
 
 bool UTIL_PackageHasClientItem(int client, int packageid, bool invmode = false)
 {
-    int m_iFlags = GetUserFlagBits(client);
     for(int i =0;i<g_iItems;++i)
-        if(g_eItems[i][iParent] == packageid && GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) && (invmode && Store_HasClientItem(client, i) || !invmode) && AllowItemForAuth(client, g_eItems[i][szSteam]) && AllowItemForVIP(client, g_eItems[i][bVIP]))
+        if(g_eItems[i][iParent] == packageid && (invmode && Store_HasClientItem(client, i) || !invmode) && AllowItemForAuth(client, g_eItems[i][szSteam]) && AllowItemForVIP(client, g_eItems[i][bVIP]))
             if((g_eItems[i][iHandler] == g_iPackageHandler && UTIL_PackageHasClientItem(client, i, invmode)) || g_eItems[i][iHandler] != g_iPackageHandler)
                 return true;
     return false;

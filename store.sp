@@ -2878,8 +2878,6 @@ void UTIL_ReloadConfig()
         item_parent.FetchString(1, g_eItems[g_iItems][szName], 64);
         g_eItems[g_iItems][iParent] = item_parent.FetchInt(2);
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
-        
-        LogEx1("Loaded %d.%d.%s", g_iItems, g_eItems[g_iItems][iParent], g_eItems[g_iItems][szName]);
     }
 
     DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT * FROM store_item_child ORDER BY parent;", 128);
@@ -3018,10 +3016,6 @@ void UTIL_ReloadConfig()
             Call_Finish(m_bSuccess); 
         }
 
-        //DEBUG
-        //char path[128];
-        //FormatEx(path, 128, "addons/sourcemod/data/store.%d.kv", g_iItems);
-        //kv.ExportToFile(path);
         delete kv;
 
         if(!m_bSuccess)
@@ -3034,45 +3028,14 @@ void UTIL_ReloadConfig()
             PushArrayString(g_ArraySkin, modelPath);
         }
 
-        LogEx2("=========================================================================");
-        LogEx2("Category: %s", g_eItems[g_iItems][iParent], g_eItems[g_eItems[g_iItems][iParent]][szName]);
         for(int field = 0; field < item_child.FieldCount; ++field)
         {
             char fieldName[32], fieldValue[192];
             item_child.FieldNumToName(field, fieldName, 32);
             item_child.FetchString(field, fieldValue, 192);
-            if(fieldValue[0] == 0)
-                LogEx2("%s: 0", fieldName);
-            else if(fieldValue[0] == 1)
-                LogEx2("%s: 1", fieldName);
-            else
-                LogEx2("%s: %s", fieldName, fieldValue);
         }
 
         ++g_iItems;
-    }
-    
-    for(int item = 0; item < g_iItems; ++item)
-    {
-        LogEx3("=========================================================================");
-        LogEx3("szName: %s", g_eItems[item][szName]);
-        LogEx3("szUniqueId: %s", g_eItems[item][szUniqueId]);
-        LogEx3("szDesc: %s", g_eItems[item][szDesc]);
-        LogEx3("szSteam: %s", g_eItems[item][szSteam]);
-        LogEx3("iId: %d", g_eItems[item][iId]);
-        LogEx3("iPrice: %d", g_eItems[item][iPrice]);
-        if(g_eItems[item][iParent] >= 0)
-            LogEx3("iParent: %d.%s", g_eItems[item][iParent], g_eItems[g_eItems[item][iParent]][szName]);
-        else
-           LogEx3("iParent: %d.主菜单", g_eItems[item][iParent]);
-        LogEx3("iHandler: %d.%s", g_eItems[item][iHandler], g_eTypeHandlers[g_eItems[item][iHandler]][szType]);
-        LogEx3("iLevels: %d", g_eItems[item][iLevels]);
-        LogEx3("bCase: %b", g_eItems[item][bCase]);
-        LogEx3("bIgnore: %b", g_eItems[item][bIgnore]);
-        LogEx3("bBuyable: %b", g_eItems[item][bBuyable]);
-        LogEx3("bGiftable: %b", g_eItems[item][bGiftable]);
-        LogEx3("bCompose: %b", g_eItems[item][bCompose]);
-        LogEx3("bVIP: %b", g_eItems[item][bVIP]);
     }
     
     delete item_array;
@@ -3080,27 +3043,6 @@ void UTIL_ReloadConfig()
     delete item_child;
 
     OnMapStart();
-}
-
-void LogEx1(const char[] buffer, any ...)
-{
-    char vf[512];
-    VFormat(STRING(vf), buffer, 2);
-    LogToFileEx("addons/sourcemod/data/store.parent.log", vf);
-}
-
-void LogEx2(const char[] buffer, any ...)
-{
-    char vf[512];
-    VFormat(STRING(vf), buffer, 2);
-    LogToFileEx("addons/sourcemod/data/store.child.log", vf);
-}
-
-void LogEx3(const char[] buffer, any ...)
-{
-    char vf[512];
-    VFormat(STRING(vf), buffer, 2);
-    LogToFileEx("addons/sourcemod/data/store.item.log", vf);
 }
 
 int UTIL_GetTypeHandler(const char[] type)

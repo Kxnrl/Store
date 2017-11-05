@@ -2934,7 +2934,7 @@ void UTIL_ReloadConfig()
             continue;
         item_array.PushString(m_szUniqueId);
         g_eItems[g_iItems][szUniqueId][0] = '\0';
-        strcopy(g_eItems[g_iItems][szUniqueId], 32, m_szType);
+        strcopy(g_eItems[g_iItems][szUniqueId], 32, m_szUniqueId);
 
         // Field 3 -> buyable
         char m_bitBuyable[2];

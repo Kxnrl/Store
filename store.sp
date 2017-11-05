@@ -2361,10 +2361,12 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
             
             SQL_FetchString(hndl, 2, STRING(m_szType));
             SQL_FetchString(hndl, 3, STRING(m_szUniqueId));
+            
+            LogToFileEx("addons/sourcemod/data/store.load.log", "%N -> inventory -> %s.%s", client, m_szType, m_szUniqueId);
 
             while((m_iUniqueId = UTIL_GetItemId(m_szType, m_szUniqueId, m_iUniqueId))!=-1)
             {
-                LogToFileEx("addons/sourcemod/data/store.load.log", "Load %N -> %d.%s", client, m_iUniqueId, g_eItems[m_iUniqueId][szName]);
+                LogToFileEx("addons/sourcemod/data/store.load.log", "%N -> retrieve -> %d.%s", client, m_iUniqueId, g_eItems[m_iUniqueId][szName]);
                 g_eClientItems[client][i][iId] = SQL_FetchInt(hndl, 0);
                 g_eClientItems[client][i][iUniqueId] = m_iUniqueId;
                 g_eClientItems[client][i][bSynced] = true;

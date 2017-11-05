@@ -1,6 +1,8 @@
 #include <sdktools>
+#include <sdkhooks>
 #include <store>
 #include <store_stock>
+#include <clientprefs>
 
 enum Pet
 {
@@ -17,6 +19,8 @@ int g_ePets[STORE_MAX_ITEMS][Pet];
 int g_iPets = 0;
 int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
 int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
+bool g_bHide[MAXPLAYERS+1];
+Handle g_cCookie;
 
 public Plugin myinfo = 
 {
@@ -30,10 +34,26 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
     Store_RegisterHandler("pet", Pets_OnMapStart, Pets_Reset, Pets_Config, Pets_Equip, Pets_Remove, true);
+    
+    RegConsoleCmd("sm_hidepets", Command_Hide);
+    
+    g_cCookie = RegClientCookie("store_pets_hide", "Allow client hide pets", CookieAccess_Protected);
 
     HookEvent("player_spawn", Pets_PlayerSpawn, EventHookMode_Post);
     HookEvent("player_death", Pets_PlayerDeath, EventHookMode_Post);
     HookEvent("player_team", Pets_PlayerTeam, EventHookMode_Post);
+}
+
+public Action Command_Hide(int client, int args)
+{
+    if(!client)
+        return Plugin_Handled;
+    
+    g_bHide[client] = !g_bHide[client];
+    SetClientCookie(client, g_cCookie, g_bHide[client] ? "1" : "0");
+    PrintToChat(client, "[\x0EPets\x01]  Now you %s see pets", g_bHide[client] ? "\x07can`t" : "\x04can");
+    
+    return Plugin_Handled;
 }
 
 public void Pets_OnMapStart()
@@ -115,8 +135,18 @@ void Store_RemovePet(int client)
 
 public void OnClientConnected(int client)
 {
+    g_bHide[client] = false;
     for(int i = 0; i < STORE_MAX_SLOTS; ++i)
         g_iPetRef[client][i] = INVALID_ENT_REFERENCE;
+}
+
+public void OnClientCookiesCached(int client)
+{
+    char buff[4];
+    GetClientCookie(client, g_cCookie, buff, 4);
+
+    if(buff[0] != 0)
+        g_bHide[client] = (StringToInt(buff) == 1);
 }
 
 public void OnClientDisconnect(int client)
@@ -251,6 +281,8 @@ void CreatePet(int client, int slot)
 
     g_iPetRef[client][slot] = EntIndexToEntRef(entity);
     g_iLastAnimation[client][slot] = -1;
+    
+    SDKHook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
 }
 
 void ResetPet(int client, int slot)
@@ -266,6 +298,8 @@ void ResetPet(int client, int slot)
         return;
 
     AcceptEntityInput(entity, "Kill");
+    
+    SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
 }
 
 void DeathPet(int client, int slot)
@@ -289,4 +323,9 @@ void DeathPet(int client, int slot)
     SetVariantString(g_ePets[m_iData][death]);
     AcceptEntityInput(EntRefToEntIndex(g_iPetRef[client][slot]), "SetAnimation");
     g_iLastAnimation[client][slot] = 3;
+}
+
+public Action Hook_SetTransmit_Pet(int ent, int client)
+{
+    return g_bHide[client] ? Plugin_Handled : Plugin_Continue;
 }

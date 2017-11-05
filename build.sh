@@ -204,10 +204,10 @@ cd resources
 7za -e ./models/models.7z
 7za -e ./particles/particles.7z
 7za -e ./sound/sound.7z
-mv -rf ./materials/* build/materials
-mv -rf ./models/* build/models
-mv -rf ./particles/* build/particles
-mv -rf ./sound/* build/sound
+mv -f ./materials/* build/materials
+mv -f ./models/* build/models
+mv -f ./particles/* build/particles
+mv -f ./sound/* build/sound
 
 echo -e "Compress file ..."
 cd ../build

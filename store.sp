@@ -367,7 +367,7 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
     int m_iId = g_iTypeHandlers;
     
     if(m_iHandler != -1)
-        m_iId = m_iHandler;
+        return m_iHandler;
     else
         ++g_iTypeHandlers;
     
@@ -2364,6 +2364,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 
             while((m_iUniqueId = UTIL_GetItemId(m_szType, m_szUniqueId, m_iUniqueId))!=-1)
             {
+                LogToFileEx("addons/sourcemod/data/store.load.log", "Load %N -> %d.%s", client, m_iUniqueId, g_eItems[m_iUniqueId][szName]);
                 g_eClientItems[client][i][iId] = SQL_FetchInt(hndl, 0);
                 g_eClientItems[client][i][iUniqueId] = m_iUniqueId;
                 g_eClientItems[client][i][bSynced] = true;

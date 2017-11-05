@@ -17,14 +17,12 @@ enum Store_Item
 {
     String:szName[ITEM_NAME_LENGTH],
     String:szUniqueId[PLATFORM_MAX_PATH],
-    String:szShortcut[64],
     String:szDesc[128],
     String:szSteam[256],
     iId,
     iPrice,
     iParent,
     iHandler,
-    iFlagBits,
     iData,
     iPlans,
     iLevels,
@@ -39,7 +37,6 @@ enum Store_Item
 enum Type_Handler
 {
     String:szType[64],
-    String:szUniqueKey[32],
     bool:bEquipable,
     bool:bRaw,
     Handle:hPlugin,

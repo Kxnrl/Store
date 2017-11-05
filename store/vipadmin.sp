@@ -2,7 +2,7 @@
 
 public void VIP_OnPluginStart()
 {
-    Store_RegisterHandler("buyvip", "", VIP_OnMapStart, VIP_Reset, VIP_Config, VIP_Equip, VIP_Remove, false);
+    Store_RegisterHandler("buyvip", VIP_OnMapStart, VIP_Reset, VIP_Config, VIP_Equip, VIP_Remove, false);
 }
 
 public void VIP_OnMapStart()

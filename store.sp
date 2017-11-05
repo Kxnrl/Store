@@ -16,13 +16,15 @@
 #define PLUGIN_NAME         "Store - The Resurrection [Redux]"
 #define PLUGIN_AUTHOR       "Zephyrus | Kyle"
 #define PLUGIN_DESCRIPTION  "ALL REWRITE WITH NEW SYNTAX!!!"
-#define PLUGIN_VERSION      "1.92 - 2017/10/26 19:58"
+#define PLUGIN_VERSION      "2.0.<commit_count>.<commit_branch> - <commit_date>"
 #define PLUGIN_URL          "http://steamcommunity.com/id/_xQy_"
 
+
 // Server
-//#define GM_TT
+#define <Compile_Environment>
+//#define GM_TT //ttt server
 //#define GM_ZE //zombie escape server
-#define GM_MG //mini games server
+//#define GM_MG //mini games server
 //#define GM_JB //jail break server
 //#define GM_KZ //kreedz server
 //#define GM_HZ //casual server
@@ -190,16 +192,13 @@ public void OnPluginStart()
     }
 
     // Initiaze the fake package handler
-    g_iPackageHandler = Store_RegisterHandler("package", "", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
+    g_iPackageHandler = Store_RegisterHandler("package", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
 }
 
 public void OnAllPluginsLoaded()
 {
     // Initiaze module
     UTIL_CheckModules();
-
-    // Load configs
-    UTIL_ReloadConfig();
 }
 
 public void OnPluginEnd()
@@ -261,7 +260,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 }
 
 //////////////////////////////////////
-//        REST OF PLUGIN FORWARDS        //
+//      REST OF PLUGIN FORWARDS     //
 //////////////////////////////////////
 public void OnMapStart()
 {
@@ -321,13 +320,11 @@ public int CG_APIStoreGetCredits(int client)
 //////////////////////////////
 public int Native_GetItemId(Handle myself, int numParams)
 {
-    char type[32], uid[256];
-    if(GetNativeString(1, type, 32) != SP_ERROR_NONE)
+    char uid[256];
+    if(GetNativeString(1, uid, 256) != SP_ERROR_NONE)
         return -1;
-    if(GetNativeString(2, uid, 256) != SP_ERROR_NONE)
-        return -1;
-    
-    return UTIL_GetItemId(type, uid, -1);
+
+    return UTIL_GetItemId(uid, -1);
 }
 
 public int Native_SaveClientAll(Handle myself, int numParams)
@@ -368,20 +365,19 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
     int m_iId = g_iTypeHandlers;
     
     if(m_iHandler != -1)
-        m_iId = m_iHandler;
+        return m_iHandler;
     else
         ++g_iTypeHandlers;
     
     g_eTypeHandlers[m_iId][hPlugin] = plugin;
-    g_eTypeHandlers[m_iId][fnMapStart] = GetNativeCell(3);
-    g_eTypeHandlers[m_iId][fnReset] = GetNativeCell(4);
-    g_eTypeHandlers[m_iId][fnConfig] = GetNativeCell(5);
-    g_eTypeHandlers[m_iId][fnUse] = GetNativeCell(6);
-    g_eTypeHandlers[m_iId][fnRemove] = GetNativeCell(7);
-    g_eTypeHandlers[m_iId][bEquipable] = GetNativeCell(8);
-    g_eTypeHandlers[m_iId][bRaw] = GetNativeCell(9);
+    g_eTypeHandlers[m_iId][fnMapStart] = GetNativeCell(2);
+    g_eTypeHandlers[m_iId][fnReset] = GetNativeCell(3);
+    g_eTypeHandlers[m_iId][fnConfig] = GetNativeCell(4);
+    g_eTypeHandlers[m_iId][fnUse] = GetNativeCell(5);
+    g_eTypeHandlers[m_iId][fnRemove] = GetNativeCell(6);
+    g_eTypeHandlers[m_iId][bEquipable] = GetNativeCell(7);
+    g_eTypeHandlers[m_iId][bRaw] = GetNativeCell(8);
     strcopy(g_eTypeHandlers[m_iId][szType], 32, m_szType);
-    GetNativeString(2, g_eTypeHandlers[m_iId][szUniqueKey], 32);
 
     return m_iId;
 }
@@ -552,7 +548,7 @@ public int Native_IsItemInBoughtPackage(Handle myself, int numParams)
     if(itemid<0)
         m_iParent = g_eItems[itemid][iParent];
     else
-        m_iParent = g_eItems[itemid][iParent];
+        return false;
         
     while(m_iParent != -1)
     {
@@ -656,9 +652,6 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
         return -1;
     
     // Can he even have it?    
-    if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
-        return -1;
-
     if(g_eItems[itemid][szSteam][0] != 0)
         return (AllowItemForAuth(client, g_eItems[itemid][szSteam])) ? 0 : -1;
 
@@ -687,10 +680,6 @@ public int Native_HasClientItem(Handle myself, int numParams)
     if(itemid < 0)
         return false;
 
-    // Can he even have it?    
-    if(!GetClientPrivilege(client, g_eItems[itemid][iFlagBits]))
-        return false;
-    
     // Personal item?
     if(g_eItems[itemid][szSteam][0] != 0)
         return AllowItemForAuth(client, g_eItems[itemid][szSteam]);
@@ -956,7 +945,6 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
         SetMenuTitleEx(m_hMenu, "%T\n%T", "Title Store", client, "Title Credits", client, g_eClients[client][iCredits]);
     
     char m_szId[11];
-    int m_iFlags = GetUserFlagBits(client);
     int m_iPosition = 0;
     
     g_iSelectedItem[client] = parent;
@@ -1003,7 +991,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
                     continue;
 
                 int m_iStyle = ITEMDRAW_DEFAULT;
-                if(!GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
+                if(!AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
                     m_iStyle = ITEMDRAW_DISABLED;
 
                 IntToString(i, STRING(m_szId));
@@ -1029,7 +1017,7 @@ int DisplayStoreMenu(int client, int parent = -1, int last = -1)
                 else if(!g_bInvMode[client])
                 {                
                     int m_iStyle = ITEMDRAW_DEFAULT;
-                    if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
+                    if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
                         m_iStyle = ITEMDRAW_DISABLED;
 
                     if(StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
@@ -1201,8 +1189,8 @@ void UTIL_GetLevelType(int itemid, char[] buffer, int maxLen)
         case  2: strcopy(buffer, maxLen, "保密"); //合成
         case  3: strcopy(buffer, maxLen, "隐秘"); //开箱
         case  4: strcopy(buffer, maxLen, "违禁"); //活动
-        case  5: strcopy(buffer, maxLen, "史诗"); //专属
-        case  6: strcopy(buffer, maxLen, "神圣"); //专属
+        case  5: strcopy(buffer, maxLen, "专属"); //专属
+        case  6: strcopy(buffer, maxLen, "隐藏"); //专属
         default: strcopy(buffer, maxLen, "受限"); //普通
     }
 }
@@ -1241,7 +1229,7 @@ public void DisplayPreviewMenu(int client, int itemid)
         if(g_eItems[itemid][bBuyable])
         {
             int m_iStyle = ITEMDRAW_DEFAULT;
-            if((g_eItems[itemid][iPlans]==0 && g_eClients[client][iCredits]<UTIL_GetLowestPrice(itemid)) || !GetClientPrivilege(client, g_eItems[itemid][iFlagBits]) || !AllowItemForAuth(client, g_eItems[itemid][szSteam]) || !AllowItemForVIP(client, g_eItems[itemid][bVIP]))
+            if((g_eItems[itemid][iPlans]==0 && g_eClients[client][iCredits]<UTIL_GetLowestPrice(itemid)) || !AllowItemForAuth(client, g_eItems[itemid][szSteam]) || !AllowItemForVIP(client, g_eItems[itemid][bVIP]))
                 m_iStyle = ITEMDRAW_DISABLED;
             
             if(g_eItems[itemid][iPlans]==0)
@@ -1426,7 +1414,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
         }
     }
 
-    int itemid = UTIL_GetItemId("playerskin", modelname);
+    int itemid = UTIL_GetItemId(modelname);
 
     if(itemid < 0)
     {
@@ -1458,38 +1446,6 @@ public Action Timer_OpeningCase(Handle timer, int client)
         else
             days = UTIL_GetRandomInt(1, 31);
 
-        if(StrContains(g_eItems[itemid][szUniqueId], "canary", false) != -1)
-        {
-            switch(UTIL_GetRandomInt(0, 24))
-            {
-                case  0: days =  1;
-                case  1: days =  1;
-                case  2: days =  2;
-                case  3: days =  3;
-                case  4: days =  4;
-                case  5: days =  5;
-                case  6: days =  6;
-                case  7: days =  7;
-                case  8: days =  8;
-                case  9: days =  9;
-                case 10: days = 10;
-                case 11: days = 11;
-                case 12: days = 12;
-                case 13: days = 13;
-                case 14: days = 14;
-                case 15: days = UTIL_GetRandomInt(15, 31);
-                case 16: days = UTIL_GetRandomInt(16, 31);
-                case 17: days = UTIL_GetRandomInt(17, 31);
-                case 18: days = UTIL_GetRandomInt(18, 31);
-                case 19: days = UTIL_GetRandomInt(19, 31);
-                case 20: days = UTIL_GetRandomInt(20, 31);
-                case 21: days = UTIL_GetRandomInt(21, 31);
-                case 22: days = UTIL_GetRandomInt(22, 365);
-                case 23: days = UTIL_GetRandomInt(23, 365);
-                case 24: days = 0;
-            }
-        }
-
         if(g_iClientCase[client] == 3)
             days = 0;
 
@@ -1509,7 +1465,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
     return Plugin_Stop;
 }
 
-void OpeningCaseMenu(int client, int days, const char[] sname)
+void OpeningCaseMenu(int client, int days, const char[] name)
 {
     Handle menu = CreateMenu(MenuHandler_OpeningCase);
     SetMenuTitleEx(menu, "Opening Case...\n%s", g_szCase[g_iClientCase[client]]);
@@ -1518,11 +1474,6 @@ void OpeningCaseMenu(int client, int days, const char[] sname)
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "░░░░░░░░░░░░░░░░░░");
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "░░░░░░░░░░░░░░░░░░");
 
-    char name[128];
-    strcopy(name, 128, sname);
-    ReplaceString(name, 128, "[CT] ", "");
-    ReplaceString(name, 128, "[TE] ", "");
-    ReplaceString(name, 128, "[通用] ", "");
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "   %s", name);
     if(days)
     {
@@ -1587,9 +1538,6 @@ void EndingCaseMenu(int client, int days, int itemid)
 
     char name[128];
     strcopy(name, 128, g_eItems[itemid][szName]);
-    ReplaceString(name, 128, "[CT] ", "");
-    ReplaceString(name, 128, "[TE] ", "");
-    ReplaceString(name, 128, "[通用] ", "");
     
     char leveltype[32];
     UTIL_GetLevelType(itemid, leveltype, 32);
@@ -1643,9 +1591,6 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
             
             char name[128];
             strcopy(name, 128, g_eItems[itemid][szName]);
-            ReplaceString(name, 128, "[CT] ", "");
-            ReplaceString(name, 128, "[TE] ", "");
-            ReplaceString(name, 128, "[通用] ", "");
 
             char m_szQuery[256];
 
@@ -1697,9 +1642,6 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 
                 char name[128];
                 strcopy(name, 128, g_eItems[itemid][szName]);
-                ReplaceString(name, 128, "[CT] ", "");
-                ReplaceString(name, 128, "[TE] ", "");
-                ReplaceString(name, 128, "[通用] ", "");
                 
                 char m_szQuery[256];
                 
@@ -2031,7 +1973,7 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
             int m_iId = StringToInt(m_szId);
             
             // Menu handlers
-            if(!(48 <= m_szId[0] <= 57))
+            if(!(48 <= m_szId[0] <= 57)) //ASCII 0~9
             {
                 int ret;
                 for(int i=0;i<g_iMenuHandlers;++i)
@@ -2115,14 +2057,12 @@ public void DisplayPlayerMenu(int client)
     SetMenuTitleEx(m_hMenu, "%T\n%T", "Title Gift", client, "Title Credits", client, g_eClients[client][iCredits]);
     
     char m_szID[11];
-    int m_iFlags;
     for(int i = 1; i <= MaxClients; ++i)
     {
         if(!IsClientInGame(i))
             continue;
 
-        m_iFlags = GetUserFlagBits(i);
-        if(!GetClientPrivilege(i, g_eItems[g_iSelectedItem[client]][iFlagBits], m_iFlags) || !AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szSteam]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
+        if(!AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szSteam]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
             continue;
         if(i != client && IsClientInGame(i) && !Store_HasClientItem(i, g_iSelectedItem[client]))
         {
@@ -2276,6 +2216,9 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
         FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
         SQL_TVoid(g_hDatabase, m_szQuery);
         
+        // Load configs
+        UTIL_ReloadConfig();
+
         // if Loaded late.
         if(g_bLateLoad)
         {
@@ -2391,9 +2334,12 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
             
             SQL_FetchString(hndl, 2, STRING(m_szType));
             SQL_FetchString(hndl, 3, STRING(m_szUniqueId));
+            
+            LogToFileEx("addons/sourcemod/data/store.load.log", "%N -> inventory -> %s.%s", client, m_szType, m_szUniqueId);
 
-            while((m_iUniqueId = UTIL_GetItemId(m_szType, m_szUniqueId, m_iUniqueId))!=-1)
+            while((m_iUniqueId = UTIL_GetItemId(m_szUniqueId, m_iUniqueId))!=-1)
             {
+                LogToFileEx("addons/sourcemod/data/store.load.log", "%N -> retrieve -> %d.%s", client, m_iUniqueId, g_eItems[m_iUniqueId][szName]);
                 g_eClientItems[client][i][iId] = SQL_FetchInt(hndl, 0);
                 g_eClientItems[client][i][iUniqueId] = m_iUniqueId;
                 g_eClientItems[client][i][bSynced] = true;
@@ -2426,7 +2372,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
         {
             SQL_FetchString(hndl, 1, STRING(m_szType));
             SQL_FetchString(hndl, 2, STRING(m_szUniqueId));
-            m_iUniqueId = UTIL_GetItemId(m_szType, m_szUniqueId);
+            m_iUniqueId = UTIL_GetItemId(m_szUniqueId);
             if(m_iUniqueId == -1)
                 continue;
 
@@ -2619,10 +2565,10 @@ void UTIL_DisconnectClient(int client)
     g_eClients[client][bLoaded] = false;
 }
 
-int UTIL_GetItemId(char[] type, char[] uid, int start = -1)
+int UTIL_GetItemId(const char[] uid, int start = -1)
 {
     for(int i = start+1; i < g_iItems; ++i)
-        if(strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], type)==0 && strcmp(g_eItems[i][szUniqueId], uid)==0 && g_eItems[i][iPrice] >= 0)
+        if(strcmp(g_eItems[i][szUniqueId], uid)==0 && g_eItems[i][iPrice] >= 0)
             return i;
     return -1;
 }
@@ -2882,7 +2828,13 @@ int UTIL_GetClientItemId(int client, int itemid)
 
     return -1;
 }
-
+/*
+enum Item_Attributes
+{
+    String:model[192],
+    String:arms[192],
+}
+*/
 void UTIL_ReloadConfig()
 {
     g_iItems = 0;
@@ -2896,152 +2848,191 @@ void UTIL_ReloadConfig()
         }
     }
 
-    char m_szFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, STRING(m_szFile), "configs/store/items.txt");
-    Handle m_hKV = CreateKeyValues("Store");
-    FileToKeyValues(m_hKV, m_szFile);
-    if(!KvGotoFirstSubKey(m_hKV))
+    DBResultSet item_parent = SQL_Query(g_hDatabase, "SELECT * FROM store_item_parent ORDER BY id;", 128);
+    if(item_parent == INVALID_HANDLE)
     {
-        SetFailState("Failed to read configs/store/items.txt");
+        char error[512];
+        SQL_GetError(g_hDatabase, error, 512);
+        SetFailState("Can not retrieve item.parent from database: %s", error);
     }
-    UTIL_WalkConfig(m_hKV);
-    CloseHandle(m_hKV);
+
+    if(item_parent.RowCount <= 0)
+        SetFailState("Can not retrieve item.child from database: no result row");
+    
+    while(item_parent.FetchRow())
+    {
+        g_iItems = item_parent.FetchInt(0);
+        item_parent.FetchString(1, g_eItems[g_iItems][szName], 64);
+        g_eItems[g_iItems][iParent] = item_parent.FetchInt(2);
+        g_eItems[g_iItems][iHandler] = g_iPackageHandler;
+    }
+
+    DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT * FROM store_item_child ORDER BY parent;", 128);
+    if(item_child == INVALID_HANDLE)
+    {
+        char error[512];
+        SQL_GetError(g_hDatabase, error, 512);
+        SetFailState("Can not retrieve item.child from database: %s", error);
+    }
+
+    if(item_child.RowCount <= 0)
+        SetFailState("Can not retrieve item.child from database: no result row");
+    
+    ArrayList item_array = new ArrayList(ByteCountToCells(256));
+
+    while(item_child.FetchRow())
+    {
+        // Field 0 -> parent
+        g_eItems[g_iItems][iParent] = item_child.FetchInt(0);
+
+        // Field 1 -> type
+        char m_szType[32];
+        item_child.FetchString(1, m_szType, 32);
+        if(strcmp(m_szType, "ITEM_ERROR") == 0)
+            continue;
+
+        int m_iHandler = UTIL_GetTypeHandler(m_szType);
+        if(m_iHandler == -1)
+            continue;
+        g_eItems[g_iItems][iHandler] = m_iHandler;
+        
+        // Field 2 -> uid
+        char m_szUniqueId[32];
+        item_child.FetchString(2, m_szUniqueId, 32);
+
+        // Ignore bad item or dumplicate item
+        if(strcmp(m_szUniqueId, "ITEM_ERROR") == 0 || item_array.FindString(m_szUniqueId) != -1)
+            continue;
+        item_array.PushString(m_szUniqueId);
+        g_eItems[g_iItems][szUniqueId][0] = '\0';
+        strcopy(g_eItems[g_iItems][szUniqueId], 32, m_szUniqueId);
+
+        // Field 3 -> buyable
+        char m_bitBuyable[2];
+        item_child.FetchString(3, m_bitBuyable, 2);
+        g_eItems[g_iItems][bBuyable] = (m_bitBuyable[0] == 1) ? true : false;
+
+        // Field 4 -> giftable
+        char m_bitGiftable[2];
+        item_child.FetchString(4, m_bitGiftable, 2);
+        g_eItems[g_iItems][bGiftable] = (m_bitGiftable[0] == 1) ? true : false;
+
+        // Field 5 -> only
+        char m_bitOnly[2];
+        item_child.FetchString(5, m_bitOnly, 2);
+        g_eItems[g_iItems][bIgnore] = (m_bitOnly[0] == 1) ? true : false;
+
+        // Field 6 -> auth
+        char m_szAuth[256];
+        item_child.FetchString(6, m_szAuth, 256);
+        g_eItems[g_iItems][szSteam][0] = '\0';
+        if(strcmp(m_szAuth, "ITEM_NOT_PERSONAL") != 0)
+            strcopy(g_eItems[g_iItems][szSteam], 256, m_szAuth);
+
+        // Field 7 -> vip
+        char m_bitVIP[2];
+        item_child.FetchString(7, m_bitVIP, 2);
+        g_eItems[g_iItems][bVIP] = (m_bitVIP[0] == 1) ? true : false;
+
+        // Field 8 -> name
+        item_child.FetchString(8, g_eItems[g_iItems][szName], 32);
+
+        // Field 9 -> lvls
+        g_eItems[g_iItems][iLevels] = item_child.FetchInt(9) + 1;
+
+        // Field 10 -> desc
+        char m_szDesc[128];
+        item_child.FetchString(10, m_szDesc, 128);
+        g_eItems[g_iItems][szDesc][0] = '\0';
+        if(strcmp(m_szAuth, "ITEM_NO_DESC") != 0)
+            strcopy(g_eItems[g_iItems][szDesc], 128, m_szDesc);
+
+        // Field 11 -> case
+        char m_bitCase[2];
+        item_child.FetchString(11, m_bitCase, 2);
+        g_eItems[g_iItems][bCase] = (m_bitCase[0] == 1) ? true : false;
+
+        // Field 12 -> Compose
+        char m_bitCompose[2];
+        item_child.FetchString(12, m_bitCompose, 2);
+        g_eItems[g_iItems][bCompose] = (m_bitCompose[0] == 1) ? true : false;
+
+        // Field 13,14,15 -> price
+        int price_1d = item_child.FetchInt(13);
+        int price_1m = item_child.FetchInt(14);
+        int price_pm = item_child.FetchInt(15);
+        
+        if(price_1d != 0 && price_1m != 0)
+        {
+            strcopy(g_ePlans[g_iItems][0][szName], 32, "1天");
+            g_ePlans[g_iItems][0][iPrice] = price_1d;
+            g_ePlans[g_iItems][0][iTime] = 86400;
+            
+            strcopy(g_ePlans[g_iItems][1][szName], 32, "1月");
+            g_ePlans[g_iItems][1][iPrice] = price_1m;
+            g_ePlans[g_iItems][1][iTime] = 2592000;
+            
+            strcopy(g_ePlans[g_iItems][2][szName], 32, "永久");
+            g_ePlans[g_iItems][2][iPrice] = price_pm;
+            g_ePlans[g_iItems][2][iTime] = 0;
+   
+            g_eItems[g_iItems][iPlans] = 3;
+        }
+        else
+        {
+            g_eItems[g_iItems][iPrice] = price_pm;
+        }
+
+        // Field 16 ~ 
+        KeyValues kv = new KeyValues(g_eItems[g_iItems][szName], "", "");
+        for(int field = 16; field < item_child.FieldCount; ++field)
+        {
+            char key[32], values[192];
+            item_child.FieldNumToName(field, key, 32);
+            item_child.FetchString(field, values, 192);
+            if(StrContains(values, "ITEM_NO") == -1)
+                kv.SetString(key, values);
+        }
+        
+        bool m_bSuccess = true;
+        if(g_eTypeHandlers[m_iHandler][fnConfig]!=INVALID_FUNCTION)
+        {
+            Call_StartFunction(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][fnConfig]);
+            Call_PushCellRef(kv);
+            Call_PushCell(g_iItems);
+            Call_Finish(m_bSuccess); 
+        }
+
+        delete kv;
+
+        if(!m_bSuccess)
+            continue;
+
+        if(!g_eItems[g_iItems][bIgnore])
+        {
+            char modelPath[128];
+            item_child.FetchString(16, modelPath, 192);
+            PushArrayString(g_ArraySkin, modelPath);
+        }
+
+        for(int field = 0; field < item_child.FieldCount; ++field)
+        {
+            char fieldName[32], fieldValue[192];
+            item_child.FieldNumToName(field, fieldName, 32);
+            item_child.FetchString(field, fieldValue, 192);
+        }
+
+        ++g_iItems;
+    }
+    
+    delete item_array;
+    delete item_parent;
+    delete item_child;
 
     OnMapStart();
 }
 
-void UTIL_WalkConfig(Handle &kv, int parent = -1)
-{
-    char m_szType[32];
-    char m_szFlags[64];
-    char m_szDesc[128];
-    char m_szAuth[256];
-    int m_iHandler;
-    bool m_bSuccess;
-
-    do
-    {
-        if(g_iItems == STORE_MAX_ITEMS)
-            continue;
-        if(KvGetNum(kv, "enabled", 1) && KvGetNum(kv, "type", -1) == -1 && KvGotoFirstSubKey(kv))
-        {
-            KvGoBack(kv);
-            KvGetSectionName(kv, g_eItems[g_iItems][szName], 64);
-            KvGetSectionName(kv, g_eItems[g_iItems][szUniqueId], 64);
-            ReplaceString(g_eItems[g_iItems][szName], 64, "\\n", "\n");
-            KvGetString(kv, "shortcut", g_eItems[g_iItems][szShortcut], 64);
-            KvGetString(kv, "flag", STRING(m_szFlags));
-            g_eItems[g_iItems][iFlagBits] = ReadFlagString(m_szFlags);
-            g_eItems[g_iItems][iPrice] = KvGetNum(kv, "price", -1);
-            g_eItems[g_iItems][bBuyable] = (KvGetNum(kv, "buyable", 1)?true:false);
-            g_eItems[g_iItems][bGiftable] = (KvGetNum(kv, "giftable", 1)?true:false);
-            g_eItems[g_iItems][bCompose] = (KvGetNum(kv, "compose", 0)?true:false);
-            g_eItems[g_iItems][bVIP] = (KvGetNum(kv, "vip", 0)?true:false);
-            g_eItems[g_iItems][iHandler] = g_iPackageHandler;
-            
-            KvGotoFirstSubKey(kv);
-            
-            g_eItems[g_iItems][iParent] = parent;
-            
-            UTIL_WalkConfig(kv, g_iItems++);
-            KvGoBack(kv);
-        }
-        else
-        {
-            if(!KvGetNum(kv, "enabled", 1))
-                continue;
-            
-            KvGetString(kv, "type", STRING(m_szType));
-            m_iHandler = UTIL_GetTypeHandler(m_szType);
-            if(m_iHandler == -1)
-                continue;
-            
-            m_bSuccess = true;
-            if(g_eTypeHandlers[m_iHandler][fnConfig]!=INVALID_FUNCTION)
-            {
-                Call_StartFunction(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][fnConfig]);
-                Call_PushCellRef(kv);
-                Call_PushCell(g_iItems);
-                Call_Finish(m_bSuccess); 
-            }
-            
-            if(!m_bSuccess)
-                continue;
-
-            g_eItems[g_iItems][iParent] = parent;
-            KvGetSectionName(kv, g_eItems[g_iItems][szName], ITEM_NAME_LENGTH);
-            g_eItems[g_iItems][iPrice] = KvGetNum(kv, "price");
-            g_eItems[g_iItems][iLevels] = KvGetNum(kv, "lvls", 0)+1;
-            g_eItems[g_iItems][bBuyable] = KvGetNum(kv, "buyable", 1)?true:false;
-            g_eItems[g_iItems][bGiftable] = KvGetNum(kv, "giftable", 1)?true:false;
-            g_eItems[g_iItems][bCompose] = (KvGetNum(kv, "compose", 0)?true:false);
-            g_eItems[g_iItems][bVIP] = (KvGetNum(kv, "vip", 0)?true:false);
-            g_eItems[g_iItems][bCase] = (KvGetNum(kv, "case", 0)?true:false);
-            g_eItems[g_iItems][bIgnore] = (KvGetNum(kv, "only", 0)?true:false);
-
-            if(StrEqual(m_szType, "playerskin"))
-            {
-#if defined Global_Skin
-                Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[通用] %s", g_eItems[g_iItems][szName]);
-#else
-                int team = KvGetNum(kv, "team", 0);
-
-                if(team == 2)
-                    Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[TE] %s", g_eItems[g_iItems][szName]);
-                if(team == 3)
-                    Format(g_eItems[g_iItems][szName], ITEM_NAME_LENGTH, "[CT] %s", g_eItems[g_iItems][szName]);
-#endif
-
-                if(!g_eItems[g_iItems][bIgnore])
-                {
-                    char model[128];
-                    KvGetString(kv, "model", STRING(model));
-                    PushArrayString(g_ArraySkin, model);
-                    //LogMessage("Push ->  [%s] %s", g_eItems[g_iItems][szName], model);
-                }
-            }
-
-            KvGetString(kv, "desc", STRING(m_szDesc));
-            KvGetString(kv, "auth", STRING(m_szAuth));
-            KvGetString(kv, "flag", STRING(m_szFlags));
-            g_eItems[g_iItems][iFlagBits] = ReadFlagString(m_szFlags);
-            g_eItems[g_iItems][iHandler] = m_iHandler;
-            
-            if(m_szDesc[0] != 0)
-                strcopy(g_eItems[g_iItems][szDesc], 128, m_szDesc);
-            
-            if(m_szAuth[0] != 0)
-                strcopy(g_eItems[g_iItems][szSteam], 256, m_szAuth);
-
-            if(KvGetNum(kv, "unique_id", -1)==-1)
-                KvGetString(kv, g_eTypeHandlers[m_iHandler][szUniqueKey], g_eItems[g_iItems][szUniqueId], PLATFORM_MAX_PATH);
-            else
-                KvGetString(kv, "unique_id", g_eItems[g_iItems][szUniqueId], PLATFORM_MAX_PATH);
-
-            if(KvJumpToKey(kv, "Plans"))
-            {
-                KvGotoFirstSubKey(kv);
-                int index=0;
-                do
-                {
-                    KvGetSectionName(kv, g_ePlans[g_iItems][index][szName], ITEM_NAME_LENGTH);
-                    g_ePlans[g_iItems][index][iPrice] = KvGetNum(kv, "price");
-                    g_ePlans[g_iItems][index][iTime] = KvGetNum(kv, "time");
-                    ++index;
-                } while (KvGotoNextKey(kv));
-
-                g_eItems[g_iItems][iPlans]=index;
-
-                KvGoBack(kv);
-                KvGoBack(kv);
-            }
-            
-            ++g_iItems;
-        }
-    } while (KvGotoNextKey(kv));
-}
-
-int UTIL_GetTypeHandler(char[] type)
+int UTIL_GetTypeHandler(const char[] type)
 {
     for(int i = 0; i < g_iTypeHandlers; ++i)
     {
@@ -3051,7 +3042,7 @@ int UTIL_GetTypeHandler(char[] type)
     return -1;
 }
 
-int UTIL_GetMenuHandler(char[] id)
+int UTIL_GetMenuHandler(const char[] id)
 {
     for(int i = 0; i < g_iMenuHandlers; ++i)
     {
@@ -3152,9 +3143,8 @@ int UTIL_GetEquippedItemFromHandler(int client, int handler, int slot = 0)
 
 bool UTIL_PackageHasClientItem(int client, int packageid, bool invmode = false)
 {
-    int m_iFlags = GetUserFlagBits(client);
     for(int i =0;i<g_iItems;++i)
-        if(g_eItems[i][iParent] == packageid && GetClientPrivilege(client, g_eItems[i][iFlagBits], m_iFlags) && (invmode && Store_HasClientItem(client, i) || !invmode) && AllowItemForAuth(client, g_eItems[i][szSteam]) && AllowItemForVIP(client, g_eItems[i][bVIP]))
+        if(g_eItems[i][iParent] == packageid && (invmode && Store_HasClientItem(client, i) || !invmode) && AllowItemForAuth(client, g_eItems[i][szSteam]) && AllowItemForVIP(client, g_eItems[i][bVIP]))
             if((g_eItems[i][iHandler] == g_iPackageHandler && UTIL_PackageHasClientItem(client, i, invmode)) || g_eItems[i][iHandler] != g_iPackageHandler)
                 return true;
     return false;

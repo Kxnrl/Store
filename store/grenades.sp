@@ -29,8 +29,8 @@ char g_szSlots[6][64];
 
 public void Grenades_OnPluginStart()
 {
-    Store_RegisterHandler("grenadetrail", "material", GrenadeTrails_OnMapStart, GrenadeTrails_Reset, GrenadeTrails_Config, GrenadeTrails_Equip, GrenadeTrails_Remove, true);
-    Store_RegisterHandler("grenadeskin", "model", GrenadeSkins_OnMapStart, GrenadeSkins_Reset, GrenadeSkins_Config, GrenadeSkins_Equip, GrenadeSkins_Remove, true);
+    Store_RegisterHandler("nadetrail", GrenadeTrails_OnMapStart, GrenadeTrails_Reset, GrenadeTrails_Config, GrenadeTrails_Equip, GrenadeTrails_Remove, true);
+    Store_RegisterHandler("nadeskin", GrenadeSkins_OnMapStart, GrenadeSkins_Reset, GrenadeSkins_Config, GrenadeSkins_Equip, GrenadeSkins_Remove, true);
 }
 
 public void GrenadeSkins_OnMapStart()
@@ -66,7 +66,7 @@ public int GrenadeSkins_Config(Handle &kv, int itemid)
     Store_SetDataIndex(itemid, g_iGrenadeSkins);
     KvGetString(kv, "model", g_eGrenadeSkins[g_iGrenadeSkins][szModel], PLATFORM_MAX_PATH);
     KvGetString(kv, "grenade", g_eGrenadeSkins[g_iGrenadeSkins][szWeapon], PLATFORM_MAX_PATH);
-    
+
     g_eGrenadeSkins[g_iGrenadeSkins][iSlot] = GrenadeSkins_GetSlot(g_eGrenadeSkins[g_iGrenadeSkins][szWeapon]);
     g_eGrenadeSkins[g_iGrenadeSkins][iLength] = strlen(g_eGrenadeSkins[g_iGrenadeSkins][szWeapon]);
     
@@ -80,7 +80,7 @@ public int GrenadeSkins_Config(Handle &kv, int itemid)
 public int GrenadeTrails_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iGrenadeTrails);
-    KvGetString(kv, "material", g_eGrenadeTrails[g_iGrenadeTrails][szMaterial], PLATFORM_MAX_PATH);
+    KvGetString(kv, "material", g_eGrenadeTrails[g_iGrenadeTrails][szMaterial], PLATFORM_MAX_PATH, "materials/sprites/laserbeam.vmt");
     KvGetString(kv, "width", g_eGrenadeTrails[g_iGrenadeTrails][szWidth], 16, "10.0");
     g_eGrenadeTrails[g_iGrenadeTrails][fWidth] = KvGetFloat(kv, "width", 10.0);
     KvGetString(kv, "color", g_eGrenadeTrails[g_iGrenadeTrails][szColor], 16, "255 255 255 255");

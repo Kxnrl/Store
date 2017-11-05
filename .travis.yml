@@ -1,0 +1,16 @@
+addons:
+  apt_packages:
+    - lftp
+    - lib32z1
+    - lib32stdc++6
+
+language: c
+
+sudo: false
+
+env:
+  - SOURCEMOD=1.8
+  - SOURCEMOD=1.9
+
+script:
+    - 'if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then bash build.sh $SOURCEMOD $FTP_HOST $FTP_USER $FTP_PSWD $TRAVIS_BRANCH ${TRAVIS_COMMIT::7} ; fi'

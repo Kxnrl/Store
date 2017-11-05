@@ -26,7 +26,7 @@ Handle g_hCookieSounds;
 
 public void Sounds_OnPluginStart()
 {
-    Store_RegisterHandler("sound", "sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
+    Store_RegisterHandler("sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
 
     RegConsoleCmd("cheer", Command_Cheer);
     RegConsoleCmd("sm_cheer", Command_Cheer);
@@ -70,10 +70,10 @@ public int Sound_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSounds);
     KvGetString(kv, "sound", g_eSounds[g_iSounds][szSound], 128);
-    KvGetString(kv, "name", g_eSounds[g_iSounds][szName], 128);
+    KvGetString(kv, "shortname", g_eSounds[g_iSounds][szName], 128);
     g_eSounds[g_iSounds][fVolume] = KvGetFloat(kv, "volume", 0.3);
     g_eSounds[g_iSounds][iCooldown] = KvGetNum(kv, "cooldown", 30);
-    
+
     if(g_eSounds[g_iSounds][iCooldown] < 30)
         g_eSounds[g_iSounds][iCooldown] = 30;
     

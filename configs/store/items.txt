@@ -27,6 +27,7 @@
                     }
                 }
                 "type"      "playerskin"
+                "uid"       "skin_ninomiya_normal"
                 "desc"      "《偶像大师》的中二偶像"
                 "lvls"      "0"
             }
@@ -54,6 +55,7 @@
                     }
                 }
                 "type"      "playerskin"
+                "uid"       "skin_neptune_adult"
                 "desc"      "NeptuniaVII中的时空旅行家"
                 "lvls"      "0"
             }
@@ -80,6 +82,7 @@
                     }
                 }
                 "type"      "playerskin"
+                "uid"       "skin_hatsumi_normal"
                 "desc"      "VS Sega Hard Girl中的女主角"
                 "lvls"      "0"
             }
@@ -106,6 +109,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_peter_normal"
                 "desc"      "CGAY社区原创人物"
                 "lvls"      "0"
             }
@@ -133,6 +137,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_noire_normal"
                 "desc"      "NeptuniaVII中的黑色女神"
                 "lvls"      "0"
             }
@@ -160,6 +165,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_yoshino_normal"
                 "desc"      "约炮大作战中的精灵.灵装版本"
                 "lvls"      "0"
             }
@@ -187,6 +193,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_rikka_normal"
                 "desc"      "《中二病也要谈恋爱》中的女主角"
                 "lvls"      "0"
             }
@@ -214,6 +221,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_brs_normal"
                 "desc"      "BLACK★ROCK SHOOTER"
                 "lvls"      "0"
             }
@@ -241,6 +249,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_amatsukaze_normal"
                 "desc"      "舰队Collection中的角色"
                 "lvls"      "0"
             }
@@ -267,6 +276,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_kotori_lovelive"
                 "desc"      "LoveLive中的角色"
                 "lvls"      "0"
             }
@@ -293,6 +303,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_hibiki_normal"
                 "desc"      "舰队Collection中的角色"
                 "lvls"      "0"
             }
@@ -319,6 +330,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_haku_uniform"
                 "desc"      "不知道要写什么"
                 "lvls"      "0"
             }
@@ -346,6 +358,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_neptune_swimsuit"
                 "desc"      "妮普褆努的泳装版本"
                 "lvls"      "0"
             }
@@ -373,6 +386,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_neptune_swimwear"
                 "desc"      "妮普褆努的泳装DLC版本"
                 "lvls"      "0"
             }
@@ -399,6 +413,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_ram_normal"
                 "desc"      "Re0里面的过气女主角"
                 "lvls"      "0"
             }
@@ -426,6 +441,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_blanc_normal"
                 "desc"      "NeptuniaVII中的白色女神"
                 "lvls"      "0"
             }
@@ -452,6 +468,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_vert_normal"
                 "desc"      "NeptuniaVII中的绿色女神"
                 "lvls"      "0"
             }
@@ -479,6 +496,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_inori_normal"
                 "desc"      "《罪恶王冠》女主角"
                 "lvls"      "0"
             }
@@ -506,6 +524,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_bananajoe_normal"
                 "desc"      "额哦"
                 "lvls"      "0"
             }
@@ -533,6 +552,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_tohka_spirit"
                 "desc"      "约炮大作战中的精灵.灵装版本"
                 "lvls"      "0"
             }
@@ -560,6 +580,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_kurumi_spirit"
                 "desc"      "约炮大作战中的精灵.灵装版本"
                 "lvls"      "0"
             }
@@ -587,6 +608,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_remilia_normal"
                 "desc"      "东方Project的角色"
                 "lvls"      "0"
             }
@@ -614,6 +636,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_flandre_normal"
                 "desc"      "东方Project的角色"
                 "lvls"      "0"
             }
@@ -641,6 +664,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_terminusest_normal"
                 "desc"      "《精灵使的剑舞》主要人物"
                 "lvls"      "0"
             }
@@ -668,6 +692,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_shimakaze_normal"
                 "desc"      "舰队Collection中的角色"
                 "lvls"      "0"
             }
@@ -695,6 +720,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_kotori_school"
                 "desc"      "约炮大作战中的精灵.校服版本"
                 "lvls"      "0"
             }
@@ -721,6 +747,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_seulbi_normal"
                 "desc"      "Closer Online: Seulbi - Agent"
                 "lvls"      "0"
             }
@@ -747,6 +774,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_rem_normal"
                 "desc"      "Re0里面的过气女主角"
                 "lvls"      "0"
             }
@@ -774,6 +802,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_uni_normal"
                 "desc"      "NeptuniaVII中的黑色妹妹"
                 "lvls"      "0"
             }
@@ -804,6 +833,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_miku_tda"
                 "desc"      "Princess of CGAY Community"
                 "lvls"      "1"
             }
@@ -831,6 +861,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_miku_magnet"
                 "desc"      "Princess of CGAY Community"
                 "lvls"      "1"
             }
@@ -857,6 +888,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_u511_normal"
                 "desc"      "舰队Collection中的角色: U-511"
                 "lvls"      "1"
             }
@@ -868,6 +900,7 @@
                 "compose"   "1"
                 "buyable"   "0"
                 "type"      "playerskin"
+				"uid"       "skin_kiana_moon"
                 "desc"      "[合成限定模型] 崩坏手游中的琪亚娜"
                 "lvls"      "1"
             }
@@ -880,11 +913,12 @@
                 "compose"   "1"
                 "buyable"   "0"
                 "type"      "playerskin"
+				"uid"       "skin_neptune_nextform"
                 "desc"      "[合成限定模型] 二次变身的妮普褆努"
                 "lvls"      "1"
             }
         }
-        "隐秘"
+        "隐秘级"
         {
             "Violet.Cybernetic"
             {
@@ -893,6 +927,7 @@
                 "team"      "2"
                 "buyable"   "0"
                 "type"      "playerskin"
+				"uid"       "skin_violet_cybernetic"
                 "desc"      "Closer Online: Violet - Cybernetic"
                 "lvls"      "2"
                 "case"      "1"
@@ -904,6 +939,7 @@
                 "team"      "2"
                 "buyable"   "0"
                 "type"      "playerskin"
+				"uid"       "skin_seulbi_queen"
                 "desc"      "Closer Online: Seulbi - Queen of the Darkness"
                 "lvls"      "2"
                 "case"      "1"
@@ -916,6 +952,7 @@
                 "team"      "2"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_momiji_normal"
                 "desc"      "[内测活动专属] 东方Project的角色"
                 "lvls"      "2"
                 "case"      "1"
@@ -928,6 +965,7 @@
                 "team"      "2"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_hoppou_normal"
                 "desc"      "[开箱限定] 舰队Collection中的角色"
                 "lvls"      "2"
                 "case"      "1"
@@ -940,6 +978,7 @@
                 "team"      "3"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_histoire_normal"
                 "desc"      "[开箱限定] NeptuneVII中的紫国教祖"
                 "lvls"      "2"
                 "case"      "1"
@@ -952,6 +991,7 @@
                 "team"      "3"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_tiara_normal"
                 "desc"      "[开箱限定] FFF中的女主角"
                 "lvls"      "2"
                 "case"      "1"
@@ -963,6 +1003,7 @@
                 "team"      "2"
                 "buyable"   "0"
                 "type"      "playerskin"
+				"uid"       "skin_raynor_normal"
                 "desc"      "[开箱限定] 我雷日天还有谁不服"
                 "lvls"      "2"
                 "case"      "1"
@@ -976,12 +1017,13 @@
                 "giftable"  "0"
                 "buyable"   "0"
                 "type"      "playerskin"
+				"uid"       "skin_luka_punk"
                 "desc"      "[Kz认证专属] Luka的Punk版本"
                 "lvls"      "2"
                 "only"      "1"
             }
         }
-        "违禁"
+        "违禁级"
         {
             "朝田诗乃"
             {
@@ -990,6 +1032,7 @@
                 "team"      "3"
                 "vip"       "1"
                 "type"      "playerskin"
+				"uid"       "skin_shino_ggo"
                 "desc"      "[VIP专属] 刀剑神域的朝田诗乃"
                 "lvls"      "3"
                 "only"      "1"
@@ -1002,6 +1045,7 @@
                 "team"      "2"
                 "vip"       "1"
                 "type"      "playerskin"
+				"uid"       "skin_neptune_hdd"
                 "desc"      "[VIP专属] CPU形态的妮普褆努"
                 "lvls"      "3"
                 "only"      "1"
@@ -1015,6 +1059,7 @@
                 "buyable"   "0"
                 "price"     "99999"
                 "type"      "playerskin"
+				"uid"       "skin_noire_nextform"
                 "desc"      "该模型为二周年庆典模型"
                 "lvls"      "3"
                 "only"      "1"
@@ -1026,6 +1071,7 @@
                 "team"      "3"
                 "buyable"   "0"
                 "type"      "playerskin"
+				"uid"       "skin_lty_normal"
                 "desc"      "TDA式洛天依 - 金丝雀旗袍版本"
                 "lvls"      "3"
                 "case"      "1"
@@ -1037,6 +1083,7 @@
                 "team"      "2"
                 "buyable"   "0"
                 "type"      "playerskin"
+				"uid"       "skin_yzl_normal"
                 "desc"      "TDA式乐正绫 - 金丝雀旗袍版本"
                 "lvls"      "3"
                 "case"      "1"
@@ -1049,6 +1096,7 @@
                 "giftable"  "0"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_pururut_normal"
                 "desc"      "[线下活动专属] 神次元中的紫色女神"
                 "lvls"      "3"
                 "only"      "1"
@@ -1061,6 +1109,7 @@
                 "giftable"  "0"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_emilia_normal"
                 "desc"      "[春节活动专属] Emilia: Re0中的女主角"
                 "lvls"      "3"
                 "only"      "1"
@@ -1073,12 +1122,13 @@
                 "giftable"  "0"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_yuudachi_kai2"
                 "desc"      "[周年庆专属] 舰队Collection中的角色"
                 "lvls"      "3"
                 "only"      "1"
             }
         }
-        "史诗"
+        "专属级"
         {
             "害怕"
             {
@@ -1104,6 +1154,7 @@
                     }
                 }
                 "type"      "playerskin"
+				"uid"       "skin_haipa_normal"
                 "desc"      "CGAY社区原创人物"
                 "lvls"      "4"
             }
@@ -1116,6 +1167,7 @@
                 "giftable"  "0"
                 "price"     "99999"
                 "type"      "playerskin"
+				"uid"       "skin_kanzaki_normal"
                 "desc"      "该模型为新玩家常驻活动限定模型"
                 "lvls"      "4"
                 "only"      "1"
@@ -1129,6 +1181,7 @@
                 "giftable"  "0"
                 "price"     "99999"
                 "type"      "playerskin"
+				"uid"       "skin_ia_tda"
                 "desc"      "该模型为老玩家回流活动限定模型"
                 "lvls"      "4"
                 "only"      "1"
@@ -1140,8 +1193,10 @@
                 "sound"     "maoling/deathsound/blanc.mp3"
                 "team"      "3"
                 "type"      "playerskin"
+				
                 "auth"      "STEAM_1:0:166655872"
                 "buyable"   "0"
+				"uid"       "skin_blanc_nextform"
                 "desc"      "[个人专属模型] ***********"
                 "lvls"      "4"
                 "only"      "1"
@@ -1154,6 +1209,7 @@
                 "giftable"  "0"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_ej_normal"
                 "desc"      "[*组专属] 弹丸论破中的人物"
                 "lvls"      "4"
                 "only"      "1"
@@ -1167,6 +1223,7 @@
                 "auth"      "STEAM_1:0:85922133,STEAM_1:1:2359822"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_kirito_sao"
                 "desc"      "[个人专属模型] Kirito: Gaytuosi/GayTong"
                 "lvls"      "4"
                 "only"      "1"
@@ -1179,6 +1236,7 @@
                 "auth"      "STEAM_1:1:69539801"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_meiji_tda"
                 "desc"      "[个人专属模型] MeiJi: Akari"
                 "lvls"      "4"
                 "only"      "1"
@@ -1192,6 +1250,7 @@
                 "auth"      "STEAM_1:1:82430760"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_luka_baka"
                 "desc"      "[个人专属模型] diva for baka"
                 "lvls"      "4"
                 "only"      "1"
@@ -1205,6 +1264,7 @@
                 "giftable"  "0"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_koroti_command"
                 "desc"      "[泡面组专属] 约炮大作战中的精灵.指挥官版本"
                 "lvls"      "4"
                 "only"      "1"
@@ -1218,6 +1278,7 @@
                 "giftable"  "0"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_kotori_spirit"
                 "desc"      "[挂壁组专属] 约炮大作战中的精灵.灵装版本"
                 "lvls"      "4"
                 "only"      "1"
@@ -1231,12 +1292,13 @@
                 "giftable"  "0"
                 "type"      "playerskin"
                 "buyable"   "0"
+				"uid"       "skin_million_swimwear"
                 "desc"      "[祈组专属] NeptuniaVII中DLC人物"
                 "lvls"      "4"
                 "only"      "1"
             }
         }
-        "*****"
+        "隐藏级"
         {
             "CyberTech.Miku"
             {
@@ -1247,6 +1309,7 @@
                 "type"      "playerskin"
                 "auth"      "STEAM_1:1:44083262"
                 "buyable"   "0"
+				"uid"       "skin_miku_cybertech"
                 "desc"      "[个人专属模型] ***********"
                 "lvls"      "5"
                 "only"      "1"
@@ -1260,6 +1323,7 @@
                 "type"      "playerskin"
                 "auth"      "STEAM_1:1:44083262,STEAM_1:0:166655872,STEAM_1:1:105159493"
                 "buyable"   "0"
+				"uid"       "skin_miku_nightmare"
                 "desc"      "[个人专属模型] ***********"
                 "lvls"      "5"
                 "only"      "1"
@@ -1293,6 +1357,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_kiana"
                 "attachment" "facemask"
                 "slot"      "3"
             }
@@ -1319,6 +1384,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_01"
                 "attachment" "facemask"
                 "slot"      "3"
             }
@@ -1345,6 +1411,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_03"
                 "attachment" "facemask"
                 "slot"      "3"
             }
@@ -1371,6 +1438,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_04"
                 "attachment" "facemask"
                 "slot"      "3"
             }
@@ -1397,6 +1465,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_05"
                 "attachment" "facemask"
                 "slot"      "3"
             }
@@ -1423,6 +1492,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_06"
                 "attachment" "facemask"
                 "slot"      "3"
             }
@@ -1449,6 +1519,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_07"
                 "attachment" "facemask"
                 "slot"      "3"
             }
@@ -1475,6 +1546,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_08"
                 "attachment" "facemask"
                 "slot"      "3"
             }
@@ -1501,13 +1573,14 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "wing_09"
                 "attachment" "facemask"
                 "slot"      "3"
             }
         }
         "面具"
         {
-            "Chicken(动态)"
+            "Chicken"
             {
                 "model"     "models/player/holiday/facemasks/facemask_chicken.mdl"
                 "attachment" "facemask"
@@ -1531,6 +1604,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "facemask_chicken"
                 "slot"      "2"
             }
             "南瓜面具"
@@ -1557,6 +1631,7 @@
                     }
                 }
                 "type"      "hat"
+				"uid"       "facemask_pumpkin"
                 "slot"      "2"
             }
         }
@@ -1570,6 +1645,7 @@
                 "angles"    "0.000000 0.000000 0.000000"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_viking"
                 "Plans"
                 {
                     "1天"
@@ -1596,6 +1672,7 @@
                 "angles"    "0.000000 0.000000 0.000000"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_antlers"
                 "Plans"
                 {
                     "1天"
@@ -1622,6 +1699,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_astronaut"
                 "Plans"
                 {
                     "1天"
@@ -1648,6 +1726,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_fedora"
                 "Plans"
                 {
                     "1天"
@@ -1674,6 +1753,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_pimp"
                 "Plans"
                 {
                     "1天"
@@ -1700,6 +1780,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_seuss"
                 "Plans"
                 {
                     "1天"
@@ -1726,6 +1807,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_sombrero"
                 "Plans"
                 {
                     "1天"
@@ -1752,6 +1834,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_toeto"
                 "Plans"
                 {
                     "1天"
@@ -1778,6 +1861,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_witch"
                 "Plans"
                 {
                     "1天"
@@ -1804,6 +1888,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_afro"
                 "Plans"
                 {
                     "1天"
@@ -1830,6 +1915,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_catears"
                 "Plans"
                 {
                     "1天"
@@ -1856,6 +1942,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_top"
                 "Plans"
                 {
                     "1天"
@@ -1882,6 +1969,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_santa"
                 "Plans"
                 {
                     "1天"
@@ -1908,6 +1996,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_ktc"
                 "Plans"
                 {
                     "1天"
@@ -1934,6 +2023,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_pika"
                 "Plans"
                 {
                     "1天"
@@ -1960,6 +2050,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_animepatr"
                 "Plans"
                 {
                     "1天"
@@ -1986,6 +2077,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_dunce"
                 "Plans"
                 {
                     "1天"
@@ -2012,6 +2104,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_unclesam"
                 "Plans"
                 {
                     "1天"
@@ -2038,6 +2131,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "1"
+				"uid"       "hat_daftpunk"
                 "Plans"
                 {
                     "1天"
@@ -2067,6 +2161,7 @@
                 "angles"    "12.500000 0.000000 0.000000"
                 "type"      "hat"
                 "slot"      "2"
+				"uid"       "glass_star"
                 "Plans"
                 {
                     "1天"
@@ -2093,6 +2188,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "2"
+				"uid"       "glass_3d"
                 "Plans"
                 {
                     "1天"
@@ -2119,6 +2215,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "2"
+				"uid"       "glass_aviators"
                 "Plans"
                 {
                     "1天"
@@ -2145,6 +2242,7 @@
                 "attachment" "facemask"
                 "type"      "hat"
                 "slot"      "2"
+				"uid"       "glass_kliener"
                 "Plans"
                 {
                     "1天"
@@ -2164,7 +2262,7 @@
                 }
             }
         }
-        "盾牌(测试)"
+        "盾牌"
         {
             "Hylian Shield"
             {
@@ -2174,6 +2272,7 @@
                 "attachment" "c4"
                 "type"      "hat"
                 "slot"      "3"
+				"uid"       "shield_hylian"
                 "Plans"
                 {
                     "1天"
@@ -2200,7 +2299,6 @@
         {
             "红色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2218,13 +2316,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "255 0 0 255"
-                "unique_id" "grenadetrail_laserbeam_hongse"
+                "uid" "nadetrail_hongse"
             }
             "柠檬绿"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2242,13 +2339,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "0 255 0 255"
-                "unique_id" "grenadetrail_laserbeam_ningmenglv"
+                "uid" "nadetrail_ningmenglv"
             }
             "蓝色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2266,13 +2362,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "0 0 255 255"
-                "unique_id" "grenadetrail_laserbeam_lanse"
+                "uid" "nadetrail_lanse"
             }
             "白杏色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2290,13 +2385,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "255 235 205 255"
-                "unique_id" "grenadetrail_laserbeam_baixingse"
+                "uid" "nadetrail_baixingse"
             }
             "深粉红"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2314,13 +2408,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "255 20 147 255"
-                "unique_id" "grenadetrail_laserbeam_shenfenhong"
+                "uid" "nadetrail_shenfenhong"
             }
             "深红色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2338,13 +2431,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "128 0 0 255"
-                "unique_id" "grenadetrail_laserbeam_shenhongse"
+                "uid" "nadetrail_shenhongse"
             }
             "米色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2362,13 +2454,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "245 245 220 255"
-                "unique_id" "grenadetrail_laserbeam_mise"
+                "uid" "nadetrail_mise"
             }
             "土豪金"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2386,13 +2477,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "255 215 0 255"
-                "unique_id" "grenadetrail_laserbeam_tuhaojin"
+                "uid" "nadetrail_tuhaojin"
             }
             "亮菊黄"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2410,13 +2500,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "250 250 210 255"
-                "unique_id" "grenadetrail_laserbeam_liangjuhuang"
+                "uid" "nadetrail_liangjuhuang"
             }
             "紫罗兰红"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2434,13 +2523,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "199 21 133 255"
-                "unique_id" "grenadetrail_laserbeam_ziluolanhong"
+                "uid" "nadetrail_ziluolanhong"
             }
             "橙色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2458,13 +2546,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "255 165 0 255"
-                "unique_id" "grenadetrail_laserbeam_chengse"
+                "uid" "nadetrail_chengse"
             }
             "苍麒麟色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2482,13 +2569,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "238 232 170 255"
-                "unique_id" "grenadetrail_laserbeam_cangqilinse"
+                "uid" "nadetrail_cangqilinse"
             }
             "桃肉色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2506,13 +2592,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "255 218 185 255"
-                "unique_id" "grenadetrail_laserbeam_taorouse"
+                "uid" "nadetrail_taorouse"
             }
             "紫色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2530,13 +2615,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "128 0 128 255"
-                "unique_id" "grenadetrail_laserbeam_zise"
+                "uid" "nadetrail_zise"
             }
             "巧克力色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2554,13 +2638,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "210 105 30 255"
-                "unique_id" "grenadetrail_laserbeam_qiaokelise"
+                "uid" "nadetrail_qiaokelise"
             }
             "水鸭色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2578,13 +2661,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "0 128 128 255"
-                "unique_id" "grenadetrail_laserbeam_shuiyase"
+                "uid" "nadetrail_shuiyase"
             }
             "蓟色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2602,13 +2684,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "216 191 216 255"
-                "unique_id" "grenadetrail_laserbeam_jise"
+                "uid" "nadetrail_jise"
             }
             "矢车菊蓝色"
             {
-                "material"   "materials/sprites/laserbeam.vmt"
                 "Plans"
                 {
                     "1天"
@@ -2626,14 +2707,14 @@
                         "price" "20000"
                     }
                 }
-                "type"      "grenadetrail"
+                "type"      "nadetrail"
                 "color"     "100 149 237 255"
-                "unique_id" "grenadetrail_laserbeam_shichejulanse"
+                "uid" "nadetrail_shichejulanse"
             }
         }
         "手雷模型"
         {
-            "橙子(高爆手雷)"
+            "橙子(高爆雷)"
             {
                 "model"     "models/props/cs_italy/orange.mdl"
                 "grenade"        "hegrenade"
@@ -2654,9 +2735,82 @@
                         "price" "12888"
                     }
                 }
-                "type"      "grenadeskin"
+                "type"      "nadeskin"
+				"uid"       "nademodel_henade_orange"
             }
-            "Banana(闪光弹)"
+            "橙子(闪光弹)"
+            {
+                "model"     "models/props/cs_italy/orange.mdl"
+                "grenade"        "flashbang"
+                "Plans"
+                {
+                    "1天"
+                    {
+                        "price" "200"
+                        "time"  "86400"
+                    }
+                    "1月"
+                    {
+                        "price" "4888"
+                        "time"  "2678400"
+                    }
+                    "永久"
+                    {
+                        "price" "12888"
+                    }
+                }
+                "type"      "nadeskin"
+				"uid"       "nademodel_flash_orange"
+            }
+            "橙子(烟雾弹)"
+            {
+                "model"     "models/props/cs_italy/orange.mdl"
+                "grenade"        "smokegrenade"
+                "Plans"
+                {
+                    "1天"
+                    {
+                        "price" "200"
+                        "time"  "86400"
+                    }
+                    "1月"
+                    {
+                        "price" "4888"
+                        "time"  "2678400"
+                    }
+                    "永久"
+                    {
+                        "price" "12888"
+                    }
+                }
+                "type"      "nadeskin"
+				"uid"       "nademodel_smoke_orange"
+            }
+            "香蕉(高爆雷)"
+            {
+                "model"     "models/props/cs_italy/bananna.mdl"
+                "grenade"        "hegrenade"
+                "Plans"
+                {
+                    "1天"
+                    {
+                        "price" "200"
+                        "time"  "86400"
+                    }
+                    "1月"
+                    {
+                        "price" "4888"
+                        "time"  "2678400"
+                    }
+                    "永久"
+                    {
+                        "price" "12888"
+                    }
+                }
+                "type"      "nadeskin"
+				"uid"       "nademodel_henade_banana"
+            }
+            "香蕉(闪光弹)"
             {
                 "model"     "models/props/cs_italy/bananna.mdl"
                 "grenade"        "flashbang"
@@ -2677,9 +2831,82 @@
                         "price" "12888"
                     }
                 }
-                "type"      "grenadeskin"
+                "type"      "nadeskin"
+				"uid"       "nademodel_flash_banana"
             }
-            "Watermelon(烟雾弹)"
+            "香蕉(烟雾弹)"
+            {
+                "model"     "models/props/cs_italy/bananna.mdl"
+                "grenade"        "smokegrenade"
+                "Plans"
+                {
+                    "1天"
+                    {
+                        "price" "200"
+                        "time"  "86400"
+                    }
+                    "1月"
+                    {
+                        "price" "4888"
+                        "time"  "2678400"
+                    }
+                    "永久"
+                    {
+                        "price" "12888"
+                    }
+                }
+                "type"      "nadeskin"
+				"uid"       "nademodel_smoke_banana"
+            }
+            "西瓜(高爆雷)"
+            {
+                "model"     "models/props_junk/watermelon01.mdl"
+                "grenade"        "hegrenade"
+                "Plans"
+                {
+                    "1天"
+                    {
+                        "price" "200"
+                        "time"  "86400"
+                    }
+                    "1月"
+                    {
+                        "price" "4888"
+                        "time"  "2678400"
+                    }
+                    "永久"
+                    {
+                        "price" "12888"
+                    }
+                }
+                "type"      "nadeskin"
+				"uid"       "nademodel_henade_waterlemon"
+            }
+            "西瓜(闪光弹)"
+            {
+                "model"     "models/props_junk/watermelon01.mdl"
+                "grenade"        "flashbang"
+                "Plans"
+                {
+                    "1天"
+                    {
+                        "price" "200"
+                        "time"  "86400"
+                    }
+                    "1月"
+                    {
+                        "price" "4888"
+                        "time"  "2678400"
+                    }
+                    "永久"
+                    {
+                        "price" "12888"
+                    }
+                }
+                "type"      "nadeskin"
+				"uid"       "nademodel_flash_waterlemon"
+            }
+            "西瓜(烟雾弹)"
             {
                 "model"     "models/props_junk/watermelon01.mdl"
                 "grenade"        "smokegrenade"
@@ -2700,25 +2927,29 @@
                         "price" "12888"
                     }
                 }
-                "type"      "grenadeskin"
+                "type"      "nadeskin"
+				"uid"       "nademodel_smoke_waterlemon"
             }
         }
-        "Sprays  使用方法[bind t spray]"
+        "喷漆"
         {
             "CG社区[涂鸦]"
             {
                 "material"   "materials/maoling/sprays/cglogo2.vmt"
                 "type"       "spray"
+				"uid"       "spray_cglogo_2"
             }
             "CG社区"
             {
                 "material"   "materials/maoling/sprays/cglogo.vmt"
                 "type"       "spray"
+				"uid"       "spray_cglogo_1"
             }
             "互相伤害"
             {
                 "material"   "materials/maoling/sprays/laia.vmt"
                 "type"       "spray"
+				"uid"       "spray_laia"
                 "Plans"
                 {
                     "1天"
@@ -2741,6 +2972,7 @@
             {
                 "material"   "materials/maoling/sprays/na.vmt"
                 "type"       "spray"
+				"uid"       "spray_na"
                 "Plans"
                 {
                     "1天"
@@ -2763,6 +2995,7 @@
             {
                 "material"   "materials/maoling/sprays/cghaipa.vmt"
                 "type"       "spray"
+				"uid"       "spray_cghaipa"
                 "Plans"
                 {
                     "1天"
@@ -2785,6 +3018,7 @@
             {
                 "material"   "materials/maoling/sprays/slaydog.vmt"
                 "type"       "spray"
+				"uid"       "spray_slaydog"
                 "Plans"
                 {
                     "1天"
@@ -2807,6 +3041,7 @@
             {
                 "material"   "materials/maoling/sprays/50highnoon.vmt"
                 "type"       "spray"
+				"uid"       "spray_50highnoon"
                 "Plans"
                 {
                     "1天"
@@ -2829,29 +3064,33 @@
             {
                 "material"   "materials/maoling/sprays/paomianwang.vmt"
                 "type"       "spray"
+				"uid"       "spray_paomianwang"
             }
             "妖梦[温斯顿]"
             {
                 "material"   "materials/maoling/sprays/yaomeng1.vmt"
                 "type"       "spray"
+				"uid"       "spray_yaomeng"
             }
             "Peter[尴尬]"
             {
                 "material"   "materials/maoling/sprays/peter.vmt"
                 "type"       "spray"
+				"uid"       "spray_peter"
             }
         }
-        "音频效果 [say cheer lol 233]"
+        "音频效果"
         {
             "OverWathch"
             {
                 "源氏"
                 {
                     "sound"      "maoling/store/overwatch/genji.mp3"
-                    "name"       "溜金哇开呀酷裂"
+                    "shortname"       "溜金哇开呀酷裂"
                     "volume"     "0.8"
                     "cooldown"   "90"
                     "type"       "sound"
+					"uid"       "sound_ow_genji"
                     "Plans"
                     {
                         "1天"
@@ -2873,10 +3112,11 @@
                 "半藏"
                 {
                     "sound"      "maoling/store/overwatch/hanzo.mp3"
-                    "name"       "溜噶哇噶叠其噢酷啦污"
+                    "shortname"       "溜噶哇噶叠其噢酷啦污"
                     "volume"     "0.8"
                     "cooldown"   "90"
                     "type"       "sound"
+					"uid"       "sound_ow_hanzo"
                     "Plans"
                     {
                         "1天"
@@ -2898,10 +3138,11 @@
                 "狂鼠"
                 {
                     "sound"      "maoling/store/overwatch/junkrat.mp3"
-                    "name"       "Fire in the Hole"
+                    "shortname"       "Fire in the Hole"
                     "volume"     "0.8"
                     "cooldown"   "90"
                     "type"       "sound"
+					"uid"       "sound_ow_junkrat"
                     "Plans"
                     {
                         "1天"
@@ -2923,10 +3164,11 @@
                 "麦爹"
                 {
                     "sound"      "maoling/store/overwatch/mccree.mp3"
-                    "name"       "午时已到"
+                    "shortname"       "午时已到"
                     "volume"     "0.8"
                     "cooldown"   "90"
                     "type"       "sound"
+					"uid"       "sound_ow_mccree"
                     "Plans"
                     {
                         "1天"
@@ -2948,10 +3190,11 @@
                 "小美"
                 {
                     "sound"      "maoling/store/overwatch/mei.mp3"
-                    "name"       "冻住不许走"
+                    "shortname"       "冻住不许走"
                     "volume"     "0.8"
                     "cooldown"   "90"
                     "type"       "sound"
+					"uid"       "sound_ow_mei"
                     "Plans"
                     {
                         "1天"
@@ -2973,10 +3216,11 @@
                 "DJ"
                 {
                     "sound"      "maoling/store/overwatch/lucio.mp3"
-                    "name"       "噢!在这停顿"
+                    "shortname"       "噢!在这停顿"
                     "volume"     "0.8"
                     "cooldown"   "90"
                     "type"       "sound"
+					"uid"       "sound_ow_lucio"
                     "Plans"
                     {
                         "1天"
@@ -3001,134 +3245,149 @@
                 "笑声1"
                 {
                     "sound"      "cheer/cheer_1.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_1"
                 }
                 "笑声2"
                 {
                     "sound"      "cheer/cheer_2.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_2"
                 }
                 "笑声3"
                 {
                     "sound"      "cheer/cheer_3.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_3"
                 }
                 "笑声4"
                 {
                     "sound"      "cheer/cheer_4.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_4"
                 }
                 "笑声5"
                 {
                     "sound"      "cheer/cheer_5.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_5"
                 }
                 "笑声6"
                 {
                     "sound"      "cheer/cheer_6.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_6"
                 }
                 "笑声7"
                 {
                     "sound"      "cheer/cheer_7.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_7"
                 }
                 "笑声8"
                 {
                     "sound"      "cheer/cheer_8.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_8"
                 }
                 "笑声9"
                 {
                     "sound"      "cheer/cheer_9.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_9"
                 }
                 "笑声10"
                 {
                     "sound"      "cheer/cheer_10.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_10"
                 }
                 "笑声11"
                 {
                     "sound"      "cheer/cheer_11.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_11"
                 }
                 "笑声12"
                 {
                     "sound"      "cheer/cheer_12.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_12"
                 }
                 "笑声13"
                 {
                     "sound"      "cheer/cheer_13.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_13"
                 }
                 "笑声14"
                 {
                     "sound"      "cheer/cheer_14.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_14"
                 }
                 "笑声15"
                 {
                     "sound"      "cheer/cheer_15.mp3"
-                    "name"       "笑而不语"
+                    "shortname"       "笑而不语"
                     "volume"     "0.3"
                     "cooldown"   "60"
                     "type"       "sound"
+					"uid"       "sound_cheer_15"
                 }
             }
         }
-        "武器模型/皮肤[仅支持装备在原版皮肤上]"
+        "武器模型"
         {
-            "Knife"
+            "匕首"
             {
                 "龙神剑"
                 {
                     "model"         "models/maoling/weapon/overwatch/knife/genji/katana_v.mdl"
                     "worldmodel"    "models/maoling/weapon/overwatch/knife/genji/katana_w.mdl"
-                    "entity"        "weapon_knife"
+                    "weapon"        "weapon_knife"
                     "Plans"
                     {
                         "1天"
@@ -3147,23 +3406,25 @@
                         }
                     }
                     "type"    "vwmodel" 
+					"uid"       "weapon_knife_genji"
                     "slot" "2"
                 }
                 "Zero Sword"
                 {
                     "model"         "models/maoling/weapon/borderlands2/knife/zero/sword_v.mdl"
                     "worldmodel"    "models/maoling/weapon/borderlands2/knife/zero/sword_w.mdl"
-                    "entity"        "weapon_knife"
-                    "price"         "99999999"
+                    "weapon"        "weapon_knife"
+                    "price"         "99999"
                     "buyable"       "0"
                     "type"          "vwmodel" 
+					"uid"           "weapon_bl2_zero"
                     "slot"          "2"
                 }
                 "PurpleHeart`s Sword 4"
                 {
                     "model"         "models/maoling/weapon/neptunia/knife/neptune/sword_4_v.mdl"
                     "worldmodel"    "models/maoling/weapon/neptunia/knife/neptune/sword_4_w.mdl"
-                    "entity"        "weapon_knife"
+                    "weapon"        "weapon_knife"
                     "Plans"
                     {
                         "1天"
@@ -3182,13 +3443,14 @@
                         }
                     }
                     "type"          "vwmodel" 
+					"uid"       "weapon_knife_neptunia_4"
                     "slot"          "2"
                 }
                 "PurpleHeart`s Sword 3"
                 {
                     "model"         "models/maoling/weapon/neptunia/knife/neptune/sword_3_v.mdl"
                     "worldmodel"    "models/maoling/weapon/neptunia/knife/neptune/sword_3_w.mdl"
-                    "entity"        "weapon_knife"
+                    "weapon"        "weapon_knife"
                     "Plans"
                     {
                         "1天"
@@ -3207,13 +3469,14 @@
                         }
                     }
                     "type"          "vwmodel" 
+					"uid"       "weapon_knife_neptunia_3"
                     "slot"          "2"
                 }
                 "PurpleHeart`s Sword 2"
                 {
                     "model"         "models/maoling/weapon/neptunia/knife/neptune/sword_2_v.mdl"
                     "worldmodel"    "models/maoling/weapon/neptunia/knife/neptune/sword_2_w.mdl"
-                    "entity"        "weapon_knife"
+                    "weapon"        "weapon_knife"
                     "Plans"
                     {
                         "1天"
@@ -3232,13 +3495,14 @@
                         }
                     }
                     "type"          "vwmodel" 
+					"uid"       "weapon_knife_neptunia_2"
                     "slot"          "2"
                 }
                 "PurpleHeart`s Sword 1"
                 {
                     "model"         "models/maoling/weapon/neptunia/knife/neptune/sword_1_v.mdl"
                     "worldmodel"    "models/maoling/weapon/neptunia/knife/neptune/sword_1_w.mdl"
-                    "entity"        "weapon_knife"
+                    "weapon"        "weapon_knife"
                     "Plans"
                     {
                         "1天"
@@ -3257,13 +3521,14 @@
                         }
                     }
                     "type"          "vwmodel" 
+					"uid"       "weapon_knife_neptunia_1"
                     "slot"          "2"
                 }
                 "NextPurple`s Sword"
                 {
                     "model"         "models/maoling/weapon/neptunia/knife/neptune/nextpurple_sword_v.mdl"
                     "worldmodel"    "models/maoling/weapon/neptunia/knife/neptune/nextpurple_sword_w.mdl"
-                    "entity"        "weapon_knife"
+                    "weapon"        "weapon_knife"
                     "Plans"
                     {
                         "1天"
@@ -3282,17 +3547,18 @@
                         }
                     }
                     "type"          "vwmodel" 
+					"uid"       "weapon_knife_neptunia_nextpurple"
                     "slot"          "2"
                 }
             }
-            "AWP"
+            "Awp"
             {
                 "Neptune AWP"
                 {
                     "model"         "models/maoling/weapon/neptunia/awp/neptune/awp.mdl"
                     "worldmodel"    "models/maoling/weapon/neptunia/awp/neptune/awp_w.mdl"
                     "dropmodel"        "models/maoling/weapon/neptunia/awp/neptune/awp_w_dropped.mdl"
-                    "entity"        "weapon_awp"
+                    "weapon"        "weapon_awp"
                     "Plans"
                     {
                         "1天"
@@ -3311,17 +3577,18 @@
                         }
                     }
                     "type"          "vwmodel" 
+					"uid"       "weapon_awp_neptune"
                     "slot"          "0"
                 }
             }
-            "Deagle"
+            "沙鹰"
             {
                 "Vocaloid Deagle"
                 {
                     "model"         "models/maoling/weapon/vocaloid/deagle/deagle.mdl"
                     "worldmodel"    "models/maoling/weapon/vocaloid/deagle/deagle_w.mdl"
                     "dropmodel"        "models/maoling/weapon/vocaloid/deagle/deagle_w_dropped.mdl"
-                    "entity"        "weapon_deagle"
+                    "weapon"        "weapon_deagle"
                     "Plans"
                     {
                         "1天"
@@ -3340,6 +3607,7 @@
                         }
                     }
                     "type"          "vwmodel" 
+					"uid"       "weapon_deagle_vocaloid"
                     "slot"          "1"
                 }
             }
@@ -3370,6 +3638,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_planeptune"
                 "type"      "trail"
             }
             "滑稽"
@@ -3393,6 +3662,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_huaji"
                 "type"      "trail"
             }
             "Doge"
@@ -3416,6 +3686,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_doge"
                 "type"      "trail"
             }
             "彩色箭头"
@@ -3439,6 +3710,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_arrowrainbow"
                 "type"      "trail"
             }
             "305"
@@ -3462,6 +3734,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_awesome"
                 "type"      "trail"
             }
             "钞票"
@@ -3485,6 +3758,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_banknote"
                 "type"      "trail"
             }
             "闪电"
@@ -3508,6 +3782,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_bluelightning"
                 "type"      "trail"
             }
             "皇冠"
@@ -3531,6 +3806,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_crown"
                 "type"      "trail"
             }
             "暴漫 Fuu 1"
@@ -3554,6 +3830,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_fuul"
                 "type"      "trail"
             }
             "数码宝贝"
@@ -3577,6 +3854,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_pokeball"
                 "type"      "trail"
             }
             "精神球"
@@ -3600,6 +3878,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_psychball"
                 "type"      "trail"
             }
             "*彩虹*"
@@ -3623,6 +3902,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_rainbow"
                 "type"      "trail"
             }
             "藤藤蛇"
@@ -3646,6 +3926,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_smugleaf"
                 "type"      "trail"
             }
             "海绵宝宝"
@@ -3669,6 +3950,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_spongebob"
                 "type"      "trail"
             }
             "暴漫 Troll"
@@ -3692,6 +3974,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_trollface"
                 "type"      "trail"
             }
             "Windows"
@@ -3715,6 +3998,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_windows"
                 "type"      "trail"
             }
             "太极"
@@ -3738,6 +4022,7 @@
                     }
                 }
                 "color"     "255 255 255 255"
+				"uid"       "trail_yingyang"
                 "type"      "trail"
             }
         }
@@ -3745,7 +4030,8 @@
         {
             "渐变粒子"
             {
-                "name"        "Trail"
+                "effect"        "Trail"
+                "uid"             "particle_01"
                 "Plans"
                 {
                     "1天"
@@ -3763,11 +4049,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "Particles"
+                "type"      "particle"
             }
             "火焰粒子"
             {
-                "name"        "Trail5"
+                "effect"        "Trail5"
+                "uid"             "particle_05"
                 "Plans"
                 {
                     "1天"
@@ -3785,11 +4072,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "Particles"
+                "type"      "particle"
             }
             "鞭炮粒子"
             {
-                "name"        "Trail2"
+                "effect"        "Trail2"
+                "uid"             "particle_02"
                 "Plans"
                 {
                     "1天"
@@ -3807,11 +4095,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "Particles"
+                "type"      "particle"
             }
             "浪花粒子"
             {
-                "name"        "Trail3"
+                "effect"        "Trail3"
+                "uid"             "particle_03"
                 "Plans"
                 {
                     "1天"
@@ -3829,11 +4118,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "Particles"
+                "type"      "particle"
             }
             "喷射粒子"
             {
-                "name"        "Trail4"
+                "effect"        "Trail4"
+                "uid"             "particle_04"
                 "Plans"
                 {
                     "1天"
@@ -3851,11 +4141,12 @@
                         "price" "20000"
                     }
                 }
-                "type"      "Particles"
+                "type"      "particle"
             }
             "绿色星火"
             {
-                "name"  "Trail7"
+                "effect"  "Trail7"
+                "uid"             "particle_07"
                 "Plans"
                 {
                     "1天"
@@ -3873,11 +4164,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Particles"
+                "type"  "particle"
             }
             "星光粒子"
             {
-                "name"  "Trail8"
+                "effect"  "Trail8"
+                "uid"             "particle_08"
                 "Plans"
                 {
                     "1天"
@@ -3895,11 +4187,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Particles"
+                "type"  "particle"
             }
             "粉色尖刺"
             {
-                "name"  "Trail9"
+                "effect"  "Trail9"
+                "uid"             "particle_09"
                 "Plans"
                 {
                     "1天"
@@ -3917,11 +4210,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Particles"
+                "type"  "particle"
             }
             "细菌孢子"
             {
-                "name"  "Trail10"
+                "effect"  "Trail10"
+                "uid"             "particle_10"
                 "Plans"
                 {
                     "1天"
@@ -3939,11 +4233,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Particles"
+                "type"  "particle"
             }
             "橙色星火"
             {
-                "name"  "Trail11"
+                "effect"  "Trail11"
+                "uid"             "particle_11"
                 "Plans"
                 {
                     "1天"
@@ -3961,14 +4256,15 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Particles"
+                "type"  "particle"
             }
         }
         "光环"
         {
             "橙色旋风"
             {
-                "name"  "Aura1"
+                "effect"  "Aura1"
+				"uid"       "aura_01"
                 "Plans"
                 {
                     "1天"
@@ -3986,11 +4282,13 @@
                         "price" "20000"
                     }
                 }
-                "type"      "Aura"
+                "type"      "aura"
+				
             }
             "红色尖刺黑洞"
             {
-                "name"  "Aura2"
+                "effect"  "Aura2"
+				"uid"       "aura_02"
                 "Plans"
                 {
                     "1天"
@@ -4008,11 +4306,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
             "蓝紫尖刺"
             {
-                "name"  "Aura3"
+                "effect"  "Aura3"
+				"uid"       "aura_03"
                 "Plans"
                 {
                     "1天"
@@ -4030,11 +4329,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
             "绿色尖刺黑洞"
             {
-                "name"  "Aura4"
+                "effect"  "Aura4"
+				"uid"       "aura_04"
                 "Plans"
                 {
                     "1天"
@@ -4052,11 +4352,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
             "慢-星空"
             {
-                "name"  "Aura5"
+                "effect"  "Aura5"
+				"uid"       "aura_05"
                 "Plans"
                 {
                     "1天"
@@ -4074,11 +4375,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
             "星空"
             {
-                "name"  "Aura6"
+                "effect"  "Aura6"
+				"uid"       "aura_06"
                 "Plans"
                 {
                     "1天"
@@ -4096,11 +4398,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
             "粒子漩涡"
             {
-                "name"  "Aura7"
+                "effect"  "Aura7"
+				"uid"       "aura_07"
                 "Plans"
                 {
                     "1天"
@@ -4118,11 +4421,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
             "青紫粒子漩涡"
             {
-                "name"  "Aura8"
+                "effect"  "Aura8"
+				"uid"       "aura_08"
                 "Plans"
                 {
                     "1天"
@@ -4140,11 +4444,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
             "蓝色粒子漩涡"
             {
-                "name"  "Aura9"
+                "effect"  "Aura9"
+				"uid"       "aura_09"
                 "Plans"
                 {
                     "1天"
@@ -4162,11 +4467,12 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
             "紫色尖刺漩涡"
             {
-                "name"  "Aura10"
+                "effect"  "Aura10"
+				"uid"       "aura_10"
                 "Plans"
                 {
                     "1天"
@@ -4184,7 +4490,7 @@
                         "price" "20000"
                     }
                 }
-                "type"  "Aura"
+                "type"      "aura"
             }
         }
         "霓虹"
@@ -4209,8 +4515,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "1"
-                "neoncolor"     "70 130 180 255"
+				"uid"       "neon_royalblue"
+                "color"     "70 130 180 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4235,8 +4541,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "2"
-                "neoncolor"     "255 235 205 255"
+				"uid"       "neon_apricot"
+                "color"     "255 235 205 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4261,8 +4567,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "3"
-                "neoncolor"     "0 0 255 255"
+				"uid"       "neon_blue"
+                "color"     "0 0 255 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4287,8 +4593,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "4"
-                "neoncolor"     "165 42 42 255"
+				"uid"       "neon_brown"
+                "color"     "165 42 42 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4313,8 +4619,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "5"
-                "neoncolor"     "0 255 255 255"
+				"uid"       "neon_cyan"
+                "color"     "0 255 255 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4339,8 +4645,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "6"
-                "neoncolor"     "0 191 255 255"
+				"uid"       "neon_darkblue"
+                "color"     "0 191 255 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4365,8 +4671,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "7"
-                "neoncolor"     "255 20 147 255"
+				"uid"       "neon_darkpink"
+                "color"     "255 20 147 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4391,8 +4697,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "8"
-                "neoncolor"     "128 0 0 255"
+				"uid"       "neon_darkred"
+                "color"     "128 0 0 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4417,8 +4723,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "9"
-                "neoncolor"     "34 139 34 255"
+				"uid"       "neon_darkgreen"
+                "color"     "34 139 34 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4443,8 +4749,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "10"
-                "neoncolor"     "245 245 220 255"
+				"uid"       "neon_beige"
+                "color"     "245 245 220 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4469,8 +4775,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "11"
-                "neoncolor"     "255 215 0 255"
+				"uid"       "neon_gold"
+                "color"     "255 215 0 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4495,8 +4801,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "12"
-                "neoncolor"     "0 128 0 255"
+				"uid"       "neon_green"
+                "color"     "0 128 0 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4521,8 +4827,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "13"
-                "neoncolor"     "255 105 180 255"
+				"uid"       "neon_lightpink"
+                "color"     "255 105 180 255"
                 "brightness"    "5"
                 "distance"      "150"
                 "distancefade"  "50"
@@ -4547,8 +4853,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "14"
-                "neoncolor"     "224 255 255 255"
+				"uid"       "neon_lightcyan"
+                "color"     "224 255 255 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4573,8 +4879,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "15"
-                "neoncolor"     "250 250 210 255"
+				"uid"       "neon_lightyellow"
+                "color"     "250 250 210 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4599,8 +4905,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "16"
-                "neoncolor"     "255 255 224 255"
+				"uid"       "neon_yellow"
+                "color"     "255 255 224 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4625,8 +4931,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "17"
-                "neoncolor"     "199 21 133 255"
+				"uid"       "neon_violetred"
+                "color"     "199 21 133 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4651,8 +4957,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "18"
-                "neoncolor"     "255 165 0 255"
+				"uid"       "neon_orange"
+                "color"     "255 165 0 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4677,8 +4983,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "19"
-                "neoncolor"     "238 232 170 255"
+				"uid"       "neon_cangyin"
+                "color"     "238 232 170 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4703,8 +5009,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "20"
-                "neoncolor"     "255 218 185 255"
+				"uid"       "neon_peach"
+                "color"     "255 218 185 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4729,8 +5035,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "21"
-                "neoncolor"     "128 0 128 255"
+				"uid"       "neon_purple"
+                "color"     "128 0 128 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4755,8 +5061,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "22"
-                "neoncolor"     "135 206 235 255"
+				"uid"       "neon_lightblue"
+                "color"     "135 206 235 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4781,8 +5087,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "23"
-                "neoncolor"     "210 105 30 255"
+				"uid"       "neon_chocolate"
+                "color"     "210 105 30 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4807,8 +5113,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "24"
-                "neoncolor"     "0 255 127 255"
+				"uid"       "neon_lightgreen"
+                "color"     "0 255 127 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4833,8 +5139,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "25"
-                "neoncolor"     "0 128 128 255"
+				"uid"       "neon_aquagreen"
+                "color"     "0 128 128 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4859,8 +5165,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "26"
-                "neoncolor"     "216 191 216 255"
+				"uid"       "neon_thistle"
+                "color"     "216 191 216 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4885,8 +5191,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "27"
-                "neoncolor"     "64 224 208 255"
+				"uid"       "neon_emerald"
+                "color"     "64 224 208 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4911,8 +5217,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "28"
-                "neoncolor"     "100 149 237 255"
+				"uid"       "neon_cornflowerblue"
+                "color"     "100 149 237 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4937,8 +5243,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "29"
-                "neoncolor"     "245 245 245 255"
+				"uid"       "neon_whitesmoke"
+                "color"     "245 245 245 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4963,8 +5269,8 @@
                     }
                 }
                 "type"          "neon"
-                "ID"            "30"
-                "neoncolor"     "238 130 238 255"
+				"uid"       "neon_violet"
+                "color"     "238 130 238 255"
                 "brightness"    "5"
                 "distance"      "300"
                 "distancefade"  "100"
@@ -4975,67 +5281,77 @@
     {
         "名字标签"
         {
-            "专属标签 - 私人订制"
+            "专属标签"
             {
                 "猫灵"
                 {
                     "tag"       "{green}[{purple}Princess{green}] "
                     "type"      "nametag"
                     "auth"      "STEAM_1:1:44083262"
+					"uid"       "nametag_144083262"
                 }
                 "宋出"
                 {
                     "tag"       "{green}[{pink}Nokyo{green}] "
                     "type"      "nametag"
                     "auth"      "STEAM_1:0:181409964"
+					"uid"       "nametag_0181409964"
                 }
                 "马王"
                 {
                     "tag"       "{green}[{yellow}马王{green}]{teamcolor} "
                     "type"      "nametag"
                     "auth"      "STEAM_1:0:103918523"
+					"uid"       "nametag_0103918523"
                 }
                 "叁生鉐"
                 {
                     "tag"       "{green}[{lightblue}萌新出厂{green}]{teamcolor} "
                     "type"      "nametag"
                     "auth"      "STEAM_1:0:166655872"
+					"uid"       "nametag_0166655872"
                 }
                 "王子"
                 {
                     "tag"       "{green}[{lightred}王子{green}]{teamcolor} "
                     "type"      "nametag"
                     "auth"      "STEAM_1:0:211984941"
+					"uid"       "nametag_0211984941"
                 }
                 "蠢蛇"
                 {
                     "tag"       "{green}[{green}蠢蛇{green}]{teamcolor} "
                     "type"      "nametag"
                     "auth"      "STEAM_1:0:98534074"
+					"uid"       "nametag_098534074"
                 }
                 "基佬桐"
                 {
                     "tag"       "{green}[{orange}歼星舰{green}]{teamcolor} "
                     "type"      "nametag"
                     "auth"      "STEAM_1:0:85922133"
+					"uid"       "nametag_085922133"
                 }
                 "烂水果"
                 {
                     "tag"       "{green}[{yellow}烂水果{green}]{teamcolor} "
                     "type"      "nametag"
                     "auth"      "STEAM_1:1:161803745"
+					"uid"       "nametag_1161803745"
                 }
                 "依依"
                 {
                     "tag"       "{green}[{darkred}フラン{green}]{teamcolor} "
                     "type"      "nametag"
                     "auth"      "STEAM_1:1:105159493"
+					"uid"       "nametag_1105159493"
                 }
                 "Peter"
                 {
                     "tag"       "{green}[{silver}玄学{green}]{teamcolor} "
                     "type"      "nametag"
                     "auth"      "STEAM_1:0:104388155"
+					"uid"       "nametag_0104388155"
                 }
             }
             "[东山大法]"
@@ -5043,144 +5359,168 @@
                 "tag"       "{lightred}[东山大法]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_dsdf"
             }
             "[比较萌的]"
             {
                 "tag"       "{lightred}[比较萌的]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_bjmd"
             }
             "_(:з」∠)_"
             {
                 "tag"       "{lightblue}_(:з」∠)_{teamcolor}"
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_3"
             }
             "[抖S]"
             {
                 "tag"       "{lightblue}[抖S]{teamcolor}"
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_dous"
             }
             "[萝莉]"
             {
                 "tag"       "{lightred}[萝莉]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_loli"
             }
             "[抖M]"
             {
                 "tag"       "{lightblue}[抖M]{teamcolor}"
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_doum"
             }
             "[小学生]"
             {
                 "tag"       "{lightblue}[小学生]{teamcolor}"
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_xxs"
             }
             "[德玛西亚]"
             {
                 "tag"       "{lightblue}[德玛西亚]{teamcolor}"
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_demacia"
             }
             "[工口]"
             {
                 "tag"       "{lightblue}[工口]{teamcolor}"
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_r18"
             }
             "[么么哒]"
             {
                 "tag"       "{lightblue}[么么哒]{teamcolor}"
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_memeda"
             }
             "[本子狂魔]"
             {
                 "tag"       "{lightblue}[本子狂魔]{teamcolor}"
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_bzkm"
             }
             "[大地球]"
             {
                 "tag"       "{lightred}[大地球]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_ge"
             }
             "[我最帅]"
             {
                 "tag"       "{lightred}[我最帅]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_wzs"
             }
             "[薄荷味]"
             {
                 "tag"       "{lightred}[薄荷味]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_mint"
             }
             "[公交车]"
             {
                 "tag"       "{lightred}[公交车]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_bus"
             }
             "[老司机]"
             {
                 "tag"       "{lightred}[老司机]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_olddriver"
             }
             "[HENTAI]"
             {
                 "tag"       "{lightred}[HENTAI]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_hentai"
             }
             "[TTT影帝]"
             {
                 "tag"       "{lightred}[TTT影帝]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_ttt"
             }
             "[新机表]"
             {
                 "tag"       "{lightred}[新机表]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_psybitch"
             }
             "[黑枪王子]"
             {
                 "tag"       "{lightred}[黑枪王子]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_friendlyfire"
             }
             "[暴动狂魔]"
             {
                 "tag"       "{lightred}[暴动狂魔]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_rouge"
             }
             "[跑男]"
             {
                 "tag"       "{lightred}[跑男]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_runningman"
             }
             "[咸鱼]"
             {
                 "tag"       "{lightred}[咸鱼]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_saltyfish"
             }
             "[路痴]"
             {
                 "tag"       "{lightred}[路痴]{teamcolor} "
                 "price"     "3000"
                 "type"      "nametag"
+				"uid"       "nametag_routeidiot"
             }
         }
         "名字颜色"
@@ -5188,6 +5528,7 @@
             "*彩虹*"
             {
                 "color"     "rainbow"
+				"uid"       "namecolor_rainbow"
                 "Plans"
                 {
                     "1天"
@@ -5210,6 +5551,7 @@
             "白色"
             {
                 "color"     "{white}"
+				"uid"       "namecolor_white"
                 "Plans"
                 {
                     "1天"
@@ -5232,6 +5574,7 @@
             "深红色"
             {
                 "color"     "{darkred}"
+				"uid"       "namecolor_darkred"
                 "Plans"
                 {
                     "1天"
@@ -5254,6 +5597,7 @@
             "粉色"
             {
                 "color"     "{pink}"
+				"uid"       "namecolor_pink"
                 "Plans"
                 {
                     "1天"
@@ -5276,6 +5620,7 @@
             "绿色"
             {
                 "color"     "{green}"
+				"uid"       "namecolor_green"
                 "Plans"
                 {
                     "1天"
@@ -5298,6 +5643,7 @@
             "黄色"
             {
                 "color"     "{yellow}"
+				"uid"       "namecolor_yellow"
                 "Plans"
                 {
                     "1天"
@@ -5320,6 +5666,7 @@
             "青色"
             {
                 "color"     "{lime}"
+				"uid"       "namecolor_cyan"
                 "Plans"
                 {
                     "1天"
@@ -5342,6 +5689,7 @@
             "淡红色"
             {
                 "color"     "{lightred}"
+				"uid"       "namecolor_lightred"
                 "Plans"
                 {
                     "1天"
@@ -5364,6 +5712,7 @@
             "灰色"
             {
                 "color"     "{gray}"
+				"uid"       "namecolor_grey"
                 "Plans"
                 {
                     "1天"
@@ -5386,6 +5735,7 @@
             "褐色"
             {
                 "color"     "{olive}"
+				"uid"       "namecolor_olive"
                 "Plans"
                 {
                     "1天"
@@ -5408,6 +5758,7 @@
             "橙色"
             {
                 "color"     "{orange}"
+				"uid"       "namecolor_orange"
                 "Plans"
                 {
                     "1天"
@@ -5430,6 +5781,7 @@
             "银色"
             {
                 "color"     "{silver}"
+				"uid"       "namecolor_sliver"
                 "Plans"
                 {
                     "1天"
@@ -5452,6 +5804,7 @@
             "淡蓝色"
             {
                 "color"     "{lightblue}"
+				"uid"       "namecolor_lightblue"
                 "Plans"
                 {
                     "1天"
@@ -5474,6 +5827,7 @@
             "蓝色"
             {
                 "color"     "{blue}"
+				"uid"       "namecolor_blue"
                 "Plans"
                 {
                     "1天"
@@ -5496,6 +5850,7 @@
             "紫色"
             {
                 "color"     "{purple}"
+				"uid"       "namecolor_purple"
                 "Plans"
                 {
                     "1天"
@@ -5518,6 +5873,7 @@
             "深橙色"
             {
                 "color"     "{darkorange}"
+				"uid"       "namecolor_darkorange"
                 "Plans"
                 {
                     "1天"
@@ -5543,6 +5899,7 @@
             "彩虹"
             {
                 "color"     "rainbow"
+				"uid"       "msgcolor_rainbow"
                 "Plans"
                 {
                     "1天"
@@ -5565,6 +5922,7 @@
             "白色"
             {
                 "color"     "{white}"
+				"uid"       "msgcolor_white"
                 "Plans"
                 {
                     "1天"
@@ -5587,6 +5945,7 @@
             "深红色"
             {
                 "color"     "{darkred}"
+				"uid"       "msgcolor_darkred"
                 "Plans"
                 {
                     "1天"
@@ -5609,6 +5968,7 @@
             "粉色"
             {
                 "color"     "{pink}"
+				"uid"       "msgcolor_pink"
                 "Plans"
                 {
                     "1天"
@@ -5631,6 +5991,7 @@
             "绿色"
             {
                 "color"     "{green}"
+				"uid"       "msgcolor_green"
                 "Plans"
                 {
                     "1天"
@@ -5653,6 +6014,7 @@
             "黄色"
             {
                 "color"     "{yellow}"
+				"uid"       "msgcolor_yellow"
                 "Plans"
                 {
                     "1天"
@@ -5675,6 +6037,7 @@
             "青色"
             {
                 "color"     "{lime}"
+				"uid"       "msgcolor_lime"
                 "Plans"
                 {
                     "1天"
@@ -5697,6 +6060,7 @@
             "淡红色"
             {
                 "color"     "{lightred}"
+				"uid"       "msgcolor_lightred"
                 "Plans"
                 {
                     "1天"
@@ -5719,6 +6083,7 @@
             "灰色"
             {
                 "color"     "{gray}"
+				"uid"       "msgcolor_gray"
                 "Plans"
                 {
                     "1天"
@@ -5741,6 +6106,7 @@
             "褐色"
             {
                 "color"     "{olive}"
+				"uid"       "msgcolor_olive"
                 "Plans"
                 {
                     "1天"
@@ -5763,6 +6129,7 @@
             "橙色"
             {
                 "color"     "{orange}"
+				"uid"       "msgcolor_orange"
                 "Plans"
                 {
                     "1天"
@@ -5785,6 +6152,7 @@
             "银色"
             {
                 "color"     "{silver}"
+				"uid"       "msgcolor_sliver"
                 "Plans"
                 {
                     "1天"
@@ -5807,6 +6175,7 @@
             "淡蓝色"
             {
                 "color"     "{lightblue}"
+				"uid"       "msgcolor_lightblue"
                 "Plans"
                 {
                     "1天"
@@ -5829,6 +6198,7 @@
             "蓝色"
             {
                 "color"     "{blue}"
+				"uid"       "msgcolor_blue"
                 "Plans"
                 {
                     "1天"
@@ -5851,6 +6221,7 @@
             "紫色"
             {
                 "color"     "{purple}"
+				"uid"       "msgcolor_purple"
                 "Plans"
                 {
                     "1天"
@@ -5873,6 +6244,7 @@
             "深橙色"
             {
                 "color"     "{darkorange}"
+				"uid"       "msgcolor_darkorange"
                 "Plans"
                 {
                     "1天"
@@ -5901,6 +6273,7 @@
             "购买VIP"
             {
                 "type"      "buyvip"
+                "uid"       "buyvip"
                 "price" "0"
             }
         }

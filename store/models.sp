@@ -28,7 +28,7 @@ public void Models_OnPluginStart()
         return;
     }
 
-    Store_RegisterHandler("vwmodel", "model", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
+    Store_RegisterHandler("vwmodel", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
 }
 
 public void Models_OnMapStart() 
@@ -75,7 +75,7 @@ public int Models_Config(Handle &kv, int itemid)
     KvGetString(kv, "model", g_eCustomModel[g_iCustomModels][szModelV], PLATFORM_MAX_PATH);
     KvGetString(kv, "worldmodel", g_eCustomModel[g_iCustomModels][szModelW], PLATFORM_MAX_PATH, "none");
     KvGetString(kv, "dropmodel", g_eCustomModel[g_iCustomModels][szModelD], PLATFORM_MAX_PATH, "none");
-    KvGetString(kv, "entity", g_eCustomModel[g_iCustomModels][szEntity], 32);
+    KvGetString(kv, "weapon", g_eCustomModel[g_iCustomModels][szEntity], 32);
     g_eCustomModel[g_iCustomModels][iSlot] = KvGetNum(kv, "slot");
     
     if(FileExists(g_eCustomModel[g_iCustomModels][szModelV], true))

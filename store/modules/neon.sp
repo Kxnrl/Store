@@ -15,7 +15,7 @@ int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 public int Neon_Config(Handle &kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iNeons); 
-    KvGetColor(kv, "neoncolor", g_eNeons[g_iNeons][iColor][0], g_eNeons[g_iNeons][iColor][1], g_eNeons[g_iNeons][iColor][2], g_eNeons[g_iNeons][iColor][3]); 
+    KvGetColor(kv, "color", g_eNeons[g_iNeons][iColor][0], g_eNeons[g_iNeons][iColor][1], g_eNeons[g_iNeons][iColor][2], g_eNeons[g_iNeons][iColor][3]); 
     g_eNeons[g_iNeons][iBright] = KvGetNum(kv, "brightness");
     g_eNeons[g_iNeons][iDistance] = KvGetNum(kv, "distance");
     g_eNeons[g_iNeons][iFade] = KvGetNum(kv, "distancefade");

@@ -209,4 +209,4 @@ cd build
 zip -9rq $FILE LICENSE plugins models materials particles sound
 
 echo -e "Upload file ..."
-lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O Store/$5/$1/ $FILE"
+lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /plugins/Store/$5/$1/ $FILE"

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#参数
 FTP_HOST=$2
 FTP_USER=$3
 FTP_PSWD=$4
@@ -10,24 +11,36 @@ FILE=$COUNT-$5-$6.zip
 DATE=$(date +"%Y/%m/%d %H:%M:%S")
 ENV="GM_PR"
 
+
+#INFO
 echo -e "*** Trigger build ***"
 
+
+#下载SM
 echo -e "Download sourcemod ..."
 wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
 tar -xzf sourcemod.tar.gz
 
+
+#下载CG头文件
 echo -e "Download cg_core.inc ..."
 wget "https://github.com/Kxnrl/Core/raw/master/include/cg_core.inc" -q -O include/cg_core.inc
 
+
+#下载smlib
 echo -e "Download smlib"
 mkdir smlib
 wget "https://codeload.github.com/bcserv/smlib/zip/master" -q -O smlib.zip
 unzip -qo smlib.zip -d smlib/
 mv smlib/smlib-master/scripting/include/* include
 
+
+#设置文件为可执行
 echo -e "Set compiler env ..."
 chmod +x addons/sourcemod/scripting/spcomp
 
+
+#更改版本信息
 echo -e "Prepare compile ..."
 for file in store.sp
 do
@@ -37,128 +50,197 @@ do
   rm output.txt
 done
 
-echo -e "Check addons/sourcemod/scripting/store ..."
-if [ ! -d "addons/sourcemod/scripting/store" ]; then
-  mkdir addons/sourcemod/scripting/store
-fi
 
-echo -e "Check addons/sourcemod/scripting/store/modules ..."
-if [ ! -d "addons/sourcemod/scripting/store/modules" ]; then
-  mkdir addons/sourcemod/scripting/store/modules
-fi
+#建立文件夹以准备拷贝文件
+mkdir addons/sourcemod/scripting/store
+mkdir addons/sourcemod/scripting/store/modules
 
+
+#拷贝文件到编译器文件夹
 echo -e "Copy scripts to compiler folder ..."
 cp -r store/* addons/sourcemod/scripting/store
 cp -r include/* addons/sourcemod/scripting/include
 
+
+#建立输出文件夹
 echo -e "Check build folder"
 mkdir build
-mkdir build/plugins
-mkdir build/plugins/sp
-mkdir build/plugins/smx
-mkdir build/plugins/modules
-mkdir build/plugins/modules/sp
-mkdir build/plugins/modules/smx
+mkdir build/addons
+mkdir build/addons/sourcemod/
+mkdir build/addons/sourcemod/configs
+mkdir build/addons/sourcemod/configs/sql
+mkdir build/addons/sourcemod/configs/php
+mkdir build/addons/sourcemod/plugins
+mkdir build/addons/sourcemod/plugins/modules
+mkdir build/addons/sourcemod/plugins_CG
+mkdir build/addons/sourcemod/plugins_CG/modules
+mkdir build/addons/sourcemod/scripting
+mkdir build/addons/sourcemod/scripting/modules
+mkdir build/addons/sourcemod/scripting_CG
+mkdir build/addons/sourcemod/scripting_CG/modules
+mkdir build/addons/sourcemod/translations
 mkdir build/models
 mkdir build/materials
 mkdir build/particles
 mkdir build/sound
 
-echo -e "Compiling store core [ttt] ..."
+
+#编译Store主程序 => TTT
+#编译CG版本
+echo -e "Compiling store core [ttt] *CG* ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
-
-if [ ! -f "store.smx" ]; then
-    echo "Compile store[ttt] failed!"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_ttt.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins_CG/store_ttt.smx" ]; then
+    echo "Compile store core [ttt] *CG* failed!"
     exit 1;
 fi
+cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
+mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_ttt.sp
+#编译通用版本 
+for file in addons/sourcemod/scripting/store.sp
+do
+  sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ttt.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins/store_ttt.smx" ]; then
+    echo "Compile store core [ttt] *Global* failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_ttt.sp
 
-mkdir build/plugins/sp/ttt
-mkdir build/plugins/smx/ttt
-mv addons/sourcemod/scripting/store.sp build/plugins/sp/ttt
-mv store.smx build/plugins/smx/ttt
 
-echo -e "Compiling store core [ze] ..."
+#编译Store主程序 => ZE
+#编译CG版本
+echo -e "Compiling store core [ze] *CG* ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_ZE%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
-
-if [ ! -f "store.smx" ]; then
-    echo "Compile store[ze] failed!"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_ze.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins_CG/store_ze.smx" ]; then
+    echo "Compile store core [ze] *CG* failed!"
     exit 1;
 fi
+cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
+mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_ze.sp
+#编译通用版本 
+for file in addons/sourcemod/scripting/store.sp
+do
+  sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ze.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins/store_ze.smx" ]; then
+    echo "Compile store core [ze] *Global* failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_ze.sp
 
-mkdir build/plugins/sp/ze
-mkdir build/plugins/smx/ze
-mv addons/sourcemod/scripting/store.sp build/plugins/sp/ze
-mv store.smx build/plugins/smx/ze
 
-echo -e "Compiling store core [mg] ..."
+#编译Store主程序 => MG
+#编译CG版本
+echo -e "Compiling store core [mg] *CG* ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_MG%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
-
-if [ ! -f "store.smx" ]; then
-    echo "Compile store[mg] failed!"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_mg.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins_CG/store_mg.smx" ]; then
+    echo "Compile store core [mg] *CG* failed!"
     exit 1;
 fi
+cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
+mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_mg.sp
+#编译通用版本 
+for file in addons/sourcemod/scripting/store.sp
+do
+  sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_mg.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins/store_mg.smx" ]; then
+    echo "Compile store core [mg] *Global* failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_mg.sp
 
-mkdir build/plugins/sp/mg
-mkdir build/plugins/smx/mg
-mv addons/sourcemod/scripting/store.sp build/plugins/sp/mg
-mv store.smx build/plugins/smx/mg
 
-echo -e "Compiling store core [jb] ..."
+#编译Store主程序 => JB
+#编译CG版本
+echo -e "Compiling store core [jb] *CG* ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_JB%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
-
-if [ ! -f "store.smx" ]; then
-    echo "Compile store[jb] failed!"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_jb.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins_CG/store_jb.smx" ]; then
+    echo "Compile store core [jb] *CG* failed!"
     exit 1;
 fi
+cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
+mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_jb.sp
+#编译通用版本 
+for file in addons/sourcemod/scripting/store.sp
+do
+  sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_jb.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins/store_jb.smx" ]; then
+    echo "Compile store core [jb] *Global* failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_jb.sp
 
-mkdir build/plugins/sp/jb
-mkdir build/plugins/smx/jb
-mv addons/sourcemod/scripting/store.sp build/plugins/sp/jb
-mv store.smx build/plugins/smx/jb
 
-echo -e "Compiling store core [kz] ..."
+#编译Store主程序 => KZ
+#编译CG版本
+echo -e "Compiling store core [kz] *CG* ..."
 cp store.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%<Compile_Environment>%GM_KZ%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp >nul
-
-if [ ! -f "store.smx" ]; then
-    echo "Compile store[kz] failed!"
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_kz.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins_CG/store_kz.smx" ]; then
+    echo "Compile store core [kz] *CG* failed!"
     exit 1;
 fi
+cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
+mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_kz.sp
+#编译通用版本 
+for file in addons/sourcemod/scripting/store.sp
+do
+  sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_kz.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins/store_kz.smx" ]; then
+    echo "Compile store core [kz] *Global* failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_kz.sp
 
-mkdir build/plugins/sp/kz
-mkdir build/plugins/smx/kz
-mv addons/sourcemod/scripting/store.sp build/plugins/sp/kz
-mv store.smx build/plugins/smx/kz
 
+#编译Store模组Pets
 echo -e "Compiling store module [pet] ..."
 cp modules/store_pet.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store_pet.sp
@@ -169,36 +251,42 @@ do
   rm output.txt
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp >nul
-
 if [ ! -f "store_pet.smx" ]; then
     echo "Compile store module[pet] failed!"
     exit 1;
 fi
+cp addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting_CG/modules
+cp store_pet.smx build/addons/sourcemod/plugins_CG/modules
+mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modules
+mv store_pet.smx build/addons/sourcemod/plugins/modules
 
-mv addons/sourcemod/scripting/store_pet.sp build/plugins/modules/sp
-mv store_pet.smx build/plugins/modules/smx
 
+#编译第三方模组FPVMI
 echo -e "Compiling fpvmi ..."
-cp fpvm_interface.sp addons/sourcemod/scripting
+mv fpvm_interface.sp addons/sourcemod/scripting
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/fpvm_interface.sp >nul
-
 if [ ! -f "fpvm_interface.smx" ]; then
     echo "Compile fpvm_interface failed!"
     exit 1;
 fi
+cp addons/sourcemod/scripting/fpvm_interface.sp build/addons/sourcemod/scripting_CG/modules
+cp fpvm_interface.smx build/addons/sourcemod/plugins_CG/modules
+mv addons/sourcemod/scripting/fpvm_interface.sp build/addons/sourcemod/scripting/modules
+mv fpvm_interface.smx build/addons/sourcemod/plugins/modules
 
-mv fpvm_interface.smx build/plugins
 
+#编译第三方模组Chat-Processor
 echo -e "Compiling chat-processor ..."
-cp chat-processor.sp addons/sourcemod/scripting
+mv chat-processor.sp addons/sourcemod/scripting
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/chat-processor.sp >nul
-
 if [ ! -f "chat-processor.smx" ]; then
     echo "Compile chat-processor failed!"
     exit 1;
 fi
-
-mv chat-processor.smx build/plugins
+cp addons/sourcemod/scripting/chat-processor.sp build/addons/sourcemod/scripting_CG/modules
+cp chat-processor.smx build/addons/sourcemod/plugins_CG/modules
+mv addons/sourcemod/scripting/chat-processor.sp build/addons/sourcemod/scripting/modules
+mv chat-processor.smx build/addons/sourcemod/plugins/modules
 
 echo -e "Extract resource file ..."
 echo -e "Processing archive: resources/materials/materials.7z"
@@ -215,7 +303,7 @@ cd build
 if [ "$5" = "master" ]; then
     zip -9rq $FILE LICENSE plugins models materials particles sound
 else
-    zip -9rq $FILE LICENSE plugins
+    zip -9rq $FILE LICENSE addons
 fi
 
 echo -e "Upload file ..."

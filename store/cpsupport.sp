@@ -79,16 +79,22 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
     char m_szNameTag[128];
     char m_szNameColor[32];
 
+#if defined _CG_CORE_INCLUDED
     GetColorAuthName(client,  m_szNameTag, 128);
+#endif
+
     strcopy(STRING(m_szNameColor), "{teamcolor}");
 
     if(m_iEquippedNameTag >= 0)
     {
+#if defined _CG_CORE_INCLUDED
         if(CG_ClientGetUId(client) <= 0)
             StrCat(STRING(m_szNameTag), "{lightblue}[未注册]{teamcolor}");
+#endif
 
         StrCat(STRING(m_szNameTag), g_szNameTags[Store_GetDataIndex(m_iEquippedNameTag)]);
     }
+#if defined _CG_CORE_INCLUDED   
     else
     {
         if(CG_ClientIsVIP(client))
@@ -96,6 +102,7 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
         else if(CG_ClientGetUId(client) < 0)
             StrCat(STRING(m_szNameTag), "{lightblue}[未注册] {teamcolor}");
     }
+#endif
 
     bool rainbowname = false;
     if(m_iEquippedNameColor >= 0)
@@ -129,6 +136,7 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
     return Plugin_Changed;
 }
 
+#if defined _CG_CORE_INCLUDED
 void GetColorAuthName(int client, char[] buffer, int maxLen)
 {
     int authorized = CG_ClientGetGId(client);
@@ -143,6 +151,7 @@ void GetColorAuthName(int client, char[] buffer, int maxLen)
     else 
         Format(buffer, maxLen, "{yellow}[{blue}%s{yellow}]", buffer);
 }
+#endif
 
 void String_Rainbow(const char[] input, char[] output, int maxLen)
 {

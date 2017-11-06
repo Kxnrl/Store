@@ -610,6 +610,7 @@ void FadeScreenWhite(int client)
 }
 #endif
 
+#if defined _CG_CORE_INCLUDED
 public Action Timer_DeathModel(Handle timer, Handle pack)
 {
     int client = ReadPackCell(pack);
@@ -648,6 +649,7 @@ public Action Timer_DeathModel(Handle timer, Handle pack)
 
     return Plugin_Stop;
 }
+#endif
 
 #if defined GM_ZE
 public void CG_OnRoundEnd(int winner)

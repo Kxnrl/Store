@@ -5,6 +5,10 @@ void Players_OnPluginStart()
     HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Pre);
     HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
 
+#if !defined _CG_CORE_INCLUDED
+    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
+#endif
+
 #if defined Module_Skin
     Skin_OnPluginStart();
 #endif
@@ -153,6 +157,13 @@ public int ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool
     strcopy(g_szSkinModel[client], 256, "zombie");
 #endif
 }
+
+#if !defined  _CG_CORE_INCLUDED
+public Action Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+{
+    CG_OnClientTeam(GetClientOfUserId(event.GetInt("userid")), event.GetInt("oldteam"), event.GetInt("team"));
+}
+#endif
 
 public void CG_OnClientTeam(int client, int oldteam, int newteam)
 {

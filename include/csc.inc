@@ -1,1 +1,0 @@
-native void CG_Broadcast(bool toForum, const char[] szContent);

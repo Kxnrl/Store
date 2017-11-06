@@ -1,10 +1,7 @@
 #define Module_Skin
 
-#undef REQUIRE_EXTENSIONS
-#undef REQUIRE_PLUGIN
-#include <csc>
-#define REQUIRE_EXTENSIONS
-#define REQUIRE_PLUGIN
+// this is broadcast system (csgogamers.com required)
+native void CG_Broadcast(bool toForum, const char[] szContent);
 
 #define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
 

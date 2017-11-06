@@ -33,6 +33,11 @@ echo -e "Download fpvm_interface.inc ..."
 wget "https://github.com/Kxnrl/First-Person-View-Models-Interface/raw/master/scripting/include/fpvm_interface.inc" -q -O include/fpvm_interface.inc
 
 
+#下载Chat-Processor头文件
+echo -e "Download cg_core.inc ..."
+wget "https://github.com/Drixevel/Chat-Processor/raw/master/scripting/include/chat-processor.inc" -q -O include/chat-processor.inc
+
+
 #设置文件为可执行
 echo -e "Set compiler env ..."
 chmod +x addons/sourcemod/scripting/spcomp
@@ -261,19 +266,6 @@ cp store_pet.smx build/addons/sourcemod/plugins_CG/modules
 mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modules
 mv store_pet.smx build/addons/sourcemod/plugins/modules
 
-
-#编译第三方模组Chat-Processor
-echo -e "Compiling chat-processor ..."
-mv chat-processor.sp addons/sourcemod/scripting
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/chat-processor.sp >nul
-if [ ! -f "chat-processor.smx" ]; then
-    echo "Compile chat-processor failed!"
-    exit 1;
-fi
-cp addons/sourcemod/scripting/chat-processor.sp build/addons/sourcemod/scripting_CG/modules
-cp chat-processor.smx build/addons/sourcemod/plugins_CG/modules
-mv addons/sourcemod/scripting/chat-processor.sp build/addons/sourcemod/scripting/modules
-mv chat-processor.smx build/addons/sourcemod/plugins/modules
 
 echo -e "Extract resource file ..."
 echo -e "Processing archive: resources/materials/materials.7z"

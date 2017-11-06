@@ -1,5 +1,18 @@
 #define Module_Chat
 
+#if defined _CG_CORE_INCLUDED
+#define TEAM_SPEC 1
+UserMsg g_umUMId;
+Handle g_tMsgFmt;
+bool g_bDeathChat;
+bool g_bChat[MAXPLAYERS+1];
+int g_iCGPId[MAXPLAYERS+1];
+#else
+#undef REQUIRE_PLUGIN
+#include <chat-processor>
+#define REQUIRE_PLUGIN
+#endif
+
 char g_szNameTags[STORE_MAX_ITEMS][128];
 char g_szNameColors[STORE_MAX_ITEMS][32];
 char g_szMessageColors[STORE_MAX_ITEMS][32];
@@ -10,11 +23,35 @@ int g_iMessageColors = 0;
 
 public void CPSupport_OnPluginStart()
 {
-    if(!FindPluginByFile("chat-processor.smx"))
+#if defined _CG_CORE_INCLUDED
+    g_tMsgFmt = CreateTrie();
+
+    AddCommandListener(Command_Say, "say");
+    AddCommandListener(Command_Say, "say_team");
+
+    if((g_umUMId = GetUserMessageId("SayText2")) != INVALID_MESSAGE_ID)
     {
-        LogError("Chat Processor isn't installed or failed to load. CP support will be disabled.");
+        HookUserMessage(g_umUMId, OnSayText2, true);
+        if(!GenerateMessageFormats())
+        {
+            LogError("Error loading Chat Format, CP support will be disabled.");
+            return;
+        }
+    }
+    else
+    {
+        LogError("Error hooking the user message (SayText2), CP support will be disabled.");
         return;
     }
+
+    g_bDeathChat = (FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("mg_stats.smx") || FindPluginByFile("sm_hosties.smx"));
+#else
+    if(!FindPluginByFile("chat-processor.smx"))
+    {
+        LogError("Chat Processor isn't installed or failed to load. CP support will be disabled. -> https://github.com/Drixevel/Chat-Processor");
+        return;
+    }
+#endif
 
     Store_RegisterHandler("nametag", CPSupport_OnMappStart, CPSupport_Reset, NameTags_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("namecolor", CPSupport_OnMappStart, CPSupport_Reset, NameColors_Config, CPSupport_Equip, CPSupport_Remove, true);
@@ -70,7 +107,11 @@ public int CPSupport_Remove(int client, int id)
 
 }
 
+#if defined _CG_CORE_INCLUDED
+public Action CP_OnChatMessage(int& client, char[] flagstring, char[] name, char[] message)
+#else
 public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool &processcolors, bool &removecolors)
+#endif
 {
     int m_iEquippedNameTag = Store_GetEquippedItem(client, "nametag");
     int m_iEquippedNameColor = Store_GetEquippedItem(client, "namecolor");
@@ -224,3 +265,221 @@ int RandomColor()
 
     return '\x01';
 }
+
+#if defined _CG_CORE_INCLUDED
+bool GenerateMessageFormats()
+{
+    switch(GetEngineVersion())
+    {
+        case Engine_CSGO:
+        {
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT_Loc", "(CT) {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT", "(CT) {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_T_Loc", "(TE) {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_T", "(TE) {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT_Dead", "*DEAD*(CT) {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_T_Dead", "*DEAD*(TE) {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_Spec", "(SPEC) {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_All", " {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_AllDead", "*DEAD* {1} :  {2}");
+            SetTrieString(g_tMsgFmt, "Cstrike_Chat_AllSpec", "*SPEC* {1} :  {2}");
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Chat_OnClientConnected(int client)
+{
+    g_bChat[client] = false;
+}
+
+void Chat_OnClientLoaded(int client)
+{
+    g_iCGPId[client] = CG_ClientGetPId(client);
+}
+
+public Action Command_Say(int client, const char[] command, int argc)
+{
+    g_bChat[client] = true;
+    CreateTimer(0.1, Timer_Say, client);
+}
+
+public Action Timer_Say(Handle timer, int client)
+{
+    g_bChat[client] = false;
+    return Plugin_Stop;
+}
+
+public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int playersNum, bool reliable, bool init)
+{
+    int m_iSender = PbReadInt(msg, "ent_idx");
+
+    if(m_iSender <= 0)
+        return Plugin_Continue;
+    
+    if(!g_bChat[m_iSender])
+        return Plugin_Handled;
+
+    g_bChat[m_iSender] = false;
+
+    bool m_bChat = PbReadBool(msg, "chat");
+
+    char m_szFlag[32], m_szName[128], m_szMsg[256], m_szFmt[32];
+
+    PbReadString(msg, "msg_name", m_szFlag, 32);
+    PbReadString(msg, "params", m_szName, 128, 0);
+    PbReadString(msg, "params", m_szMsg, 256, 1);
+
+    if(!GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, 32))
+        return Plugin_Continue;
+
+    RemoveAllColors(m_szName, 128);
+    RemoveAllColors(m_szMsg, 256);
+
+    char m_szNameCopy[128];
+    strcopy(m_szNameCopy, 128, m_szName);
+
+    char m_szFlagCopy[32];
+    strcopy(m_szFlagCopy, 32, m_szFlag);
+
+    Action iResults = CP_OnChatMessage(m_iSender, m_szFlag, m_szName, m_szMsg);
+
+    if(iResults >= Plugin_Handled || iResults == Plugin_Continue)
+        return iResults;
+
+    if(!StrEqual(m_szFlag, m_szFlagCopy) && !GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, 256))
+        return Plugin_Continue;
+
+    if(StrEqual(m_szNameCopy, m_szName))
+    {
+        switch(g_iClientTeam[m_iSender])
+        {
+            case  3: Format(m_szName, 128, "\x0B%s", m_szName);
+            case  2: Format(m_szName, 128, "\x05%s", m_szName);
+            default: Format(m_szName, 128, "\x01%s", m_szName);
+        }
+    }
+
+    Handle hPack = CreateDataPack();
+    WritePackCell(hPack, m_iSender);
+    WritePackCell(hPack, m_bChat);
+    WritePackString(hPack, m_szName);
+    WritePackString(hPack, m_szMsg);
+    WritePackString(hPack, m_szFlag);
+    WritePackString(hPack, m_szFmt);
+
+    ResetPack(hPack);
+
+    RequestFrame(Frame_OnChatMessage_SayText2, hPack);
+
+    return Plugin_Handled;
+}
+
+void Frame_OnChatMessage_SayText2(Handle data)
+{
+    int m_iSender = ReadPackCell(data);
+    bool m_bChat = ReadPackCell(data);
+
+    char m_szName[128];
+    ReadPackString(data, m_szName, 128);
+
+    char m_szMsg[256];
+    ReadPackString(data, m_szMsg, 256);
+
+    char m_szFlag[32];
+    ReadPackString(data, m_szFlag, 32);
+
+    char m_szFmt[32];
+    ReadPackString(data, m_szFmt, 32);
+
+    CloseHandle(data);
+
+    int target_list[MAXPLAYERS+1], target_count;
+
+    if(!ChatFromDead(m_szFlag) || g_iClientTeam[m_iSender] == TEAM_SPEC)
+    {
+        if(ChatToAll(m_szFlag))
+        {
+            for(int i = 1; i <= MaxClients; ++i)
+                if(IsClientInGame(i) && !IsFakeClient(i))
+                    target_list[target_count++] = i;
+        }
+        else
+        {
+            for(int i = 1; i <= MaxClients; ++i)
+                if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iCGPId[i] == 1))
+                    target_list[target_count++] = i;
+        }
+    }
+    else
+    {
+        if(g_bDeathChat)
+        {
+            if(ChatToAll(m_szFlag))
+            {
+                for(int i = 1; i <= MaxClients; ++i)
+                    if(IsClientInGame(i) && !IsFakeClient(i))
+                        target_list[target_count++] = i;
+            }
+            else
+            {
+                for(int i = 1; i <= MaxClients; ++i)
+                    if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iCGPId[i] == 1))
+                        target_list[target_count++] = i;
+            }
+        }
+        else
+        {
+            if(ChatToAll(m_szFlag))
+            {
+                for(int i = 1; i <= MaxClients; ++i)
+                    if(IsClientInGame(i) && !IsFakeClient(i) && (!IsPlayerAlive(i) || g_iCGPId[i] == 1))
+                        target_list[target_count++] = i;
+            }
+            else
+            {
+                for(int i = 1; i <= MaxClients; ++i)
+                    if(IsClientInGame(i) && !IsFakeClient(i) && ((!IsPlayerAlive(i) && g_iClientTeam[i] == g_iClientTeam[m_iSender]) || g_iCGPId[i] == 1))
+                        target_list[target_count++] = i;
+            }
+        }
+    }
+    
+    char m_szBuffer[512];
+    strcopy(m_szBuffer, 512, m_szFmt);
+
+    ReplaceString(m_szBuffer, 512, "{1} :  {2}", "{1} {normal}:  {2}");
+    ReplaceString(m_szBuffer, 512, "{1}", m_szName);
+    ReplaceString(m_szBuffer, 512, "{2}", m_szMsg);
+
+    ReplaceColorsCode(m_szBuffer, 512);
+
+    Handle pb = StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
+    PbSetInt(pb, "ent_idx", m_iSender);
+    PbSetBool(pb, "chat", m_bChat);
+    PbSetString(pb, "msg_name", m_szBuffer);
+    PbAddString(pb, "params", "");
+    PbAddString(pb, "params", "");
+    PbAddString(pb, "params", "");
+    PbAddString(pb, "params", "");
+    EndMessage();
+}
+
+stock bool ChatToAll(const char[] flag)
+{
+    if(StrContains(flag, "_All", false) != -1)
+        return true;
+
+    return false;
+}
+
+stock bool ChatFromDead(const char[] flag)
+{
+    if(StrContains(flag, "Dead", false) != -1)
+        return true;
+
+    return false;
+}
+#endif

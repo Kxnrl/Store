@@ -819,6 +819,10 @@ public void OnClientConnected(int client)
     Sound_OnClientConnected(client);
 #endif
 
+#if defined Module_Chat && defined _CG_CORE_INCLUDED
+    Chat_OnClientConnected(client);
+#endif
+
     TPMode_OnClientConnected(client);
 }
 
@@ -3511,5 +3515,12 @@ public void CG_OnDailySigned(int client)
     int m_iCredits = UTIL_GetRandomInt(1, 500);
     Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, "服务器内完成每日签到");
     tPrintToChatAll("\x0E%N\x01签到获得\x04%d信用点\x01.", client, m_iCredits);
+}
+#endif
+
+#if defined _CG_CORE_INCLUDED && defined Module_Chat
+public void CG_OnClientLoaded(int client)
+{
+    Chat_OnClientLoaded(client);
 }
 #endif

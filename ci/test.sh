@@ -33,6 +33,11 @@ echo -e "Download fpvm_interface.inc ..."
 wget "https://github.com/Kxnrl/First-Person-View-Models-Interface/raw/master/scripting/include/fpvm_interface.inc" -q -O include/fpvm_interface.inc
 
 
+#下载Chat-Processor头文件
+echo -e "Download cg_core.inc ..."
+wget "https://github.com/Drixevel/Chat-Processor/raw/master/scripting/include/chat-processor.inc" -q -O include/chat-processor.inc
+
+
 #设置文件为可执行
 echo -e "Set compiler env ..."
 chmod +x addons/sourcemod/scripting/spcomp
@@ -213,15 +218,5 @@ done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp >nul
 if [ ! -f "store_pet.smx" ]; then
     echo "Compile store module[pet] failed!"
-    exit 1;
-fi
-
-
-#编译第三方模组Chat-Processor
-echo -e "Compiling chat-processor ..."
-mv chat-processor.sp addons/sourcemod/scripting
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/chat-processor.sp >nul
-if [ ! -f "chat-processor.smx" ]; then
-    echo "Compile chat-processor failed!"
     exit 1;
 fi

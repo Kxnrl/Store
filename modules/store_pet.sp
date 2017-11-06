@@ -296,10 +296,10 @@ void ResetPet(int client, int slot)
 
     if(!IsValidEntity(client))
         return;
-
-    AcceptEntityInput(entity, "Kill");
     
     SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
+
+    AcceptEntityInput(entity, "Kill");
 }
 
 void DeathPet(int client, int slot)
@@ -323,9 +323,29 @@ void DeathPet(int client, int slot)
     SetVariantString(g_ePets[m_iData][death]);
     AcceptEntityInput(EntRefToEntIndex(g_iPetRef[client][slot]), "SetAnimation");
     g_iLastAnimation[client][slot] = 3;
+    HookSingleEntityOutput(entity, "OnAnimationDone", Hook_OnAnimationDone, true);
 }
 
 public Action Hook_SetTransmit_Pet(int ent, int client)
 {
     return g_bHide[client] ? Plugin_Handled : Plugin_Continue;
+}
+
+public void Hook_OnAnimationDone(const char[] output, int caller, int activator, float delay)
+{
+    if(!IsValidEdict(caller))
+        return;
+
+    int owner = GetEntPropEnt(caller, Prop_Send, "m_hOwnerEntity");
+    
+    if(1 <= owner <= MaxClients && IsClientInGame(owner))
+    {
+        int iRef = EntIndexToEntRef(caller);
+        for(int slot = 0; slot < STORE_MAX_SLOTS; ++slot)
+            if(g_iPetRef[owner][slot] == iRef)
+                g_iPetRef[owner][slot] = INVALID_ENT_REFERENCE;
+    }
+
+    SDKUnhook(caller, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
+    AcceptEntityInput(caller, "Kill");
 }

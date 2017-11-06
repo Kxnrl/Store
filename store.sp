@@ -183,7 +183,7 @@ public void OnPluginStart()
 
 #if !defined _CG_CORE_INCLUDED
     HookEvent("round_start", OnRoundStart, EventHookMode_Post);
-    HookEvent("player_death"), OnPlayerDeath, EventHookMode_Post);
+    HookEvent("player_death", OnPlayerDeath, EventHookMode_Post);
 #endif
 
     // Load the translations file
@@ -3288,7 +3288,7 @@ void UTIL_CheckModules()
 #if !defined _CG_CORE_INCLUDED
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-    CG_OnRoundStart()
+    CG_OnRoundStart();
 }
 
 public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)

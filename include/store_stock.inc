@@ -396,17 +396,6 @@ public bool TraceRayDontHitSelf(int entity, int mask, any data)
     return true;
 }
 
-stock bool GetClientPrivilege(int client, int flag, int flags = -1)
-{
-    if(flags==-1)
-        flags = GetUserFlagBits(client);
-    
-    if(flag == 0 || flags & flag || flags & ADMFLAG_ROOT)
-        return true;
-
-    return false;
-}
-
 stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, char[] display, any ...)
 {
     char m_display[256];
@@ -456,34 +445,12 @@ stock bool AllowItemForVIP(int client, bool vip)
     if(!vip)
         return true;
 
+#if defined _CG_CORE_INCLUDED
     return CG_ClientIsVIP(client);
+#else
+    int flags = GetUserFlagBits(client);
+    if(flags & ADMFLAG_ROOT || flags & ADMFLAG_RESERVATION)
+        return true;
+    return false;
+#endif
 }
-/*
-stock void SetDefaultSkin(int client, int team)
-{
-    char m_szModel[128];
-    GetEntPropString(client, Prop_Data, "m_ModelName", m_szModel, 128);
-
-    if(team == 2)
-    {
-        SetEntityModel(client, (StrContains(m_szModel, "tm_anarchist") != -1 || StrContains(m_szModel, "tm_phoenix") != -1) ? "models/player/custom_player/legacy/tm_pirate.mdl" : "models/player/custom_player/legacy/tm_anarchist.mdl");
-        SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/t_arms.mdl");
-    }
-    else if(team == 3)
-    {
-        SetEntityModel(client, (StrContains(m_szModel, "ctm_fbi") != -1 || StrContains(m_szModel, "ctm_sas") != -1 || StrContains(m_szModel, "ctm_swat") != -1) ? "models/player/custom_player/legacy/ctm_gign.mdl" : "models/player/custom_player/legacy/ctm_fbi.mdl");
-        SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
-    }
-}
-
-stock void PrecacheDefaultModel()
-{
-    PrecacheModel("models/player/custom_player/legacy/tm_anarchist.mdl");
-    PrecacheModel("models/player/custom_player/legacy/tm_pirate.mdl");
-    PrecacheModel("models/player/custom_player/legacy/ctm_gign.mdl");
-    PrecacheModel("models/player/custom_player/legacy/ctm_fbi.mdl");
-
-    PrecacheModel("models/weapons/t_arms.mdl");
-    PrecacheModel("models/weapons/ct_arms.mdl");
-}
-*/

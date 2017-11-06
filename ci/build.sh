@@ -281,13 +281,14 @@ echo -e "Move configs and translations to build folder"
 mv configs/* build/addons/sourcemod/configs
 mv translations/* build/addons/sourcemod/translations
 mv utils build
+mv LICENSE build
 
 echo -e "Compress file ..."
 cd build
 if [ "$5" = "master" ]; then
-    7za a $FILE -t7z -mx9 LICENSE addons utils materials models particles sound
+    7z a $FILE -t7z -mx9 LICENSE addons utils materials models particles sound
 else
-    7za a $FILE -t7z -mx9 LICENSE addons utils
+    7z a $FILE -t7z -mx9 LICENSE addons utils
 fi
 
 echo -e "Upload file ..."

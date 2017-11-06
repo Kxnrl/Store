@@ -7,7 +7,7 @@ FTP_PSWD=$4
 
 git fetch --unshallow
 COUNT=$(git rev-list --count HEAD)
-FILE=$COUNT-$5-$6.zip
+FILE=$COUNT-$5-$6.7z
 DATE=$(date +"%Y/%m/%d %H:%M:%S")
 ENV="GM_PR"
 
@@ -269,13 +269,13 @@ mv store_pet.smx build/addons/sourcemod/plugins/modules
 
 echo -e "Extract resource file ..."
 echo -e "Processing archive: resources/materials/materials.7z"
-7za x "resources/materials/materials.7z" -o"build/materials" >nul
+7z x "resources/materials/materials.7z" -o"build/materials" >nul
 echo -e "Processing archive: resources/materials/models.7z"
-7za x "resources/models/models.7z" -o"build/models" >nul
+7z x "resources/models/models.7z" -o"build/models" >nul
 echo -e "Processing archive: resources/materials/particles.7z"
-7za x "resources/particles/particles.7z" -o"build/particles" >nul
+7z x "resources/particles/particles.7z" -o"build/particles" >nul
 echo -e "Processing archive: resources/materials/sound.7z"
-7za x "resources/sound/sound.7z" -o"build/sound" >nul
+7z x "resources/sound/sound.7z" -o"build/sound" >nul
 
 echo -e "Move configs and translations to build folder"
 mv configs/* build/addons/sourcemod/configs
@@ -285,9 +285,9 @@ mv utils build
 echo -e "Compress file ..."
 cd build
 if [ "$5" = "master" ]; then
-    zip -9rq $FILE LICENSE addons utils models materials particles sound
+    7za a $FILE -t7z -mx9 LICENSE addons utils materials models particles sound
 else
-    zip -9rq $FILE LICENSE addons utils
+    7za a $FILE -t7z -mx9 LICENSE addons utils
 fi
 
 echo -e "Upload file ..."

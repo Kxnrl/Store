@@ -285,8 +285,9 @@ echo -e "Processing archive: resources/materials/particles.7z"
 echo -e "Processing archive: resources/materials/sound.7z"
 7za x "resources/sound/sound.7z" -o"build/sound" >nul
 
-echo -e "Move configs to build  folder"
+echo -e "Move configs and translations to build folder"
 mv configs/* build/addons/sourcemod/configs
+mv translations/* build/addons/sourcemod/translations
 mv utils build
 
 echo -e "Compress file ..."

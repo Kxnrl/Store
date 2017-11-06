@@ -370,18 +370,6 @@ bool ResetClientWeaponBySlot(int client, int slot)
     return true;
 }
 
-void GetWeaponClassname(int weapon, char[] classname, int maxLen)
-{
-    GetEdictClassname(weapon, classname, maxLen);
-    switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
-    {
-        case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
-        case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
-        case 63: strcopy(classname, maxLen, "weapon_cz75a");
-        case 64: strcopy(classname, maxLen, "weapon_revolver");
-    }
-}
-
 void Store_PreviewSkin(int client, int itemid)
 {
     int m_iViewModel = CreateEntityByName("prop_dynamic_override"); //prop_physics_multiplayer

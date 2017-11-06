@@ -116,7 +116,7 @@ char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极�
 #include "store/modules/trail.sp"
 #endif
 // Module PLAYERS
-#if defined Module_Hats || defined Module_Skin || defined Module_Neon || defined Module_Aura || defined Module_Part || defined Module_Trail
+#if defined Module_Hats || defined Module_Skin || defined Module_Neon || defined Module_Aura || defined Module_Part || defined Module_Trail || defined Module_Model
 #include "store/players.sp"
 #endif
 // Module Grenade
@@ -242,7 +242,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_GetPlayerSkin", Native_GetPlayerSkin);
     CreateNative("Store_GetSkinLevel", Native_GetSkinLevel);
 
-#if defined Module_Model
+#if defined Module_Model && !defined _CG_CORE_INCLUDED
     MarkNativeAsOptional("FPVMI_SetClientModel");
     MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
     MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
@@ -839,6 +839,10 @@ public void OnClientDisconnect(int client)
 
 #if defined Module_Player
     Players_OnClientDisconnect(client);
+#endif
+
+#if defined Module_Model && defined _CG_CORE_INCLUDED
+    Models_OnClientDisconnect(client);
 #endif
 
     UTIL_SaveClientData(client, true);
@@ -3302,6 +3306,10 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 public void CG_OnClientDeath(int client, int attacker, int assister, bool headshot, const char[] weapon)
 {
     CheckClientTP(client);
+    
+#if defined Module_Model && defined _CG_CORE_INCLUDED
+    Models_OnPlayerDeath(client);
+#endif
 
 #if defined Module_Skin && defined _CG_CORE_INCLUDED
     if(IsValidClient(attacker))

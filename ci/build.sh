@@ -27,12 +27,9 @@ echo -e "Download cg_core.inc ..."
 wget "https://github.com/Kxnrl/Core/raw/master/include/cg_core.inc" -q -O include/cg_core.inc
 
 
-#下载smlib
-echo -e "Download smlib"
-mkdir smlib
-wget "https://codeload.github.com/bcserv/smlib/zip/master" -q -O smlib.zip
-unzip -qo smlib.zip -d smlib/
-mv smlib/smlib-master/scripting/include/* include
+#下载FPVMI头文件
+echo -e "Download fpvm_interface.inc ..."
+wget "https://github.com/Franc1sco/First-Person-View-Models-Interface/raw/master/scripting/include/fpvm_interface.inc" -q -O include/fpvm_interface.inc
 
 
 #设置文件为可执行
@@ -264,20 +261,6 @@ cp addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting_CG/m
 cp store_pet.smx build/addons/sourcemod/plugins_CG/modules
 mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modules
 mv store_pet.smx build/addons/sourcemod/plugins/modules
-
-
-#编译第三方模组FPVMI
-echo -e "Compiling fpvmi ..."
-mv fpvm_interface.sp addons/sourcemod/scripting
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/fpvm_interface.sp >nul
-if [ ! -f "fpvm_interface.smx" ]; then
-    echo "Compile fpvm_interface failed!"
-    exit 1;
-fi
-cp addons/sourcemod/scripting/fpvm_interface.sp build/addons/sourcemod/scripting_CG/modules
-cp fpvm_interface.smx build/addons/sourcemod/plugins_CG/modules
-mv addons/sourcemod/scripting/fpvm_interface.sp build/addons/sourcemod/scripting/modules
-mv fpvm_interface.smx build/addons/sourcemod/plugins/modules
 
 
 #编译第三方模组Chat-Processor

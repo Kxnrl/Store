@@ -3370,6 +3370,8 @@ void BroadCastToAll(const char[] msg)
 
 #if defined Module_Skin
     CG_Broadcast(true, msg);
+#else
+    LogError("WTF TRIGGER THIS? -> ", msg);
 #endif
 }
 

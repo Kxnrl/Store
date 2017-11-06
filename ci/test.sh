@@ -29,7 +29,8 @@ wget "https://github.com/Kxnrl/Core/raw/master/include/cg_core.inc" -q -O includ
 
 #下载FPVMI头文件
 echo -e "Download fpvm_interface.inc ..."
-wget "https://github.com/Franc1sco/First-Person-View-Models-Interface/raw/master/scripting/include/fpvm_interface.inc" -q -O include/fpvm_interface.inc
+#wget "https://github.com/Franc1sco/First-Person-View-Models-Interface/raw/master/scripting/include/fpvm_interface.inc" -q -O include/fpvm_interface.inc
+wget "https://github.com/Kxnrl/First-Person-View-Models-Interface/raw/master/scripting/include/fpvm_interface.inc" -q -O include/fpvm_interface.inc
 
 
 #设置文件为可执行

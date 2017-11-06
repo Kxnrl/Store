@@ -1,3 +1,6 @@
+#pragma semicolon 1
+#pragma newdecls required
+
 #include <sdktools>
 #include <sdkhooks>
 #include <store>

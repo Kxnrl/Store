@@ -66,8 +66,6 @@ mkdir build
 mkdir build/addons
 mkdir build/addons/sourcemod/
 mkdir build/addons/sourcemod/configs
-mkdir build/addons/sourcemod/configs/sql
-mkdir build/addons/sourcemod/configs/php
 mkdir build/addons/sourcemod/plugins
 mkdir build/addons/sourcemod/plugins/modules
 mkdir build/addons/sourcemod/plugins_CG
@@ -287,12 +285,16 @@ echo -e "Processing archive: resources/materials/particles.7z"
 echo -e "Processing archive: resources/materials/sound.7z"
 7za x "resources/sound/sound.7z" -o"build/sound" >nul
 
+echo -e "Move configs to build  folder"
+mv configs/* build/addons/sourcemod/configs
+mv utils build
+
 echo -e "Compress file ..."
 cd build
 if [ "$5" = "master" ]; then
-    zip -9rq $FILE LICENSE plugins models materials particles sound
+    zip -9rq $FILE LICENSE addons utils models materials particles sound
 else
-    zip -9rq $FILE LICENSE addons
+    zip -9rq $FILE LICENSE addons utils
 fi
 
 echo -e "Upload file ..."

@@ -101,7 +101,8 @@ if [ ! -f "build/addons/sourcemod/plugins_CG/store_ttt.smx" ]; then
 fi
 cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
 mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_ttt.sp
-#编译通用版本 
+#编译通用版本
+echo -e "Compiling store core [ttt] *Global* ..."
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
@@ -132,7 +133,8 @@ if [ ! -f "build/addons/sourcemod/plugins_CG/store_ze.smx" ]; then
 fi
 cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
 mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_ze.sp
-#编译通用版本 
+#编译通用版本
+echo -e "Compiling store core [ze] *Global* ..."
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
@@ -163,7 +165,8 @@ if [ ! -f "build/addons/sourcemod/plugins_CG/store_mg.smx" ]; then
 fi
 cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
 mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_mg.sp
-#编译通用版本 
+#编译通用版本
+echo -e "Compiling store core [mg] *Global* ..."
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
@@ -194,7 +197,8 @@ if [ ! -f "build/addons/sourcemod/plugins_CG/store_jb.smx" ]; then
 fi
 cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
 mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_jb.sp
-#编译通用版本 
+#编译通用版本
+echo -e "Compiling store core [jb] *Global* ..."
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
@@ -225,7 +229,8 @@ if [ ! -f "build/addons/sourcemod/plugins_CG/store_kz.smx" ]; then
 fi
 cp addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
 mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_kz.sp
-#编译通用版本 
+#编译通用版本
+echo -e "Compiling store core [kz] *Global* ..."
 for file in addons/sourcemod/scripting/store.sp
 do
   sed -i "s%#include <cg_core>%//Global%g" $file > output.txt

@@ -3,6 +3,7 @@ addons:
     - lftp
     - lib32z1
     - lib32stdc++6
+    - p7zip-full
 
 language: c
 
@@ -10,8 +11,5 @@ env:
   - SOURCEMOD=1.8
   - SOURCEMOD=1.9
 
-before_install:
-    - sudo apt-get install -y p7zip-full
-
 script:
-    - 'if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then bash build.sh $SOURCEMOD $FTP_HOST $FTP_USER $FTP_PSWD $TRAVIS_BRANCH ${TRAVIS_COMMIT::7}; else bash build_pr.sh $SOURCEMOD $TRAVIS_BRANCH ${TRAVIS_COMMIT::7}; fi'
+    - 'if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then bash ci/build.sh $SOURCEMOD $FTP_HOST $FTP_USER $FTP_PSWD $TRAVIS_BRANCH ${TRAVIS_COMMIT::7}; else bash ci/test.sh $SOURCEMOD $TRAVIS_BRANCH ${TRAVIS_COMMIT::7}; fi'

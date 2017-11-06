@@ -7,13 +7,19 @@
 enum Pet
 {
     String:model[192],
-    String:run[32],
     String:idle[32],
+    String:run[32],
     String:death[32],
     Float:fPosition[3],
     Float:fAngles[3],
     iSlot
 }
+
+/* SQL */
+// ALTER TABLE store_item_child 
+// ADD COLUMN run varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN',
+// ADD COLUMN idle varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE',
+// ADD COLUMN death varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH';
 
 int g_ePets[STORE_MAX_ITEMS][Pet];
 int g_iPets = 0;
@@ -78,6 +84,7 @@ public int Pets_Config(Handle kv, int itemid)
     KvGetString(kv, "model", g_ePets[g_iPets][model], 256);
     KvGetString(kv, "idle", g_ePets[g_iPets][idle], 32);
     KvGetString(kv, "run", g_ePets[g_iPets][run], 32);
+    KvGetString(kv, "death", g_ePets[g_iPets][death], 32);
     KvGetVector(kv, "position", m_fTemp);
     g_ePets[g_iPets][fPosition] = m_fTemp;
     KvGetVector(kv, "angles", m_fTemp);

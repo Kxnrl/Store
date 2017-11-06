@@ -10,6 +10,8 @@ FILE=$COUNT-$5-$6.zip
 DATE=$(date +"%Y/%m/%d %H:%M:%S")
 ENV="GM_PR"
 
+echo -e "*** Trigger build ***"
+
 echo -e "Download sourcemod ..."
 wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
 tar -xzf sourcemod.tar.gz

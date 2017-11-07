@@ -134,17 +134,26 @@ void Models_OnClientDisconnect(int client)
 {
     if(!IsClientInGame(client))
         return;
+    
+    if(g_bHooked[client])
+    {
+        SDKUnhook(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
+        g_bHooked[client] = false;
+    }
+
+    if(GetTrieSize(g_tClientWeapon[client]) > 0)
+    {
+        SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
+        SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
+        SDKUnhook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
+        SDKUnhook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
+    }
 
     if(g_tClientWeapon[client] != INVALID_HANDLE)
     {
         CloseHandle(g_tClientWeapon[client]);
         g_tClientWeapon[client] = INVALID_HANDLE;
     }
-
-    SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
-    SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
-    SDKUnhook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
-    SDKUnhook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
 }
 
 void Models_OnPlayerDeath(int client)

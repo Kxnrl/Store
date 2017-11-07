@@ -292,7 +292,5 @@ else
 fi
 
 echo -e "Upload file ..."
-#lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/$5/$1/ $FILE"
-ncftp -u $FTP_USER -p $FTP_PSWD $FTP_HOST
-put -z $FILE /Store/$5/$1/$FILE
+travis_wait lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/$5/$1/ $FILE"
 exit

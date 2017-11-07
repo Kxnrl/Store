@@ -3,7 +3,7 @@ addons:
     - lib32z1
     - lib32stdc++6
     - p7zip-full
-    - ncftp
+    - lftp
 
 language: c
 

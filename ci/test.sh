@@ -74,7 +74,7 @@ do
   sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"addons/sourcemod/plugins/store_ttt.smx_cg" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"addons/sourcemod/plugins/store_ttt_cg.smx" >nul
 if [ ! -f "addons/sourcemod/plugins/store_ttt_cg.smx" ]; then
     echo "Compile store core [ttt] *CG* failed!"
     exit 1;

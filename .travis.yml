@@ -1,9 +1,9 @@
 addons:
   apt_packages:
-    - lftp
     - lib32z1
     - lib32stdc++6
     - p7zip-full
+    - ncftp
 
 language: c
 

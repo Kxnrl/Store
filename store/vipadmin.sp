@@ -22,11 +22,13 @@ public bool VIP_Config(Handle &kv, int itemid)
 
 public int VIP_Equip(int client, int id)
 {
+#if defined _CG_CORE_INCLUDED
     if(CG_ClientIsVIP(client))
     {
         tPrintToChat(client, "\x04%t", "you are already vip");
         return -1;
     }
+#endif
 
     tPrintToChat(client, "%t", "go to forum to buy vip chat");
 

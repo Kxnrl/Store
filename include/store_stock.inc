@@ -1,3 +1,5 @@
+#include <sdktools>
+
 #define STRING(%1) %1, sizeof(%1)
 
 #define ITEM_NAME_LENGTH 64
@@ -396,25 +398,11 @@ public bool TraceRayDontHitSelf(int entity, int mask, any data)
     return true;
 }
 
-stock bool GetClientPrivilege(int client, int flag, int flags = -1)
-{
-    if(flags==-1)
-        flags = GetUserFlagBits(client);
-    
-    if(flag == 0 || flags & flag || flags & ADMFLAG_ROOT)
-        return true;
-
-    return false;
-}
-
 stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, char[] display, any ...)
 {
     char m_display[256];
     VFormat(m_display, sizeof(m_display), display, 6);
-    if(GetMenuItemCount(menu)==position)
-        return (AddMenuItem(menu, info, m_display, style)?true:false);
-    else
-        return (InsertMenuItem(menu, position, info, m_display, style)?true:false);
+    return (GetMenuItemCount(menu)==position) ? AddMenuItem(menu, info, m_display, style) : InsertMenuItem(menu, position, info, m_display, style);
 }
 
 public void SQLCallback_Void_PrintQuery(Handle owner, Handle hndl, const char[] error, any data)
@@ -456,34 +444,213 @@ stock bool AllowItemForVIP(int client, bool vip)
     if(!vip)
         return true;
 
+#if defined _CG_CORE_INCLUDED
     return CG_ClientIsVIP(client);
+#else
+    int flags = GetUserFlagBits(client);
+    if(flags & ADMFLAG_ROOT || flags & ADMFLAG_RESERVATION)
+        return true;
+    return false;
+#endif
 }
-/*
-stock void SetDefaultSkin(int client, int team)
+
+stock bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
 {
-    char m_szModel[128];
-    GetEntPropString(client, Prop_Data, "m_ModelName", m_szModel, 128);
-
-    if(team == 2)
+    if(!GetEdictClassname(weapon, classname, maxLen))
+        return false;
+    
+    if(!HasEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
+        return false;
+    
+    switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
     {
-        SetEntityModel(client, (StrContains(m_szModel, "tm_anarchist") != -1 || StrContains(m_szModel, "tm_phoenix") != -1) ? "models/player/custom_player/legacy/tm_pirate.mdl" : "models/player/custom_player/legacy/tm_anarchist.mdl");
-        SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/t_arms.mdl");
+        case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
+        case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
+        case 63: strcopy(classname, maxLen, "weapon_cz75a");
+        case 64: strcopy(classname, maxLen, "weapon_revolver");
     }
-    else if(team == 3)
-    {
-        SetEntityModel(client, (StrContains(m_szModel, "ctm_fbi") != -1 || StrContains(m_szModel, "ctm_sas") != -1 || StrContains(m_szModel, "ctm_swat") != -1) ? "models/player/custom_player/legacy/ctm_gign.mdl" : "models/player/custom_player/legacy/ctm_fbi.mdl");
-        SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/weapons/ct_arms.mdl");
-    }
+    
+    return true;
 }
 
-stock void PrecacheDefaultModel()
+// credits:  https://github.com/bcserv/smlib/
+stock int GetClientWeaponIndexByClassname(int client, const char[] classname)
 {
-    PrecacheModel("models/player/custom_player/legacy/tm_anarchist.mdl");
-    PrecacheModel("models/player/custom_player/legacy/tm_pirate.mdl");
-    PrecacheModel("models/player/custom_player/legacy/ctm_gign.mdl");
-    PrecacheModel("models/player/custom_player/legacy/ctm_fbi.mdl");
+    int offset = FindDataMapInfo(client, "m_hMyWeapons") - 4;
 
-    PrecacheModel("models/weapons/t_arms.mdl");
-    PrecacheModel("models/weapons/ct_arms.mdl");
+    int weapon = -1;
+    char weaponclass[32];
+    for(int i = 0; i < 48; ++i)
+    {
+        offset += 4;
+
+        weapon = GetEntDataEnt2(client, offset);
+
+        if(!IsValidEdict(weapon) || !GetEdictClassname(weapon, weaponclass, 32) || StrContains(weaponclass, "weapon_") != 0)
+            continue;
+
+        if(strcmp(weaponclass, classname) == 0)
+            return weapon;
+    }
+
+    return -1;
 }
-*/
+
+stock bool IsValidClient(int client)
+{
+    if(client > MaxClients || client < 1)
+        return false;
+
+    if(!IsClientInGame(client))
+        return false;
+
+    return true;
+}
+
+stock void ClearTimer(Handle &timer)
+{
+    if(timer != INVALID_HANDLE)
+    {
+        KillTimer(timer);
+        timer = INVALID_HANDLE;
+    }
+}
+
+stock int GetClientAimTargetPos(int client, float pos[3]) 
+{
+    if(client < 1) 
+        return -1;
+
+    float vAngles[3];
+    float vOrigin[3];
+    
+    GetClientEyePosition(client,vOrigin);
+    GetClientEyeAngles(client, vAngles);
+    
+    Handle trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceFilterAllEntities, client);
+    
+    TR_GetEndPosition(pos, trace);
+    
+    int entity = TR_GetEntityIndex(trace);
+    
+    CloseHandle(trace);
+    
+    return entity;
+}
+
+public bool TraceFilterAllEntities(int entity, int contentsMask, int client)
+{
+    if(entity == client || entity > MaxClients || !IsClientInGame(entity) || !IsPlayerAlive(entity))
+        return false;
+
+    return true;
+}
+
+stock void SetMenuTitleEx(Handle menu, const char[] fmt, any ...)
+{
+    char m_szBuffer[256];
+    VFormat(m_szBuffer, 256, fmt, 3);
+    Format(m_szBuffer, 256, "%s\n　", m_szBuffer);
+
+    SetMenuTitle(menu, m_szBuffer);
+}
+
+stock bool AddMenuItemEx(Handle menu, int style, char[] info, char[] display, any ...)
+{
+    char m_display[256];
+    VFormat(m_display, sizeof(m_display), display, 5);
+    return AddMenuItem(menu, info, m_display, style);
+}
+
+stock void tPrintToChat(int client, const char[] szMessage, any ...)
+{
+    char szBuffer[256];
+    VFormat(szBuffer, 256, szMessage, 3);
+    ReplaceColorsCode(szBuffer, 256);
+    PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
+}
+
+stock void tPrintToChatAll(const char[] szMessage, any ...)
+{
+    char szBuffer[256];
+
+    for(int client = 1; client <= MaxClients; client++)
+    {
+        if(IsClientInGame(client) && !IsFakeClient(client))
+        {
+            SetGlobalTransTarget(client);
+            VFormat(szBuffer, 256, szMessage, 2);
+            ReplaceColorsCode(szBuffer, 256);
+            PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
+        }
+    }
+}
+
+stock void ReplaceColorsCode(char[] message, int maxLen)
+{
+    ReplaceString(message, maxLen, "{normal}", "\x01", false);
+    ReplaceString(message, maxLen, "{default}", "\x01", false);
+    ReplaceString(message, maxLen, "{white}", "\x01", false);
+    ReplaceString(message, maxLen, "{darkred}", "\x02", false);
+    ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
+    ReplaceString(message, maxLen, "{pink}", "\x03", false);
+    ReplaceString(message, maxLen, "{green}", "\x04", false);
+    ReplaceString(message, maxLen, "{highlight}", "\x04", false);
+    ReplaceString(message, maxLen, "{yellow}", "\x05", false);
+    ReplaceString(message, maxLen, "{lightgreen}", "\x05", false);
+    ReplaceString(message, maxLen, "{lime}", "\x06", false);
+    ReplaceString(message, maxLen, "{lightred}", "\x07", false);
+    ReplaceString(message, maxLen, "{red}", "\x07", false);
+    ReplaceString(message, maxLen, "{gray}", "\x08", false);
+    ReplaceString(message, maxLen, "{grey}", "\x08", false);
+    ReplaceString(message, maxLen, "{olive}", "\x09", false);
+    ReplaceString(message, maxLen, "{orange}", "\x10", false);
+    ReplaceString(message, maxLen, "{silver}", "\x0A", false);
+    ReplaceString(message, maxLen, "{lightblue}", "\x0B", false);
+    ReplaceString(message, maxLen, "{blue}", "\x0C", false);
+    ReplaceString(message, maxLen, "{purple}", "\x0E", false);
+    ReplaceString(message, maxLen, "{darkorange}", "\x0F", false);
+}
+
+stock void RemoveAllColors(char[] message, int maxLen)
+{
+	ReplaceString(message, maxLen, "{normal}", "", false);
+	ReplaceString(message, maxLen, "{default}", "", false);
+	ReplaceString(message, maxLen, "{white}", "", false);
+	ReplaceString(message, maxLen, "{darkred}", "", false);
+	ReplaceString(message, maxLen, "{teamcolor}", "", false);
+	ReplaceString(message, maxLen, "{pink}", "", false);
+	ReplaceString(message, maxLen, "{green}", "", false);
+	ReplaceString(message, maxLen, "{HIGHLIGHT}", "", false);
+	ReplaceString(message, maxLen, "{lime}", "", false);
+	ReplaceString(message, maxLen, "{lightgreen}", "", false);
+	ReplaceString(message, maxLen, "{lime}", "", false);
+	ReplaceString(message, maxLen, "{lightred}", "", false);
+	ReplaceString(message, maxLen, "{red}", "", false);
+	ReplaceString(message, maxLen, "{gray}", "", false);
+	ReplaceString(message, maxLen, "{grey}", "", false);
+	ReplaceString(message, maxLen, "{olive}", "", false);
+	ReplaceString(message, maxLen, "{yellow}", "", false);
+	ReplaceString(message, maxLen, "{orange}", "", false);
+	ReplaceString(message, maxLen, "{silver}", "", false);
+	ReplaceString(message, maxLen, "{lightblue}", "", false);
+	ReplaceString(message, maxLen, "{blue}", "", false);
+	ReplaceString(message, maxLen, "{purple}", "", false);
+	ReplaceString(message, maxLen, "{darkorange}", "", false);
+	ReplaceString(message, maxLen, "\x01", "", false);
+	ReplaceString(message, maxLen, "\x02", "", false);
+	ReplaceString(message, maxLen, "\x03", "", false);
+	ReplaceString(message, maxLen, "\x04", "", false);
+	ReplaceString(message, maxLen, "\x05", "", false);
+	ReplaceString(message, maxLen, "\x06", "", false);
+	ReplaceString(message, maxLen, "\x07", "", false);
+	ReplaceString(message, maxLen, "\x08", "", false);
+	ReplaceString(message, maxLen, "\x09", "", false);
+	ReplaceString(message, maxLen, "\x10", "", false);
+	ReplaceString(message, maxLen, "\x0A", "", false);
+	ReplaceString(message, maxLen, "\x0B", "", false);
+	ReplaceString(message, maxLen, "\x0C", "", false);
+	ReplaceString(message, maxLen, "\x0D", "", false);
+	ReplaceString(message, maxLen, "\x0E", "", false);
+	ReplaceString(message, maxLen, "\x0F", "", false);
+}

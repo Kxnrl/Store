@@ -1,10 +1,17 @@
 #define Module_Model
 
-#undef REQUIRE_EXTENSIONS
+#if defined _CG_CORE_INCLUDED
+int g_iRefPVM[MAXPLAYERS+1];
+int g_iOldSequence[MAXPLAYERS+1];
+bool g_bHooked[MAXPLAYERS+1];
+char g_szCurWpn[MAXPLAYERS+1][64];
+float g_fOldCycle[MAXPLAYERS+1];
+Handle g_tClientWeapon[MAXPLAYERS+1];
+#else
 #undef REQUIRE_PLUGIN
 #include <fpvm_interface>
-#define REQUIRE_EXTENSIONS
 #define REQUIRE_PLUGIN
+#endif
 
 enum CustomModel
 {
@@ -22,11 +29,13 @@ int g_iCustomModels = 0;
 
 public void Models_OnPluginStart()
 {
+#if !defined _CG_CORE_INCLUDED
     if(FindPluginByFile("fpvm_interface.smx") == INVALID_HANDLE)
     {
-        LogError("fpvm_interface isn't installed or failed to load. Models will be disabled.");
+        LogError("fpvm_interface isn't installed or failed to load. Models will be disabled. -> https://github.com/Franc1sco/First-Person-View-Models-Interface");
         return;
     }
+#endif
 
     Store_RegisterHandler("vwmodel", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
 }
@@ -37,15 +46,11 @@ public void Models_OnMapStart()
     {
         g_eCustomModel[i][iCacheIdV] = PrecacheModel2(g_eCustomModel[i][szModelV], true);
         Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelV]);
-        
-        //LogMessage("PrecacheModel: %s", g_eCustomModel[i][szModelV]);
-        
+
         if(!StrEqual(g_eCustomModel[i][szModelW], "none", false))
         {
             g_eCustomModel[i][iCacheIdW] = PrecacheModel2(g_eCustomModel[i][szModelW], true);
             Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelW]);
-            
-            //LogMessage("PrecacheModel: %s", g_eCustomModel[i][szModelW]);
             
             if(g_eCustomModel[i][iCacheIdW] == 0)
                 g_eCustomModel[i][iCacheIdW] = -1;
@@ -57,8 +62,6 @@ public void Models_OnMapStart()
             {
                 PrecacheModel2(g_eCustomModel[i][szModelD], true);
                 Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelD]);
-                
-                //LogMessage("PrecacheModel: %s", g_eCustomModel[i][szModelD]);
             }
         }
     }
@@ -89,13 +92,22 @@ public int Models_Config(Handle &kv, int itemid)
 public int Models_Equip(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
+#if defined _CG_CORE_INCLUDED
+    if(!Models_AddModels(client, g_eCustomModel[m_iData][szEntity], g_eCustomModel[m_iData][iCacheIdV], g_eCustomModel[m_iData][iCacheIdW], g_eCustomModel[m_iData][szModelD]) && IsClientInGame(client))
+        tPrintToChat(client, "\x02 unknown error! please contact to admin!");
+#else
     FPVMI_SetClientModel(client, g_eCustomModel[m_iData][szEntity], g_eCustomModel[m_iData][iCacheIdV], g_eCustomModel[m_iData][iCacheIdW], g_eCustomModel[m_iData][szModelD]);
+#endif
     return g_eCustomModel[m_iData][iSlot];
 }
 
 public int Models_Remove(int client, int id) 
 {
     int m_iData = Store_GetDataIndex(id);
+#if defined _CG_CORE_INCLUDED
+    if(!Models_RemoveModels(client, g_eCustomModel[m_iData][szEntity]) && IsClientInGame(client))
+        tPrintToChat(client, "\x02 unknown error! please contact to admin!");
+#else
     FPVMI_RemoveViewModelToClient(client, g_eCustomModel[m_iData][szEntity]);
     if(!StrEqual(g_eCustomModel[m_iData][szModelW], "none", false))
     {
@@ -105,5 +117,339 @@ public int Models_Remove(int client, int id)
     {
         FPVMI_RemoveDropModelToClient(client, g_eCustomModel[m_iData][szEntity]);
     }
+#endif
     return g_eCustomModel[m_iData][iSlot];
 }
+
+#if defined _CG_CORE_INCLUDED
+public void OnClientPutInServer(int client)
+{
+    g_iRefPVM[client] = INVALID_ENT_REFERENCE;
+    g_bHooked[client] = false;
+
+    g_tClientWeapon[client] = CreateTrie();
+}
+
+void Models_OnClientDisconnect(int client)
+{
+    if(!IsClientInGame(client))
+        return;
+
+    if(g_tClientWeapon[client] != INVALID_HANDLE)
+    {
+        CloseHandle(g_tClientWeapon[client]);
+        g_tClientWeapon[client] = INVALID_HANDLE;
+    }
+
+    SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
+    SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
+    SDKUnhook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
+    SDKUnhook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
+}
+
+void Models_OnPlayerDeath(int client)
+{
+    if(!g_bHooked[client])
+        return;
+
+    SDKUnhook(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
+    g_bHooked[client] = false;
+}
+
+public void Hook_WeaponSwitchPost_Models(int client, int weapon) 
+{ 
+    if(!IsValidEdict(weapon))
+        return;
+    
+    char classname[32];
+    if(!GetWeaponClassname(weapon, classname, 32))
+        return;
+
+    if(StrContains(classname, "item", false) == 0)
+        return;
+    
+    char m_szGlobalName[256];
+    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", m_szGlobalName, 256);
+    if(StrContains(m_szGlobalName, "custom", false) != 0)
+        return;
+    
+    ReplaceString(m_szGlobalName, 256, "custom", "");
+
+    char m_szData[2][192];
+    ExplodeString(m_szGlobalName, ";", m_szData, 2, 192);
+
+    int model_index = StringToInt(m_szData[0]);
+    
+    int m_iPVM = EntRefToEntIndex(g_iRefPVM[client]);
+    if(m_iPVM == INVALID_ENT_REFERENCE)
+    {
+        g_iRefPVM[client] = GetViewModelReference(client, -1); 
+        m_iPVM = EntRefToEntIndex(g_iRefPVM[client]);
+        if(m_iPVM == INVALID_ENT_REFERENCE) 
+            return;
+    }
+
+    SetEntProp(weapon, Prop_Send, "m_nModelIndex", 0); 
+    SetEntProp(m_iPVM, Prop_Send, "m_nModelIndex", model_index);
+
+    strcopy(g_szCurWpn[client], 64, classname);
+    g_bHooked[client] = SDKHookEx(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
+}
+
+public Action Hook_WeaponSwitch_Models(int client, int weapon) 
+{ 
+    if(g_bHooked[client])
+    {
+        SDKUnhook(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
+        g_bHooked[client] = false;
+    }
+    return Plugin_Continue;
+}
+
+public Action Hook_WeaponEquip_Models(int client, int weapon)
+{
+    if(!IsValidEdict(weapon))
+        return Plugin_Continue;
+
+    if(GetEntProp(weapon, Prop_Send, "m_hPrevOwner") > 0)
+        return Plugin_Continue;
+
+    char classname[32];
+    if(!GetWeaponClassname(weapon, classname, 32))
+        return Plugin_Continue;
+
+    char m_szGlobalName[256];
+    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", m_szGlobalName, 256);
+    if(StrContains(m_szGlobalName, "custom", false) == 0)
+        return Plugin_Continue;
+
+    char classname_world[32], classname_drop[32];
+    FormatEx(classname_world, 32, "%s_world", classname);
+    FormatEx(classname_drop,  32, "%s_drop",  classname);
+
+    int model_world;
+    if(GetTrieValue(g_tClientWeapon[client], classname_world, model_world) && model_world != -1)
+    {
+        int iWorldModel = GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel"); 
+        if(IsValidEdict(iWorldModel))
+            SetEntProp(iWorldModel, Prop_Send, "m_nModelIndex", model_world);
+    }
+
+    char model_drop[192];
+    if(GetTrieString(g_tClientWeapon[client], classname_drop, model_drop, 192) && !StrEqual(model_drop, "none"))
+    {
+        if(!IsModelPrecached(model_drop))
+            PrecacheModel(model_drop);
+    }
+
+    int model_index;
+    if(!GetTrieValue(g_tClientWeapon[client], classname, model_index) || model_index == -1)
+        return Plugin_Continue;
+
+    FormatEx(m_szGlobalName, 256, "custom%i;%s", model_index, model_drop);
+    DispatchKeyValue(weapon, "globalname", m_szGlobalName);
+    
+    return Plugin_Continue;
+}
+
+public void Hook_WeaponDropPost_Models(int client, int weapon)
+{
+    if(!IsValidEdict(weapon))
+        return;
+
+    RequestFrame(SetWorldModel, EntIndexToEntRef(weapon));
+}
+
+public void Hook_PostThinkPost_Models(int client)
+{
+    int model = EntRefToEntIndex(g_iRefPVM[client]);
+
+    if(model == INVALID_ENT_REFERENCE)
+    {
+        SDKUnhook(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
+        g_bHooked[client] = false;
+        return;
+    }
+
+    int m_iSequence = GetEntProp(model, Prop_Send, "m_nSequence");
+    float m_fCycle = GetEntPropFloat(model, Prop_Data, "m_flCycle");
+
+    if(m_fCycle < g_fOldCycle[client] && m_iSequence == g_iOldSequence[client])
+    {
+        if(StrEqual(g_szCurWpn[client], "weapon_knife"))
+        {
+            switch(m_iSequence)
+            {
+                case  3: SetEntProp(model, Prop_Send, "m_nSequence", 4);
+                case  4: SetEntProp(model, Prop_Send, "m_nSequence", 3);
+                case  5: SetEntProp(model, Prop_Send, "m_nSequence", 6);
+                case  6: SetEntProp(model, Prop_Send, "m_nSequence", 5);
+                case  7: SetEntProp(model, Prop_Send, "m_nSequence", 8);
+                case  8: SetEntProp(model, Prop_Send, "m_nSequence", 7);
+                case  9: SetEntProp(model, Prop_Send, "m_nSequence", 10);
+                case 10: SetEntProp(model, Prop_Send, "m_nSequence", 11); 
+                case 11: SetEntProp(model, Prop_Send, "m_nSequence", 10);
+            }
+        }
+        else if(StrEqual(g_szCurWpn[client], "weapon_ak47"))
+        {
+            switch(m_iSequence)
+            {
+                case 3: SetEntProp(model, Prop_Send, "m_nSequence", 2);
+                case 2: SetEntProp(model, Prop_Send, "m_nSequence", 1);
+                case 1: SetEntProp(model, Prop_Send, "m_nSequence", 3);            
+            }
+        }
+        else if(StrEqual(g_szCurWpn[client], "weapon_mp7"))
+        {
+            if(m_iSequence == 3)
+                SetEntProp(model, Prop_Send, "m_nSequence", -1);
+        }
+        else if(StrEqual(g_szCurWpn[client], "weapon_awp"))
+        {
+            if(m_iSequence == 1)
+                SetEntProp(model, Prop_Send, "m_nSequence", -1);    
+        }
+        else if(StrEqual(g_szCurWpn[client], "weapon_deagle"))
+        {
+            switch(m_iSequence)
+            {
+                case 3: SetEntProp(model, Prop_Send, "m_nSequence", 2);
+                case 2: SetEntProp(model, Prop_Send, "m_nSequence", 1);
+                case 1: SetEntProp(model, Prop_Send, "m_nSequence", 3);    
+            }
+        }
+    }
+
+    g_iOldSequence[client] = m_iSequence;
+    g_fOldCycle[client] = m_fCycle;
+}
+
+void SetWorldModel(int iRef)
+{
+    int weapon = EntRefToEntIndex(iRef);
+    
+    if(!IsValidEdict(weapon))
+        return;
+
+    char m_szGlobalName[256];
+    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", m_szGlobalName, 256);
+
+    if(StrContains(m_szGlobalName, "custom", false) != 0)
+        return;
+
+    ReplaceString(m_szGlobalName, 64, "custom", "");
+
+    char m_szData[2][192];
+    ExplodeString(m_szGlobalName, ";", m_szData, 2, 192);
+
+    if(StrEqual(m_szData[1], "none"))
+        return;
+
+    SetEntityModel(weapon, m_szData[1]);
+}
+
+bool Models_AddModels(int client, const char[] classname, int model_view, int model_world, const char[] model_drop)
+{
+    if(!IsClientInGame(client) || g_tClientWeapon[client] == INVALID_HANDLE)
+        return false;
+    
+    if(GetTrieSize(g_tClientWeapon[client]) == 0)
+    {
+        SDKHook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
+        SDKHook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
+        SDKHook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
+        SDKHook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
+    }
+
+    char world_name[32], drop_name[32];
+    FormatEx(world_name, 32, "%s_world", classname);
+    FormatEx(drop_name,  32, "%s_drop",  classname);
+
+    SetTrieValue(g_tClientWeapon[client],  classname,  model_view);
+    SetTrieValue(g_tClientWeapon[client],  world_name, model_world);
+    SetTrieString(g_tClientWeapon[client], drop_name,  model_drop);
+
+    RefreshWeapon(client, classname);
+    
+    return true;
+}
+
+bool Models_RemoveModels(int client, const char[] classname)
+{
+    if(!IsClientInGame(client) || g_tClientWeapon[client] == INVALID_HANDLE)
+        return false;
+
+    char world_name[32], drop_name[32];
+    FormatEx(world_name, 32, "%s_world", classname);
+    FormatEx(drop_name,  32, "%s_drop",  classname);
+
+    RemoveFromTrie(g_tClientWeapon[client], classname);
+    RemoveFromTrie(g_tClientWeapon[client], world_name);
+    RemoveFromTrie(g_tClientWeapon[client], drop_name);
+    
+    if(GetTrieSize(g_tClientWeapon[client]) == 0)
+    {
+        SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
+        SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
+        SDKUnhook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
+        SDKUnhook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
+    }
+
+    RefreshWeapon(client, classname);
+
+    return true;
+}
+
+void RefreshWeapon(int client, const char[] classname)
+{
+    if(!IsClientInGame(client) || !IsPlayerAlive(client))
+        return;
+
+    int weapon = GetClientWeaponIndexByClassname(client, classname);
+    
+    if(weapon == -1)
+        return;
+
+    int m_iPrimaryAmmoCount = GetEntProp(weapon, Prop_Data, "m_iPrimaryAmmoCount");
+    int m_iSecondaryAmmoCount = GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount");
+    int m_iClip1 = GetEntProp(weapon, Prop_Data, "m_iClip1");
+    int m_iClip2 = GetEntProp(weapon, Prop_Data, "m_iClip2");
+
+    RemovePlayerItem(client, weapon);
+    AcceptEntityInput(weapon, "Kill");
+    
+    weapon = GivePlayerItem(client, classname);
+
+    if(StrEqual(classname, "weapon_knife"))
+        EquipPlayerWeapon(client, weapon);
+
+    if(m_iPrimaryAmmoCount > -1) SetEntProp(weapon, Prop_Data, "m_iPrimaryAmmoCount", m_iPrimaryAmmoCount);
+    if(m_iSecondaryAmmoCount > -1) SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", m_iSecondaryAmmoCount);
+    if(m_iClip1 > -1) SetEntProp(weapon, Prop_Data, "m_iClip1", m_iClip1);
+    if(m_iClip2 > -1) SetEntProp(weapon, Prop_Data, "m_iClip2", m_iClip2);
+}
+
+int GetViewModelReference(int client, int entity) 
+{ 
+    int owner;
+
+    while ((entity = FindEntityByClassname2(entity, "predicted_viewmodel")) != -1) 
+    { 
+        owner = GetEntPropEnt(entity, Prop_Send, "m_hOwner"); 
+
+        if(owner == client) 
+            return EntIndexToEntRef(entity); 
+    }
+
+    return INVALID_ENT_REFERENCE; 
+}
+
+int FindEntityByClassname2(int start, const char[] classname) 
+{ 
+    while(start > MaxClients && !IsValidEntity(start))
+        start--; 
+
+    return FindEntityByClassname(start, classname); 
+}
+#endif

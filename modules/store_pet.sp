@@ -1,3 +1,6 @@
+#pragma semicolon 1
+#pragma newdecls required
+
 #include <sdktools>
 #include <sdkhooks>
 #include <store>
@@ -7,13 +10,19 @@
 enum Pet
 {
     String:model[192],
-    String:run[32],
     String:idle[32],
+    String:run[32],
     String:death[32],
     Float:fPosition[3],
     Float:fAngles[3],
     iSlot
 }
+
+/* SQL */
+// ALTER TABLE store_item_child 
+// ADD COLUMN run varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN',
+// ADD COLUMN idle varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE',
+// ADD COLUMN death varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH';
 
 int g_ePets[STORE_MAX_ITEMS][Pet];
 int g_iPets = 0;
@@ -78,6 +87,7 @@ public int Pets_Config(Handle kv, int itemid)
     KvGetString(kv, "model", g_ePets[g_iPets][model], 256);
     KvGetString(kv, "idle", g_ePets[g_iPets][idle], 32);
     KvGetString(kv, "run", g_ePets[g_iPets][run], 32);
+    KvGetString(kv, "death", g_ePets[g_iPets][death], 32);
     KvGetVector(kv, "position", m_fTemp);
     g_ePets[g_iPets][fPosition] = m_fTemp;
     KvGetVector(kv, "angles", m_fTemp);
@@ -296,10 +306,10 @@ void ResetPet(int client, int slot)
 
     if(!IsValidEntity(client))
         return;
-
-    AcceptEntityInput(entity, "Kill");
     
     SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
+
+    AcceptEntityInput(entity, "Kill");
 }
 
 void DeathPet(int client, int slot)
@@ -323,9 +333,29 @@ void DeathPet(int client, int slot)
     SetVariantString(g_ePets[m_iData][death]);
     AcceptEntityInput(EntRefToEntIndex(g_iPetRef[client][slot]), "SetAnimation");
     g_iLastAnimation[client][slot] = 3;
+    HookSingleEntityOutput(entity, "OnAnimationDone", Hook_OnAnimationDone, true);
 }
 
 public Action Hook_SetTransmit_Pet(int ent, int client)
 {
     return g_bHide[client] ? Plugin_Handled : Plugin_Continue;
+}
+
+public void Hook_OnAnimationDone(const char[] output, int caller, int activator, float delay)
+{
+    if(!IsValidEdict(caller))
+        return;
+
+    int owner = GetEntPropEnt(caller, Prop_Send, "m_hOwnerEntity");
+    
+    if(1 <= owner <= MaxClients && IsClientInGame(owner))
+    {
+        int iRef = EntIndexToEntRef(caller);
+        for(int slot = 0; slot < STORE_MAX_SLOTS; ++slot)
+            if(g_iPetRef[owner][slot] == iRef)
+                g_iPetRef[owner][slot] = INVALID_ENT_REFERENCE;
+    }
+
+    SDKUnhook(caller, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
+    AcceptEntityInput(caller, "Kill");
 }

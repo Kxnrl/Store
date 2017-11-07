@@ -1,10 +1,7 @@
 #define Module_Skin
 
-#undef REQUIRE_EXTENSIONS
-#undef REQUIRE_PLUGIN
-#include <csc>
-#define REQUIRE_EXTENSIONS
-#define REQUIRE_PLUGIN
+// this is broadcast system (csgogamers.com required)
+native void CG_Broadcast(bool toForum, const char[] szContent);
 
 #define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
 
@@ -370,18 +367,6 @@ bool ResetClientWeaponBySlot(int client, int slot)
     return true;
 }
 
-void GetWeaponClassname(int weapon, char[] classname, int maxLen)
-{
-    GetEdictClassname(weapon, classname, maxLen);
-    switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
-    {
-        case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
-        case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
-        case 63: strcopy(classname, maxLen, "weapon_cz75a");
-        case 64: strcopy(classname, maxLen, "weapon_revolver");
-    }
-}
-
 void Store_PreviewSkin(int client, int itemid)
 {
     int m_iViewModel = CreateEntityByName("prop_dynamic_override"); //prop_physics_multiplayer
@@ -610,6 +595,7 @@ void FadeScreenWhite(int client)
 }
 #endif
 
+#if defined _CG_CORE_INCLUDED
 public Action Timer_DeathModel(Handle timer, Handle pack)
 {
     int client = ReadPackCell(pack);
@@ -648,6 +634,7 @@ public Action Timer_DeathModel(Handle timer, Handle pack)
 
     return Plugin_Stop;
 }
+#endif
 
 #if defined GM_ZE
 public void CG_OnRoundEnd(int winner)

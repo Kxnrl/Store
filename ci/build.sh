@@ -267,30 +267,49 @@ mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modu
 mv store_pet.smx build/addons/sourcemod/plugins/modules
 
 
+#解压素材文件
 echo -e "Extract resource file ..."
 echo -e "Processing archive: resources/materials/materials.7z"
 7z x "resources/materials/materials.7z" -o"build/materials" >nul
+mv resources/materials/materials.txt build/materials
 echo -e "Processing archive: resources/materials/models.7z"
 7z x "resources/models/models.7z" -o"build/models" >nul
+mv resources/materials/models.txt build/models
 echo -e "Processing archive: resources/materials/particles.7z"
 7z x "resources/particles/particles.7z" -o"build/particles" >nul
+mv resources/materials/particles.txt build/particles
 echo -e "Processing archive: resources/materials/sound.7z"
 7z x "resources/sound/sound.7z" -o"build/sound" >nul
+mv resources/materials/sound.txt build/sound
 
-echo -e "Move configs and translations to build folder"
+
+#移动配置和翻译文件
+echo -e "Move configs and translations to build folder ..."
 mv configs/* build/addons/sourcemod/configs
 mv translations/* build/addons/sourcemod/translations
 mv utils build
 mv LICENSE build
+mv README.md build
 
+
+#移动其他的代码文件
+echo -e "Move other scripts to build folder ..."
+cp -rf module build/addons/sourcemod/scripting_CG
+cp -rf include build/addons/sourcemod/scripting_CG
+mv -f module build/addons/sourcemod/scripting
+mv -f include build/addons/sourcemod/scripting
+
+
+#打包
 echo -e "Compress file ..."
 cd build
 if [ "$5" = "master" ]; then
-    7z a $FILE -t7z -mx9 LICENSE addons utils materials models particles sound >nul
+    7z a $FILE -t7z -mx9 LICENSE README.md addons utils materials models particles sound >nul
 else
-    7z a $FILE -t7z -mx9 LICENSE addons utils >nul
+    7z a $FILE -t7z -mx9 LICENSE README.md addons utils >nul
 fi
 
+
+#上传
 echo -e "Upload file ..."
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/$5/$1/ $FILE"
-exit

@@ -66,7 +66,7 @@ cp -r include/* addons/sourcemod/scripting/include
 
 
 #建立输出文件夹
-echo -e "Check build folder"
+echo -e "Check build folder ..."
 mkdir build
 mkdir build/addons
 mkdir build/addons/sourcemod/
@@ -286,10 +286,11 @@ mv LICENSE build
 echo -e "Compress file ..."
 cd build
 if [ "$5" = "master" ]; then
-    7z a $FILE -t7z -mx9 LICENSE addons utils materials models particles sound
+    7z a $FILE -t7z -mx9 LICENSE addons utils materials models particles sound >nul
 else
-    7z a $FILE -t7z -mx9 LICENSE addons utils
+    7z a $FILE -t7z -mx9 LICENSE addons utils >nul
 fi
 
 echo -e "Upload file ..."
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/$5/$1/ $FILE"
+exit

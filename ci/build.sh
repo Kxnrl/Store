@@ -274,13 +274,13 @@ echo -e "Processing archive: resources/materials/materials.7z"
 mv resources/materials/materials.txt build/materials
 echo -e "Processing archive: resources/materials/models.7z"
 7z x "resources/models/models.7z" -o"build/models" >nul
-mv resources/materials/models.txt build/models
+mv resources/models/models.txt build/models
 echo -e "Processing archive: resources/materials/particles.7z"
 7z x "resources/particles/particles.7z" -o"build/particles" >nul
-mv resources/materials/particles.txt build/particles
+mv resources/particles/particles.txt build/particles
 echo -e "Processing archive: resources/materials/sound.7z"
 7z x "resources/sound/sound.7z" -o"build/sound" >nul
-mv resources/materials/sound.txt build/sound
+mv resources/sound/sound.txt build/sound
 
 
 #移动配置和翻译文件
@@ -294,9 +294,9 @@ mv README.md build
 
 #移动其他的代码文件
 echo -e "Move other scripts to build folder ..."
-cp -rf module build/addons/sourcemod/scripting_CG
+cp -rf store build/addons/sourcemod/scripting_CG
 cp -rf include build/addons/sourcemod/scripting_CG
-mv -f module build/addons/sourcemod/scripting
+mv -f store build/addons/sourcemod/scripting
 mv -f include build/addons/sourcemod/scripting
 
 

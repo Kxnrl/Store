@@ -1404,8 +1404,8 @@ public Action Timer_OpeningCase(Handle timer, int client)
     
     int size = GetArraySize(g_ArraySkin);
     int aid = UTIL_GetRandomInt(0, size-1);
-    char modelname[256];
-    GetArrayString(g_ArraySkin, aid, modelname, 256);
+    char modelname[32];
+    GetArrayString(g_ArraySkin, aid, modelname, 32);
     
     if(g_iClientCase[client] > 1)
     {
@@ -1415,15 +1415,19 @@ public Action Timer_OpeningCase(Handle timer, int client)
             switch(UTIL_GetRandomInt(1, 5))
             {
                 // 夕立
-                case 1: strcopy(modelname, 256, "models/player/custom_player/maoling/kantai_collection/yuudachi/yuudachi.mdl");
+                case 1: strcopy(modelname, 32, "skin_yuudachi_kai2");
                 // 艾米莉亚
-                case 2: strcopy(modelname, 256, "models/player/custom_player/maoling/re0/emilia_v2/emilia.mdl");
+                case 2: strcopy(modelname, 32, "skin_emilia_normal");
                 // 普魯魯特
-                case 3: strcopy(modelname, 256, "models/player/custom_player/maoling/neptunia/pururut/normal/pururut.mdl");
+                case 3: strcopy(modelname, 32, "skin_pururut_normal");
                 // 巡音流歌
-                case 4: strcopy(modelname, 256, "models/player/custom_player/maoling/vocaloid/luka/punk/luka.mdl");
+                case 4: strcopy(modelname, 32, "skin_luka_punk");
                 // NextBlack
-                case 5: strcopy(modelname, 256, "models/player/custom_player/maoling/neptunia/noire/nextform/nextblack_nothruster.mdl");
+                case 5: strcopy(modelname, 32, "skin_noire_nextform");
+                // 神崎兰子
+                case 6: strcopy(modelname, 32, "skin_kanzaki_normal");
+                // IA
+                case 7: strcopy(modelname, 32, "skin_ia_tda");
             }
         }
     }
@@ -3025,12 +3029,8 @@ void UTIL_ReloadConfig()
         if(!m_bSuccess)
             continue;
 
-        if(!g_eItems[g_iItems][bIgnore])
-        {
-            char modelPath[128];
-            item_child.FetchString(16, modelPath, 192);
-            PushArrayString(g_ArraySkin, modelPath);
-        }
+        if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && StrContains(m_szUniqueId, "skin_", false) == 0)
+            PushArrayString(g_ArraySkin, m_szUniqueId);
 
         for(int field = 0; field < item_child.FieldCount; ++field)
         {

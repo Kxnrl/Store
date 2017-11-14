@@ -1333,14 +1333,6 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
 
 void UTIL_OpenSkinCase(int client)
 {
-#if defined _CG_CORE_INCLUDED
-    if(CG_ClientGetUId(client) < 1)
-    {
-        tPrintToChat(client, "%T", "Open Case not available", client);
-        return;
-    }
-#endif
-
     Handle menu = CreateMenu(MenuHandler_SelectCase);
     SetMenuTitleEx(menu, "选择你要开的箱子\n信用点: %d", g_eClients[client][iCredits]);
     SetMenuExitBackButton(menu, true);

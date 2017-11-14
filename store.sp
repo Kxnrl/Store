@@ -51,13 +51,13 @@
 Handle g_hDatabase = INVALID_HANDLE;
 Handle g_ArraySkin = INVALID_HANDLE;
 
-Store_Item g_eItems[STORE_MAX_ITEMS][Store_Item];
-Client_Data g_eClients[MAXPLAYERS+1][Client_Data];
-Client_Item g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
-Type_Handler g_eTypeHandlers[STORE_MAX_HANDLERS][Type_Handler];
-Menu_Handler g_eMenuHandlers[STORE_MAX_HANDLERS][Menu_Handler];
-Item_Plan g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
-Compose_Data g_eCompose[MAXPLAYERS+1][Compose_Data];
+int g_eItems[STORE_MAX_ITEMS][Store_Item];
+int g_eClients[MAXPLAYERS+1][Client_Data];
+int g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
+int g_eTypeHandlers[STORE_MAX_HANDLERS][Type_Handler];
+int g_eMenuHandlers[STORE_MAX_HANDLERS][Menu_Handler];
+int g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
+int g_eCompose[MAXPLAYERS+1][Compose_Data];
 
 int g_iItems = 0;
 int g_iTypeHandlers = 0;
@@ -158,6 +158,10 @@ public Plugin myinfo =
 //////////////////////////////
 public void OnPluginStart()
 {
+    // Check Engine
+    if(GetEngineVersion() != Engine_CSGO)
+        SetFailState("Current game is not be supported! CSGO only!");
+
     // Setting default values
     for(int client = 1; client <= MaxClients; ++client)
     {
@@ -1404,8 +1408,8 @@ public Action Timer_OpeningCase(Handle timer, int client)
     
     int size = GetArraySize(g_ArraySkin);
     int aid = UTIL_GetRandomInt(0, size-1);
-    char modelname[256];
-    GetArrayString(g_ArraySkin, aid, modelname, 256);
+    char modelname[32];
+    GetArrayString(g_ArraySkin, aid, modelname, 32);
     
     if(g_iClientCase[client] > 1)
     {
@@ -1415,15 +1419,19 @@ public Action Timer_OpeningCase(Handle timer, int client)
             switch(UTIL_GetRandomInt(1, 5))
             {
                 // 夕立
-                case 1: strcopy(modelname, 256, "models/player/custom_player/maoling/kantai_collection/yuudachi/yuudachi.mdl");
+                case 1: strcopy(modelname, 32, "skin_yuudachi_kai2");
                 // 艾米莉亚
-                case 2: strcopy(modelname, 256, "models/player/custom_player/maoling/re0/emilia_v2/emilia.mdl");
+                case 2: strcopy(modelname, 32, "skin_emilia_normal");
                 // 普魯魯特
-                case 3: strcopy(modelname, 256, "models/player/custom_player/maoling/neptunia/pururut/normal/pururut.mdl");
+                case 3: strcopy(modelname, 32, "skin_pururut_normal");
                 // 巡音流歌
-                case 4: strcopy(modelname, 256, "models/player/custom_player/maoling/vocaloid/luka/punk/luka.mdl");
+                case 4: strcopy(modelname, 32, "skin_luka_punk");
                 // NextBlack
-                case 5: strcopy(modelname, 256, "models/player/custom_player/maoling/neptunia/noire/nextform/nextblack_nothruster.mdl");
+                case 5: strcopy(modelname, 32, "skin_noire_nextform");
+                // 神崎兰子
+                case 6: strcopy(modelname, 32, "skin_kanzaki_normal");
+                // IA
+                case 7: strcopy(modelname, 32, "skin_ia_tda");
             }
         }
     }
@@ -3025,12 +3033,8 @@ void UTIL_ReloadConfig()
         if(!m_bSuccess)
             continue;
 
-        if(!g_eItems[g_iItems][bIgnore])
-        {
-            char modelPath[128];
-            item_child.FetchString(16, modelPath, 192);
-            PushArrayString(g_ArraySkin, modelPath);
-        }
+        if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && StrContains(m_szUniqueId, "skin_", false) == 0)
+            PushArrayString(g_ArraySkin, m_szUniqueId);
 
         for(int field = 0; field < item_child.FieldCount; ++field)
         {

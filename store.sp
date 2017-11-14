@@ -51,13 +51,13 @@
 Handle g_hDatabase = INVALID_HANDLE;
 Handle g_ArraySkin = INVALID_HANDLE;
 
-Store_Item g_eItems[STORE_MAX_ITEMS][Store_Item];
-Client_Data g_eClients[MAXPLAYERS+1][Client_Data];
-Client_Item g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
-Type_Handler g_eTypeHandlers[STORE_MAX_HANDLERS][Type_Handler];
-Menu_Handler g_eMenuHandlers[STORE_MAX_HANDLERS][Menu_Handler];
-Item_Plan g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
-Compose_Data g_eCompose[MAXPLAYERS+1][Compose_Data];
+int g_eItems[STORE_MAX_ITEMS][Store_Item];
+int g_eClients[MAXPLAYERS+1][Client_Data];
+int g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
+int g_eTypeHandlers[STORE_MAX_HANDLERS][Type_Handler];
+int g_eMenuHandlers[STORE_MAX_HANDLERS][Menu_Handler];
+int g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
+int g_eCompose[MAXPLAYERS+1][Compose_Data];
 
 int g_iItems = 0;
 int g_iTypeHandlers = 0;
@@ -158,6 +158,10 @@ public Plugin myinfo =
 //////////////////////////////
 public void OnPluginStart()
 {
+    // Check Engine
+    if(GetEngineVersion() != Engine_CSGO)
+        SetFailState("Current game is not be supported! CSGO only!");
+
     // Setting default values
     for(int client = 1; client <= MaxClients; ++client)
     {

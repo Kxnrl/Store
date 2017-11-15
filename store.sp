@@ -791,7 +791,7 @@ public void OnClientConnected(int client)
     g_iSpam[client] = 0;
     g_iClientTeam[client] = 0;
     g_iClientCase[client] = 1;
-    g_iDataProtect[client] = GetTime()+180;
+    g_iDataProtect[client] = GetTime()+300;
     g_eClients[client][iUserId] = GetClientUserId(client);
     g_eClients[client][iCredits] = -1;
     g_eClients[client][iOriginalCredits] = 0;
@@ -835,7 +835,7 @@ public void OnClientPostAdminCheck(int client)
     if(IsFakeClient(client))
         return;
 
-    g_iDataProtect[client] = GetTime()+120;
+    g_iDataProtect[client] = GetTime()+300;
     UTIL_LoadClientInventory(client);
 }
 
@@ -1333,14 +1333,6 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
 
 void UTIL_OpenSkinCase(int client)
 {
-#if defined _CG_CORE_INCLUDED
-    if(CG_ClientGetUId(client) < 1)
-    {
-        tPrintToChat(client, "%T", "Open Case not available", client);
-        return;
-    }
-#endif
-
     Handle menu = CreateMenu(MenuHandler_SelectCase);
     SetMenuTitleEx(menu, "选择你要开的箱子\n信用点: %d", g_eClients[client][iCredits]);
     SetMenuExitBackButton(menu, true);
@@ -1626,11 +1618,10 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);
-                g_iDataProtect[client] = GetTime()+5;
                 UTIL_OpenSkinCase(client);
                 if(g_iClientCase[client] > 1)
                 {
-                    g_iDataProtect[client] = GetTime()+30;
+                    g_iDataProtect[client] = GetTime()+15;
                     Store_SaveClientAll(client);
                 }
             }
@@ -1642,7 +1633,7 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 Store_SaveClientAll(client);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);
-                g_iDataProtect[client] = GetTime()+30;
+                g_iDataProtect[client] = GetTime()+15;
                 g_iSelectedItem[client] = itemid;
                 DisplayItemMenu(client, itemid);
             }
@@ -1677,9 +1668,9 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                     else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
                     if(g_iClientCase[client] > 1)
                     {
-                        g_iDataProtect[client] = GetTime()+30;
+                        g_iDataProtect[client] = GetTime()+10;
                         Store_SaveClientAll(client);
-                    } else g_iDataProtect[client] = GetTime()+5;
+                    }
                     FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 }
                 else
@@ -1688,7 +1679,7 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                     if(days) tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05%d天\x01)", g_szCase[g_iClientCase[client]], name, days);
                     else tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05永久\x01)", g_szCase[g_iClientCase[client]], name);            
                     Store_SaveClientAll(client);
-                    g_iDataProtect[client] = GetTime()+30;
+                    g_iDataProtect[client] = GetTime()+10;
                     g_iSelectedItem[client] = itemid;
                     FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 }
@@ -2296,6 +2287,8 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
 
             UTIL_LogMessage(client, 0, "进入服务器时");
+            
+            g_iDataProtect[client] = GetTime()+90;
         }
         else
         {
@@ -2310,6 +2303,8 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             g_eClients[client][iDateOfLastJoin] = m_iTime;
             g_eClients[client][bLoaded] = true;
             g_eClients[client][iItems] = 0;
+            
+            g_iDataProtect[client] = GetTime()+90;
             
             g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
         }
@@ -2374,6 +2369,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
             }
         }
         g_eClients[client][iItems] = i;
+        g_iDataProtect[client] = GetTime()+15;
     }
 }
 
@@ -2712,7 +2708,7 @@ void UTIL_ComposeItem(int client)
     
     Store_SaveClientAll(client);
     
-    g_iDataProtect[client] = GetTime()+120;
+    g_iDataProtect[client] = GetTime()+30;
 
     tPrintToChat(client, "Compose successfully", client, g_eItems[g_iSelectedItem[client]][szName]);
     
@@ -2744,7 +2740,7 @@ void UTIL_BuyItem(int client)
         DisplayItemMenu(client, g_iSelectedItem[client]);
         return;
     }
-    g_iDataProtect[client] = GetTime()+30;
+    g_iDataProtect[client] = GetTime()+15;
     char m_szQuery[255];
     FormatEx(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[client][iId]);
     SQL_TQuery(g_hDatabase, SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
@@ -2760,7 +2756,7 @@ void UTIL_SellItem(int client, int itemid)
         return;
     }
 
-    g_iDataProtect[client] = GetTime()+30;
+    g_iDataProtect[client] = GetTime()+15;
     int m_iCredits = RoundToFloor(UTIL_GetClientItemPrice(client, itemid)*0.6);
     int uid = UTIL_GetClientItemId(client, itemid);
     if(g_eClientItems[client][uid][iDateOfExpiration] != 0)
@@ -2799,8 +2795,8 @@ void UTIL_GiftItem(int client, int receiver, int item)
         return;
     }
 
-    g_iDataProtect[client] = GetTime()+30;
-    g_iDataProtect[receiver] = GetTime()+30;
+    g_iDataProtect[client] = GetTime()+15;
+    g_iDataProtect[receiver] = GetTime()+15;
 
     int m_iFees = UTIL_GetClientHandleFees(client, m_iId);
     

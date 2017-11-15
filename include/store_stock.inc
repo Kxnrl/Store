@@ -586,13 +586,18 @@ stock void tPrintToChatAll(const char[] szMessage, any ...)
     }
 }
 
-stock void ReplaceColorsCode(char[] message, int maxLen)
+stock void ReplaceColorsCode(char[] message, int maxLen, int team = 0)
 {
     ReplaceString(message, maxLen, "{normal}", "\x01", false);
     ReplaceString(message, maxLen, "{default}", "\x01", false);
     ReplaceString(message, maxLen, "{white}", "\x01", false);
     ReplaceString(message, maxLen, "{darkred}", "\x02", false);
-    ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
+    switch(team)
+    {
+        case 3 : ReplaceString(message, maxLen, "{teamcolor}", "\x0B", false);
+        case 2 : ReplaceString(message, maxLen, "{teamcolor}", "\x05", false);
+        default: ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
+    }
     ReplaceString(message, maxLen, "{pink}", "\x03", false);
     ReplaceString(message, maxLen, "{green}", "\x04", false);
     ReplaceString(message, maxLen, "{highlight}", "\x04", false);

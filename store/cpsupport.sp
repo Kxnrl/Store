@@ -454,7 +454,7 @@ void Frame_OnChatMessage_SayText2(Handle data)
     ReplaceString(m_szBuffer, 512, "{1}", m_szName);
     ReplaceString(m_szBuffer, 512, "{2}", m_szMsg);
 
-    ReplaceColorsCode(m_szBuffer, 512);
+    ReplaceColorsCode(m_szBuffer, 512, g_iClientTeam[m_iSender]);
 
     Handle pb = StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
     PbSetInt(pb, "ent_idx", m_iSender);

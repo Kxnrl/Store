@@ -5,6 +5,7 @@
 //          INCLUDES        //
 //////////////////////////////
 #include <sdkhooks>
+#include <cstrike>
 #include <cg_core>
 #include <store>
 #include <store_stock>

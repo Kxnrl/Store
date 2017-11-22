@@ -766,8 +766,8 @@ public int Native_GetItemList(Handle myself, int numParams)
 {
     if(g_iItems <= 0)
         return false;
-    
-    ArrayList array = GetArrayCell(1);
+
+    ArrayList array = GetNativeCell(1);
     for(int item = 0; item < g_iItems; ++item)
         array.PushArray(g_eItems[item][0], view_as<int>(Store_Item));
 

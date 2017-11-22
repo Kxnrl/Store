@@ -245,6 +245,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_HasPlayerSkin", Native_HasPlayerSkin);
     CreateNative("Store_GetPlayerSkin", Native_GetPlayerSkin);
     CreateNative("Store_GetSkinLevel", Native_GetSkinLevel);
+    CreateNative("Store_GetItemList", Native_GetItemList);
 
 #if defined Module_Model && !defined _CG_CORE_INCLUDED
     MarkNativeAsOptional("FPVMI_SetClientModel");
@@ -759,6 +760,18 @@ public int Native_GetSkinLevel(Handle myself, int numParams)
 #else
     return 0;
 #endif
+}
+
+public int Native_GetItemList(Handle myself, int numParams)
+{
+    if(g_iItems <= 0)
+        return false;
+    
+    ArrayList array = GetArrayCell(1);
+    for(int item = 0; item < g_iItems; ++item)
+        array.PushArray(g_eItems[item][0], view_as<int>(Store_Item));
+
+    return (GetArraySize(array) > 0);
 }
 
 public int Native_HasPlayerSkin(Handle myself, int numParams)

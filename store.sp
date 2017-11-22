@@ -3059,7 +3059,7 @@ void UTIL_ReloadConfig()
         ++g_iItems;
     }
     
-    ArrayList data_array = ArrayList(view_as<int>(Store_Item));
+    ArrayList data_array = new ArrayList(view_as<int>(Store_Item));
     for(int item = 0; item < g_iItems; ++g_iItems)
         data_array.PushArray(g_eItems[item][0], view_as<int>(Store_Item));
     

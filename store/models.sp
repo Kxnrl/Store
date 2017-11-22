@@ -334,6 +334,11 @@ public void Hook_PostThinkPost_Models(int client)
     g_fOldCycle[client] = m_fCycle;
 }
 
+public Action Hook_WeaponCanUse(int client, int weapon)
+{
+    return Plugin_Handled;
+}
+
 void SetWorldModel(int iRef)
 {
     int weapon = EntRefToEntIndex(iRef);
@@ -425,10 +430,48 @@ void RefreshWeapon(int client, const char[] classname)
     int m_iClip1 = GetEntProp(weapon, Prop_Data, "m_iClip1");
     int m_iClip2 = GetEntProp(weapon, Prop_Data, "m_iClip2");
 
-    RemovePlayerItem(client, weapon);
+    if(GetEntPropEnt(weapon, Prop_Send, "m_hOwner") != client)
+        SetEntPropEnt(weapon, Prop_Send, "m_hOwner", client);
+    CS_DropWeapon(client, weapon, true, true);
     AcceptEntityInput(weapon, "Kill");
+
+    DataPack pack = new DataPack();
+    pack.WriteString(classname);
+    pack.WriteCell(client);
+    pack.WriteCell(m_iPrimaryAmmoCount);
+    pack.WriteCell(m_iSecondaryAmmoCount);
+    pack.WriteCell(m_iClip1);
+    pack.WriteCell(m_iClip2);
+    pack.Reset();
+    CreateTimer(0.2, Timer_GiveBackWeapon, pack);
     
-    weapon = GivePlayerItem(client, classname);
+    if(GetPlayerWeaponSlot(client, 0) == -1 && GetPlayerWeaponSlot(client, 1) == -1 && GetPlayerWeaponSlot(client, 2) == -1 && GetPlayerWeaponSlot(client, 3) == -1 && GetPlayerWeaponSlot(client, 4) == -1)
+        CreateTimer(0.25, Timer_RemoveDummyWeapon, GivePlayerItem(client, "weapon_decoy"));
+
+    SDKHook(client, SDKHook_WeaponCanUse, Hook_WeaponCanUse);
+}
+
+public Action Timer_GiveBackWeapon(Handle timer, DataPack pack)
+{
+    char classname[32];
+    pack.ReadString(classname, 32);
+    int client = pack.ReadCell();
+    int m_iPrimaryAmmoCount = pack.ReadCell();
+    int m_iSecondaryAmmoCount = pack.ReadCell();
+    int m_iClip1 = pack.ReadCell();
+    int m_iClip2 = pack.ReadCell();
+    
+    delete pack;
+
+    if(!IsClientInGame(client))
+        return Plugin_Stop;
+    
+    SDKUnhook(client, SDKHook_WeaponCanUse, Hook_WeaponCanUse);
+    
+    if(!IsPlayerAlive(client))
+        return Plugin_Stop;
+
+    int weapon = GivePlayerItem(client, classname);
 
     if(StrEqual(classname, "weapon_knife"))
         EquipPlayerWeapon(client, weapon);
@@ -437,6 +480,20 @@ void RefreshWeapon(int client, const char[] classname)
     if(m_iSecondaryAmmoCount > -1) SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", m_iSecondaryAmmoCount);
     if(m_iClip1 > -1) SetEntProp(weapon, Prop_Data, "m_iClip1", m_iClip1);
     if(m_iClip2 > -1) SetEntProp(weapon, Prop_Data, "m_iClip2", m_iClip2);
+    
+    return Plugin_Stop;
+}
+
+public Action Timer_RemoveDummyWeapon(Handle timer, int weapon)
+{
+    if(IsValidEdict(weapon))
+    {
+        int owner = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
+        if(IsValidClient(owner))
+            CS_DropWeapon(owner, weapon, true, true);
+        AcceptEntityInput(weapon, "Kill");  
+    }
+    return Plugin_Stop;
 }
 
 int GetViewModelReference(int client, int entity) 

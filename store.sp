@@ -5,6 +5,7 @@
 //          INCLUDES        //
 //////////////////////////////
 #include <sdkhooks>
+#include <cstrike>
 #include <cg_core>
 #include <store>
 #include <store_stock>
@@ -50,6 +51,7 @@
 //////////////////////////////
 Handle g_hDatabase = INVALID_HANDLE;
 Handle g_ArraySkin = INVALID_HANDLE;
+Handle g_hOnStoreAvailable = INVALID_HANDLE;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
 int g_eClients[MAXPLAYERS+1][Client_Data];
@@ -219,6 +221,8 @@ public void OnPluginEnd()
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
+    g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell);
+
     CreateNative("Store_RegisterHandler", Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler", Native_RegisterMenuHandler);
     CreateNative("Store_SetDataIndex", Native_SetDataIndex);
@@ -244,6 +248,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_HasPlayerSkin", Native_HasPlayerSkin);
     CreateNative("Store_GetPlayerSkin", Native_GetPlayerSkin);
     CreateNative("Store_GetSkinLevel", Native_GetSkinLevel);
+    CreateNative("Store_GetItemList", Native_GetItemList);
 
 #if defined Module_Model && !defined _CG_CORE_INCLUDED
     MarkNativeAsOptional("FPVMI_SetClientModel");
@@ -758,6 +763,18 @@ public int Native_GetSkinLevel(Handle myself, int numParams)
 #else
     return 0;
 #endif
+}
+
+public int Native_GetItemList(Handle myself, int numParams)
+{
+    if(g_iItems <= 0)
+        return false;
+
+    ArrayList array = GetNativeCell(1);
+    for(int item = 0; item < g_iItems; ++item)
+        array.PushArray(g_eItems[item][0], view_as<int>(Store_Item));
+
+    return (GetArraySize(array) > 0);
 }
 
 public int Native_HasPlayerSkin(Handle myself, int numParams)
@@ -3042,6 +3059,15 @@ void UTIL_ReloadConfig()
         ++g_iItems;
     }
     
+    ArrayList data_array = new ArrayList(view_as<int>(Store_Item));
+    for(int item = 0; item < g_iItems; ++g_iItems)
+        data_array.PushArray(g_eItems[item][0], view_as<int>(Store_Item));
+    
+    Call_StartForward(g_hOnStoreAvailable);
+    Call_PushCell(data_array);
+    Call_Finish();
+
+    delete data_array;
     delete item_array;
     delete item_parent;
     delete item_child;

@@ -2,38 +2,11 @@
 
 #define STRING(%1) %1, sizeof(%1)
 
-#define ITEM_NAME_LENGTH 64
-#define STORE_MAX_ITEMS 2048
-#define STORE_MAX_HANDLERS 64
-#define STORE_MAX_PLANS 8
-#define STORE_MAX_SLOTS 4
-
 enum Item_Plan
 {
     String:szName[ITEM_NAME_LENGTH],
     iPrice,
     iTime
-}
-
-enum Store_Item
-{
-    String:szName[ITEM_NAME_LENGTH],
-    String:szUniqueId[PLATFORM_MAX_PATH],
-    String:szDesc[128],
-    String:szSteam[256],
-    iId,
-    iPrice,
-    iParent,
-    iHandler,
-    iData,
-    iPlans,
-    iLevels,
-    bool:bCase,
-    bool:bIgnore,
-    bool:bBuyable,
-    bool:bGiftable,
-    bool:bCompose,
-    bool:bVIP
 }
 
 enum Type_Handler
@@ -586,13 +559,18 @@ stock void tPrintToChatAll(const char[] szMessage, any ...)
     }
 }
 
-stock void ReplaceColorsCode(char[] message, int maxLen)
+stock void ReplaceColorsCode(char[] message, int maxLen, int team = 0)
 {
     ReplaceString(message, maxLen, "{normal}", "\x01", false);
     ReplaceString(message, maxLen, "{default}", "\x01", false);
     ReplaceString(message, maxLen, "{white}", "\x01", false);
     ReplaceString(message, maxLen, "{darkred}", "\x02", false);
-    ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
+    switch(team)
+    {
+        case 3 : ReplaceString(message, maxLen, "{teamcolor}", "\x0B", false);
+        case 2 : ReplaceString(message, maxLen, "{teamcolor}", "\x05", false);
+        default: ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
+    }
     ReplaceString(message, maxLen, "{pink}", "\x03", false);
     ReplaceString(message, maxLen, "{green}", "\x04", false);
     ReplaceString(message, maxLen, "{highlight}", "\x04", false);

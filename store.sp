@@ -51,6 +51,7 @@
 //////////////////////////////
 Handle g_hDatabase = INVALID_HANDLE;
 Handle g_ArraySkin = INVALID_HANDLE;
+Handle g_hOnStoreAvailable = INVALID_HANDLE;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
 int g_eClients[MAXPLAYERS+1][Client_Data];
@@ -220,6 +221,8 @@ public void OnPluginEnd()
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
+    g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell);
+
     CreateNative("Store_RegisterHandler", Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler", Native_RegisterMenuHandler);
     CreateNative("Store_SetDataIndex", Native_SetDataIndex);
@@ -3056,6 +3059,15 @@ void UTIL_ReloadConfig()
         ++g_iItems;
     }
     
+    ArrayList data_array = ArrayList(view_as<int>(Store_Item));
+    for(int item = 0; item < g_iItems; ++g_iItems)
+        data_array.PushArray(g_eItems[item][0], view_as<int>(Store_Item));
+    
+    Call_StartForward(g_hOnStoreAvailable);
+    Call_PushCell(data_array);
+    Call_Finish();
+
+    delete data_array;
     delete item_array;
     delete item_parent;
     delete item_child;

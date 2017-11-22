@@ -52,3 +52,5 @@ native bool Store_GetPlayerSkin(int client, char[] skin, int maxLen);
 native bool Store_GetItemList(ArrayList array);
 native void Store_SaveClientAll(int client);
 native void Store_ResetPlayerArms(int client);
+
+forward void Store_OnStoreAvailable(ArrayList array_items);

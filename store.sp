@@ -782,7 +782,7 @@ public int Native_HasPlayerSkin(Handle myself, int numParams)
 #if defined Module_Skin
     int client = GetNativeCell(1);
     char model[192];
-    GetEntPropString(client, Prop_Data, "m_ModelName", model, model);
+    GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
     return (StrContains(g_szSkinModel[client], "maoling") != -1 && StrContains(model, "maoling") != -1);
 #else
     return false;

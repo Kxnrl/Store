@@ -313,3 +313,15 @@ fi
 #上传
 echo -e "Upload file ..."
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/$5/$1/ $FILE"
+
+
+#RAW
+if [ "$1" = "1.8" ] && [ "$5" = "master" ]; then
+    echo "Upload RAW..."
+    cd addons/sourcemod/plugins_CG
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_tt.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_ze.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_mg.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_jb.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_kz.smx"
+fi

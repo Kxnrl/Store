@@ -771,8 +771,12 @@ public int Native_GetItemList(Handle myself, int numParams)
         return false;
 
     ArrayList array = GetNativeCell(1);
-    for(int item = 0; item < g_iItems; ++item)
-        array.PushArray(g_eItems[item][0]);
+    int items[Store_Item];
+    for(int item = 0; item < g_iItems; ++g_iItems)
+    {
+        items = g_eItems[item];
+        array.PushArray(items[0]);
+    }
 
     return (GetArraySize(array) > 0);
 }
@@ -3062,9 +3066,13 @@ void UTIL_ReloadConfig()
     }
     
     ArrayList data_array = new ArrayList(view_as<int>(Store_Item));
+    int data_items[Store_Item];
     for(int item = 0; item < g_iItems; ++g_iItems)
-        data_array.PushArray(g_eItems[item][0]);
-    
+    {
+        data_items = g_eItems[item];
+        data_array.PushArray(data_items[0]);
+    }
+
     Call_StartForward(g_hOnStoreAvailable);
     Call_PushCell(data_array);
     Call_Finish();

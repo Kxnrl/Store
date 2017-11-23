@@ -769,9 +769,9 @@ public int Native_GetItemList(Handle myself, int numParams)
 {
     if(g_iItems <= 0)
         return false;
-/*
+
     ArrayList array = GetNativeCell(1);
-    int items[Store_Item];
+ /*   int items[Store_Item];
     for(int item = 0; item < g_iItems; ++g_iItems)
     {
         items = g_eItems[item];
@@ -3075,6 +3075,7 @@ void UTIL_ReloadConfig()
 */
     Call_StartForward(g_hOnStoreAvailable);
     //Call_PushCell(data_array);
+    Call_PushCell(0);
     Call_Finish();
 
     delete data_array;

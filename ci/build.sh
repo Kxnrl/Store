@@ -95,13 +95,13 @@ do
   sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_ttt.smx" >nul
-if [ ! -f "build/addons/sourcemod/plugins_CG/store_ttt.smx" ]; then
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_tt.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins_CG/store_tt.smx" ]; then
     echo "Compile store core [ttt] *CG* failed!"
     exit 1;
 fi
 cp -f addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
-mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_ttt.sp
+mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_tt.sp
 #编译通用版本
 echo -e "Compiling store core [ttt] *Global* ..."
 for file in addons/sourcemod/scripting/store.sp
@@ -109,13 +109,13 @@ do
   sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ttt.smx" >nul
-if [ ! -f "build/addons/sourcemod/plugins/store_ttt.smx" ]; then
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_tt.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins/store_tt.smx" ]; then
     echo "Compile store core [ttt] *Global* failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
-mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_ttt.sp
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_tt.sp
 
 
 #编译Store主程序 => ZE

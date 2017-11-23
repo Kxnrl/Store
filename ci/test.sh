@@ -86,8 +86,8 @@ do
   sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"addons/sourcemod/plugins/store_ttt.smx" >nul
-if [ ! -f "addons/sourcemod/plugins/store_ttt.smx" ]; then
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"addons/sourcemod/plugins/store_tt.smx" >nul
+if [ ! -f "addons/sourcemod/plugins/store_tt.smx" ]; then
     echo "Compile store core [ttt] *Global* failed!"
     exit 1;
 fi

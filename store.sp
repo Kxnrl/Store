@@ -13,11 +13,11 @@
 //////////////////////////////
 //        DEFINITIONS       //
 //////////////////////////////
-#define PLUGIN_NAME         "Store - The Resurrection [Redux]"
-#define PLUGIN_AUTHOR       "Zephyrus | Kyle"
-#define PLUGIN_DESCRIPTION  "ALL REWRITE WITH NEW SYNTAX!!!"
+#define PLUGIN_NAME         "Store - The Resurrection [Girls Frontline Edition]"
+#define PLUGIN_AUTHOR       "~Kyle feat. UMP45~"
+#define PLUGIN_DESCRIPTION  "a sourcemod store system"
 #define PLUGIN_VERSION      "2.0.<commit_count>.<commit_branch> - <commit_date>"
-#define PLUGIN_URL          "http://steamcommunity.com/id/_xQy_"
+#define PLUGIN_URL          "https://ump45.moe"
 
 
 // Server
@@ -221,7 +221,7 @@ public void OnPluginEnd()
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-    g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell);
+    g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
 
     CreateNative("Store_RegisterHandler", Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler", Native_RegisterMenuHandler);
@@ -769,16 +769,22 @@ public int Native_GetItemList(Handle myself, int numParams)
 {
     if(g_iItems <= 0)
         return false;
+    
+    // girls frontline -> active
+    ArrayList item_name = GetNativeCell(1);
+    ArrayList item_uid  = GetNativeCell(2);
+    ArrayList item_idx  = GetNativeCell(3);
+    ArrayList item_lvl  = GetNativeCell(4);
 
-    ArrayList array = GetNativeCell(1);
- /*   int items[Store_Item];
-    for(int item = 0; item < g_iItems; ++g_iItems)
+    for(int item = 0; item < g_iItems; ++item)
     {
-        items = g_eItems[item];
-        array.PushArray(items[0]);
+        item_name.PushString(g_eItems[item][szName]);
+        item_uid.PushString(g_eItems[item][szUniqueId]);
+        item_idx.Push(g_eItems[item][iId]);
+        item_lvl.Push(g_eItems[item][iLevels]);
     }
-*/
-    return (GetArraySize(array) > 0);
+
+    return true;
 }
 
 public int Native_HasPlayerSkin(Handle myself, int numParams)
@@ -2357,10 +2363,6 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
             g_eClients[client][iItems] = 0;
             return;
         }
-        
-        char m_szQuery[512];
-        FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
 
         char m_szUniqueId[PLATFORM_MAX_PATH];
         char m_szType[16];
@@ -2373,7 +2375,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
         {
             m_iUniqueId = -1;
             m_iExpiration = SQL_FetchInt(hndl, 5);
-            if(m_iExpiration && m_iExpiration<=m_iTime)
+            if(m_iExpiration && m_iExpiration <= m_iTime)
                 continue;
             
             SQL_FetchString(hndl, 2, STRING(m_szType));
@@ -2393,6 +2395,21 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
         }
         g_eClients[client][iItems] = i;
         g_iDataProtect[client] = GetTime()+15;
+        
+        char m_szQuery[512];
+        if(i > 0)
+        {
+            FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+            SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
+        }
+        else
+        {
+            g_eClients[client][bLoaded] = true;
+            tPrintToChat(client, "%T", "Inventory has been loaded", client);
+            g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
+            FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+            SQL_TVoid(g_hDatabase, m_szQuery);
+        }
     }
 }
 
@@ -2437,6 +2454,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
                 UTIL_UnequipItem(client, m_iUniqueId);
         }
         g_eClients[client][bLoaded] = true;
+        tPrintToChat(client, "%T", "Inventory has been loaded", client);
         g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
     }
 }
@@ -3064,21 +3082,32 @@ void UTIL_ReloadConfig()
 
         ++g_iItems;
     }
-/*    
-    ArrayList data_array = new ArrayList(view_as<int>(Store_Item));
-    int data_items[Store_Item];
-    for(int item = 0; item < g_iItems; ++g_iItems)
+    
+    // girls frontline -> active
+    ArrayList item_name = new ArrayList(ByteCountToCells(ITEM_NAME_LENGTH));
+    ArrayList item_uid  = new ArrayList(ByteCountToCells(32));
+    ArrayList item_idx  = new ArrayList();
+    ArrayList item_lvl  = new ArrayList();
+    
+    for(int item = 0; item < g_iItems; ++item)
     {
-        data_items = g_eItems[item];
-        data_array.PushArray(data_items[0]);
+        item_name.PushString(g_eItems[item][szName]);
+        item_uid.PushString(g_eItems[item][szUniqueId]);
+        item_idx.Push(g_eItems[item][iId]);
+        item_lvl.Push(g_eItems[item][iLevels]);
     }
-*/
+
     Call_StartForward(g_hOnStoreAvailable);
-    //Call_PushCell(data_array);
-    Call_PushCell(0);
+    Call_PushCell(item_name);
+    Call_PushCell(item_uid);
+    Call_PushCell(item_idx);
+    Call_PushCell(item_lvl);
     Call_Finish();
 
-    delete data_array;
+    delete item_name;
+    delete item_uid;
+    delete item_idx;
+    delete item_lvl;
     delete item_array;
     delete item_parent;
     delete item_child;

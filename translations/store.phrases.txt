@@ -5,6 +5,12 @@
 		"en" "Please wait. Your inventory hasn't been fetched yet."
 		"chi" "你的库存正在载入中,请稍后."
 	}
+    
+    "Inventory has been loaded"
+	{
+		"en" "Your inventory has been loaded. Type {green}!store {default} to open store menu."
+		"chi" "你的库存已加载,输入{green}!store{default}即可打开商店!"
+	}
 	
 	"Item Bought"
 	{

@@ -374,7 +374,7 @@ void Store_PreviewSkin(int client, int itemid)
     Format(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
     DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
     DispatchKeyValue(m_iViewModel, "spawnflags", "64");
-    DispatchKeyValue(m_iViewModel, "model", g_eItems[itemid][szUniqueId]);
+    DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_eItems[itemid][iData]][szModel]);
     DispatchKeyValue(m_iViewModel, "rendermode", "0");
     DispatchKeyValue(m_iViewModel, "renderfx", "0");
     DispatchKeyValue(m_iViewModel, "rendercolor", "255 255 255");

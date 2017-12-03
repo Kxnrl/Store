@@ -363,13 +363,13 @@
 		"chi" "足迹"
 	}
 
-	"grenadeskin"
+	"nadeskin"
 	{
 		"en" "grenade skin"
 		"chi" "手雷模型"
 	}
 	
-	"grenadetrail"
+	"nadetrail"
 	{
 		"en" "grenade trail"
 		"chi" "手雷轨迹"
@@ -407,17 +407,11 @@
 
 	"particle"
 	{
-		"en" "particle"
-		"chi" "粒子效果"
-	}
-
-	"Particles"
-	{
 		"chi" "粒子足迹"
-		"en" "Particles"
+		"en" "Particle Trail"
 	}
 
-	"Aura"
+	"aura"
 	{
 		"chi" "光环"
 		"en" "Aura"

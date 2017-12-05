@@ -248,7 +248,7 @@ public Action Hook_WeaponEquip_Models(int client, int weapon)
     if(GetTrieString(g_tClientWeapon[client], classname_drop, model_drop, 192) && !StrEqual(model_drop, "none"))
     {
         if(!IsModelPrecached(model_drop))
-            PrecacheModel(model_drop);
+            LogError("Hook_WeaponEquip_Models -> not precached -> %s", model_drop);
     }
 
     int model_index;

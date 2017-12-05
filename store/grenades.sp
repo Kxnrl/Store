@@ -164,8 +164,6 @@ public void Grenades_OnEntitySpawnedPost(int entity)
     if(m_iEquipped >= 0)
     {
         m_iData = Store_GetDataIndex(m_iEquipped);
-        if(!IsModelPrecached(g_eGrenadeSkins[m_iData][szModel]))
-            PrecacheModel2(g_eGrenadeSkins[m_iData][szModel], true);
         SetEntityModel(entity, g_eGrenadeSkins[m_iData][szModel]);
     }
 

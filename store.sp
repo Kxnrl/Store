@@ -3112,7 +3112,11 @@ void UTIL_ReloadConfig()
     delete item_parent;
     delete item_child;
 
-    OnMapStart();
+    //OnMapStart();
+    char map[128];
+    GetCurrentMap(map, 128);
+    if(strlen(map) > 3 && IsMapValid(map))
+        ForceChangeLevel(map, "Reload Map to prevent server crash!");
 }
 
 int UTIL_GetTypeHandler(const char[] type)

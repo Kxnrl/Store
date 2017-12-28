@@ -67,7 +67,12 @@ void Store_RemoveClientAura(int client)
     {
         int entity = EntRefToEntIndex(g_iClientAura[client]);
         if(IsValidEdict(entity))
+        {
+#if defined AllowHide
+            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
+#endif
             AcceptEntityInput(entity, "Kill");
+        }
         g_iClientAura[client] = INVALID_ENT_REFERENCE;
     }
 }
@@ -88,14 +93,30 @@ void Store_SetClientAura(int client)
         DispatchSpawn(iEnt);
         
         TeleportEntity(iEnt, clientOrigin, NULL_VECTOR, NULL_VECTOR);
-        
-        ActivateEntity(iEnt);
 
         SetVariantString("!activator");
         AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
         
+        ActivateEntity(iEnt);
+
         g_iClientAura[client] = EntIndexToEntRef(iEnt);
+
+        SetEdictFlags(iEnt, GetEdictFlags(iEnt)&(~FL_EDICT_ALWAYS)); //to allow settransmit hooks
+		SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
     }
+}
+
+public Action Hook_SetTransmit_Aura(int ent, int client)
+{
+    if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
+        SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
+
+#if defined AllowHide
+    if(g_bHideMode[client])
+        return Plugin_Handled;
+#endif
+
+    return Plugin_Continue;
 }
 
 //https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4

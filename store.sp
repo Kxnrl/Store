@@ -181,9 +181,9 @@ public void OnPluginStart()
     RegConsoleCmd("sm_credits", Command_Credits);
 
 #if defined AllowHide
-    RegConsoleCmd("sm_hide", Command_Hide, "Hide Trail and Neon");
-    RegConsoleCmd("sm_hidetrail", Command_Hide, "Hide Trail and Neon");
-    RegConsoleCmd("sm_hideneon", Command_Hide, "Hide Trail and Neon");
+    RegConsoleCmd("sm_hide", Command_Hide, "Hide Trail / Neon / Aura");
+    RegConsoleCmd("sm_hidetrail", Command_Hide, "Hide Trail / Neon / Aura");
+    RegConsoleCmd("sm_hideneon", Command_Hide, "Hide Trail / Neon / Aura");
 #endif
 
 #if !defined _CG_CORE_INCLUDED

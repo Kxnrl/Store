@@ -518,8 +518,8 @@
 	"hide setting"
 	{
 		"#format" "{1:t}"
-		"en" "Hide trails and neon {1} now"
-		"chi" "你已{1}屏蔽足迹和霓虹"
+		"en" "Hide trails / neon / aura {1} now"
+		"chi" "你已{1}屏蔽足迹/霓虹/光环"
 	}
 	
 	"tp not allow"

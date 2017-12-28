@@ -159,7 +159,7 @@ public void Grenades_OnEntitySpawnedPost(int entity)
     int m_iEquipped;
     int m_iData;
     
-    m_iEquipped = Store_GetEquippedItem(client, "grenadeskin", m_iSlot);
+    m_iEquipped = Store_GetEquippedItem(client, "nadeskin", m_iSlot);
     
     if(m_iEquipped >= 0)
     {
@@ -169,7 +169,7 @@ public void Grenades_OnEntitySpawnedPost(int entity)
 
     m_iEquipped = 0;
     m_iData = 0;
-    m_iEquipped = Store_GetEquippedItem(client, "grenadetrail", 0);
+    m_iEquipped = Store_GetEquippedItem(client, "nadetrail", 0);
     
     if(m_iEquipped >= 0)
     {

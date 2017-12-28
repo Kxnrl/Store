@@ -101,8 +101,9 @@ void Store_SetClientAura(int client)
 
         g_iClientAura[client] = EntIndexToEntRef(iEnt);
 
+        //https://github.com/neko-pm/auramenu/blob/master/scripting/dominoaura-menu.sp
         SetEdictFlags(iEnt, GetEdictFlags(iEnt)&(~FL_EDICT_ALWAYS)); //to allow settransmit hooks
-		SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
+        SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
     }
 }
 
@@ -126,13 +127,13 @@ void PrecacheParticleEffect(const char[] effect)
     
     if (table == INVALID_STRING_TABLE)
         table = FindStringTable("ParticleEffectNames");
-	
+    
     bool save = LockStringTables(false);
-    AddToStringTable(table, sEffectName);
+    AddToStringTable(table, effect);
     LockStringTables(save);
 }
 
-void PrecacheEffect(const char[] sEffectName)
+void PrecacheEffect(const char[] name)
 {
     static int table = INVALID_STRING_TABLE;
 
@@ -140,6 +141,6 @@ void PrecacheEffect(const char[] sEffectName)
         table = FindStringTable("EffectDispatch");
 
     bool save = LockStringTables(false);
-    AddToStringTable(table, sEffectName);
+    AddToStringTable(table, name);
     LockStringTables(save);
 }

@@ -1,555 +1,555 @@
 ﻿"Phrases"
 {
-	"Inventory hasnt been fetched"
-	{
-		"en" "Please wait. Your inventory hasn't been fetched yet."
-		"chi" "你的库存正在载入中,请稍后."
-	}
+    "Inventory hasnt been fetched"
+    {
+        "en" "Please wait. Your inventory hasn't been fetched yet."
+        "chi" "你的库存正在载入中,请稍后."
+    }
     
     "Inventory has been loaded"
-	{
-		"en" "Your inventory has been loaded. Type {green}!store {default} to open store menu."
-		"chi" "你的库存已加载,输入{green}!store{default}即可打开商店!"
-	}
-	
-	"Item Bought"
-	{
-		"#format" "{1:s}"
-		"en" "{1}"
-		"chi" "{1}"
-	}
-	
-	"Item not in case"
-	{
-		"en" "This skin is not in case"
-		"chi" "CG皮肤箱中不包含当前浏览的皮肤"
-	}
-	
-	"Open case successful"
-	{
-		"en" "Open case successful"
-		"chi" "开箱成功"
-	}
-	
-	"Item Available"
-	{
-		"#format" "{1:s},{2:d}"
-		"en" "{1} ({2}Credits)"
-		"chi" "{1} ({2}信用点)"
-	}
+    {
+        "en" "Your inventory has been loaded. Type {green}!store {default} to open store menu."
+        "chi" "你的库存已加载,输入{green}!store{default}即可打开商店!"
+    }
+    
+    "Item Bought"
+    {
+        "#format" "{1:s}"
+        "en" "{1}"
+        "chi" "{1}"
+    }
+    
+    "Item not in case"
+    {
+        "en" "This skin is not in case"
+        "chi" "CG皮肤箱中不包含当前浏览的皮肤"
+    }
+    
+    "Open case successful"
+    {
+        "en" "Open case successful"
+        "chi" "开箱成功"
+    }
+    
+    "Item Available"
+    {
+        "#format" "{1:s},{2:d}"
+        "en" "{1} ({2}Credits)"
+        "chi" "{1} ({2}信用点)"
+    }
 
-	"Item Plan Available"
-	{
-		"#format" "{1:s}"
-		"en" "{1} (Choose Plan)"
-		"chi" "{1} (选择购买套餐)"
-	}
-	
-	"Item Preview Available"
-	{
-		"#format" "{1:s}"
-		"en" "{1} (view details)"
-		"chi" "{1} (查看详细)"
-	}
-	
-	"Item not Buyable"
-	{
-		"en" "Non-sale products"
-		"chi" "这皮肤是非卖品"
-	}
+    "Item Plan Available"
+    {
+        "#format" "{1:s}"
+        "en" "{1} (Choose Plan)"
+        "chi" "{1} (选择购买套餐)"
+    }
+    
+    "Item Preview Available"
+    {
+        "#format" "{1:s}"
+        "en" "{1} (view details)"
+        "chi" "{1} (查看详细)"
+    }
+    
+    "Item not Buyable"
+    {
+        "en" "Non-sale products"
+        "chi" "这皮肤是非卖品"
+    }
 
-	"Item Compose Available"
-	{
-		"#format" "{1:s}"
-		"en" "{1} (Skin compose Required)"
-		"chi" "{1} (需要合成)"
-	}
-	
-	"Preview Compose Available"
-	{
-		"en"  "Compose Skin"
-		"chi" "合成皮肤"
-	}
-	
-	"Playerskins Level"
-	{
-		"#format" "{1:d},{2:s}"
-		"en"  "Skin Level: {1}  -  {2}"
-		"chi" "皮肤等级: {1}  -  {2}"
-	}
-	
-	"Open Case Available"
-	{
-		"en"  "Open skin case"
-		"chi" "开启CG皮肤箱"
-	}
-	
-	"Open Case not available"
-	{
-		"en"  "you can`t open skin case now..."
-		"chi" "现在还不能开箱..."
-	}
+    "Item Compose Available"
+    {
+        "#format" "{1:s}"
+        "en" "{1} (Skin compose Required)"
+        "chi" "{1} (需要合成)"
+    }
+    
+    "Preview Compose Available"
+    {
+        "en"  "Compose Skin"
+        "chi" "合成皮肤"
+    }
+    
+    "Playerskins Level"
+    {
+        "#format" "{1:d},{2:s}"
+        "en"  "Skin Level: {1}  -  {2}"
+        "chi" "皮肤等级: {1}  -  {2}"
+    }
+    
+    "Open Case Available"
+    {
+        "en"  "Open skin case"
+        "chi" "开启CG皮肤箱"
+    }
+    
+    "Open Case not available"
+    {
+        "en"  "you can`t open skin case now..."
+        "chi" "现在还不能开箱..."
+    }
 
-	"Preview Available"
-	{
-		"#format" "{1:d}"
-		"en"  "Purchase ({1}Credits)"
-		"chi" "购买这个皮肤 ({1}信用点)"
-	}
-	
-	"Preview Plan Available"
-	{
-		"en" "Choose Purchase Plan"
-		"chi" "购买这个皮肤 (选择购买期限)"
-	}
+    "Preview Available"
+    {
+        "#format" "{1:d}"
+        "en"  "Purchase ({1}Credits)"
+        "chi" "购买这个皮肤 ({1}信用点)"
+    }
+    
+    "Preview Plan Available"
+    {
+        "en" "Choose Purchase Plan"
+        "chi" "购买这个皮肤 (选择购买期限)"
+    }
 
-	"Item Preview"
-	{
-		"en" "Preview Skin"
-		"chi" "预览这个皮肤"
-	}
-	
-	"Chat Preview"
-	{
-		"en" "Preview model will disappear in 30 seconds"
-		"chi" "30秒后预览模型将消失"
-	}
-	
-	"Chat Preview Cooldown"
-	{
-		"en" "Preview is cooling down..."
-		"chi" "预览功能正在冷却中..."
-	}
+    "Item Preview"
+    {
+        "en" "Preview Skin"
+        "chi" "预览这个皮肤"
+    }
+    
+    "Chat Preview"
+    {
+        "en" "Preview model will disappear in 30 seconds"
+        "chi" "30秒后预览模型将消失"
+    }
+    
+    "Chat Preview Cooldown"
+    {
+        "en" "Preview is cooling down..."
+        "chi" "预览功能正在冷却中..."
+    }
 
-	"Item Equipped"
-	{
-		"#format" "{1:s}"
-		"en" "{1} [EQUIPPED]"
-		"chi" "{1} [已装备]"
-	}
-	
-	"Item Equip"
-	{
-		"en" "Equip this item"
-		"chi" "装备该物品"
-	}
-	
-	"Item Unequip"
-	{
-		"en" "Unequip"
-		"chi" "卸下该物品"
-	}
-	
-	"Item Use"
-	{
-		"en" "Use this item"
-		"chi" "使用该物品"
-	}
-	
-	"Item Sell"
-	{
-		"#format" "{1:d}"
-		"en" "Sell for {1}"
-		"chi" "以 {1} Credits的价格出售该物品"
-	}
-	
-	"Item Gift"
-	{
-		"en" "Gift this item"
-		"chi" "赠送该物品"
-	}
+    "Item Equipped"
+    {
+        "#format" "{1:s}"
+        "en" "{1} [EQUIPPED]"
+        "chi" "{1} [已装备]"
+    }
+    
+    "Item Equip"
+    {
+        "en" "Equip this item"
+        "chi" "装备该物品"
+    }
+    
+    "Item Unequip"
+    {
+        "en" "Unequip"
+        "chi" "卸下该物品"
+    }
+    
+    "Item Use"
+    {
+        "en" "Use this item"
+        "chi" "使用该物品"
+    }
+    
+    "Item Sell"
+    {
+        "#format" "{1:d}"
+        "en" "Sell for {1}"
+        "chi" "以 {1} Credits的价格出售该物品"
+    }
+    
+    "Item Gift"
+    {
+        "en" "Gift this item"
+        "chi" "赠送该物品"
+    }
 
-	"Title Store"
-	{
-		"en" "Store Menu"
-		"chi" "商店菜单"
-	}
-	
-	"Title Credits"
-	{
-		"#format" "{1:d}"
-		"en" "Credits: {1}"
-		"chi" "信用点: {1}  充值请上论坛"
-	}
-	
-	"Title Expiration"
-	{
-		"#format" "{1:d},{2:d}"
-		"en" "Expires in {1}d {2}h"
-		"chi" "使用时间剩余: {1}天{2}小时"
-	}
+    "Title Store"
+    {
+        "en" "Store Menu"
+        "chi" "商店菜单"
+    }
+    
+    "Title Credits"
+    {
+        "#format" "{1:d}"
+        "en" "Credits: {1}"
+        "chi" "信用点: {1}  充值请上论坛"
+    }
+    
+    "Title Expiration"
+    {
+        "#format" "{1:d},{2:d}"
+        "en" "Expires in {1}d {2}h"
+        "chi" "使用时间剩余: {1}天{2}小时"
+    }
 
-	"Title Gift"
-	{
-		"en" "Choose a player to send gift to"
-		"chi" "选择欲赠送物品的玩家"
-	}
-	
-	"Title Compose"
-	{
-		"#format" "{1:s},{2:s},{3:s}"
-		"en" "Compose {1} \n item①: {2}\n item②: {3}"
-		"chi" "合成 {1} \n物品①: {2}\n物品②: {3}"
-	}
-	
-	"unselect"
-	{
-		"en" "Unselect"
-		"chi" "未选择"
-	}
-	
-	"Confirm_Compose"
-	{
-		"#format" "{1:s},{2:s},{3:s},{4:s}"
-		"en" "Are you sure compose {1}\nexpend: \n{2}\n{3}\n{4}Credits"
-		"chi" "你确定要合成 {1}\n消耗:\n{2}\n{3}\n{4}信用点"
-	}
-	
-	"Compose no material"
-	{
-		"en" "{red}Not enough compost material(s)!"
-		"chi" "{red}没有足够的合成材料"
-	}
-	
-	"Compose Failed"
-	{
-		"en" "{red}compose failed! you lost your material and credits..."
-		"chi" "{red}合成失败,你损失了合成材料!"
-	}
-	
-	"Compose successfully"
-	{
-		"#format" "{1:s}"
-		"en" "{green}Compose successfully! you get new skin {orange}{1}"
-		"chi" "{green}合成成功! 你获得了新皮肤{orange}{1}"
-	}
+    "Title Gift"
+    {
+        "en" "Choose a player to send gift to"
+        "chi" "选择欲赠送物品的玩家"
+    }
+    
+    "Title Compose"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en" "Compose {1} \n item①: {2}\n item②: {3}"
+        "chi" "合成 {1} \n物品①: {2}\n物品②: {3}"
+    }
+    
+    "unselect"
+    {
+        "en" "Unselect"
+        "chi" "未选择"
+    }
+    
+    "Confirm_Compose"
+    {
+        "#format" "{1:s},{2:s},{3:s},{4:s}"
+        "en" "Are you sure compose {1}\nexpend: \n{2}\n{3}\n{4}Credits"
+        "chi" "你确定要合成 {1}\n消耗:\n{2}\n{3}\n{4}信用点"
+    }
+    
+    "Compose no material"
+    {
+        "en" "{red}Not enough compost material(s)!"
+        "chi" "{red}没有足够的合成材料"
+    }
+    
+    "Compose Failed"
+    {
+        "en" "{red}compose failed! you lost your material and credits..."
+        "chi" "{red}合成失败,你损失了合成材料!"
+    }
+    
+    "Compose successfully"
+    {
+        "#format" "{1:s}"
+        "en" "{green}Compose successfully! you get new skin {orange}{1}"
+        "chi" "{green}合成成功! 你获得了新皮肤{orange}{1}"
+    }
 
-	"Gift Player Left"
-	{
-		"en" "Selected player has already left the game."
-		"chi" "你选择的玩家已离开游戏."
-	}
-	
-	"Gift No Players"
-	{
-		"en" "There's noone you can gift this item to."
-		"chi" "没有可赠送物品的玩家."
-	}
-	
-	"Chat Bought Item"
-	{
-		"#format" "{1:s},{2:t}"
-		"en" "You have bought a {HIGHLIGHT}{1} {2}{NORMAL}, you need equip that."
-		"chi" "你购买了 {HIGHLIGHT}{1} {2}{NORMAL}, 你需要选择已购买的物品来装备."
-	}
-	
-	"Chat Sold Item"
-	{
-		"#format" "{1:s},{2:t}"
-		"en" "You have sold a {HIGHLIGHT}{1} {2}{NORMAL}."
-		"chi" "你卖掉了 {HIGHLIGHT}{1} {2}{NORMAL}."
-	}
-	
-	"Chat Gift Item Sent"
-	{
-		"#format" "{1:N},{2:s},{3:t}"
-		"en" "You have sent {HIGHLIGHT}{1}{NORMAL} a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
-		"chi" "你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL} 给玩家 {HIGHLIGHT}{1}{NORMAL}."
-	}
-	
-	"Chat Gift Item Received"
-	{
-		"#format" "{1:N},{2:s},{3:t}"
-		"en" "{HIGHLIGHT}{1}{NORMAL} has sent you a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
-		"chi" "玩家 {HIGHLIGHT}{1}{NORMAL} 给你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL}."
-	}
-	
-	"Credit Gift Disabled"
-	{
-		"en" "Credit gifting is disabled on this server."
-		"chi" "赠送物品功能已被禁用."
-	}
-	
-	"Package Sell"
-	{
-		"#format" "{1:d}"
-		"en" "Sell this package for {1}"
-		"chi" "以 {1} Credits的价格出售该套装"
-	}
-	
-	"Package Gift"
-	{
-		"en" "Gift this package"
-		"chi" "赠送该套装"
-	}
-	
-	"PlayerSkins Settings Changed"
-	{
-		"en" "Your new settings will be applied on next spawn."
-		"chi" "你的设置将在下次重生时生效."
-	}
-	
-	"Confirm_Yes"
-	{
-		"en" "Yes"
-		"chi" "是"
-	}
-	
-	"Confirm_No"
-	{
-		"en" "No"
-		"chi" "否"
-	}
-	
-	"Confirm_Buy"
-	{
-		"#format" "{1:s},{2:t}"
-		"en" "Are you sure you want to buy {1} {2}?"
-		"chi" "你是否要购买物品 {1} {2}?"
-	}
-	
-	"Confirm_Sell"
-	{
-		"#format" "{1:s},{2:t},{3:d}"
-		"en" "Are you sure you want to sell {1} {2} for {3}?"
-		"chi" "你是否要卖掉物品 {1} {2}?"
-	}
-	
-	"Confirm_Gift"
-	{
-		"#format" "{1:s},{2:t},{3:N}"
-		"en" "Are you sure? gift {1} {2} to {3}?"
-		"chi" "你确定送物品 {1} {2} 给玩家 {3}?"
-	}
-	
-	"Gift_Handing"
-	{
-		"#format" "{1:d}"
-		"en" "Handing Fee: {1} Credits"
-		"chi" "手续费: {1} 信用点"
-	}
-	
-	"Chat Not Enough Handing Fee"
-	{
-		"#format" "{1:d}"
-		"en" "You have not enough handing fee, Request: {red}{1}{normal} Credits"
-		"chi" "你的信用点余额不足以支付手续费! 手续费: {red}{1}{normal} 信用点"
-	}
+    "Gift Player Left"
+    {
+        "en" "Selected player has already left the game."
+        "chi" "你选择的玩家已离开游戏."
+    }
+    
+    "Gift No Players"
+    {
+        "en" "There's noone you can gift this item to."
+        "chi" "没有可赠送物品的玩家."
+    }
+    
+    "Chat Bought Item"
+    {
+        "#format" "{1:s},{2:t}"
+        "en" "You have bought a {HIGHLIGHT}{1} {2}{NORMAL}, you need equip that."
+        "chi" "你购买了 {HIGHLIGHT}{1} {2}{NORMAL}, 你需要选择已购买的物品来装备."
+    }
+    
+    "Chat Sold Item"
+    {
+        "#format" "{1:s},{2:t}"
+        "en" "You have sold a {HIGHLIGHT}{1} {2}{NORMAL}."
+        "chi" "你卖掉了 {HIGHLIGHT}{1} {2}{NORMAL}."
+    }
+    
+    "Chat Gift Item Sent"
+    {
+        "#format" "{1:N},{2:s},{3:t}"
+        "en" "You have sent {HIGHLIGHT}{1}{NORMAL} a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
+        "chi" "你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL} 给玩家 {HIGHLIGHT}{1}{NORMAL}."
+    }
+    
+    "Chat Gift Item Received"
+    {
+        "#format" "{1:N},{2:s},{3:t}"
+        "en" "{HIGHLIGHT}{1}{NORMAL} has sent you a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
+        "chi" "玩家 {HIGHLIGHT}{1}{NORMAL} 给你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL}."
+    }
+    
+    "Credit Gift Disabled"
+    {
+        "en" "Credit gifting is disabled on this server."
+        "chi" "赠送物品功能已被禁用."
+    }
+    
+    "Package Sell"
+    {
+        "#format" "{1:d}"
+        "en" "Sell this package for {1}"
+        "chi" "以 {1} Credits的价格出售该套装"
+    }
+    
+    "Package Gift"
+    {
+        "en" "Gift this package"
+        "chi" "赠送该套装"
+    }
+    
+    "PlayerSkins Settings Changed"
+    {
+        "en" "Your new settings will be applied on next spawn."
+        "chi" "你的设置将在下次重生时生效."
+    }
+    
+    "Confirm_Yes"
+    {
+        "en" "Yes"
+        "chi" "是"
+    }
+    
+    "Confirm_No"
+    {
+        "en" "No"
+        "chi" "否"
+    }
+    
+    "Confirm_Buy"
+    {
+        "#format" "{1:s},{2:t}"
+        "en" "Are you sure you want to buy {1} {2}?"
+        "chi" "你是否要购买物品 {1} {2}?"
+    }
+    
+    "Confirm_Sell"
+    {
+        "#format" "{1:s},{2:t},{3:d}"
+        "en" "Are you sure you want to sell {1} {2} for {3}?"
+        "chi" "你是否要卖掉物品 {1} {2}?"
+    }
+    
+    "Confirm_Gift"
+    {
+        "#format" "{1:s},{2:t},{3:N}"
+        "en" "Are you sure? gift {1} {2} to {3}?"
+        "chi" "你确定送物品 {1} {2} 给玩家 {3}?"
+    }
+    
+    "Gift_Handing"
+    {
+        "#format" "{1:d}"
+        "en" "Handing Fee: {1} Credits"
+        "chi" "手续费: {1} 信用点"
+    }
+    
+    "Chat Not Enough Handing Fee"
+    {
+        "#format" "{1:d}"
+        "en" "You have not enough handing fee, Request: {red}{1}{normal} Credits"
+        "chi" "你的信用点余额不足以支付手续费! 手续费: {red}{1}{normal} 信用点"
+    }
 
-	"Player Credits"
-	{
-		"#format" "{1:N},{2:d}"
-		"en" "{HIGHLIGHT}{1}{NORMAL} has {HIGHLIGHT}{2}{NORMAL} credits."
-		"chi" "{HIGHLIGHT}{1}{NORMAL} 现在拥有 {HIGHLIGHT}{2}{NORMAL} 信用点."
-	}
+    "Player Credits"
+    {
+        "#format" "{1:N},{2:d}"
+        "en" "{HIGHLIGHT}{1}{NORMAL} has {HIGHLIGHT}{2}{NORMAL} credits."
+        "chi" "{HIGHLIGHT}{1}{NORMAL} 现在拥有 {HIGHLIGHT}{2}{NORMAL} 信用点."
+    }
 
-	// Item type names for chat messages
-	
-	"hat"
-	{
-		"en" "hat"
-		"chi" "人物装饰品"
-	}
-	
-	"playerskin"
-	{
-		"en" "player skin"
-		"chi" "人物模型"
-	}
-	
-	"trail"
-	{
-		"en" "trail"
-		"chi" "足迹"
-	}
+    // Item type names for chat messages
+    
+    "hat"
+    {
+        "en" "hat"
+        "chi" "人物装饰品"
+    }
+    
+    "playerskin"
+    {
+        "en" "player skin"
+        "chi" "人物模型"
+    }
+    
+    "trail"
+    {
+        "en" "trail"
+        "chi" "足迹"
+    }
 
-	"nadeskin"
-	{
-		"en" "grenade skin"
-		"chi" "手雷模型"
-	}
-	
-	"nadetrail"
-	{
-		"en" "grenade trail"
-		"chi" "手雷轨迹"
-	}
+    "nadeskin"
+    {
+        "en" "grenade skin"
+        "chi" "手雷模型"
+    }
+    
+    "nadetrail"
+    {
+        "en" "grenade trail"
+        "chi" "手雷轨迹"
+    }
 
-	"nametag"
-	{
-		"en" "name tag"
-		"chi" "名字标签"
-	}
+    "nametag"
+    {
+        "en" "name tag"
+        "chi" "名字标签"
+    }
 
-	"namecolor"
-	{
-		"en" "name color"
-		"chi" "名字颜色"
-	}
+    "namecolor"
+    {
+        "en" "name color"
+        "chi" "名字颜色"
+    }
 
-	"msgcolor"
-	{
-		"en" "message color"
-		"chi" "聊天消息颜色"
-	}
-	
-	"sound"
-	{
-		"en" "sound"
-		"chi" "音效"
-	}
-	
-	"neon"
-	{
-		"en" "neon"
-		"chi" "霓虹"
-	}
+    "msgcolor"
+    {
+        "en" "message color"
+        "chi" "聊天消息颜色"
+    }
+    
+    "sound"
+    {
+        "en" "sound"
+        "chi" "音效"
+    }
+    
+    "neon"
+    {
+        "en" "neon"
+        "chi" "霓虹"
+    }
 
-	"particle"
-	{
-		"chi" "粒子足迹"
-		"en" "Particle Trail"
-	}
+    "particle"
+    {
+        "chi" "粒子足迹"
+        "en" "Particle Trail"
+    }
 
-	"aura"
-	{
-		"chi" "光环"
-		"en" "Aura"
-	}
+    "aura"
+    {
+        "chi" "光环"
+        "en" "Aura"
+    }
 
-	"spray"
-	{
-		"en" "spray"
-		"chi" "喷漆"
-	}
-	
-	"vwmodel"
-	{
-		"en" "weapon model"
-		"chi" "武器模型/皮肤"
-	}
-	
-	"you are already vip"
-	{
-		"en" "You are already VIP"
-		"chi" "你已经是VIP了"
-	}
+    "spray"
+    {
+        "en" "spray"
+        "chi" "喷漆"
+    }
+    
+    "vwmodel"
+    {
+        "en" "weapon model"
+        "chi" "武器模型/皮肤"
+    }
+    
+    "you are already vip"
+    {
+        "en" "You are already VIP"
+        "chi" "你已经是VIP了"
+    }
 
-	"go to forum to buy vip"
-	{
-		"en" "Buy VIP ? \n    visit https://csgogamers.com"
-		"chi" "购买VIP ?\n    请登录https://csgogamers.com"
-	}
-	
-	"go to forum to buy vip chat"
-	{
-		"en" "Buy VIP => visit https://csgogamers.com"
-		"chi" "购买VIP请登录https://csgogamers.com"
-	}
-	
-	"cat banned"
-	{
-		"en" "{darkred}You got a CAT ban..."
-		"chi" "你的Store信用为{darkred}不可信{normal}或{red}信用点为负{normal}!"
-	}
-	
-	"spray auto equip"
-	{
-		"en" "You are not equipped spray. Auto-Equip CG Spray."
-		"chi" "你没有装备喷漆,当前为你装备CG喷漆"
-	}
-	
-	"spray no equip"
-	{
-		"en" "You are not equipped spray."
-		"chi" "你没有装备喷漆"
-	}
-	
-	"spray cooldown"
-	{
-		"en" "Spray is cooling down..."
-		"chi" "喷漆功能正在冷却"
-	}
-	
-	"spray distance"
-	{
-		"en" "too far away"
-		"chi" "喷漆距离太远"
-	}
-	
-	"sound cooldown"
-	{
-		"en" "Sound effects is cooling down..."
-		"chi" "音效功能正在冷却"
-	}
-	
-	"sound no equip"
-	{
-		"en" "You are not equipped sound effects."
-		"chi" "你还没有打开音效功能,请在Store装备"
-	}
-	
-	"sound to all"
-	{
-		"#format" "{1:N},{2:s}"
-		"en" "{green}{1}{normal} used [{blue}{2}{normal}] (!crpb block it)"
-		"chi" "{green}{1}{normal}使用音效[{blue}{2}{normal}] (!crpb开关屏蔽)"
-	}
-	
-	"on"
-	{
-		"en" "{green}ON{normal}"
-		"chi" "{green}开启{normal}"
-	}
-	
-	"off"
-	{
-		"en" "{red}OFF{normal}"
-		"chi" "{red}关闭{normal}"
-	}
-	
-	"sound setting"
-	{
-		"#format" "{1:t}"
-		"en" "Block sound effects {1} now"
-		"chi" "你已经{1}屏蔽音效功能"
-	}
-	
-	"hide setting"
-	{
-		"#format" "{1:t}"
-		"en" "Hide trails / neon / aura {1} now"
-		"chi" "你已{1}屏蔽足迹/霓虹/光环"
-	}
-	
-	"tp not allow"
-	{
-		"en" "This Game Mode, TP mode is not allow"
-		"chi" "当前模式不允许使用TP"
-	}
-	
-	"tp dead"
-	{
-		"en" "You are dead"
-		"chi" "你已经嗝屁了,还想开TP?"
-	}
-	
-	"tp seeme"
-	{
-		"en" "You are in SeeMe mode!"
-		"chi" "你已经开了SeeMe,还想开TP?"
-	}
-	
-	"seeme tp"
-	{
-		"en" "You are in TP mode!"
-		"chi" "你已经开了TP,还想开SeeMe?"
-	}
-	
-	"data protect"
-	{
-		"#format" "{1:d}"
-		"en" "Data protection activated. Try again after {green}{1} second(s){normal}!"
-		"chi" "数据保护已开启,请等待{green}{1}秒{normal}后再试..."
-	}
+    "go to forum to buy vip"
+    {
+        "en" "Buy VIP ? \n    visit https://csgogamers.com"
+        "chi" "购买VIP ?\n    请登录https://csgogamers.com"
+    }
+    
+    "go to forum to buy vip chat"
+    {
+        "en" "Buy VIP => visit https://csgogamers.com"
+        "chi" "购买VIP请登录https://csgogamers.com"
+    }
+    
+    "cat banned"
+    {
+        "en" "{darkred}You got a CAT ban..."
+        "chi" "你的Store信用为{darkred}不可信{normal}或{red}信用点为负{normal}!"
+    }
+    
+    "spray auto equip"
+    {
+        "en" "You are not equipped spray. Auto-Equip CG Spray."
+        "chi" "你没有装备喷漆,当前为你装备CG喷漆"
+    }
+    
+    "spray no equip"
+    {
+        "en" "You are not equipped spray."
+        "chi" "你没有装备喷漆"
+    }
+    
+    "spray cooldown"
+    {
+        "en" "Spray is cooling down..."
+        "chi" "喷漆功能正在冷却"
+    }
+    
+    "spray distance"
+    {
+        "en" "too far away"
+        "chi" "喷漆距离太远"
+    }
+    
+    "sound cooldown"
+    {
+        "en" "Sound effects is cooling down..."
+        "chi" "音效功能正在冷却"
+    }
+    
+    "sound no equip"
+    {
+        "en" "You are not equipped sound effects."
+        "chi" "你还没有打开音效功能,请在Store装备"
+    }
+    
+    "sound to all"
+    {
+        "#format" "{1:N},{2:s}"
+        "en" "{green}{1}{normal} used [{blue}{2}{normal}] (!crpb block it)"
+        "chi" "{green}{1}{normal}使用音效[{blue}{2}{normal}] (!crpb开关屏蔽)"
+    }
+    
+    "on"
+    {
+        "en" "{green}ON{normal}"
+        "chi" "{green}开启{normal}"
+    }
+    
+    "off"
+    {
+        "en" "{red}OFF{normal}"
+        "chi" "{red}关闭{normal}"
+    }
+    
+    "sound setting"
+    {
+        "#format" "{1:t}"
+        "en" "Block sound effects {1} now"
+        "chi" "你已经{1}屏蔽音效功能"
+    }
+    
+    "hide setting"
+    {
+        "#format" "{1:t}"
+        "en" "Hide trails / neon / aura {1} now"
+        "chi" "你已{1}屏蔽足迹/霓虹/光环"
+    }
+    
+    "tp not allow"
+    {
+        "en" "This Game Mode, TP mode is not allow"
+        "chi" "当前模式不允许使用TP"
+    }
+    
+    "tp dead"
+    {
+        "en" "You are dead"
+        "chi" "你已经嗝屁了,还想开TP?"
+    }
+    
+    "tp seeme"
+    {
+        "en" "You are in SeeMe mode!"
+        "chi" "你已经开了SeeMe,还想开TP?"
+    }
+    
+    "seeme tp"
+    {
+        "en" "You are in TP mode!"
+        "chi" "你已经开了TP,还想开SeeMe?"
+    }
+    
+    "data protect"
+    {
+        "#format" "{1:d}"
+        "en" "Data protection activated. Try again after {green}{1} second(s){normal}!"
+        "chi" "数据保护已开启,请等待{green}{1}秒{normal}后再试..."
+    }
 }

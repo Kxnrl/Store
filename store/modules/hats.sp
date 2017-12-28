@@ -114,9 +114,6 @@ int CreateHat(int client, int itemid = -1, int slot = 0)
         m_fHatOrigin[0] += m_fRight[0]*m_fOffset[0]+m_fForward[0]*m_fOffset[1]+m_fUp[0]*m_fOffset[2];
         m_fHatOrigin[1] += m_fRight[1]*m_fOffset[0]+m_fForward[1]*m_fOffset[1]+m_fUp[1]*m_fOffset[2];
         m_fHatOrigin[2] += m_fRight[2]*m_fOffset[0]+m_fForward[2]*m_fOffset[1]+m_fUp[2]*m_fOffset[2];
-        
-        if(!IsModelPrecached(g_eHats[m_iData][szModel]))
-            PrecacheModel2(g_eHats[m_iData][szModel], true);
 
         int m_iEnt = CreateEntityByName("prop_dynamic_override");
         DispatchKeyValue(m_iEnt, "model", g_eHats[m_iData][szModel]);

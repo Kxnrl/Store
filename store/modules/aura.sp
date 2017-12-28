@@ -7,16 +7,19 @@ char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 public void Aura_OnMapStart()
 {
-    PreDownload("particles/FX.pcf");
-    PrecacheGeneric("particles/FX.pcf", true);
+    if(PreDownload("particles/FX.pcf"))
+    {
+        PrecacheGeneric("particles/FX.pcf", true);
+        PrecacheEffect("ParticleEffect");
+
+        for(int index = 0; index < g_iAuras; ++index)
+            PrecacheParticleEffect(g_szAuraName[index]);
+    }
 }
 
-void PreDownload(const char[] path)
+bool PreDownload(const char[] path)
 {
-    if(FileExists(path))
-    {
-        AddFileToDownloadsTable(path);
-    }
+    return FileExists(path) && AddFileToDownloadsTable(path);
 }
 
 public void Aura_OnClientDisconnect(int client)
@@ -64,7 +67,12 @@ void Store_RemoveClientAura(int client)
     {
         int entity = EntRefToEntIndex(g_iClientAura[client]);
         if(IsValidEdict(entity))
+        {
+#if defined AllowHide
+            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
+#endif
             AcceptEntityInput(entity, "Kill");
+        }
         g_iClientAura[client] = INVALID_ENT_REFERENCE;
     }
 }
@@ -85,12 +93,54 @@ void Store_SetClientAura(int client)
         DispatchSpawn(iEnt);
         
         TeleportEntity(iEnt, clientOrigin, NULL_VECTOR, NULL_VECTOR);
-        
-        ActivateEntity(iEnt);
 
         SetVariantString("!activator");
         AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
         
+        ActivateEntity(iEnt);
+
         g_iClientAura[client] = EntIndexToEntRef(iEnt);
+
+        //https://github.com/neko-pm/auramenu/blob/master/scripting/dominoaura-menu.sp
+        SetEdictFlags(iEnt, GetEdictFlags(iEnt)&(~FL_EDICT_ALWAYS)); //to allow settransmit hooks
+        SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
     }
+}
+
+public Action Hook_SetTransmit_Aura(int ent, int client)
+{
+    if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
+        SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
+
+#if defined AllowHide
+    if(g_bHideMode[client])
+        return Plugin_Handled;
+#endif
+
+    return Plugin_Continue;
+}
+
+//https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4
+void PrecacheParticleEffect(const char[] effect)
+{
+    static int table = INVALID_STRING_TABLE;
+    
+    if (table == INVALID_STRING_TABLE)
+        table = FindStringTable("ParticleEffectNames");
+    
+    bool save = LockStringTables(false);
+    AddToStringTable(table, effect);
+    LockStringTables(save);
+}
+
+void PrecacheEffect(const char[] name)
+{
+    static int table = INVALID_STRING_TABLE;
+
+    if(table == INVALID_STRING_TABLE)
+        table = FindStringTable("EffectDispatch");
+
+    bool save = LockStringTables(false);
+    AddToStringTable(table, name);
+    LockStringTables(save);
 }

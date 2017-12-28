@@ -153,6 +153,8 @@ public void PlayerSkins_OnMapStart()
     }
 
     //PrecacheDefaultModel();
+    
+    PrecacheModel2("models/blackout.mdl", true);
 
 #if defined GM_ZE
     if(FileExists(Model_ZE_Newbee))
@@ -374,7 +376,7 @@ void Store_PreviewSkin(int client, int itemid)
     Format(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
     DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
     DispatchKeyValue(m_iViewModel, "spawnflags", "64");
-    DispatchKeyValue(m_iViewModel, "model", g_eItems[itemid][szUniqueId]);
+    DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_eItems[itemid][iData]][szModel]);
     DispatchKeyValue(m_iViewModel, "rendermode", "0");
     DispatchKeyValue(m_iViewModel, "renderfx", "0");
     DispatchKeyValue(m_iViewModel, "rendercolor", "255 255 255");
@@ -473,10 +475,6 @@ void FirstPersonDeathCamera(int client)
 #if !defined GM_TT
 bool SpawnCamAndAttach(int client, int ragdoll)
 {
-    char m_szModel[32];
-    Format(m_szModel, 32, "models/blackout.mdl"); //
-    PrecacheModel(m_szModel, true);
-
     char m_szTargetName[32]; 
     Format(m_szTargetName, 32, "ragdoll%d", client);
     DispatchKeyValue(ragdoll, "targetname", m_szTargetName);
@@ -490,7 +488,7 @@ bool SpawnCamAndAttach(int client, int ragdoll)
 
     DispatchKeyValue(iEntity, "targetname", m_szCamera);
     DispatchKeyValue(iEntity, "parentname", m_szTargetName);
-    DispatchKeyValue(iEntity, "model",      m_szModel);
+    DispatchKeyValue(iEntity, "model",      "models/blackout.mdl");
     DispatchKeyValue(iEntity, "solid",      "0");
     DispatchKeyValue(iEntity, "rendermode", "10"); // dont render
     DispatchKeyValue(iEntity, "disableshadows", "1"); // no shadows
@@ -503,7 +501,7 @@ bool SpawnCamAndAttach(int client, int ragdoll)
 
     DispatchKeyValue(iEntity, "angles", m_szCamAngles);
 
-    SetEntityModel(iEntity, m_szModel);
+    SetEntityModel(iEntity, "models/blackout.mdl");
     DispatchSpawn(iEntity);
 
     SetVariantString(m_szTargetName);

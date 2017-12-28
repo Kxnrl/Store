@@ -7,14 +7,14 @@
 enum Store_Item
 {
     String:szName[ITEM_NAME_LENGTH],
-    String:szUniqueId[PLATFORM_MAX_PATH],
+    String:szUniqueId[32],
     String:szDesc[128],
     String:szSteam[256],
     iId,
+    iData,
     iPrice,
     iParent,
     iHandler,
-    iData,
     iPlans,
     iLevels,
     bool:bCase,
@@ -25,18 +25,17 @@ enum Store_Item
     bool:bVIP
 }
 
-
-native int Store_RegisterHandler(char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false);
-native int Store_RegisterMenuHandler(char[] identifier, Function menu, Function handler);
+native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false);
+native int Store_RegisterMenuHandler(const char[] identifier, Function menu, Function handler);
 native int Store_SetDataIndex(int itemid, int index);
 native int Store_GetDataIndex(int itemid);
-native int Store_GetEquippedItem(int client, char[] type, int slot = 0);
+native int Store_GetEquippedItem(int client, const char[] type, int slot = 0);
 native int Store_DisplayPreviousMenu(int client);
 native int Store_SetClientMenu(int client, int num);
 native int Store_GetClientCredits(int client);
 native int Store_SetClientCredits(int client, int credits, const char[] log = "未知");
-native int Store_DisplayConfirmMenu(int client, char[] title, Function callback, any data);
-native int Store_GetItemId(char[] uid);
+native int Store_DisplayConfirmMenu(int client, const char[] title, Function callback, any data);
+native int Store_GetItemId(const char[] uid);
 native int Store_GiveItem(int client, int itemid, int purchase = 0, int expiration = 0, int price = 0);
 native int Store_RemoveItem(int client, int itemid);
 native int Store_GetClientID(int client);
@@ -49,8 +48,8 @@ native bool Store_ExtClientItem(int client, int itemid, int expiration);
 native bool Store_IsItemInBoughtPackage(int client, int itemid, int uid = -1);
 native bool Store_HasPlayerSkin(int client);
 native bool Store_GetPlayerSkin(int client, char[] skin, int maxLen);
-native bool Store_GetItemList(ArrayList array);
+native bool Store_GetItemList(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level);
 native void Store_SaveClientAll(int client);
 native void Store_ResetPlayerArms(int client);
 
-forward void Store_OnStoreAvailable(ArrayList array_items);
+forward void Store_OnStoreAvailable(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level); // ArrayList will be automatically freed.

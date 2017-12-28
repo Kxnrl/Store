@@ -95,13 +95,13 @@ do
   sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_ttt.smx" >nul
-if [ ! -f "build/addons/sourcemod/plugins_CG/store_ttt.smx" ]; then
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins_CG/store_tt.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins_CG/store_tt.smx" ]; then
     echo "Compile store core [ttt] *CG* failed!"
     exit 1;
 fi
 cp -f addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting_CG
-mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_ttt.sp
+mv build/addons/sourcemod/scripting_CG/store.sp build/addons/sourcemod/scripting_CG/store_tt.sp
 #编译通用版本
 echo -e "Compiling store core [ttt] *Global* ..."
 for file in addons/sourcemod/scripting/store.sp
@@ -109,13 +109,13 @@ do
   sed -i "s%#include <cg_core>%//Global%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ttt.smx" >nul
-if [ ! -f "build/addons/sourcemod/plugins/store_ttt.smx" ]; then
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_tt.smx" >nul
+if [ ! -f "build/addons/sourcemod/plugins/store_tt.smx" ]; then
     echo "Compile store core [ttt] *Global* failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
-mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_ttt.sp
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_tt.sp
 
 
 #编译Store主程序 => ZE
@@ -304,7 +304,9 @@ mv -f include build/addons/sourcemod/scripting
 echo -e "Compress file ..."
 cd build
 if [ "$5" = "master" ]; then
-    7z a $FILE -t7z -mx9 LICENSE README.md addons utils materials models particles sound >nul
+#    7z a $FILE -t7z -mx9 LICENSE README.md addons utils materials models particles sound >nul
+# disallow package resouorce.
+    7z a $FILE -t7z -mx9 LICENSE README.md addons utils >nul
 else
     7z a $FILE -t7z -mx9 LICENSE README.md addons utils >nul
 fi
@@ -313,3 +315,15 @@ fi
 #上传
 echo -e "Upload file ..."
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/$5/$1/ $FILE"
+
+
+#RAW
+if [ "$1" = "1.8" ] && [ "$5" = "master" ]; then
+    echo "Upload RAW..."
+    cd addons/sourcemod/plugins_CG
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_tt.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_ze.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_mg.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_jb.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_kz.smx"
+fi

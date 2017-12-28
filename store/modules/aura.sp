@@ -7,16 +7,19 @@ char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 public void Aura_OnMapStart()
 {
-    PreDownload("particles/FX.pcf");
-    PrecacheGeneric("particles/FX.pcf", true);
+    if(PreDownload("particles/FX.pcf"))
+    {
+        PrecacheGeneric("particles/FX.pcf", true);
+        PrecacheEffect("ParticleEffect");
+
+        for(int index = 0; index < g_iAuras; ++index)
+            PrecacheParticleEffect(g_szAuraName[index]);
+    }
 }
 
-void PreDownload(const char[] path)
+bool PreDownload(const char[] path)
 {
-    if(FileExists(path))
-    {
-        AddFileToDownloadsTable(path);
-    }
+    return FileExists(path) && AddFileToDownloadsTable(path);
 }
 
 public void Aura_OnClientDisconnect(int client)
@@ -93,4 +96,29 @@ void Store_SetClientAura(int client)
         
         g_iClientAura[client] = EntIndexToEntRef(iEnt);
     }
+}
+
+//https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4
+void PrecacheParticleEffect(const char[] effect)
+{
+    static int table = INVALID_STRING_TABLE;
+    
+    if (table == INVALID_STRING_TABLE)
+        table = FindStringTable("ParticleEffectNames");
+	
+    bool save = LockStringTables(false);
+    AddToStringTable(table, sEffectName);
+    LockStringTables(save);
+}
+
+void PrecacheEffect(const char[] sEffectName)
+{
+    static int table = INVALID_STRING_TABLE;
+
+    if(table == INVALID_STRING_TABLE)
+        table = FindStringTable("EffectDispatch");
+
+    bool save = LockStringTables(false);
+    AddToStringTable(table, sEffectName);
+    LockStringTables(save);
 }

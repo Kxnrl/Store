@@ -1,3 +1,21 @@
+#if defined _Store_INCLUDED
+    #endinput
+#endif
+
+#define _Store_INCLUDED
+
+public SharedPlugin __pl_Store = 
+{
+	name = "Store",
+	file = "store.smx",
+#if defined REQUIRE_PLUGIN
+	required = 1
+#else
+	required = 0
+#endif
+};
+
+
 #define ITEM_NAME_LENGTH 64
 #define STORE_MAX_ITEMS 2048
 #define STORE_MAX_HANDLERS 64

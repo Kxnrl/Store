@@ -2308,12 +2308,14 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             g_eClients[client][iDateOfJoin] = SQL_FetchInt(hndl, 4);
             g_eClients[client][iDateOfLastJoin] = m_iTime;
             g_eClients[client][bBan] = (SQL_FetchInt(hndl, 6) == 1 || g_eClients[client][iCredits] < 0) ? true : false;
-            
+
+#if defined _CG_CORE_INCLUDED
             if(g_eClients[client][iId] == 1 && !StrEqual(m_szSteamID, "STEAM_1:1:44083262"))
             {
                 g_eClients[client][bBan] = true;
                 return;
             }
+#endif
 
             FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
             SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);

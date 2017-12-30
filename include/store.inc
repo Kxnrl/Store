@@ -7,7 +7,7 @@
 public SharedPlugin __pl_Store = 
 {
 	name = "Store",
-	file = "store.smx",
+	file = "Store.smx",
 #if defined REQUIRE_PLUGIN
 	required = 1
 #else

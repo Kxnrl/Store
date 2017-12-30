@@ -268,6 +268,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #endif
 
     g_bLateLoad = late;
+    
+    // RegLibrary
+    RegPluginLibrary("store");
 
     return APLRes_Success;
 }
@@ -2264,9 +2267,6 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
         
         // Load configs
         UTIL_ReloadConfig();
-        
-        // RegLibrary
-        RegPluginLibrary("store");
 
         // if Loaded late.
         if(g_bLateLoad)

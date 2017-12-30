@@ -2264,6 +2264,9 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
         
         // Load configs
         UTIL_ReloadConfig();
+        
+        // RegLibrary
+        RegPluginLibrary("Store");
 
         // if Loaded late.
         if(g_bLateLoad)

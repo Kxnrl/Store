@@ -4,10 +4,10 @@
 
 #define _Store_INCLUDED
 
-public SharedPlugin __pl_Store = 
+public SharedPlugin __pl_store = 
 {
-	name = "Store",
-	file = "Store.smx",
+	name = "store",
+	file = "store.smx",
 #if defined REQUIRE_PLUGIN
 	required = 1
 #else

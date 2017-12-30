@@ -1,6 +1,6 @@
 # Store
 
-**stable** : [![Build Status](https://img.shields.io/travis/Kxnrl/Store/master.svg?style=flat-square)](https://travis-ci.org/Kxnrl/Store?branch=master) 　 　 　 **dev** : [![Build Status](https://img.shields.io/travis/Kxnrl/Store/dev.svg?style=flat-square)](https://travis-ci.org/Kxnrl/Store?branch=dev)  
+**stable** : [![Build Status](https://img.shields.io/travis/Kxnrl/Store/master.svg?style=flat-square)](https://travis-ci.org/Kxnrl/Store?branch=master)
 
 [![Download](https://csgogamers.com/static/image/download.png)](https://plugins.csgogamers.com/Store/)
 
@@ -85,7 +85,7 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
 
 
 #### Any other questions
-* **Steam** : https://steamcommunity.com/id/_xQy_/
+* **Steam** : https://steamcommunity.com/id/Kxnrl/
 * **Telegram** : https://t.me/Kxnrl
 
 

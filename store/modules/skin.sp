@@ -96,7 +96,7 @@ public Action Command_Arms(int client, int args)
 
     Store_PreSetClientModel(client);
 
-    CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
+    CreateTimer(0.2, Timer_FixPlayerArms, GetClientUserId(client));
 
     return Plugin_Handled;
 }
@@ -339,12 +339,15 @@ public Action Timer_GiveWeapon(Handle timer, Handle pack)
 {
     ResetPack(pack);
     int client = ReadPackCell(pack);
+    int weapon = ReadPackCell(pack);
     if(!IsClientInGame(client) || !IsPlayerAlive(client))
+    {
+        if(IsValidEdict(weapon))
+            AcceptEntityInput(weapon, "Kill");
         return Plugin_Stop;
+    }
 
-    char weapon[32];
-    ReadPackString(pack, weapon, 32);
-    GivePlayerItem(client, weapon);
+    EquipPlayerWeapon(client, weapon);
 
     return Plugin_Stop;
 }
@@ -353,18 +356,17 @@ bool ResetClientWeaponBySlot(int client, int slot)
 {
     int weapon = GetPlayerWeaponSlot(client, slot);
 
-    if(weapon == -1 || !IsValidEdict(weapon))
+    if(weapon == -1)
         return false;
 
     char classname[32];
     GetWeaponClassname(weapon, classname, 32);
     RemovePlayerItem(client, weapon);
-    AcceptEntityInput(weapon, "Kill");
 
     Handle hPack;
     CreateDataTimer(0.1, Timer_GiveWeapon, hPack, TIMER_FLAG_NO_MAPCHANGE);
     WritePackCell(hPack, client);
-    WritePackString(hPack, classname);
+    WritePackCell(hPack, weapon);
 
     return true;
 }
@@ -459,10 +461,11 @@ public Action Timer_KillPreview(Handle timer, int client)
 
 void FirstPersonDeathCamera(int client)
 {
+#if !defined GM_TT
     if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
         return;
 
-#if !defined GM_TT    
+
     int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 
     if(m_iRagdoll < 0)
@@ -518,7 +521,7 @@ bool SpawnCamAndAttach(int client, int ragdoll)
     FadeScreenBlack(client);
 
     CreateTimer(10.0, Timer_ClearCamera, client);
-    
+
     //SetEntPropEnt(client, Prop_Send, "m_hRagdoll", iEntity);
 
     return true;

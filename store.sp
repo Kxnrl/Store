@@ -366,7 +366,7 @@ public int Native_ResetPlayerArms(Handle myself, int numParams)
 #if defined Module_Skin
     int client = GetNativeCell(1);
     if(client && IsClientInGame(client) && IsPlayerAlive(client))
-        CreateTimer(0.5, Timer_FixPlayerArms, GetClientUserId(client));
+        CreateTimer(0.2, Timer_FixPlayerArms, GetClientUserId(client));
 #endif
 }
 

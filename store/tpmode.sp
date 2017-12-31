@@ -22,13 +22,16 @@ void TPMode_OnClientConnected(int client)
 
 public Action Command_TP(int client, int args)
 {
+    if(!client)
+        return Plugin_Handled;
+    
 #if !defined Module_TPMode
     if(!(GetUserFlagBits(client) & ADMFLAG_ROOT))
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
     }
-#else
+#endif
 
     if(!IsPlayerAlive(client))
     {
@@ -46,11 +49,13 @@ public Action Command_TP(int client, int args)
     ClientCommand(client, g_bThirdperson[client] ? "thirdperson" : "firstperson");
 
     return Plugin_Handled;
-#endif
 }
 
 public Action Command_Mirror(int client, int args)
 {
+    if(!client)
+        return Plugin_Handled;
+
     if(!IsPlayerAlive(client))
     {
         tPrintToChat(client, "%T", "tp dead", client);

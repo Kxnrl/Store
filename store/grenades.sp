@@ -144,8 +144,6 @@ public void Grenades_OnEntitySpawnedPost(int entity)
 
     char m_szClassname[64];
     GetEdictClassname(entity, m_szClassname, 64);
-    
-    int m_iSlot;
 
     for(int i = 0; i < strlen(m_szClassname); ++i)
         if(m_szClassname[i]=='_')
@@ -154,11 +152,11 @@ public void Grenades_OnEntitySpawnedPost(int entity)
             break;
         }
 
-    m_iSlot = GrenadeSkins_GetSlot(m_szClassname);
+    int m_iSlot = m_iSlot = GrenadeSkins_GetSlot(m_szClassname);
     
     int m_iEquipped;
     int m_iData;
-    
+
     m_iEquipped = Store_GetEquippedItem(client, "nadeskin", m_iSlot);
     
     if(m_iEquipped >= 0)

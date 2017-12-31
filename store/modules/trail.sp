@@ -172,9 +172,6 @@ void AttachTrail(int ent, int client, int current, int num)
 #if defined AllowHide
 public Action Hook_SetTransmit_Trail(int ent, int client)
 {
-    if(g_bHideMode[client])
-        return Plugin_Handled;
-    else
-        return Plugin_Continue;
+    return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
 }
 #endif

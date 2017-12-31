@@ -431,6 +431,9 @@ void Store_PreviewSkin(int client, int itemid)
 
 public Action Hook_SetTransmit_Preview(int ent, int client)
 {
+    if(g_iPreviewModel[client] == INVALID_ENT_REFERENCE)
+        return Plugin_Handled;
+    
     if(ent == EntRefToEntIndex(g_iPreviewModel[client]))
         return Plugin_Continue;
 
@@ -442,20 +445,15 @@ public Action Timer_KillPreview(Handle timer, int client)
     if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iPreviewModel[client]);
-    
+
         if(IsValidEdict(entity))
         {
-            char m_szName[32];
-            GetEntPropString(entity, Prop_Data, "m_iName", m_szName, 32);
-            if(StrContains(m_szName, "Store_Preview_", false) == 0)
-            {
-                SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
-                AcceptEntityInput(entity, "Kill");
-            }
+            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
+            AcceptEntityInput(entity, "Kill");
         }
     }
     g_iPreviewModel[client] = INVALID_ENT_REFERENCE;
-    
+
     return Plugin_Stop;
 }
 
@@ -536,12 +534,9 @@ public Action Timer_ClearCamera(Handle timer, int client)
 
         if(IsValidEdict(entity))
         {
-            char m_szName[32];
-            GetEntPropString(entity, Prop_Data, "m_iName", m_szName, 32);
-            if(StrContains(m_szName, "ragdollCam", false) == 0)
-                AcceptEntityInput(entity, "Kill");
+            AcceptEntityInput(entity, "Kill");
         }
-        
+
         g_iCameraRef[client] = INVALID_ENT_REFERENCE;
     }
 

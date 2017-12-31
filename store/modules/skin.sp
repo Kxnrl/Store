@@ -457,7 +457,7 @@ public Action Timer_KillPreview(Handle timer, int client)
     return Plugin_Stop;
 }
 
-void FirstPersonDeathCamera(int client)
+public void FirstPersonDeathCamera(int client)
 {
 #if !defined GM_TT
     if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))

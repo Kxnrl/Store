@@ -16,7 +16,7 @@
 #define PLUGIN_NAME         "Store - The Resurrection [Girls Frontline Edition]"
 #define PLUGIN_AUTHOR       "~Kyle feat. UMP45~"
 #define PLUGIN_DESCRIPTION  "a sourcemod store system"
-#define PLUGIN_VERSION      "2.0.<commit_count>.<commit_branch> - <commit_date>"
+#define PLUGIN_VERSION      "2.0.<commit_count> - <commit_date>"
 #define PLUGIN_URL          "https://ump45.moe"
 
 

@@ -23,15 +23,19 @@ void TPMode_OnClientConnected(int client)
 public Action Command_TP(int client, int args)
 {
 #if !defined Module_TPMode
-    tPrintToChat(client, "%T", "tp not allow", client);
-    return Plugin_Handled;
+    if(!(GetUserFlagBits(client) & ADMFLAG_ROOT))
+    {
+        tPrintToChat(client, "%T", "tp not allow", client);
+        return Plugin_Handled;
+    }
 #else
+
     if(!IsPlayerAlive(client))
     {
         tPrintToChat(client, "%T", "tp dead", client);
         return Plugin_Handled;
     }
-    
+
     if(g_bMirror[client])
     {
         tPrintToChat(client, "%T", "tp seeme", client);
@@ -44,7 +48,6 @@ public Action Command_TP(int client, int args)
     return Plugin_Handled;
 #endif
 }
-
 
 public Action Command_Mirror(int client, int args)
 {

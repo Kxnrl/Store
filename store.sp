@@ -13,7 +13,7 @@
 //////////////////////////////
 //        DEFINITIONS       //
 //////////////////////////////
-#define PLUGIN_NAME         "Store - The Resurrection [Girls Frontline Edition]"
+#define PLUGIN_NAME         "Store - The Resurrection"
 #define PLUGIN_AUTHOR       "~Kyle feat. UMP45~"
 #define PLUGIN_DESCRIPTION  "a sourcemod store system"
 #define PLUGIN_VERSION      "2.0.<commit_count> - <commit_date>"
@@ -84,7 +84,7 @@ bool g_bHideMode[MAXPLAYERS+1];
 bool g_bInvMode[MAXPLAYERS+1];
 
 bool g_bLateLoad;
-char g_szCase[4][32] = {"", "CG普通皮肤箱", "CG高级皮肤箱", "CG终极皮肤箱"};
+char g_szCase[4][32] = {"", "普通皮肤箱", "高级皮肤箱", "终极皮肤箱"};
 
 
 //////////////////////////////

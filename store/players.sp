@@ -74,7 +74,7 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
     Store_PreSetClientModel(client);
     CreateTimer(0.1, Timer_ClearCamera, client);
     CreateTimer(1.0, Timer_ClearCamera, client);
-    CreateTimer(0.1, Timer_KillPreview, client);
+    if(g_tKillPreview[client] != null) TriggerTimer(g_tKillPreview[client], false);
 #endif
 
     return Plugin_Continue;

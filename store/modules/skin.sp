@@ -29,6 +29,8 @@ ConVar mp_round_restart_delay;
 ConVar sv_disablefreezecam;
 ConVar spec_replay_enable;
 
+Handle g_tKillPreview[MAXPLAYERS+1];
+
 void Skin_OnPluginStart()
 {
     AddNormalSoundHook(Hook_NormalSound);
@@ -74,9 +76,9 @@ public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const cha
 
 void Skin_OnClientDisconnect(int client)
 {
-    if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
-        CreateTimer(0.0, Timer_KillPreview, client);
-    
+    if(g_tKillPreview[client] != null)
+        TriggerTimer(g_tKillPreview[client], false);
+
     if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
         CreateTimer(0.0, Timer_ClearCamera, client);
 
@@ -373,6 +375,9 @@ bool ResetClientWeaponBySlot(int client, int slot)
 
 void Store_PreviewSkin(int client, int itemid)
 {
+    if(g_tKillPreview[client] != null)
+        TriggerTimer(g_tKillPreview[client], false);
+
     int m_iViewModel = CreateEntityByName("prop_dynamic_override"); //prop_physics_multiplayer
     char m_szTargetName[32];
     Format(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
@@ -424,7 +429,7 @@ void Store_PreviewSkin(int client, int itemid)
 
     SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
 
-    CreateTimer(30.0, Timer_KillPreview, client);
+    g_tKillPreview[client] = CreateTimer(45.0, Timer_KillPreview, client);
 
     tPrintToChat(client, "%T", "Chat Preview", client);
 }
@@ -442,6 +447,8 @@ public Action Hook_SetTransmit_Preview(int ent, int client)
 
 public Action Timer_KillPreview(Handle timer, int client)
 {
+    g_tKillPreview[client] = null;
+
     if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iPreviewModel[client]);
@@ -565,10 +572,10 @@ void AttemptState(int client, bool spec)
 #if !defined GM_TT
 
 #define FFADE_IN        0x0001        // Just here so we don't pass 0 into the function
-#define FFADE_OUT        0x0002        // Fade out (not in)
-#define FFADE_MODULATE    0x0004        // Modulate (don't blend)
-#define FFADE_STAYOUT    0x0008        // ignores the duration, stays faded out until new ScreenFade message received
-#define FFADE_PURGE        0x0010        // Purges all other fades, replacing them with this one
+#define FFADE_OUT       0x0002        // Fade out (not in)
+#define FFADE_MODULATE  0x0004        // Modulate (don't blend)
+#define FFADE_STAYOUT   0x0008        // ignores the duration, stays faded out until new ScreenFade message received
+#define FFADE_PURGE     0x0010        // Purges all other fades, replacing them with this one
 
 void FadeScreenBlack(int client)
 {

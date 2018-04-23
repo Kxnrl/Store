@@ -14,10 +14,10 @@
 //        DEFINITIONS       //
 //////////////////////////////
 #define PLUGIN_NAME         "Store - The Resurrection"
-#define PLUGIN_AUTHOR       "~Kyle feat. UMP45~"
+#define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "a sourcemod store system"
-#define PLUGIN_VERSION      "2.0.<commit_count> - <commit_date>"
-#define PLUGIN_URL          "https://ump45.moe"
+#define PLUGIN_VERSION      "2.0.<commit_count>"
+#define PLUGIN_URL          "https://kxnrl.com"
 
 
 // Server
@@ -1334,15 +1334,10 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
         else if(selected == 2)
         {
 #if defined Module_Skin
-            if(g_iPreviewTimes[client] <= GetTime())
-            {
-                Timer_KillPreview(INVALID_HANDLE, client);
-                Store_PreviewSkin(client, m_iId);
-                DisplayPreviewMenu(client, m_iId);
-            }
-            else
-                tPrintToChat(client, "%T", "Chat Preview Cooldown", client);
+            Store_PreviewSkin(client, m_iId);
+            DisplayPreviewMenu(client, m_iId);
 #else
+            DisplayPreviewMenu(client, m_iId);
             tPrintToChat(client, "%T", "Chat Preview Cooldown", client);
 #endif
         }
@@ -2768,7 +2763,7 @@ void UTIL_ComposeItem(int client)
 void UTIL_BuyItem(int client)
 {
 #if defined Module_Skin
-    Timer_KillPreview(INVALID_HANDLE, client);
+    if(g_tKillPreview[client] != null) TriggerTimer(g_tKillPreview[client], false);
 #endif
 
     if(g_eItems[g_iSelectedItem[client]][iHandler] == g_iPackageHandler)

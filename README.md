@@ -31,7 +31,7 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
   * Skin ( Core included ) - Allow player use custom skin and custom arms. (death sound and firstperson-death support)
   * Hats ( Core included ) - Allow player wear hat/glass/facemask/shield/wing.
   * trail ( Core included ) - Create a material trail that follow the player.
-* Pet - Create a pet that follow the player.
+* Pet ( optional ) - Create a pet that follow the player.
 
 
 ### Features:
@@ -58,10 +58,10 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
 * Extract all files on disk.
 * Upload to server following folders: 
   * addons 
-  * models ( if u want cg`s resource )
-  * materials ( if u want cg`s resource )
-  * particles ( if u want cg`s resource )
-  * sound ( if u want cg`s resource )
+  * models ( optional )
+  * materials ( optional )
+  * particles ( optional )
+  * sound ( optional )
 * Import SQL table to your database ( source: addons/sourcemod/configs/database.sql )
 * Import item data to your database ( source: php/sql in utils folder )
 * make sure your database.cfg ( path: addons/sourcemod/configs/database.cfg )
@@ -79,13 +79,19 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
 * Start your server and check error logs
 
 
+### License  
+* SourceMod plugins license under GPLv3 License.  
+* Shell, SQL and PHP scripts license under MIT License.  
+* any other file :  you only can use WITHOUT commercial.  
+  
+  
 ### Special Thanks
 [shanapu](https://github.com/shanapu "GitHub")  
 [zipcore](https://github.com/zipcore "GitHub")  
-
-
+  
+   
 #### Any other questions
-* **Steam** : https://steamcommunity.com/id/Kxnrl/
+* **Steam** : https://steamcommunity.com/profiles/76561198048432253/
 * **Telegram** : https://t.me/Kxnrl
 
 

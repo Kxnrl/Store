@@ -2,6 +2,25 @@
 #pragma newdecls required
 
 //////////////////////////////
+//    PLUGIN DEFINITION     //
+//////////////////////////////
+#define PLUGIN_NAME         "Store - The Resurrection"
+#define PLUGIN_AUTHOR       "Kyle"
+#define PLUGIN_DESCRIPTION  "a sourcemod store system"
+#define PLUGIN_VERSION      "2.1.<commit_count>"
+#define PLUGIN_URL          "https://kxnrl.com"
+
+public Plugin myinfo = 
+{
+    name        = PLUGIN_NAME,
+    author      = PLUGIN_AUTHOR,
+    description = PLUGIN_DESCRIPTION,
+    version     = PLUGIN_VERSION,
+    url         = PLUGIN_URL
+};
+
+
+//////////////////////////////
 //          INCLUDES        //
 //////////////////////////////
 #include <sdkhooks>
@@ -13,12 +32,6 @@
 //////////////////////////////
 //        DEFINITIONS       //
 //////////////////////////////
-#define PLUGIN_NAME         "Store - The Resurrection"
-#define PLUGIN_AUTHOR       "Kyle"
-#define PLUGIN_DESCRIPTION  "a sourcemod store system"
-#define PLUGIN_VERSION      "2.1.<commit_count>"
-#define PLUGIN_URL          "https://kxnrl.com"
-
 
 // Server
 #define <Compile_Environment>
@@ -31,10 +44,11 @@
 //GM_PR -> pure|competitive server
 //GM_HG -> hunger game server
 //GM_SR -> death surf server
+//GM_BH -> bhop server
 
 // Custom Module
 // skin does not match with team
-#if defined GM_TT || defined GM_ZE
+#if defined GM_TT || defined GM_ZE || defined GM_KZ || defined GM_BH
 #define Global_Skin
 #endif
 //fix arms when client team
@@ -42,7 +56,7 @@
 #define TeamArms
 #endif
 // hide mode
-#if defined GM_ZE || defined GM_JB || defined GM_MG
+#if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_BH
 #define AllowHide
 #endif
 
@@ -96,24 +110,24 @@ char g_szCase[4][32] = {"", "普通皮肤箱", "高级皮肤箱", "终极皮肤�
 #include "store/tpmode.sp" // Module TP
 
 // Module Hats
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_BH || defined GM_KZ
 #include "store/modules/hats.sp"
 #endif
 // Module Skin
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/modules/skin.sp"
 #endif
 // Module Neon
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_BH
 #include "store/modules/neon.sp"
 #endif
 // Module Aura & Part
-#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_BH || defined GM_KZ
 #include "store/modules/aura.sp"
 #include "store/modules/part.sp"
 #endif
 // Module Trail
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_BH || defined GM_KZ
 #include "store/modules/trail.sp"
 #endif
 // Module PLAYERS
@@ -125,15 +139,15 @@ char g_szCase[4][32] = {"", "普通皮肤箱", "高级皮肤箱", "终极皮肤�
 #include "store/grenades.sp"
 #endif
 // Module Spray
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/sprays.sp"
 #endif
 // Module FPVMI
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/models.sp"
 #endif
 // Module Sound
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/sounds.sp"
 #endif
 
@@ -141,18 +155,6 @@ char g_szCase[4][32] = {"", "普通皮肤箱", "高级皮肤箱", "终极皮肤�
 #if defined GM_ZE
 #include <cstrike>
 #endif
-
-//////////////////////////////
-//    PLUGIN DEFINITION     //
-//////////////////////////////
-public Plugin myinfo = 
-{
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_DESCRIPTION,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_URL
-};
 
 
 //////////////////////////////
@@ -441,16 +443,14 @@ public int Native_IsClientLoaded(Handle myself, int numParams)
 public int Native_DisplayPreviousMenu(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
-    if(g_iMenuNum[client] == 1)
-        DisplayStoreMenu(client, g_iMenuBack[client], g_iLastSelection[client]);
-    else if(g_iMenuNum[client] == 2)
-        DisplayItemMenu(client, g_iSelectedItem[client]);
-    else if(g_iMenuNum[client] == 3)
-        DisplayPlayerMenu(client);
-    else if(g_iMenuNum[client] == 5)
-        DisplayPlanMenu(client, g_iSelectedItem[client]);
-    else if(g_iMenuNum[client] == 6)
-        DisplayComposeMenu(client, false);
+    switch(g_iMenuNum[client])
+    {
+        case 1: DisplayStoreMenu(client, g_iMenuBack[client], g_iLastSelection[client]);
+        case 2: DisplayItemMenu(client, g_iSelectedItem[client]);
+        case 3: DisplayPlayerMenu(client);
+        case 4: DisplayPlanMenu(client, g_iSelectedItem[client]);
+        case 5: DisplayComposeMenu(client, false);
+    }
 }
 
 public int Native_SetClientMenu(Handle myself, int numParams)
@@ -489,7 +489,7 @@ public int Native_SetClientCredits(Handle myself, int numParams)
         CreateTimer(1.0, Timer_SetCreditsDelay, pack, TIMER_REPEAT);
         return true;
     }
-    
+
     g_eClients[client][iCredits] = m_iCredits;
 
     UTIL_LogMessage(client, difference, logMsg);
@@ -510,7 +510,7 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
     int iTimeStamp = pack.ReadCell();
     char logMsg[256];
     pack.ReadString(STRING(logMsg));
-    
+
     if(!IsClientInGame(client))
     {
         delete pack;

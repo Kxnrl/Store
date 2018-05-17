@@ -98,8 +98,6 @@ public Action Command_Arms(int client, int args)
 
     Store_PreSetClientModel(client);
 
-    CreateTimer(0.2, Timer_FixPlayerArms, GetClientUserId(client));
-
     return Plugin_Handled;
 }
 
@@ -314,63 +312,6 @@ public Action Timer_RemoveSpeaker(Handle timer, int iRef)
         AcceptEntityInput(entity, "Kill");
 
     return Plugin_Stop;
-}
-
-public Action Timer_FixPlayerArms(Handle timer, int userid)
-{
-    int client = GetClientOfUserId(userid);
-    
-    if(!client || !IsPlayerAlive(client))
-        return Plugin_Stop;
-
-    ResetPlayerArms(client);
-
-    return Plugin_Stop;
-}
-
-void ResetPlayerArms(int client)
-{
-    ResetClientWeaponBySlot(client, 0);
-    ResetClientWeaponBySlot(client, 1);
-    while(ResetClientWeaponBySlot(client, 2)){}
-    while(ResetClientWeaponBySlot(client, 3)){}
-    while(ResetClientWeaponBySlot(client, 4)){}
-}
-
-public Action Timer_GiveWeapon(Handle timer, Handle pack)
-{
-    ResetPack(pack);
-    int client = ReadPackCell(pack);
-    int weapon = ReadPackCell(pack);
-    if(!IsClientInGame(client) || !IsPlayerAlive(client))
-    {
-        if(IsValidEdict(weapon))
-            AcceptEntityInput(weapon, "Kill");
-        return Plugin_Stop;
-    }
-
-    EquipPlayerWeapon(client, weapon);
-
-    return Plugin_Stop;
-}
-
-bool ResetClientWeaponBySlot(int client, int slot)
-{
-    int weapon = GetPlayerWeaponSlot(client, slot);
-
-    if(weapon == -1)
-        return false;
-
-    char classname[32];
-    GetWeaponClassname(weapon, classname, 32);
-    RemovePlayerItem(client, weapon);
-
-    Handle hPack;
-    CreateDataTimer(0.1, Timer_GiveWeapon, hPack, TIMER_FLAG_NO_MAPCHANGE);
-    WritePackCell(hPack, client);
-    WritePackCell(hPack, weapon);
-
-    return true;
 }
 
 void Store_PreviewSkin(int client, int itemid)

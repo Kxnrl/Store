@@ -68,6 +68,5 @@ native bool Store_HasPlayerSkin(int client);
 native bool Store_GetPlayerSkin(int client, char[] skin, int maxLen);
 native bool Store_GetItemList(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level);
 native void Store_SaveClientAll(int client);
-native void Store_ResetPlayerArms(int client);
 
 forward void Store_OnStoreAvailable(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level); // ArrayList will be automatically freed.

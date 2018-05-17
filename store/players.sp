@@ -230,11 +230,10 @@ public void OnClientSettingsChanged(int client)
 }
 #endif
 
-public void OnClientTeamPost(int client)
+void OnClientTeamPost(int client)
 {
     if(!IsClientInGame(client) || !IsPlayerAlive(client) || g_iClientTeam[client] > 1)
         return;
 
     Store_PreSetClientModel(client);
-    CreateTimer(0.2, Timer_FixPlayerArms, GetClientUserId(client));
 }

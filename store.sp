@@ -244,7 +244,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_SaveClientAll", Native_SaveClientAll);
     CreateNative("Store_GetClientID", Native_GetClientID);
     CreateNative("Store_IsClientBanned", Native_IsClientBanned);
-    CreateNative("Store_ResetPlayerArms", Native_ResetPlayerArms);
     CreateNative("Store_HasPlayerSkin", Native_HasPlayerSkin);
     CreateNative("Store_GetPlayerSkin", Native_GetPlayerSkin);
     CreateNative("Store_GetSkinLevel", Native_GetSkinLevel);
@@ -359,15 +358,6 @@ public int Native_GetClientID(Handle myself, int numParams)
 public int Native_IsClientBanned(Handle myself, int numParams)
 {
     return g_eClients[GetNativeCell(1)][bBan];
-}
-
-public int Native_ResetPlayerArms(Handle myself, int numParams)
-{
-#if defined Module_Skin
-    int client = GetNativeCell(1);
-    if(client && IsClientInGame(client) && IsPlayerAlive(client))
-        CreateTimer(0.2, Timer_FixPlayerArms, GetClientUserId(client));
-#endif
 }
 
 public int Native_RegisterHandler(Handle plugin, int numParams)

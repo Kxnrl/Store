@@ -11,7 +11,7 @@ Trail g_eTrails[STORE_MAX_ITEMS][Trail];
 int g_iTrails = 0;
 int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
 
-public int Trails_Config(Handle &kv, int itemid)
+public bool Trails_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iTrails);
     

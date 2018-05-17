@@ -1,8 +1,5 @@
 #define Module_Skin
 
-// this is broadcast system (csgogamers.com required)
-native void CG_Broadcast(bool toForum, const char[] szContent);
-
 #define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
 
 enum PlayerSkin
@@ -101,7 +98,7 @@ public Action Command_Arms(int client, int args)
     return Plugin_Handled;
 }
 
-public int PlayerSkins_Config(Handle &kv, int itemid)
+public bool PlayerSkins_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPlayerSkins);
     
@@ -536,47 +533,6 @@ void FadeScreenWhite(int client)
     PbSetInt(pb, "flags", FFADE_IN|FFADE_PURGE);
     PbSetColor(pb, "clr", {0, 0, 0, 0});
     EndMessage();
-}
-#endif
-
-#if defined _CG_CORE_INCLUDED
-public Action Timer_DeathModel(Handle timer, Handle pack)
-{
-    int client = ReadPackCell(pack);
-    int clientid = ReadPackCell(pack);
-    int attackerid = ReadPackCell(pack);
-    bool headshot = ReadPackCell(pack);
-    char attackerweapon[32];
-    ReadPackString(pack, attackerweapon, 32);
-    
-    // attacker not load or kill by world.
-    if(!attackerid)
-        return Plugin_Stop;
-    
-    // client not load.
-    if(!clientid)
-        return Plugin_Stop;
-
-    // client is in game but still alive.
-    if(IsValidClient(client) && IsPlayerAlive(client))
-        return Plugin_Stop;
-
-    // null string.
-    if(g_szSkinModel[client][0] == '\0')
-        return Plugin_Stop;
-    
-    // zombie escape server default model?
-    if(StrEqual(g_szSkinModel[client], Model_ZE_Newbee))
-        strcopy(g_szSkinModel[client], 256, "default");
-
-    char emodel[256], eweapon[32], m_szQuery[512];
-    SQL_EscapeString(g_hDatabase, g_szSkinModel[client], emodel, 256);
-    SQL_EscapeString(g_hDatabase, attackerweapon, eweapon, 32);
-    Format(m_szQuery, 512, "INSERT INTO `playertrack_deathmodel` VALUES (unix_timestamp(), %d, %d, %d, %b, '%s', '%s')", CG_GetServerId(), clientid, attackerid, headshot, eweapon, emodel);
-    SQL_TVoid(g_hDatabase, m_szQuery);
-    g_szSkinModel[client][0] = '\0';
-
-    return Plugin_Stop;
 }
 #endif
 

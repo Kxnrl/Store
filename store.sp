@@ -25,7 +25,6 @@ public Plugin myinfo =
 //////////////////////////////
 #include <sdkhooks>
 #include <cstrike>
-#include <cg_core>
 #include <store>
 #include <store_stock>
 
@@ -106,11 +105,10 @@ char g_szCase[4][32] = {"", "普通皮肤箱", "高级皮肤箱", "终极皮肤�
 //////////////////////////////
 // Module Global Module
 #include "store/cpsupport.sp"
-#include "store/vipadmin.sp"
 #include "store/tpmode.sp" // Module TP
 
 // Module Hats
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_BH || defined GM_KZ
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/modules/hats.sp"
 #endif
 // Module Skin
@@ -118,16 +116,16 @@ char g_szCase[4][32] = {"", "普通皮肤箱", "高级皮肤箱", "终极皮肤�
 #include "store/modules/skin.sp"
 #endif
 // Module Neon
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_BH
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/modules/neon.sp"
 #endif
 // Module Aura & Part
-#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_BH || defined GM_KZ
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/modules/aura.sp"
 #include "store/modules/part.sp"
 #endif
 // Module Trail
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_BH || defined GM_KZ
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/modules/trail.sp"
 #endif
 // Module PLAYERS
@@ -184,20 +182,16 @@ public void OnPluginStart()
 
 #if defined AllowHide
     RegConsoleCmd("sm_hide", Command_Hide, "Hide Trail / Neon / Aura");
-    RegConsoleCmd("sm_hidetrail", Command_Hide, "Hide Trail / Neon / Aura");
-    RegConsoleCmd("sm_hideneon", Command_Hide, "Hide Trail / Neon / Aura");
 #endif
 
-#if !defined _CG_CORE_INCLUDED
     HookEvent("round_start", OnRoundStart, EventHookMode_Post);
     HookEvent("player_death", OnPlayerDeath, EventHookMode_Post);
-#endif
 
     // Load the translations file
     LoadTranslations("store.phrases");
 
     // Connect to the database
-    if(g_hDatabase == INVALID_HANDLE)
+    if(g_hDatabase == null)
     {
         SQL_TConnect(SQLCallback_Connect, "csgo");
         CreateTimer(30.0, Timer_DatabaseTimeout);
@@ -251,15 +245,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_GetSkinLevel", Native_GetSkinLevel);
     CreateNative("Store_GetItemList", Native_GetItemList);
 
-#if defined Module_Model && !defined _CG_CORE_INCLUDED
+#if defined Module_Model
     MarkNativeAsOptional("FPVMI_SetClientModel");
     MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
     MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
     MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
-#endif
-
-#if defined Module_Skin
-    MarkNativeAsOptional("CG_Broadcast");
 #endif
 
 #if defined Module_Sound
@@ -269,7 +259,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 #endif
 
     g_bLateLoad = late;
-    
+
     // RegLibrary
     RegPluginLibrary("store");
 
@@ -289,47 +279,6 @@ public void OnMapStart()
             Call_Finish();
         }
     }
-}
-
-//////////////////////////////
-//   Global API FROM CORE   //
-//////////////////////////////
-public bool CG_APIStoreSetCredits(int client, int credits, const char[] reason, bool immed)
-{
-    if(!g_eClients[client][bLoaded] || g_eClients[client][bBan] || g_eClients[client][iCredits] == -1)
-        return false;
-
-    if(credits < 0)
-    {
-        int icredits = credits * -1;
-        
-        if(icredits > g_eClients[client][iCredits])
-            return false;
-        
-        Store_SetClientCredits(client, Store_GetClientCredits(client)-icredits, reason);
-        
-        //if(immed)
-        //    Store_SaveClientAll(client);
-        
-        return true;
-    }
-    else
-    {
-        Store_SetClientCredits(client, Store_GetClientCredits(client)+credits, reason);
-        
-        if(immed)
-            Store_SaveClientAll(client);
-
-        return true;
-    }
-}
-
-public int CG_APIStoreGetCredits(int client)
-{
-    if(!g_eClients[client][bLoaded] || g_eClients[client][bBan])
-        return -1;
-    
-    return g_eClients[client][iCredits];
 }
 
 //////////////////////////////
@@ -374,8 +323,8 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
     
     if(m_iHandler != -1)
         return m_iHandler;
-    else
-        ++g_iTypeHandlers;
+
+    ++g_iTypeHandlers;
     
     g_eTypeHandlers[m_iId][hPlugin] = plugin;
     g_eTypeHandlers[m_iId][fnMapStart] = GetNativeCell(2);
@@ -394,7 +343,7 @@ public int Native_RegisterMenuHandler(Handle plugin, int numParams)
 {
     if(g_iMenuHandlers == STORE_MAX_HANDLERS)
         return -1;
-        
+
     char m_szIdentifier[64];
     GetNativeString(1, STRING(m_szIdentifier));
     int m_iHandler = UTIL_GetMenuHandler(m_szIdentifier);    
@@ -845,7 +794,7 @@ public void OnClientConnected(int client)
     Sound_OnClientConnected(client);
 #endif
 
-#if defined Module_Chat && defined _CG_CORE_INCLUDED
+#if defined Module_Chat
     Chat_OnClientConnected(client);
 #endif
 
@@ -870,7 +819,7 @@ public void OnClientDisconnect(int client)
     Players_OnClientDisconnect(client);
 #endif
 
-#if defined Module_Model && defined _CG_CORE_INCLUDED
+#if defined Module_Model
     Models_OnClientDisconnect(client);
 #endif
 
@@ -965,7 +914,7 @@ public Action Command_Hide(int client, int args)
 //////////////////////////////
 //           MENU           //
 //////////////////////////////
-int DisplayStoreMenu(int client, int parent = -1, int last = -1)
+void DisplayStoreMenu(int client, int parent = -1, int last = -1)
 {
     if(!client || !IsClientInGame(client))
         return;
@@ -1586,7 +1535,6 @@ void EndingCaseMenu(int client, int days, int itemid)
         tPrintToChatAll("\x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
         char msg[256];
         FormatEx(msg, 256, "[\x10Store\x01] \x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
-        BroadCastToAll(msg);
     }
 
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
@@ -1760,19 +1708,7 @@ public void DisplayItemMenu(int client, int itemid)
     }
     else
     {
-#if defined _CG_CORE_INCLUDED
-        if(StrEqual(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "buyvip"))
-        {
-            if(CG_ClientIsVIP(client))
-                AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "you are already vip", client);
-            else
-                AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "go to forum to buy vip", client);
-        }
-        else
-            AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Item Use", client);
-#else
         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Item Use", client);
-#endif
     }
 
     if(!Store_IsItemInBoughtPackage(client, itemid))
@@ -2294,14 +2230,6 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             g_eClients[client][iDateOfLastJoin] = m_iTime;
             g_eClients[client][bBan] = (SQL_FetchInt(hndl, 6) == 1 || g_eClients[client][iCredits] < 0) ? true : false;
 
-#if defined _CG_CORE_INCLUDED
-            if(g_eClients[client][iId] == 1 && !StrEqual(m_szSteamID, "STEAM_1:1:44083262"))
-            {
-                g_eClients[client][bBan] = true;
-                return;
-            }
-#endif
-
             FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
             SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
 
@@ -2744,10 +2672,6 @@ void UTIL_ComposeItem(int client)
     tPrintToChat(client, "Compose successfully", client, g_eItems[g_iSelectedItem[client]][szName]);
     
     tPrintToChatAll("\x0C%N\x04成功合成了皮肤\x10%s", client, g_eItems[g_iSelectedItem[client]][szName]);
-
-#if defined _CG_CORE_INCLUDED
-    CG_ShowHiddenMotd(client, "https://csgogamers.com/music/voices.php?volume=100");       
-#endif
 }
 
 void UTIL_BuyItem(int client)
@@ -2880,13 +2804,7 @@ int UTIL_GetClientItemId(int client, int itemid)
 
     return -1;
 }
-/*
-enum Item_Attributes
-{
-    String:model[192],
-    String:arms[192],
-}
-*/
+
 void UTIL_ReloadConfig()
 {
     g_iItems = 0;
@@ -3352,54 +3270,9 @@ void UTIL_CheckModules()
 #endif
 }
 
-#if !defined _CG_CORE_INCLUDED
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-    CG_OnRoundStart();
-}
-
-public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
-{
-    char weapon[32];
-    event.GetString("weapon", weapon, 32, "");
-    CG_OnClientDeath(GetClientOfUserId(event.GetInt("userid")), GetClientOfUserId(event.GetInt("attacker")), GetClientOfUserId(event.GetInt("assister")), event.GetBool("headshot"), weapon);
-}
-#endif
-
-public void CG_OnClientDeath(int client, int attacker, int assister, bool headshot, const char[] weapon)
-{
-    CheckClientTP(client);
-    
-#if defined Module_Model && defined _CG_CORE_INCLUDED
-    Models_OnPlayerDeath(client);
-#endif
-
-#if defined Module_Skin && defined _CG_CORE_INCLUDED
-    if(IsValidClient(attacker))
-    {
-        Handle pack;
-        CreateDataTimer(0.5, Timer_DeathModel, pack, TIMER_FLAG_NO_MAPCHANGE);
-        WritePackCell(pack, client);
-        WritePackCell(pack, CG_ClientGetPId(client));
-        WritePackCell(pack, CG_ClientGetPId(attacker));
-        WritePackCell(pack, headshot);
-        WritePackString(pack, weapon);
-        ResetPack(pack);
-    }
-#endif
-
-#if defined Module_Spray
-    Spray_OnClientDeath(attacker);
-#endif
-
-#if defined Module_Sound
-    Sound_OnClientDeath(client, attacker);
-#endif
-}
-
-public void CG_OnRoundStart()
-{
-    for(int client = 1; client <= MAXPLAYERS; ++client)
+    for(int client = 1; client <= MaxClients; ++client)
     {
 #if defined Module_Spray
         Spray_OnClientDeath(client);
@@ -3411,7 +3284,30 @@ public void CG_OnRoundStart()
     }
 }
 
-stock bool UTIL_IsPlayerTP(int client)
+public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
+{
+    int client = GetClientOfUserId(event.GetInt("userid"));
+    
+#if defined Module_Spray || defined Module_Sound
+    int attacker = GetClientOfUserId(event.GetInt("attacker"));
+#endif
+
+    CheckClientTP(client);
+
+#if defined Module_Model
+    Models_OnPlayerDeath(client);
+#endif
+
+#if defined Module_Spray
+    Spray_OnClientDeath(attacker);
+#endif
+
+#if defined Module_Sound
+    Sound_OnClientDeath(client, attacker);
+#endif
+}
+
+stock bool IsPlayerTP(int client)
 {
 #if defined Module_TPMode
     if(g_bThirdperson[client])
@@ -3434,18 +3330,6 @@ int UTIL_GetRandomInt(int min, int max)
     return RoundToCeil(float(random) / (float(SIZE_OF_INT) / float(max - min + 1))) + min - 1;
 }
 
-void BroadCastToAll(const char[] msg)
-{
-    if(GetFeatureStatus(FeatureType_Native, "CG_Broadcast") != FeatureStatus_Available)
-        return;
-
-#if defined Module_Skin
-    CG_Broadcast(true, msg);
-#else
-    LogError("WTF TRIGGER THIS? -> %s", msg);
-#endif
-}
-
 public Action Timer_OnlineCredit(Handle timer, int client)
 {
     if(!IsClientInGame(client))
@@ -3454,100 +3338,14 @@ public Action Timer_OnlineCredit(Handle timer, int client)
         return Plugin_Stop;
     }
 
-#if defined _CG_CORE_INCLUDED
-    if(!CG_ClientInGroup(client))
-    {
-        tPrintToChat(client, "\x07你尚未加入官方Steam组,不能通过游戏在线获得信用点");
-        tPrintToChat(client, "\x04按Y输入\x07!group\x04即可加入官方组");
-        g_eClients[client][hTimer] = INVALID_HANDLE;
-        return Plugin_Stop;
-    }
-#endif
-
     int m_iCredits = 0;
     char szFrom[128], szReason[128];
     strcopy(szFrom, 128, "\x10[");
     strcopy(szReason, 128, "游戏在线获得信用点[");
 
-#if defined _CG_CORE_INCLUDED
-    int m_iVitality = CG_ClientGetVitality(client);
-    if(m_iVitality)
-    {
-        StrCat(szReason, 128, "热度");    
-        if(200 > m_iVitality >= 100)
-        {
-            m_iCredits += 2;
-            StrCat(szFrom, 128, "\x07热度+2");
-        }
-        else if(400 > m_iVitality >= 200)
-        {
-            m_iCredits += 3;
-            StrCat(szFrom, 128, "\x07热度+3");
-        }
-        else if(700 > m_iVitality >= 400)
-        {
-            m_iCredits += 4;
-            StrCat(szFrom, 128, "\x07热度+4");
-        }
-        else if(m_iVitality >= 700)
-        {
-            m_iCredits += 5;
-            StrCat(szFrom, 128, "\x07热度+5");
-        }
-        else if(m_iVitality >= 999)
-        {
-            m_iCredits += 6;
-            StrCat(szFrom, 128, "\x07热度+6");
-        }
-        else
-        {
-            m_iCredits += 1;
-            StrCat(szFrom, 128, "\x07热度+1");
-        }
-    }
-
-    int authid = CG_ClientGetGId(client);
-    if(authid)
-    {
-        m_iCredits += 2;
-        char auname[32];
-        CG_ClientGetGroupName(client, auname, 32);
-        Format(szReason, 128, "%s|认证(%s)", szReason, auname);
-        Format(szFrom, 128, "%s\x0A|\x0C%s+2", szFrom, auname);
-    }
-
-    if(CG_ClientIsVIP(client))
-    {
-        m_iCredits += 2;
-        StrCat(szFrom, 128, "\x0A|\x0EVIP+2");
-        StrCat(szReason, 128, "|VIP");
-    }
-
-    if(CG_ClientIsRealName(client))
-    {
-        m_iCredits += 2;
-        StrCat(szFrom, 128, "\x0A|\x04实名认证+2");
-        StrCat(szReason, 128, "|实名认证");
-    }
-
-#if defined GM_ZE
-    char tag[32];
-    CS_GetClientClanTag(client, tag, 32);
-    if(StrEqual(tag, "[CG社区]") || StrEqual(tag, "祈り~") || StrEqual(tag, "江ノ島盾子") || StrEqual(tag, "KyleL"))
-    {
-        m_iCredits += 2;
-        Format(szFrom, 128, "%s\x0A|\x10%s+2", szFrom, tag);
-        Format(szReason, 128, "%s|组标(%s)", szReason, tag);
-    } else tPrintToChat(client, "\x10佩戴CG社区组标签可获得额外的信用点");
-#endif
-
-#else
-    
     m_iCredits += 2;
     StrCat(szFrom, 128, "\x04Online");
     StrCat(szReason, 128, "Online");
-
-#endif
 
     StrCat(szFrom, 128, "\x10]");
     StrCat(szReason, 128, "]");
@@ -3562,25 +3360,3 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 
     return Plugin_Continue;
 }
-
-#if defined _CG_CORE_INCLUDED
-public void CG_OnDailySigned(int client)
-{
-    if(!CG_ClientInGroup(client))
-    {
-        tPrintToChat(client, "检测到你当前未加入\x0C官方组\x01,你无法获得签到奖励");
-        return;    
-    }
-
-    int m_iCredits = UTIL_GetRandomInt(1, 500);
-    Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, "服务器内完成每日签到");
-    tPrintToChatAll("\x0E%N\x01签到获得\x04%d信用点\x01.", client, m_iCredits);
-}
-#endif
-
-#if defined _CG_CORE_INCLUDED && defined Module_Chat
-public void CG_OnClientLoaded(int client)
-{
-    Chat_OnClientLoaded(client);
-}
-#endif

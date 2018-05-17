@@ -1,17 +1,11 @@
 #define Module_Chat
 
-#if defined _CG_CORE_INCLUDED
 #define TEAM_SPEC 1
 UserMsg g_umUMId;
 Handle g_tMsgFmt;
 bool g_bDeathChat;
 bool g_bChat[MAXPLAYERS+1];
-int g_iCGPId[MAXPLAYERS+1];
-#else
-#undef REQUIRE_PLUGIN
-#include <chat-processor>
-#define REQUIRE_PLUGIN
-#endif
+
 
 char g_szNameTags[STORE_MAX_ITEMS][128];
 char g_szNameColors[STORE_MAX_ITEMS][32];
@@ -23,7 +17,6 @@ int g_iMessageColors = 0;
 
 public void CPSupport_OnPluginStart()
 {
-#if defined _CG_CORE_INCLUDED
     g_tMsgFmt = CreateTrie();
 
     AddCommandListener(Command_Say, "say");
@@ -45,13 +38,6 @@ public void CPSupport_OnPluginStart()
     }
 
     g_bDeathChat = (FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("mg_stats.smx") || FindPluginByFile("sm_hosties.smx"));
-#else
-    if(!FindPluginByFile("chat-processor.smx"))
-    {
-        LogError("Chat Processor isn't installed or failed to load. CP support will be disabled. -> https://github.com/Drixevel/Chat-Processor");
-        return;
-    }
-#endif
 
     Store_RegisterHandler("nametag", CPSupport_OnMappStart, CPSupport_Reset, NameTags_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("namecolor", CPSupport_OnMappStart, CPSupport_Reset, NameColors_Config, CPSupport_Equip, CPSupport_Remove, true);
@@ -70,7 +56,7 @@ public void CPSupport_Reset()
     g_iMessageColors = 0;
 }
 
-public int NameTags_Config(Handle &kv, int itemid)
+public bool NameTags_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameTags);
     KvGetString(kv, "tag", g_szNameTags[g_iNameTags], 128);
@@ -79,7 +65,7 @@ public int NameTags_Config(Handle &kv, int itemid)
     return true;
 }
 
-public int NameColors_Config(Handle &kv, int itemid)
+public bool NameColors_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameColors);
     KvGetString(kv, "color", g_szNameColors[g_iNameColors], 32);
@@ -88,7 +74,7 @@ public int NameColors_Config(Handle &kv, int itemid)
     return true;
 }
 
-public int MsgColors_Config(Handle &kv, int itemid)
+public bool MsgColors_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iMessageColors);
     KvGetString(kv, "color", g_szMessageColors[g_iMessageColors], 32);
@@ -107,11 +93,7 @@ public int CPSupport_Remove(int client, int id)
 
 }
 
-#if defined _CG_CORE_INCLUDED
 public Action CP_OnChatMessage(int& client, char[] flagstring, char[] name, char[] message)
-#else
-public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool &processcolors, bool &removecolors)
-#endif
 {
     int m_iEquippedNameTag = Store_GetEquippedItem(client, "nametag");
     int m_iEquippedNameColor = Store_GetEquippedItem(client, "namecolor");
@@ -120,30 +102,10 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
     char m_szNameTag[128];
     char m_szNameColor[32];
 
-#if defined _CG_CORE_INCLUDED
-    GetColorAuthName(client,  m_szNameTag, 128);
-#endif
-
     strcopy(STRING(m_szNameColor), "{teamcolor}");
 
     if(m_iEquippedNameTag >= 0)
-    {
-#if defined _CG_CORE_INCLUDED
-        if(CG_ClientGetUId(client) <= 0)
-            StrCat(STRING(m_szNameTag), "{lightblue}[未注册]{teamcolor}");
-#endif
-
         StrCat(STRING(m_szNameTag), g_szNameTags[Store_GetDataIndex(m_iEquippedNameTag)]);
-    }
-#if defined _CG_CORE_INCLUDED   
-    else
-    {
-        if(CG_ClientIsVIP(client))
-            StrCat(STRING(m_szNameTag), "{purple}[VIP] {teamcolor}");
-        else if(CG_ClientGetUId(client) < 0)
-            StrCat(STRING(m_szNameTag), "{lightblue}[未注册] {teamcolor}");
-    }
-#endif
 
     bool rainbowname = false;
     if(m_iEquippedNameColor >= 0)
@@ -176,23 +138,6 @@ public Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstr
 
     return Plugin_Changed;
 }
-
-#if defined _CG_CORE_INCLUDED
-void GetColorAuthName(int client, char[] buffer, int maxLen)
-{
-    int authorized = CG_ClientGetGId(client);
-    CG_ClientGetGroupName(client, buffer, maxLen);
-    
-    if(!authorized)
-        Format(buffer, maxLen, " ");
-    else if(9002 >= authorized >= 9000)
-        Format(buffer, maxLen, "{default}[{darkred}%s{default}]", buffer);
-    else if(authorized > 9990) 
-        Format(buffer, maxLen, "{green}[{purple}%s{green}]", buffer);
-    else 
-        Format(buffer, maxLen, "{yellow}[{blue}%s{yellow}]", buffer);
-}
-#endif
 
 void String_Rainbow(const char[] input, char[] output, int maxLen)
 {
@@ -266,7 +211,6 @@ int RandomColor()
     return '\x01';
 }
 
-#if defined _CG_CORE_INCLUDED
 bool GenerateMessageFormats()
 {
     switch(GetEngineVersion())
@@ -293,11 +237,6 @@ bool GenerateMessageFormats()
 void Chat_OnClientConnected(int client)
 {
     g_bChat[client] = false;
-}
-
-void Chat_OnClientLoaded(int client)
-{
-    g_iCGPId[client] = CG_ClientGetPId(client);
 }
 
 public Action Command_Say(int client, const char[] command, int argc)
@@ -409,7 +348,7 @@ void Frame_OnChatMessage_SayText2(Handle data)
         else
         {
             for(int i = 1; i <= MaxClients; ++i)
-                if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iCGPId[i] == 1))
+                if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender]))
                     target_list[target_count++] = i;
         }
     }
@@ -426,7 +365,7 @@ void Frame_OnChatMessage_SayText2(Handle data)
             else
             {
                 for(int i = 1; i <= MaxClients; ++i)
-                    if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iCGPId[i] == 1))
+                    if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender]))
                         target_list[target_count++] = i;
             }
         }
@@ -435,13 +374,13 @@ void Frame_OnChatMessage_SayText2(Handle data)
             if(ChatToAll(m_szFlag))
             {
                 for(int i = 1; i <= MaxClients; ++i)
-                    if(IsClientInGame(i) && !IsFakeClient(i) && (!IsPlayerAlive(i) || g_iCGPId[i] == 1))
+                    if(IsClientInGame(i) && !IsFakeClient(i) && (!IsPlayerAlive(i)))
                         target_list[target_count++] = i;
             }
             else
             {
                 for(int i = 1; i <= MaxClients; ++i)
-                    if(IsClientInGame(i) && !IsFakeClient(i) && ((!IsPlayerAlive(i) && g_iClientTeam[i] == g_iClientTeam[m_iSender]) || g_iCGPId[i] == 1))
+                    if(IsClientInGame(i) && !IsFakeClient(i) && ((!IsPlayerAlive(i) && g_iClientTeam[i] == g_iClientTeam[m_iSender])))
                         target_list[target_count++] = i;
             }
         }
@@ -482,4 +421,3 @@ stock bool ChatFromDead(const char[] flag)
 
     return false;
 }
-#endif

@@ -1,17 +1,11 @@
 #define Module_Model
 
-#if defined _CG_CORE_INCLUDED
 int g_iRefPVM[MAXPLAYERS+1];
 int g_iOldSequence[MAXPLAYERS+1];
 bool g_bHooked[MAXPLAYERS+1];
 char g_szCurWpn[MAXPLAYERS+1][64];
 float g_fOldCycle[MAXPLAYERS+1];
 Handle g_tClientWeapon[MAXPLAYERS+1];
-#else
-#undef REQUIRE_PLUGIN
-#include <fpvm_interface>
-#define REQUIRE_PLUGIN
-#endif
 
 enum CustomModel
 {
@@ -27,16 +21,8 @@ enum CustomModel
 int g_eCustomModel[STORE_MAX_ITEMS][CustomModel];
 int g_iCustomModels = 0;
 
-public void Models_OnPluginStart()
+void Models_OnPluginStart()
 {
-#if !defined _CG_CORE_INCLUDED
-    if(FindPluginByFile("fpvm_interface.smx") == INVALID_HANDLE)
-    {
-        LogError("fpvm_interface isn't installed or failed to load. Models will be disabled. -> https://github.com/Franc1sco/First-Person-View-Models-Interface");
-        return;
-    }
-#endif
-
     Store_RegisterHandler("vwmodel", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
 }
 
@@ -72,7 +58,7 @@ public void Models_Reset()
     g_iCustomModels = 0; 
 }
 
-public int Models_Config(Handle &kv, int itemid) 
+public bool Models_Config(Handle &kv, int itemid) 
 {
     Store_SetDataIndex(itemid, g_iCustomModels);
     KvGetString(kv, "model", g_eCustomModel[g_iCustomModels][szModelV], PLATFORM_MAX_PATH);
@@ -92,36 +78,23 @@ public int Models_Config(Handle &kv, int itemid)
 public int Models_Equip(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
-#if defined _CG_CORE_INCLUDED
+
     if(!Models_AddModels(client, g_eCustomModel[m_iData][szEntity], g_eCustomModel[m_iData][iCacheIdV], g_eCustomModel[m_iData][iCacheIdW], g_eCustomModel[m_iData][szModelD]) && IsClientInGame(client))
         tPrintToChat(client, "\x02 unknown error! please contact to admin!");
-#else
-    FPVMI_SetClientModel(client, g_eCustomModel[m_iData][szEntity], g_eCustomModel[m_iData][iCacheIdV], g_eCustomModel[m_iData][iCacheIdW], g_eCustomModel[m_iData][szModelD]);
-#endif
+
     return g_eCustomModel[m_iData][iSlot];
 }
 
 public int Models_Remove(int client, int id) 
 {
     int m_iData = Store_GetDataIndex(id);
-#if defined _CG_CORE_INCLUDED
+
     if(!Models_RemoveModels(client, g_eCustomModel[m_iData][szEntity]) && IsClientInGame(client))
         tPrintToChat(client, "\x02 unknown error! please contact to admin!");
-#else
-    FPVMI_RemoveViewModelToClient(client, g_eCustomModel[m_iData][szEntity]);
-    if(!StrEqual(g_eCustomModel[m_iData][szModelW], "none", false))
-    {
-        FPVMI_RemoveWorldModelToClient(client, g_eCustomModel[m_iData][szEntity]);
-    }
-    if(!StrEqual(g_eCustomModel[m_iData][szModelD], "none", false))
-    {
-        FPVMI_RemoveDropModelToClient(client, g_eCustomModel[m_iData][szEntity]);
-    }
-#endif
+
     return g_eCustomModel[m_iData][iSlot];
 }
 
-#if defined _CG_CORE_INCLUDED
 public void OnClientPutInServer(int client)
 {
     g_iRefPVM[client] = INVALID_ENT_REFERENCE;
@@ -518,4 +491,3 @@ int FindEntityByClassname2(int start, const char[] classname)
 
     return FindEntityByClassname(start, classname); 
 }
-#endif

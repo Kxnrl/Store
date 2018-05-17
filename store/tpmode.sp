@@ -1,7 +1,5 @@
-#if defined GM_ZE || defined GM_KZ
-
+#if defined GM_ZE || defined GM_KZ || defined GM_BH
     #define Module_TPMode
-
 #endif
 
 bool g_bMirror[MAXPLAYERS+1];

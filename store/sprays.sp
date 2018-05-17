@@ -73,7 +73,7 @@ public int Sprays_Reset()
     g_iCGLOGO = -1;
 }
 
-public int Sprays_Config(Handle &kv, int itemid)
+public bool Sprays_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSprays);
     KvGetString(kv, "material", g_szSprays[g_iSprays], 256);
@@ -103,7 +103,7 @@ public int Sprays_Remove(int client)
     return 0;
 }
 
-public void Sprays_Create(int client)
+void Sprays_Create(int client)
 {
     if(!IsPlayerAlive(client))
         return;
@@ -130,7 +130,7 @@ public void Sprays_Create(int client)
     TE_SendToAll();
 }
 
-stock void GetPlayerEyeViewPoint(int client, float m_fPosition[3])
+void GetPlayerEyeViewPoint(int client, float m_fPosition[3])
 {
     float m_flRotation[3];
     float m_flPosition[3];

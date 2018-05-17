@@ -28,7 +28,7 @@ public void Aura_OnClientDisconnect(int client)
     g_szAuraClient[client] = "";
 }
 
-public int Aura_Config(Handle &kv, int itemid) 
+public bool Aura_Config(Handle &kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iAuras); 
     KvGetString(kv, "effect", g_szAuraName[g_iAuras], PLATFORM_MAX_PATH);
@@ -109,8 +109,8 @@ void Store_SetClientAura(int client)
 
 public Action Hook_SetTransmit_Aura(int ent, int client)
 {
-    if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-        SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
+    //if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
+    //    SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
 
 #if defined AllowHide
     if(g_bHideMode[client])

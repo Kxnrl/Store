@@ -12,7 +12,7 @@ Neon g_eNeons[STORE_MAX_ITEMS][Neon];
 int g_iNeons = 0;
 int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 
-public int Neon_Config(Handle &kv, int itemid) 
+public bool Neon_Config(Handle &kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iNeons); 
     KvGetColor(kv, "color", g_eNeons[g_iNeons][iColor][0], g_eNeons[g_iNeons][iColor][1], g_eNeons[g_iNeons][iColor][2], g_eNeons[g_iNeons][iColor][3]); 
@@ -60,9 +60,6 @@ public int Neon_Remove(int client)
 #if defined AllowHide
 public Action Hook_SetTransmit_Neon(int ent, int client)
 {
-    if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-        SetEdictFlags(ent, GetEdictFlags(ent) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
-
     return !(g_bHideMode[client]) ? Plugin_Continue : Plugin_Handled;
 }
 #endif
@@ -128,6 +125,9 @@ void Store_SetClientNeon(int client)
         g_iClientNeon[client] = EntIndexToEntRef(iNeon);
 
 #if defined AllowHide        
+        //if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
+        //    SetEdictFlags(ent, GetEdictFlags(ent) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
+        SetEdictFlags(iNeon, GetEdictFlags(iNeon)&(~FL_EDICT_ALWAYS));
         SDKHook(iNeon, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
 #endif
     }

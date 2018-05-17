@@ -61,7 +61,7 @@ public void GrenadeTrails_Reset()
     g_iGrenadeTrails = 0;
 }
 
-public int GrenadeSkins_Config(Handle &kv, int itemid)
+public bool GrenadeSkins_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iGrenadeSkins);
     KvGetString(kv, "model", g_eGrenadeSkins[g_iGrenadeSkins][szModel], PLATFORM_MAX_PATH);
@@ -77,7 +77,7 @@ public int GrenadeSkins_Config(Handle &kv, int itemid)
     return true;
 }
 
-public int GrenadeTrails_Config(Handle &kv, int itemid)
+public bool GrenadeTrails_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iGrenadeTrails);
     KvGetString(kv, "material", g_eGrenadeTrails[g_iGrenadeTrails][szMaterial], PLATFORM_MAX_PATH, "materials/sprites/laserbeam.vmt");

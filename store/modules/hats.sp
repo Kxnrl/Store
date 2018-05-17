@@ -14,7 +14,7 @@ Hat g_eHats[STORE_MAX_ITEMS][Hat];
 int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
 int g_iHats = 0;
 
-public int Hats_Config(Handle &kv, int itemid)
+public bool Hats_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iHats);
     float m_fTemp[3];
@@ -79,7 +79,7 @@ void Store_SetClientHat(int client)
     }
 }
 
-int CreateHat(int client, int itemid = -1, int slot = 0)
+void CreateHat(int client, int itemid = -1, int slot = 0)
 {
     int  m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "hat", slot) : itemid);
     
@@ -156,7 +156,7 @@ void Store_RemoveClientHats(int client, int slot)
 
 public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-    if(UTIL_IsPlayerTP(client))
+    if(IsPlayerTP(client))
         return Plugin_Continue;
 
 #if defined AllowHide

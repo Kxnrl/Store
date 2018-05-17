@@ -55,7 +55,7 @@ public void Sound_OnMapStart()
     }
 }
 
-public void Sound_OnClientDeath(int client, int attacker)
+void Sound_OnClientDeath(int client, int attacker)
 {
     g_iSoundSpam[client] = -1;
     g_iSoundSpam[attacker] = -1;
@@ -66,7 +66,7 @@ public void Sound_Reset()
     g_iSounds = 0;
 }
 
-public int Sound_Config(Handle &kv, int itemid)
+public bool Sound_Config(Handle &kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSounds);
     KvGetString(kv, "sound", g_eSounds[g_iSounds][szSound], 128);
@@ -107,7 +107,7 @@ public int Sound_Remove(int client)
     return 0;
 }
 
-public void Sound_OnClientConnected(int client)
+void Sound_OnClientConnected(int client)
 {
     g_iSoundClient[client] = -1;
     g_bClientDisable[client] = false;
@@ -124,7 +124,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
     if(g_iSoundClient[client] < 0)
         return;
     
-    if(sArgs[0] == '!' || sArgs[0] == '/')
+    if(sArgs[0] == '!' || sArgs[0] == '/' || sArgs[0] == '@')
         return;
     
     if(g_iSoundSpam[client] > GetTime())
@@ -145,10 +145,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 public Action Command_Cheer(int client, int args)
 {
-    if(client <= 0)
-        return Plugin_Handled;
-    
-    if(!IsClientInGame(client))
+    if(!IsValidClient(client))
         return Plugin_Handled;
     
     if(g_iSoundSpam[client] > GetTime())
@@ -156,13 +153,13 @@ public Action Command_Cheer(int client, int args)
         tPrintToChat(client, "%T", "sound cooldown", client);
         return Plugin_Handled;
     }
-    
+
     if(g_iSoundClient[client] < 0)
     {
         tPrintToChat(client, "%T", "sound no equip", client);
         return Plugin_Handled;
     }
-    
+
     g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]][iCooldown];
 
     StartSoundToAll(client);

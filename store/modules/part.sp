@@ -5,7 +5,7 @@ int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 char g_szPartName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];  
 char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
-public void Part_OnClientDisconnect(int client)
+void Part_OnClientDisconnect(int client)
 {
     Store_RemoveClientPart(client);
     g_szPartClient[client] = "";
@@ -16,7 +16,7 @@ public void Part_Reset()
     g_iParts = 0;
 }
 
-public int Part_Config(Handle &kv, int itemid) 
+public bool Part_Config(Handle &kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iParts); 
     KvGetString(kv, "effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);
@@ -96,8 +96,8 @@ void Store_SetClientPart(int client)
 
 public Action Hook_SetTransmit_Part(int ent, int client)
 {
-    if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-        SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
+    //if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
+    //    SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
 
 #if defined AllowHide
     if(g_bHideMode[client])

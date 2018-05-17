@@ -2,12 +2,9 @@
 
 void Players_OnPluginStart()
 {
-    HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Pre);
-    HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
-
-#if !defined _CG_CORE_INCLUDED
-    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
-#endif
+    HookEvent("player_spawn", Event_PlayerSpawn_Pre, EventHookMode_Pre);
+    HookEvent("player_death", Event_PlayerDeath_Pre, EventHookMode_Pre);
+    HookEvent("player_team",  Event_PlayerTeam_Pre,  EventHookMode_Pre);
 
 #if defined Module_Skin
     Skin_OnPluginStart();
@@ -59,7 +56,7 @@ void Players_OnClientDisconnect(int client)
 #endif
 }
 
-public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_PlayerSpawn_Pre(Handle event, const char[] name, bool dontBroadcast)
 {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
@@ -106,7 +103,7 @@ public void OnClientSpawnPost(int client)
 #endif
 }
 
-public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_PlayerDeath_Pre(Handle event, const char[] name, bool dontBroadcast)
 {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
@@ -144,7 +141,7 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
     return Plugin_Continue;
 }
 
-public int ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool respawnOverride, bool respawn)
+public void ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool respawnOverride, bool respawn)
 {
     g_iClientTeam[client] = 2;
 
@@ -158,15 +155,26 @@ public int ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool
 #endif
 }
 
-#if !defined  _CG_CORE_INCLUDED
-public Action Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, bool teleportOverride, bool teleport)
 {
-    CG_OnClientTeam(GetClientOfUserId(event.GetInt("userid")), event.GetInt("oldteam"), event.GetInt("team"));
-}
+    g_iClientTeam[client] = 2;
+
+#if defined Module_Hats
+    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+        Store_RemoveClientHats(client, i);
 #endif
 
-public void CG_OnClientTeam(int client, int oldteam, int newteam)
+#if defined Module_Skin
+    strcopy(g_szSkinModel[client], 256, "zombie");
+#endif
+}
+
+public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroadcast)
 {
+    int client = GetClientOfUserId(event.GetInt("userid"));
+    int newteam = event.GetInt("team");
+    int oldteam = event.GetInt("oldteam");
+
     g_iClientTeam[client] = newteam;
     
     if(oldteam > 1 && newteam <= 1)
@@ -193,18 +201,20 @@ public void CG_OnClientTeam(int client, int oldteam, int newteam)
             Store_RemoveClientHats(client, i);
 #endif
     }
-    
+
 #if defined TeamArms
     RequestFrame(OnClientTeamPost, client);
 #endif
 
 #if defined Module_Skin
     if(!IsClientInGame(client) || IsFakeClient(client))
-        return;
+        return Plugin_Handled;
 
     if(oldteam != newteam && newteam == 1)
         AttemptState(client, true);
 #endif
+
+    return Plugin_Handled;
 }
 
 #if defined Module_Skin

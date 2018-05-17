@@ -304,11 +304,11 @@ mv -f include build/addons/sourcemod/scripting
 echo -e "Compress file ..."
 cd build
 if [ "$5" = "master" ]; then
-#    7z a $FILE -t7z -mx9 LICENSE README.md addons utils materials models particles sound >nul
+#    7z a $FILE -t7z -mx9 README.md addons utils materials models particles sound >nul
 # disallow package resouorce.
-    7z a $FILE -t7z -mx9 LICENSE README.md addons utils >nul
+    7z a $FILE -t7z -mx9 README.md addons utils >nul
 else
-    7z a $FILE -t7z -mx9 LICENSE README.md addons utils >nul
+    7z a $FILE -t7z -mx9 README.md addons utils >nul
 fi
 
 

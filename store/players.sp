@@ -230,6 +230,7 @@ public void OnClientSettingsChanged(int client)
 }
 #endif
 
+#if defined TeamArms
 void OnClientTeamPost(int client)
 {
     if(!IsClientInGame(client) || !IsPlayerAlive(client) || g_iClientTeam[client] > 1)
@@ -237,3 +238,4 @@ void OnClientTeamPost(int client)
 
     Store_PreSetClientModel(client);
 }
+#endif

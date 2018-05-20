@@ -22,7 +22,7 @@
     "Item not in case"
     {
         "en" "This skin is not in case"
-        "chi" "CG皮肤箱中不包含当前浏览的皮肤"
+        "chi" "皮肤箱中不包含当前浏览的皮肤"
     }
     
     "Open case successful"
@@ -36,6 +36,12 @@
         "#format" "{1:s},{2:d}"
         "en" "{1} ({2}Credits)"
         "chi" "{1} ({2}信用点)"
+    }
+    
+    "credits"
+    {
+        "en" "credits"
+        "chi" "信用点"
     }
 
     "Item Plan Available"
@@ -81,7 +87,7 @@
     "Open Case Available"
     {
         "en"  "Open skin case"
-        "chi" "开启CG皮肤箱"
+        "chi" "开启皮肤箱"
     }
     
     "Open Case not available"
@@ -354,7 +360,7 @@
     "playerskin"
     {
         "en" "player skin"
-        "chi" "人物模型"
+        "chi" "人物皮肤"
     }
     
     "trail"
@@ -455,8 +461,8 @@
     
     "spray auto equip"
     {
-        "en" "You are not equipped spray. Auto-Equip CG Spray."
-        "chi" "你没有装备喷漆,当前为你装备CG喷漆"
+        "en" "You are not equipped spray. Auto-Equip default Spray."
+        "chi" "你没有装备喷漆,当前为你装备默认喷漆"
     }
     
     "spray no equip"
@@ -551,5 +557,121 @@
         "#format" "{1:d}"
         "en" "Data protection activated. Try again after {green}{1} second(s){normal}!"
         "chi" "数据保护已开启,请等待{green}{1}秒{normal}后再试..."
+    }
+    
+    "unknown error"
+    {
+        "en" "unknown error, please contact to admin..."
+        "chi" "发生未知错误,请联系管理员..."
+    }
+    
+    "time limit"
+    {
+        "en" "Time Remaning"
+        "chi" "时限"
+    }
+    
+    "permanent"
+    {
+        "en" "Permanent"
+        "chi" "永久"
+    }
+    
+    "opencase earned day"
+    {
+        "#format" "{1:N},{2:s},{3:s},{4:s}"
+        "en"  "\x0E{1} \x01opened an \x0C{2}\x01, earned [\x04{3}\x01](\x05{4}天\x01)"
+        "chi" "\x0E{1}\x01在\x0C{2}\x01中获得了[\x04{3}\x01](\x05{4}天\x01)"
+    }
+    
+    "opencase earned perm"
+    {
+        "#format" "{1:N},{2:s},{3:s}"
+        "en"  "\x0E{1} \x01opened an \x0C{2}\x01, earned [\x04{3}\x01](\x05{4}permanent\x01)"
+        "chi" "\x0E{1}\x01在\x0C{2}\x01中获得了[\x04{3}\x01](\x05天\x01)"
+    }
+    
+    "quickly sell"
+    {
+        "en" "Sell"
+        "chi" "快速卖出该皮肤"
+    }
+    
+    "income"
+    {
+        "en" "Income"
+        "chi" "添加到我的库存"
+    }
+    
+    "open case and quickly sell"
+    {
+        "en" "Opened case and sell it"
+        "chi" "开启皮肤箱后快速卖出皮肤"
+    }
+    
+    "open and sell day chat"
+    {
+        "#format" "{1:s},{2:d},{3:d}"
+        "en" "You sold [\x04{1}\x01](\x05{2}days\x01) , earn \x04{3}\x01 credits"
+        "chi" "你出售了[\x04{1}\x01](\x05{2}天\x01)获得了\x04{3}\x01信用点"
+    }
+    
+    "open and sell permanent chat"
+    {
+        "#format" "{1:s},{2:d}"
+        "en" "You sold [\x04{1}\x01](\x05permanent\x01) , earn \x04{2}\x01 credits"
+        "chi" "你出售了[\x04{1}\x01](\x05永久\x01)获得了\x04{2}\x01信用点"
+    }
+    
+    "open and add day chat"
+    {
+        "#format" "{1:s},{2:s},{3:d}"
+        "en" "You open \x0C{1}\x01 and receive [\x04{2}\x01](\x05{3}days\x01)"
+        "chi" "你打开\x0C{1}\x01获得了[\x04{2}\x01](\x05{3}天\x01)"
+    }
+    
+    "open and sell permanent chat"
+    {
+        "#format" "{1:s},{2:d}"
+        "en" "You open \x0C{1}\x01 and receive [\x04{2}\x01](\x05permanent\x01)"
+        "chi" "你打开\x0C{1}\x01获得了[\x04{2}\x01](\x05永久\x01)"
+    }
+    
+    "open and cancel"
+    {
+        "en" "Opened case and cancel menu"
+        "chi" "开启皮肤箱后因选择退出而快速卖出皮肤"
+    }
+    
+    "online earn credits"
+    {
+        "en" "Eean credits by Online"
+        "chi" "游戏在线获得信用点"
+    }
+    
+    "earn credits chat"
+    {
+        "#format" "{1:d}"
+        "en" "You earn {green} {1} credits"
+        "chi" "你获得了{green} {1} 信用点"
+    }
+    
+    "earn credits from chat"
+    {
+        "en" "By "
+        "chi" "积分来自"
+    }
+    
+    "Compose successfully broadcast"
+    {
+        "#format" "{1:N},{2:s}"
+        "en" "\x0C{1}\x04 commposed a skin \x01[\x10{2}\x01]"
+        "chi" "\x0C{1}\x04成功合成了皮肤\x10{2}"
+    }
+    
+    "select case"
+    {
+        "en" "Select case"
+        "chi" "选择你要开的箱子"
     }
 }

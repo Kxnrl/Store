@@ -97,7 +97,7 @@ bool g_bHideMode[MAXPLAYERS+1];
 bool g_bInvMode[MAXPLAYERS+1];
 
 bool g_bLateLoad;
-char g_szCase[4][32] = {"", "普通皮肤箱", "高级皮肤箱", "终极皮肤箱"};
+char g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
 
 
 //////////////////////////////
@@ -423,7 +423,7 @@ public int Native_SetClientCredits(Handle myself, int numParams)
 
     char logMsg[128];
     if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
-        strcopy(STRING(logMsg), "未知来源 SP_ERROR");
+        strcopy(STRING(logMsg), "unknown SP_ERROR");
     
     if(g_eClients[client][bRefresh])
     {
@@ -1300,14 +1300,14 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
 void UTIL_OpenSkinCase(int client)
 {
     Handle menu = CreateMenu(MenuHandler_SelectCase);
-    SetMenuTitleEx(menu, "选择你要开的箱子\n信用点: %d", g_eClients[client][iCredits]);
+    SetMenuTitleEx(menu, "%T\n%T: %d", "select case", client, "credits", client, g_eClients[client][iCredits]);
     SetMenuExitBackButton(menu, true);
 
-    AddMenuItemEx(menu, g_eClients[client][iCredits] >=  8888 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%s(8888信用点)\n含有皮肤等级: 保密|隐秘(1天~永久)", g_szCase[1]);
+    AddMenuItemEx(menu, g_eClients[client][iCredits] >=  8888 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%s(8888%T)\nSkin Level: 2|3(1day~%T)", g_szCase[1], "credits", client, "permanent", client);
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
-    AddMenuItemEx(menu, g_eClients[client][iCredits] >= 23333 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "2", "%s(23333信用点)\n含有皮肤等级: 保密|隐秘|违禁(1天~永久)", g_szCase[2]);
+    AddMenuItemEx(menu, g_eClients[client][iCredits] >= 23333 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "2", "%s(23333%T)\nSkin Level: 2|3|4(1day~%T)", g_szCase[2], "credits", client, "permanent", client);
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
-    AddMenuItemEx(menu, g_eClients[client][iCredits] >= 68888 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%s(68888信用点)\n含有皮肤等级: 保密|隐秘|违禁(#永久#)", g_szCase[3]);
+    AddMenuItemEx(menu, g_eClients[client][iCredits] >= 68888 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%s(68888%T)\nSkin Level: 2|3|4(#%T#)", g_szCase[3], "credits", client, "permanent", client);
 
     DisplayMenu(menu, client, 0);
 }
@@ -1356,9 +1356,9 @@ public Action Timer_OpeningCase(Handle timer, int client)
     
     switch(g_iClientCase[client])
     {
-        case 1: if(g_eClients[client][iCredits] <  8888) return Plugin_Stop;
-        case 2: if(g_eClients[client][iCredits] < 23333) return Plugin_Stop;
-        case 3: if(g_eClients[client][iCredits] < 68888) return Plugin_Stop;
+        case 1 : if(g_eClients[client][iCredits] <  8888) return Plugin_Stop;
+        case 2 : if(g_eClients[client][iCredits] < 23333) return Plugin_Stop;
+        case 3 : if(g_eClients[client][iCredits] < 68888) return Plugin_Stop;
         default: return Plugin_Stop;
     }
 
@@ -1399,7 +1399,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
     if(itemid < 0)
     {
         LogError("Item Id Error %s", modelname);
-        tPrintToChat(client, "\x07发生未知错误,请联系管理员");
+        tPrintToChat(client, "\x07%T", client, "unknown error");
         return Plugin_Stop;
     }
 
@@ -1462,7 +1462,7 @@ void OpeningCaseMenu(int client, int days, const char[] name)
     }
     else
     {
-        AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "永久(permanent)");
+        AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "%T", "permanent", client);
         PrintCenterText(client, "<big><u><b><font color='#dd2f2f' size='25'><center>%s</font> <font color='#15fb00' size='25'>Permanent</center>", name);
     }
 
@@ -1506,9 +1506,9 @@ void EndingCaseMenu(int client, int days, int itemid)
 {
     switch(g_iClientCase[client])
     {
-        case 1: Store_SetClientCredits(client, Store_GetClientCredits(client)- 8888, "开启普通皮肤箱");
-        case 2: Store_SetClientCredits(client, Store_GetClientCredits(client)-23333, "开启高级皮肤箱");
-        case 3: Store_SetClientCredits(client, Store_GetClientCredits(client)-68888, "开启终极皮肤箱");
+        case 1: Store_SetClientCredits(client, Store_GetClientCredits(client)- 8888, "Normal Case");
+        case 2: Store_SetClientCredits(client, Store_GetClientCredits(client)-23333, "Advanced Case");
+        case 3: Store_SetClientCredits(client, Store_GetClientCredits(client)-68888, "Ultima Case");
         default: return;
     }
 
@@ -1521,20 +1521,18 @@ void EndingCaseMenu(int client, int days, int itemid)
     
     char leveltype[32];
     UTIL_GetLevelType(itemid, leveltype, 32);
-    AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "皮肤: %s - %s", name, leveltype);
+    AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "%T: %s - %s", "playerskin", client, name, leveltype);
     if(days)
     {
-        AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "时限: %d day%s", days, days > 1 ? "s" : "");
+        AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "%T: %d day%s", "time limit", client, days, days > 1 ? "s" : "");
         PrintCenterText(client, "<big><u><b><font color='#dd2f2f' size='25'><center>%s</font> <font color='#15fb00' size='25'>%d Day%s</center>", name, days, days > 1 ? "s" : "");
-        tPrintToChatAll("\x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05%d天\x01)", client, g_szCase[g_iClientCase[client]], name, days);
+        tPrintToChatAll("%t", "opencase earned day", client, g_szCase[g_iClientCase[client]], name, days);
     }
     else
     {
-        AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "时限: 永久(permanent)");
+        AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "%T: %T", "time limit", client, "permanent", client);
         PrintCenterText(client, "<big><u><b><font color='#dd2f2f' size='25'><center>%s</font> <font color='#15fb00' size='25'>Permanent</center>", name);
-        tPrintToChatAll("\x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
-        char msg[256];
-        FormatEx(msg, 256, "[\x10Store\x01] \x0E%N\x01在\x0C%s\x01中获得了[\x04%s\x01](\x05永久\x01)", client, g_szCase[g_iClientCase[client]], name);
+        tPrintToChatAll("%t", "opencase earned perm", client, g_szCase[g_iClientCase[client]], name);
     }
 
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
@@ -1543,9 +1541,9 @@ void EndingCaseMenu(int client, int days, int itemid)
     int crd = UTIL_GetSkinSellPrice(client, days);
     char fmt[32];
     FormatEx(fmt, 32, "sell_%d_%d", itemid, days);
-    AddMenuItemEx(menu, ITEMDRAW_DEFAULT, fmt, "快速卖出该皮肤(%d)", crd);
+    AddMenuItemEx(menu, ITEMDRAW_DEFAULT, fmt, "%T(%d)", "quickly sell", client, crd);
     FormatEx(fmt, 32, "add_%d_%d", itemid, days);
-    AddMenuItemEx(menu, Store_HasClientItem(client, itemid) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT, fmt, "添加到我的库存");
+    AddMenuItemEx(menu, Store_HasClientItem(client, itemid) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT, fmt, "%T", "income", client);
     
     DisplayMenu(menu, client, 0);
     
@@ -1577,10 +1575,10 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
             {
                 int crd = UTIL_GetSkinSellPrice(client, days);
                 char reason[128];
-                FormatEx(STRING(reason), "开启皮肤箱后快速卖出皮肤[%s]", name);
+                FormatEx(STRING(reason), "%T[%s]", "open case and quickly sell", client, name);
                 Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, reason);
-                if(days) tPrintToChat(client, "你出售了[\x04%s\x01](\x05%d天\x01)获得了\x04%d\x01信用点", name, days, crd);
-                else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
+                if(days) tPrintToChat(client, "%t", "open and sell day chat", name, days, crd);
+                else tPrintToChat(client, "%t", "open and sell permanent chat", name, crd);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);
                 UTIL_OpenSkinCase(client);
@@ -1593,8 +1591,8 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
             else if(StrEqual(data[0], "add"))
             {
                 Store_GiveItem(client, itemid, GetTime(), (days == 0) ? 0 : GetTime()+days*86400, 233);
-                if(days) tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05%d天\x01)", g_szCase[g_iClientCase[client]], name, days);
-                else tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05永久\x01)", g_szCase[g_iClientCase[client]], name);            
+                if(days) tPrintToChat(client, "%t", "open and add day chat", g_szCase[g_iClientCase[client]], name, days);
+                else tPrintToChat(client, "%t", "open and sell permanent chat", g_szCase[g_iClientCase[client]], name);
                 Store_SaveClientAll(client);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);
@@ -1627,10 +1625,10 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 {
                     int crd = UTIL_GetSkinSellPrice(client, days);
                     char reason[128];
-                    FormatEx(STRING(reason), "开启皮肤箱后因选择退出而快速卖出皮肤[%s]", name);
+                    FormatEx(STRING(reason), "%T[%s]", "open and cancel", client, name);
                     Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, reason);
-                    if(days) tPrintToChat(client, "你出售了[\x04%s\x01](\x05%d天\x01)获得了\x04%d\x01信用点", name, days, crd);
-                    else tPrintToChat(client, "你出售了[\x04%s\x01](\x05永久\x01)获得了\x04%d\x01信用点", name, crd);
+                    if(days) tPrintToChat(client, "%t", "open and sell day chat", name, days, crd);
+                    else tPrintToChat(client, "%t", "open and sell permanent chat", name, crd);
                     if(g_iClientCase[client] > 1)
                     {
                         g_iDataProtect[client] = GetTime()+10;
@@ -1641,8 +1639,8 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 else
                 {
                     Store_GiveItem(client, itemid, GetTime(), (days == 0) ? 0 : GetTime()+days*86400, 233);
-                    if(days) tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05%d天\x01)", g_szCase[g_iClientCase[client]], name, days);
-                    else tPrintToChat(client, "你打开\x0C%s\x01获得了[\x04%s\x01](\x05永久\x01)", g_szCase[g_iClientCase[client]], name);            
+                    if(days) tPrintToChat(client, "%t", "open and add day chat", g_szCase[g_iClientCase[client]], name, days);
+                    else tPrintToChat(client, "%t", "open and sell permanent chat", g_szCase[g_iClientCase[client]], name);
                     Store_SaveClientAll(client);
                     g_iDataProtect[client] = GetTime()+10;
                     g_iSelectedItem[client] = itemid;
@@ -1824,12 +1822,12 @@ public void DisplayComposeMenu(int client, bool last)
     }
     else
     {
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "合成模式① [60%%成功率]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "合成模式② [65%%成功率]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "合成模式③ [70%%成功率]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "合成模式④ [75%%成功率]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "合成模式⑤ [80%%成功率]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "合成模式⑥ [99%%成功率]");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "Mode ① [60%%]");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "Mode ② [65%%]");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "Mode ③ [70%%]");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "Mode ④ [75%%]");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "Mode ⑤ [80%%]");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "Mode ⑥ [99%%]");
         num=6;
     }
 
@@ -2125,7 +2123,7 @@ public int MenuHandler_Confirm(Handle menu, MenuAction action, int client, int p
             if(m_hPlugin != null && fnMenuCallback != INVALID_FUNCTION)
             {
                 Call_StartFunction(m_hPlugin, fnMenuCallback);
-                Call_PushCell(null);
+                Call_PushCell(INVALID_HANDLE);
                 Call_PushCell(MenuAction_Select);
                 Call_PushCell(client);
                 Call_PushCell(StringToInt(m_szData));
@@ -2233,7 +2231,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
             SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
 
-            UTIL_LogMessage(client, 0, "进入服务器时");
+            UTIL_LogMessage(client, 0, "Joined");
             
             g_iDataProtect[client] = GetTime()+90;
         }
@@ -2508,7 +2506,7 @@ void UTIL_SaveClientData(int client, bool disconnect)
     {
         g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
         SQL_TVoid(g_hDatabase, m_szQuery);
-        UTIL_LogMessage(client, 0, "离开服务器时");
+        UTIL_LogMessage(client, 0, "Disconnect");
     }
     else
     {
@@ -2580,7 +2578,7 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
                 int diff = dbCredits - g_eClients[client][iOriginalCredits];
                 g_eClients[client][iOriginalCredits] = dbCredits;
                 g_eClients[client][iCredits] += diff;
-                UTIL_LogMessage(client, diff, "外部信用点转换(购物前刷新信用点)");
+                UTIL_LogMessage(client, diff, "Credits changed in database (sync credits from database)");
             }
             
             g_eClients[client][bRefresh] = false;
@@ -2601,7 +2599,7 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
             g_eClientItems[client][m_iId][bDeleted] = false;
 
             g_eClients[client][iCredits] -= m_iPrice;
-            UTIL_LogMessage(client, -m_iPrice, "购买了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+            UTIL_LogMessage(client, -m_iPrice, "Bought %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
             Store_SaveClientAll(client);
 
@@ -2642,7 +2640,7 @@ void UTIL_ComposeItem(int client)
     Store_RemoveItem(client, g_eCompose[client][item1]);
     
     char reason[128];
-    FormatEx(STRING(reason), "合成皮肤手续费[%s]", g_eItems[g_iSelectedItem[client]][szName]);
+    FormatEx(STRING(reason), "Compose Fee[%s]", g_eItems[g_iSelectedItem[client]][szName]);
     Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
     
     int probability = 0;
@@ -2671,7 +2669,7 @@ void UTIL_ComposeItem(int client)
 
     tPrintToChat(client, "Compose successfully", client, g_eItems[g_iSelectedItem[client]][szName]);
     
-    tPrintToChatAll("\x0C%N\x04成功合成了皮肤\x10%s", client, g_eItems[g_iSelectedItem[client]][szName]);
+    tPrintToChatAll("%t", "Compose successfully broadcast", client, g_eItems[g_iSelectedItem[client]][szName]);
 }
 
 void UTIL_BuyItem(int client)
@@ -2725,7 +2723,7 @@ void UTIL_SellItem(int client, int itemid)
     g_eClients[client][iCredits] += m_iCredits;
     tPrintToChat(client, "%T", "Chat Sold Item", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
-    UTIL_LogMessage(client, m_iCredits, "卖掉了 %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+    UTIL_LogMessage(client, m_iCredits, "Sold %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
 
     Store_RemoveItem(client, itemid);
 
@@ -2768,7 +2766,7 @@ void UTIL_GiftItem(int client, int receiver, int item)
     }
 
     char reason[128];
-    FormatEx(STRING(reason), "赠送[%s]支付手续费", g_eItems[m_iId][szName]);
+    FormatEx(STRING(reason), "Giftd [%s] Fee", g_eItems[m_iId][szName]);
     Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
 
     g_eClientItems[client][item][bDeleted] = true;
@@ -2787,8 +2785,8 @@ void UTIL_GiftItem(int client, int receiver, int item)
     tPrintToChat(client, "%T", "Chat Gift Item Sent", client, receiver, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
     tPrintToChat(receiver, "%T", "Chat Gift Item Received", receiver, client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
 
-    UTIL_LogMessage(client  , 0, "赠送了 %s 给 %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
-    UTIL_LogMessage(receiver, 0, "收到了 %s 来自 %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);
+    UTIL_LogMessage(client  , 0, "Giftd %s to %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
+    UTIL_LogMessage(receiver, 0, "Received %s from %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);
     
     Store_SaveClientAll(client);
     Store_SaveClientAll(receiver);
@@ -2939,15 +2937,15 @@ void UTIL_ReloadConfig()
         
         if(price_1d != 0 && price_1m != 0)
         {
-            strcopy(g_ePlans[g_iItems][0][szName], 32, "1天");
+            strcopy(g_ePlans[g_iItems][0][szName], 32, "1 day");
             g_ePlans[g_iItems][0][iPrice] = price_1d;
             g_ePlans[g_iItems][0][iTime] = 86400;
             
-            strcopy(g_ePlans[g_iItems][1][szName], 32, "1月");
+            strcopy(g_ePlans[g_iItems][1][szName], 32, "1 month");
             g_ePlans[g_iItems][1][iPrice] = price_1m;
             g_ePlans[g_iItems][1][iTime] = 2592000;
             
-            strcopy(g_ePlans[g_iItems][2][szName], 32, "永久");
+            strcopy(g_ePlans[g_iItems][2][szName], 32, "Permanent");
             g_ePlans[g_iItems][2][iPrice] = price_pm;
             g_ePlans[g_iItems][2][iTime] = 0;
    
@@ -3341,8 +3339,8 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 
     int m_iCredits = 0;
     char szFrom[128], szReason[128];
-    strcopy(szFrom, 128, "\x10[");
-    strcopy(szReason, 128, "游戏在线获得信用点[");
+    FormatEx(szFrom, 128, "\x10[");
+    FormatEx(szReason, 128, "%T[", "online earn credits", client);
 
     m_iCredits += 2;
     StrCat(szFrom, 128, "\x04Online");
@@ -3356,8 +3354,8 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 
     Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
-    tPrintToChat(client, "\x10你获得了\x04 %d 信用点", m_iCredits);
-    PrintToChat(client, " \x0A积分来自%s", szFrom);
+    tPrintToChat(client, "\x10%T", "earn credits chat", client, m_iCredits);
+    PrintToChat(client, " \x0A%T%s", "earn credits from chat", client, szFrom);
 
     return Plugin_Continue;
 }

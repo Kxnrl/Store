@@ -12,7 +12,7 @@ Neon g_eNeons[STORE_MAX_ITEMS][Neon];
 int g_iNeons = 0;
 int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 
-public bool Neon_Config(Handle &kv, int itemid) 
+public bool Neon_Config(Handle kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iNeons); 
     KvGetColor(kv, "color", g_eNeons[g_iNeons][iColor][0], g_eNeons[g_iNeons][iColor][1], g_eNeons[g_iNeons][iColor][2], g_eNeons[g_iNeons][iColor][3]); 

@@ -66,7 +66,7 @@ public void Sound_Reset()
     g_iSounds = 0;
 }
 
-public bool Sound_Config(Handle &kv, int itemid)
+public bool Sound_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSounds);
     KvGetString(kv, "sound", g_eSounds[g_iSounds][szSound], 128);

@@ -11,7 +11,7 @@ Trail g_eTrails[STORE_MAX_ITEMS][Trail];
 int g_iTrails = 0;
 int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
 
-public bool Trails_Config(Handle &kv, int itemid)
+public bool Trails_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iTrails);
     
@@ -30,7 +30,7 @@ public bool Trails_Config(Handle &kv, int itemid)
 public void Trails_OnMapStart()
 {
     for(int a = 0; a <= MaxClients; ++a)
-        for(int b = 0; b < STORE_MAX_SLOTS; ++b)
+        for(int b = 1; b < STORE_MAX_SLOTS; ++b)
             g_iClientTrails[a][b] = INVALID_ENT_REFERENCE;
 
     for(int i = 0; i < g_iTrails; ++i)
@@ -76,7 +76,7 @@ void Store_RemoveClientTrail(int client, int slot)
 
 void Trails_OnClientDisconnect(int client)
 {
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
         Store_RemoveClientTrail(client, i);
 }
 
@@ -90,7 +90,7 @@ public void Store_PreSetTrail(int client)
     if(!IsClientInGame(client))
         return;
 
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
     {
         Store_RemoveClientTrail(client, i);
         CreateTrail(client, -1, i);
@@ -111,7 +111,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
 
     int m_iCurrent;
 
-    for(int i=0;i<STORE_MAX_SLOTS;++i)
+    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
     {
         if((m_aEquipped[m_iNumEquipped] = Store_GetEquippedItem(client, "trail", i)) >= 0)
         {

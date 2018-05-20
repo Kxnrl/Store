@@ -35,7 +35,6 @@ any g_eWeaponSkin[STORE_MAX_ITEMS][WeaponSkin];
 int g_iWeaponSkin = 0;
 int g_iOffsetName = -1;
 int g_iOffsetMyWP = -1;
-char g_szEquipWeapon[MAXPLAYERS+1][3][32];
 
 #define SLOT_1 0
 #define SLOT_2 1
@@ -45,18 +44,6 @@ char g_szEquipWeapon[MAXPLAYERS+1][3][32];
 
 public void OnPluginStart()
 {
-    char path[128];
-    BuildPath(Path_SM, path, 128, "configs/core.cfg");
-    KeyValues kv = new KeyValues("Core");
-    
-    if(kv.ImportFromFile(path))
-        SetFailState("'%s' was not found.", path);
-
-    char val[16];
-    kv.GetString("FollowCSGOServerGuidelines", val, 16, "yes");
-    if(strcmp(val, "no", false) != 0 && strcmp(val, "false", false) != 0)
-        SetFailState("'%s' -> You must be set 'FollowCSGOServerGuidelines' to 'no' or 'false'.", path);
-    
     g_iOffsetName = FindSendPropInfo("CBaseAttributableItem", "m_szCustomName");
     if(g_iOffsetName == -1)
         SetFailState("Offset 'CBaseAttributableItem' -> 'm_szCustomName' was not found.");
@@ -89,6 +76,8 @@ public bool WeaponSkin_Config(Handle kv, int itemid)
     g_eWeaponSkin[g_iWeaponSkin][iWearT] = KvGetNum(kv, "weart", -1);
     g_eWeaponSkin[g_iWeaponSkin][fWearF] = KvGetFloat(kv, "wearf", 0.0416);
     
+    //LogMessage("Weapon Skin -> %s -> Paint[%d] Seed[%d] Slot[%d] WearT[%d] WearF[%f]", g_eWeaponSkin[g_iWeaponSkin][szUnique], g_eWeaponSkin[g_iWeaponSkin][iPaint], g_eWeaponSkin[g_iWeaponSkin][iSeed], g_eWeaponSkin[g_iWeaponSkin][iSlot], g_eWeaponSkin[g_iWeaponSkin][iWearT], g_eWeaponSkin[g_iWeaponSkin][fWearF]);
+
     g_iWeaponSkin++;
     return true;
 }
@@ -96,28 +85,28 @@ public bool WeaponSkin_Config(Handle kv, int itemid)
 public int WeaponSkin_Equip(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
-    strcopy(g_szEquipWeapon[client][g_eWeaponSkin[m_iData][iSlot]], 32, g_eWeaponSkin[m_iData][szUnique]);
-    CheckClientWeapon(client, m_iData);
+
+    DataPack pack = new DataPack();
+    pack.WriteCell(GetClientUserId(client));
+    pack.WriteCell(m_iData);
+    pack.Reset();
+    RequestFrame(CheckClientWeapon, pack);
+
     return g_eWeaponSkin[m_iData][iSlot];
 }
 
 public int WeaponSkin_Remove(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
-    g_szEquipWeapon[client][g_eWeaponSkin[m_iData][iSlot]][0] = 0;
     return g_eWeaponSkin[m_iData][iSlot];
-}
-
-public void OnClientConnected(int client)
-{
-    g_szEquipWeapon[client][SLOT_1][0] = 0;
-    g_szEquipWeapon[client][SLOT_2][0] = 0;
-    g_szEquipWeapon[client][SLOT_3][0] = 0;
 }
 
 public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemView &item, bool &ignoredCEconItemView)
 {
     if(IsFakeClient(client))
+        return Plugin_Continue;
+    
+    if(StrContains(classname, "weapon_") != 0)
         return Plugin_Continue;
 
     int itemid = Store_GetEquippedItem(client, "weaponskin", SLOT_3);
@@ -136,15 +125,27 @@ public void Event_GiveNamedItemPost(int client, const char[] classname, const CE
 {
     if(IsFakeClient(client) || !IsPlayerAlive(client) || !IsValidEdict(entity))
         return;
+    
+    if(StrContains(classname, "weapon_") != 0)
+        return;
 
-    for(int slot = 0; slot < STORE_MAX_SLOTS; ++slot)
+    //PrintToChat(client, "Event_GiveNamedItemPost -> %s", classname);
+
+    for(int slot = 1; slot < STORE_MAX_SLOTS; ++slot)
     {
         int itemid = Store_GetEquippedItem(client, "weaponskin", slot);
         if(itemid >= 0)
         {
             int m_iData = Store_GetDataIndex(itemid);
-            SetWeaponEconmoney(client, m_iData, entity);
+            //PrintToChat(client, "Checking Slot[%d]", slot);
+            if(strcmp(classname, g_eWeaponSkin[m_iData][szWeapon], false) == 0)
+            {
+                //PrintToChat(client, "Replace %s To %s",  classname, g_eWeaponSkin[m_iData][szUnique]);
+                SetWeaponEconmoney(client, m_iData, entity);
+            }
         }
+        else
+            //PrintToChat(client, "Slot[%d] -> null", slot);
     }
 }
 
@@ -161,12 +162,9 @@ void SetWeaponEconmoney(int client, int data, int weapon)
         EquipPlayerWeapon(client, weapon);
     }
 
-    SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
     SetEntProp(weapon, Prop_Send, "m_nFallbackPaintKit", g_eWeaponSkin[data][iPaint]);
     SetEntProp(weapon, Prop_Send, "m_nFallbackSeed", g_eWeaponSkin[data][iSeed]);
     SetEntProp(weapon, Prop_Send, "m_iEntityQuality", (g_eWeaponSkin[data][iSlot] == SLOT_3) ? 3 : 8);
-
-    SetEntDataString(weapon, g_iOffsetName, "!store", 16);
 
     switch(g_eWeaponSkin[data][iWearT])
     {
@@ -178,27 +176,44 @@ void SetWeaponEconmoney(int client, int data, int weapon)
         default: SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", g_eWeaponSkin[data][fWearF]);
     }
 
+    SetEntDataString(weapon, g_iOffsetName, "!store", 16);
+
     SetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity", client);
     SetEntPropEnt(weapon, Prop_Send, "m_hPrevOwner", -1);
+    
+    SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
 }
 
-void CheckClientWeapon(int client, int data)
+void CheckClientWeapon(DataPack dp)
 {
-    if(IsPlayerAlive(client))
+    int client = GetClientOfUserId(dp.ReadCell());
+    int data   = dp.ReadCell();
+    delete dp;
+
+    if(!IsPlayerAlive(client))
+    {
+        //PrintToChat(client, "Equipped but Dead");
         return;
+    }
 
     int weapon = GetPlayerWeaponEntity(client, g_eWeaponSkin[data][szWeapon]);
-    
+    if(weapon == -1)
+    {
+        //PrintToChat(client, "Equipped but weapon was not found.");
+        return;
+    }
+
     int prevOwner = GetEntPropEnt(weapon, Prop_Send, "m_hPrevOwner");
     if(prevOwner != -1)
-        return;
-    
-    int clip, ammo;
-    if(GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType") >= 0)
     {
-        clip = GetEntProp(weapon, Prop_Send, "m_iClip1", 4, 0);
-        ammo= GetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount");
+        //PrintToChat(client, "PrevOwner is %d", prevOwner);
+        return;
     }
+
+    int PAmmo = GetEntProp(weapon, Prop_Data, "m_iPrimaryAmmoCount");
+    int SAmmo = GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount");
+    int Clip1 = GetEntProp(weapon, Prop_Data, "m_iClip1");
+    int Clip2 = GetEntProp(weapon, Prop_Data, "m_iClip2");
 
     if(!RemovePlayerItem(client, weapon))
         LogError("RemovePlayerItem -> %N -> %d.%s", client, weapon, g_eWeaponSkin[data][szWeapon]);
@@ -206,15 +221,27 @@ void CheckClientWeapon(int client, int data)
     if(!AcceptEntityInput(weapon, "KillHierarchy"))
         LogError("AcceptEntityInput -> %N -> %d.%s", client, weapon, g_eWeaponSkin[data][szWeapon]);
 
-    weapon = GivePlayerItem(client, g_eWeaponSkin[data][szWeapon]);
+    if(g_eWeaponSkin[data][iSlot] == SLOT_3)
+    {
+        //PrintToChat(client, "Give new %s", "weapon_knife");
+        weapon = GivePlayerItem(client, "weapon_knife");
+        return;
+    }
+    else
+    {
+        //PrintToChat(client, "Give new %s", g_eWeaponSkin[data][szWeapon]);
+        weapon = GivePlayerItem(client, g_eWeaponSkin[data][szWeapon]);
+    }
 
-    if(!IsValidEdict(weapon) || g_eWeaponSkin[data][iSlot] == SLOT_3)
+    if(!IsValidEdict(weapon))
         return;
 
     DataPack pack = new DataPack();
     pack.WriteCell(EntIndexToEntRef(weapon));
-    pack.WriteCell(clip);
-    pack.WriteCell(ammo);
+    pack.WriteCell(PAmmo);
+    pack.WriteCell(SAmmo);
+    pack.WriteCell(Clip1);
+    pack.WriteCell(Clip2);
     pack.Reset();
 
     CreateTimer(0.1, Timer_RevertAmmo, pack);
@@ -223,21 +250,22 @@ void CheckClientWeapon(int client, int data)
 public Action Timer_RevertAmmo(Handle timer, DataPack pack)
 {
     int iref = pack.ReadCell();
-    int clip = pack.ReadCell();
-    int ammo = pack.ReadCell();
+    int PAmmo = pack.ReadCell();
+    int SAmmo = pack.ReadCell();
+    int Clip1 = pack.ReadCell();
+    int Clip2 = pack.ReadCell();
     delete pack;
-    
+
     int weapon = EntRefToEntIndex(iref);
 
     if(!IsValidEdict(weapon))
         return Plugin_Stop;
 
-    if(clip != 0)
-        SetEntProp(weapon, Prop_Send, "m_iClip1", clip, 4, 0);
-    
-    if(ammo != 0)
-        SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", ammo);
-    
+    if(PAmmo > -1) SetEntProp(weapon, Prop_Data, "m_iPrimaryAmmoCount",     PAmmo);
+    if(SAmmo > -1) SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount",   SAmmo);
+    if(Clip1 > -1) SetEntProp(weapon, Prop_Data, "m_iClip1",                Clip1);
+    if(Clip2 > -1) SetEntProp(weapon, Prop_Data, "m_iClip2",                Clip2);
+
     return Plugin_Stop;
 }
 

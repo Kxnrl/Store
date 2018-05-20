@@ -127,7 +127,7 @@ public Action Event_PlayerDeath_Pre(Handle event, const char[] name, bool dontBr
     Store_RemoveClientPart(client);
 #endif
 
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
     {
 #if defined Module_Hats
         Store_RemoveClientHats(client, i);
@@ -146,7 +146,7 @@ public void ZR_OnClientInfected(int client, int attacker, bool motherInfect, boo
     g_iClientTeam[client] = 2;
 
 #if defined Module_Hats
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
         Store_RemoveClientHats(client, i);
 #endif
 
@@ -160,7 +160,7 @@ public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, boo
     g_iClientTeam[client] = 2;
 
 #if defined Module_Hats
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
         Store_RemoveClientHats(client, i);
 #endif
 
@@ -192,12 +192,12 @@ public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroa
 #endif
 
 #if defined Module_Trail
-        for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+        for(int i = 1; i < STORE_MAX_SLOTS; ++i)
             Store_RemoveClientTrail(client, i);
 #endif
 
 #if defined Module_Hats
-        for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+        for(int i = 1; i < STORE_MAX_SLOTS; ++i)
             Store_RemoveClientHats(client, i);
 #endif
     }

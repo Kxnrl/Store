@@ -56,7 +56,7 @@ public void CPSupport_Reset()
     g_iMessageColors = 0;
 }
 
-public bool NameTags_Config(Handle &kv, int itemid)
+public bool NameTags_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameTags);
     KvGetString(kv, "tag", g_szNameTags[g_iNameTags], 128);
@@ -65,7 +65,7 @@ public bool NameTags_Config(Handle &kv, int itemid)
     return true;
 }
 
-public bool NameColors_Config(Handle &kv, int itemid)
+public bool NameColors_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameColors);
     KvGetString(kv, "color", g_szNameColors[g_iNameColors], 32);
@@ -74,7 +74,7 @@ public bool NameColors_Config(Handle &kv, int itemid)
     return true;
 }
 
-public bool MsgColors_Config(Handle &kv, int itemid)
+public bool MsgColors_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iMessageColors);
     KvGetString(kv, "color", g_szMessageColors[g_iMessageColors], 32);

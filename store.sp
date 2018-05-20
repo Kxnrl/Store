@@ -7,7 +7,7 @@
 #define PLUGIN_NAME         "Store - The Resurrection"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "a sourcemod store system"
-#define PLUGIN_VERSION      "2.1.<commit_count>"
+#define PLUGIN_VERSION      "2.2.<commit_count>"
 #define PLUGIN_URL          "https://kxnrl.com"
 
 public Plugin myinfo = 
@@ -62,9 +62,9 @@ public Plugin myinfo =
 //////////////////////////////
 //     GLOBAL VARIABLES     //
 //////////////////////////////
-Handle g_hDatabase = INVALID_HANDLE;
-Handle g_ArraySkin = INVALID_HANDLE;
-Handle g_hOnStoreAvailable = INVALID_HANDLE;
+Handle g_hDatabase = null;
+Handle g_ArraySkin = null;
+Handle g_hOnStoreAvailable = null;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
 int g_eClients[MAXPLAYERS+1][Client_Data];
@@ -952,7 +952,7 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
 
                 for(int i = 0; i < g_iMenuHandlers; ++i)
                 {
-                    if(g_eMenuHandlers[i][hPlugin] == INVALID_HANDLE)
+                    if(g_eMenuHandlers[i][hPlugin] == null)
                         continue;
     
                     Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnMenu]);
@@ -1038,7 +1038,7 @@ public int MenuHandler_Store(Handle menu, MenuAction action, int client, int par
     else if(action == MenuAction_Select)
     {
         // Confirmation was given
-        if(menu == INVALID_HANDLE)
+        if(menu == null)
         {
             if(param2 == 0)
             {
@@ -1734,7 +1734,7 @@ public void DisplayItemMenu(int client, int itemid)
 
     for(int i = 0; i < g_iMenuHandlers; ++i)
     {
-        if(g_eMenuHandlers[i][hPlugin] == INVALID_HANDLE)
+        if(g_eMenuHandlers[i][hPlugin] == null)
             continue;
         Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnMenu]);
         Call_PushCellRef(m_hMenu);
@@ -1850,7 +1850,7 @@ public int MenuHandler_Compose(Handle menu, MenuAction action, int client, int p
     else if(action == MenuAction_Select)
     {
         // Confirmation was sent
-        if(menu == INVALID_HANDLE)
+        if(menu == null)
         {
             if(param2 == 0)
             {
@@ -1927,7 +1927,7 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
     else if(action == MenuAction_Select)
     {
         // Confirmation was sent
-        if(menu == INVALID_HANDLE)
+        if(menu == null)
         {
             if(param2 == 0)
             {
@@ -1948,7 +1948,7 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
                 int ret;
                 for(int i=0;i<g_iMenuHandlers;++i)
                 {
-                    if(g_eMenuHandlers[i][hPlugin] == INVALID_HANDLE)
+                    if(g_eMenuHandlers[i][hPlugin] == null)
                         continue;
                     Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnHandler]);
                     Call_PushCell(client);
@@ -2062,7 +2062,7 @@ public int MenuHandler_Gift(Handle menu, MenuAction action, int client, int para
         int m_iItem, m_iReceiver;
     
         // Confirmation was given
-        if(menu == INVALID_HANDLE)
+        if(menu == null)
         {
             m_iItem = UTIL_GetClientItemId(client, g_iSelectedItem[client]);
             m_iReceiver = GetClientOfUserId(param2);
@@ -2122,10 +2122,10 @@ public int MenuHandler_Confirm(Handle menu, MenuAction action, int client, int p
             Handle m_hPlugin = ReadPackCell(pack);
             Function fnMenuCallback = ReadPackCell(pack);
             CloseHandle(pack);
-            if(m_hPlugin != INVALID_HANDLE && fnMenuCallback != INVALID_FUNCTION)
+            if(m_hPlugin != null && fnMenuCallback != INVALID_FUNCTION)
             {
                 Call_StartFunction(m_hPlugin, fnMenuCallback);
-                Call_PushCell(INVALID_HANDLE);
+                Call_PushCell(null);
                 Call_PushCell(MenuAction_Select);
                 Call_PushCell(client);
                 Call_PushCell(StringToInt(m_szData));
@@ -2147,7 +2147,7 @@ public int MenuHandler_Confirm(Handle menu, MenuAction action, int client, int p
 public Action Timer_DatabaseTimeout(Handle timer, int userid)
 {
     // Database is connected successfully
-    if(g_hDatabase != INVALID_HANDLE)
+    if(g_hDatabase != null)
         return Plugin_Stop;
 
     if(g_iDatabaseRetries < 100)
@@ -2169,12 +2169,12 @@ public Action Timer_DatabaseTimeout(Handle timer, int userid)
 //////////////////////////////
 public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, any data)
 {
-    if(hndl==INVALID_HANDLE)
+    if(hndl==null)
         LogError("Failed to connect to SQL database. Error: %s", error);
     else
     {
         // If it's already connected we are good to go
-        if(g_hDatabase != INVALID_HANDLE)
+        if(g_hDatabase != null)
             return;
 
         g_hDatabase = hndl;
@@ -2185,7 +2185,7 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
         char m_szQuery[256];
         FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
         SQL_TVoid(g_hDatabase, m_szQuery);
-        
+
         // Load configs
         UTIL_ReloadConfig();
 
@@ -2206,7 +2206,7 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
 
 public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, const char[] error, int userid)
 {
-    if(hndl==INVALID_HANDLE)
+    if(hndl==null)
         LogError("Error happened. Error: %s", error);
     else
     {
@@ -2260,7 +2260,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 
 public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, const char[] error, int userid)
 {
-    if(hndl==INVALID_HANDLE)
+    if(hndl==null)
         LogError("Error happened. Error: %s", error);
     else
     {    
@@ -2333,7 +2333,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 
 public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl, const char[] error, int userid)
 {
-    if(hndl==INVALID_HANDLE)
+    if(hndl==null)
         LogError("Error happened. Error: %s", error);
     else
     {
@@ -2379,7 +2379,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 
 public void SQLCallback_InsertClient(Handle owner, Handle hndl, const char[] error, int userid)
 {
-    if(hndl==INVALID_HANDLE)
+    if(hndl==null)
         LogError("Error happened. Error: %s", error);
     else
     {
@@ -2396,7 +2396,7 @@ public void SQLCallback_InsertClient(Handle owner, Handle hndl, const char[] err
 //////////////////////////////
 void UTIL_LoadClientInventory(int client)
 {
-    if(g_hDatabase == INVALID_HANDLE)
+    if(g_hDatabase == null)
     {
         LogError("Database connection is lost or not yet initialized.");
         return;
@@ -2416,7 +2416,7 @@ void UTIL_LoadClientInventory(int client)
 
 void UTIL_SaveClientInventory(int client)
 {
-    if(g_hDatabase == INVALID_HANDLE)
+    if(g_hDatabase == null)
     {
         LogError("Database connection is lost or not yet initialized.");
         return;
@@ -2487,7 +2487,7 @@ void UTIL_SaveClientEquipment(int client)
 
 void UTIL_SaveClientData(int client, bool disconnect)
 {
-    if(g_hDatabase == INVALID_HANDLE)
+    if(g_hDatabase == null)
     {
         LogError("Database connection is lost or not yet initialized.");
         return;
@@ -2525,7 +2525,7 @@ public void SQLCallback_RefreshCredits(Handle owner, Handle hndl, const char[] e
     
     g_eClients[client][bRefresh] = false;
     
-    if(hndl == INVALID_HANDLE)
+    if(hndl == null)
     {
         LogError("Refresh \"%L\" data failed :  %s", client, error);
         return;
@@ -2557,7 +2557,7 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
     if(!client)
         return;
 
-    if(hndl == INVALID_HANDLE)
+    if(hndl == null)
     {
         LogError("Error happened. Error: %s", error);
     }
@@ -2808,7 +2808,7 @@ int UTIL_GetClientItemId(int client, int itemid)
 void UTIL_ReloadConfig()
 {
     g_iItems = 0;
-    
+
     for(int i = 0; i < g_iTypeHandlers; ++i)
     {
         if(g_eTypeHandlers[i][fnReset] != INVALID_FUNCTION)
@@ -2818,17 +2818,23 @@ void UTIL_ReloadConfig()
         }
     }
 
-    DBResultSet item_parent = SQL_Query(g_hDatabase, "SELECT * FROM store_item_parent ORDER BY id;", 128);
-    if(item_parent == INVALID_HANDLE)
+    char error[256];
+    Database ItemDB = SQL_Connect("csgo", false, error, 256);
+    if(ItemDB == null)
+        SetFailState("Connect to Item Database failed: %s", error);
+    else
+        SQL_SetCharset(ItemDB, "utf8");
+
+    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY id ASC;", 128);
+    if(item_parent == null)
     {
-        char error[512];
-        SQL_GetError(g_hDatabase, error, 512);
+        SQL_GetError(ItemDB, error, 256);
         SetFailState("Can not retrieve item.parent from database: %s", error);
     }
 
     if(item_parent.RowCount <= 0)
         SetFailState("Can not retrieve item.child from database: no result row");
-    
+
     while(item_parent.FetchRow())
     {
         g_iItems = item_parent.FetchInt(0);
@@ -2837,11 +2843,10 @@ void UTIL_ReloadConfig()
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
     }
 
-    DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT * FROM store_item_child ORDER BY parent;", 128);
-    if(item_child == INVALID_HANDLE)
+    DBResultSet item_child = SQL_Query(ItemDB, "SELECT * FROM store_item_child ORDER BY parent ASC, id ASC;", 128);
+    if(item_child == null)
     {
-        char error[512];
-        SQL_GetError(g_hDatabase, error, 512);
+        SQL_GetError(ItemDB, error, 256);
         SetFailState("Can not retrieve item.child from database: %s", error);
     }
 
@@ -2954,7 +2959,8 @@ void UTIL_ReloadConfig()
         }
 
         // Field 16 ~ 
-        KeyValues kv = new KeyValues(g_eItems[g_iItems][szName], "", "");
+        KeyValues kv = new KeyValues("Store", "", "");
+        kv.JumpToKey(g_eItems[g_iItems][szName], true);
         //for(int field = 16; field < item_child.FieldCount; ++field)
         for(int field = 1; field < item_child.FieldCount; ++field)
         {
@@ -2966,10 +2972,10 @@ void UTIL_ReloadConfig()
         }
         
         bool m_bSuccess = true;
-        if(g_eTypeHandlers[m_iHandler][fnConfig]!=INVALID_FUNCTION)
+        if(g_eTypeHandlers[m_iHandler][fnConfig] != INVALID_FUNCTION)
         {
             Call_StartFunction(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][fnConfig]);
-            Call_PushCellRef(kv);
+            Call_PushCell(kv);
             Call_PushCell(g_iItems);
             Call_Finish(m_bSuccess); 
         }
@@ -2982,16 +2988,9 @@ void UTIL_ReloadConfig()
         if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && StrContains(m_szUniqueId, "skin_", false) == 0)
             PushArrayString(g_ArraySkin, m_szUniqueId);
 
-        for(int field = 0; field < item_child.FieldCount; ++field)
-        {
-            char fieldName[32], fieldValue[192];
-            item_child.FieldNumToName(field, fieldName, 32);
-            item_child.FetchString(field, fieldValue, 192);
-        }
-
         ++g_iItems;
     }
-    
+
     // girls frontline -> active
     ArrayList item_name = new ArrayList(ByteCountToCells(ITEM_NAME_LENGTH));
     ArrayList item_uid  = new ArrayList(ByteCountToCells(32));
@@ -3020,6 +3019,7 @@ void UTIL_ReloadConfig()
     delete item_array;
     delete item_parent;
     delete item_child;
+    delete ItemDB;
 
     //OnMapStart();
     char map[128];
@@ -3335,7 +3335,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 {
     if(!IsClientInGame(client))
     {
-        g_eClients[client][hTimer] = INVALID_HANDLE;
+        g_eClients[client][hTimer] = null;
         return Plugin_Stop;
     }
 

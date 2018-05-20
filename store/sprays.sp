@@ -73,7 +73,7 @@ public int Sprays_Reset()
     g_iCGLOGO = -1;
 }
 
-public bool Sprays_Config(Handle &kv, int itemid)
+public bool Sprays_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSprays);
     KvGetString(kv, "material", g_szSprays[g_iSprays], 256);

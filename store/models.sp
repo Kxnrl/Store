@@ -58,7 +58,7 @@ public void Models_Reset()
     g_iCustomModels = 0; 
 }
 
-public bool Models_Config(Handle &kv, int itemid) 
+public bool Models_Config(Handle kv, int itemid) 
 {
     Store_SetDataIndex(itemid, g_iCustomModels);
     KvGetString(kv, "model", g_eCustomModel[g_iCustomModels][szModelV], PLATFORM_MAX_PATH);

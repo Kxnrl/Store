@@ -16,7 +16,7 @@ public void Part_Reset()
     g_iParts = 0;
 }
 
-public bool Part_Config(Handle &kv, int itemid) 
+public bool Part_Config(Handle kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iParts); 
     KvGetString(kv, "effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);

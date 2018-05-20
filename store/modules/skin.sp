@@ -98,7 +98,7 @@ public Action Command_Arms(int client, int args)
     return Plugin_Handled;
 }
 
-public bool PlayerSkins_Config(Handle &kv, int itemid)
+public bool PlayerSkins_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPlayerSkins);
     

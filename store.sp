@@ -2955,7 +2955,8 @@ void UTIL_ReloadConfig()
 
         // Field 16 ~ 
         KeyValues kv = new KeyValues(g_eItems[g_iItems][szName], "", "");
-        for(int field = 16; field < item_child.FieldCount; ++field)
+        //for(int field = 16; field < item_child.FieldCount; ++field)
+        for(int field = 1; field < item_child.FieldCount; ++field)
         {
             char key[32], values[192];
             item_child.FieldNumToName(field, key, 32);

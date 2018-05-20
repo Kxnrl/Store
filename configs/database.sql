@@ -73,14 +73,14 @@ CREATE TABLE `store_item_child` (
   `1d` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'credits/day',
   `1m` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'credits/month',
   `pm` varchar(255) NOT NULL DEFAULT '100000' COMMENT 'credits/perment',
-  `model` varchar(192) NOT NULL DEFAULT 'ITEM_NO_MODEL' COMMENT 'playerskin|hat|nadeskin|vwmodel',
+  `model` varchar(192) NOT NULL DEFAULT 'ITEM_NO_MODEL' COMMENT 'playerskin|hat|nadeskin|vwmodel|pets',
   `arms` varchar(192) NOT NULL DEFAULT 'ITEM_NO_ARMS' COMMENT 'playerskin',
   `team` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT 'playerskin',
   `sound` varchar(192) NOT NULL DEFAULT 'ITEM_NO_SOUND' COMMENT 'playerskin|sound',
-  `position` varchar(64) NOT NULL DEFAULT '0.0 0.0 0.0' COMMENT 'hat',
-  `angles` varchar(64) NOT NULL DEFAULT '0.0 0.0 0.0' COMMENT 'hat',
+  `position` varchar(64) NOT NULL DEFAULT '0.0 0.0 0.0' COMMENT 'hat|pets',
+  `angles` varchar(64) NOT NULL DEFAULT '0.0 0.0 0.0' COMMENT 'hat|pets',
   `attachment` varchar(32) NOT NULL DEFAULT 'ITEM_NO_ATTACHMENT' COMMENT 'hat',
-  `slot` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT 'hat|vwmodel',
+  `slot` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT 'hat|vwmodel|weaponskin',
   `material` varchar(192) NOT NULL DEFAULT 'ITEM_NO_MATERIAL' COMMENT 'nadetrail|trail|spray',
   `color` varchar(32) NOT NULL DEFAULT 'ITEM_NO_COLOR' COMMENT 'nadetrail|trail|namecolor|msgcolor|neon',
   `grenade` varchar(32) NOT NULL DEFAULT 'ITEM_NO_GRENADE' COMMENT 'nadeskin',
@@ -89,7 +89,7 @@ CREATE TABLE `store_item_child` (
   `cooldown` tinyint(3) unsigned NOT NULL DEFAULT '60' COMMENT 'sound',
   `worldmodel` varchar(192) NOT NULL DEFAULT 'ITEM_NO_WORLDMODEL' COMMENT 'vwmodel',
   `dropmodel` varchar(192) NOT NULL DEFAULT 'ITEM_NO_DROPMODEL' COMMENT 'vwmodel',
-  `weapon` varchar(32) NOT NULL DEFAULT 'ITEM_NO_ENTITY' COMMENT 'vwmodel',
+  `weapon` varchar(32) NOT NULL DEFAULT 'ITEM_NO_ENTITY' COMMENT 'vwmodel|weaponskin',
   `effect` varchar(32) NOT NULL DEFAULT 'ITEM_NO_EFFECT' COMMENT 'arua|particle',
   `brightness` tinyint(2) unsigned NOT NULL DEFAULT '5' COMMENT 'neon',
   `distance` tinyint(3) unsigned NOT NULL DEFAULT '150' COMMENT 'neon',
@@ -98,15 +98,23 @@ CREATE TABLE `store_item_child` (
   `idle` varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE' COMMENT 'pet',
   `run` varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN' COMMENT 'pet',
   `death` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH' COMMENT 'pet',
+  `seed` smallint(5) unsigned NOT NULL DEFAULT 'ITEM_NO_SEED' COMMENT 'weaponskin',
+  `weart` tinyint(3) NOT NULL DEFAULT 'ITEM_NO_WEART' COMMENT 'weaponskin',
+  `paint` smallint(5) unsigned NOT NULL DEFAULT 'ITEM_NO_PAINT' COMMENT 'weaponskin',
+  `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin',
   PRIMARY KEY (`type`,`uid`),
   KEY `p` (`parent`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- if u upgrade from 2.0, exec this in your database
-alter table store_item_child
-add `idle` varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE' COMMENT 'pet',
-add `run` varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN' COMMENT 'pet',
-add `death` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH' COMMENT 'pet';
+ALTER TABLE `store_item_child`
+ADD `idle` varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE' COMMENT 'pet',
+ADD `run` varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN' COMMENT 'pet',
+ADD `death` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH' COMMENT 'pet',
+ADD `seed` smallint(5) unsigned NOT NULL DEFAULT 'ITEM_NO_SEED' COMMENT 'weaponskin',
+ADD `weart` tinyint(3) NOT NULL DEFAULT 'ITEM_NO_WEART' COMMENT 'weaponskin',
+ADD `paint` smallint(5) unsigned NOT NULL DEFAULT 'ITEM_NO_PAINT' COMMENT 'weaponskin',
+ADD `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin';
 
 
 CREATE TABLE `store_equipment` (

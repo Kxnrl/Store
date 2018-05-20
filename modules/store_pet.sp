@@ -1,6 +1,21 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#define PLUGIN_NAME         "Store - Pets"
+#define PLUGIN_AUTHOR       "Kyle"
+#define PLUGIN_DESCRIPTION  "store module pets"
+#define PLUGIN_VERSION      "2.2.<commit_count>"
+#define PLUGIN_URL          "https://kxnrl.com"
+
+public Plugin myinfo = 
+{
+    name        = PLUGIN_NAME,
+    author      = PLUGIN_AUTHOR,
+    description = PLUGIN_DESCRIPTION,
+    version     = PLUGIN_VERSION,
+    url         = PLUGIN_URL
+};
+
 #include <sdktools>
 #include <sdkhooks>
 #include <store>
@@ -18,27 +33,12 @@ enum Pet
     iSlot
 }
 
-/* SQL */
-// ALTER TABLE store_item_child 
-// ADD COLUMN run varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN',
-// ADD COLUMN idle varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE',
-// ADD COLUMN death varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH';
-
 int g_ePets[STORE_MAX_ITEMS][Pet];
 int g_iPets = 0;
 int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
 int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
 bool g_bHide[MAXPLAYERS+1];
 Handle g_cCookie;
-
-public Plugin myinfo = 
-{
-    name        = "Store - Pets [Redux]",
-    author      = "Zephyrus | Kyle",
-    description = "ALL REWRITE WITH NEW SYNTAX!!!",
-    version     = "2.0.<commit_count>.<commit_branch> - <commit_date>",
-    url         = "http://steamcommunity.com/id/_xQy_"
-};
 
 public void OnPluginStart()
 {
@@ -79,7 +79,7 @@ public void Pets_Reset()
     g_iPets = 0;
 }
 
-public int Pets_Config(Handle kv, int itemid)
+public bool Pets_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPets);
     

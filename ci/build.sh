@@ -22,6 +22,11 @@ wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.t
 tar -xzf sourcemod.tar.gz
 
 
+#PTaH
+echo "Download PTaH.inc ..."
+wget "https://github.com/komashchenko/PTaH/raw/master/PTaH.inc" -q -O include/PTaH.inc
+
+
 #设置文件为可执行
 echo "Set compiler env ..."
 chmod +x addons/sourcemod/scripting/spcomp

@@ -102,6 +102,12 @@ CREATE TABLE `store_item_child` (
   KEY `p` (`parent`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- if u upgrade from 2.0, exec this in your database
+alter table store_item_child
+add `idle` varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE' COMMENT 'pet',
+add `run` varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN' COMMENT 'pet',
+add `death` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH' COMMENT 'pet';
+
 
 CREATE TABLE `store_equipment` (
   `player_id` int(11) NOT NULL,

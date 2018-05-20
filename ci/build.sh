@@ -285,7 +285,6 @@ echo "Move configs and translations to build folder ..."
 mv configs/* build/addons/sourcemod/configs
 mv translations/* build/addons/sourcemod/translations
 mv utils build
-mv LICENSE build
 mv README.md build
 
 

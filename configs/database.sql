@@ -98,9 +98,9 @@ CREATE TABLE `store_item_child` (
   `idle` varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE' COMMENT 'pet',
   `run` varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN' COMMENT 'pet',
   `death` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH' COMMENT 'pet',
-  `seed` smallint(5) unsigned NOT NULL DEFAULT 'ITEM_NO_SEED' COMMENT 'weaponskin',
+  `seed` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'weaponskin',
   `weart` tinyint(3) NOT NULL DEFAULT 'ITEM_NO_WEART' COMMENT 'weaponskin',
-  `paint` smallint(5) unsigned NOT NULL DEFAULT 'ITEM_NO_PAINT' COMMENT 'weaponskin',
+  `paint` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'weaponskin',
   `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin',
   PRIMARY KEY (`type`,`uid`),
   KEY `p` (`parent`)
@@ -111,9 +111,9 @@ ALTER TABLE `store_item_child`
 ADD `idle` varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE' COMMENT 'pet',
 ADD `run` varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN' COMMENT 'pet',
 ADD `death` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH' COMMENT 'pet',
-ADD `seed` smallint(5) unsigned NOT NULL DEFAULT 'ITEM_NO_SEED' COMMENT 'weaponskin',
+ADD `seed` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'weaponskin',
 ADD `weart` tinyint(3) NOT NULL DEFAULT 'ITEM_NO_WEART' COMMENT 'weaponskin',
-ADD `paint` smallint(5) unsigned NOT NULL DEFAULT 'ITEM_NO_PAINT' COMMENT 'weaponskin',
+ADD `paint` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'weaponskin',
 ADD `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin';
 
 

@@ -95,6 +95,9 @@ CREATE TABLE `store_item_child` (
   `distance` tinyint(3) unsigned NOT NULL DEFAULT '150' COMMENT 'neon',
   `distancefade` tinyint(3) unsigned NOT NULL DEFAULT '50' COMMENT 'neon',
   `tag` varchar(32) NOT NULL DEFAULT 'ITEM_NO_TAG' COMMENT 'nametag',
+  `idle` varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE' COMMENT 'pet',
+  `run` varchar(32) NOT NULL DEFAULT 'ITEM_NO_RUN' COMMENT 'pet',
+  `death` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DEATH' COMMENT 'pet',
   PRIMARY KEY (`type`,`uid`),
   KEY `p` (`parent`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

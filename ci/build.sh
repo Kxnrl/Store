@@ -32,8 +32,6 @@ echo "Prepare compile ..."
 for file in store.sp
 do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
-  sed -i "s%<commit_branch>%$5%g" $file > output.txt
-  sed -i "s%<commit_date>%$DATE%g" $file > output.txt
   rm output.txt
 done
 
@@ -233,8 +231,6 @@ cp -f modules/store_pet.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store_pet.sp
 do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
-  sed -i "s%<commit_branch>%$5%g" $file > output.txt
-  sed -i "s%<commit_date>%$DATE%g" $file > output.txt
   rm output.txt
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp >nul
@@ -244,6 +240,23 @@ if [ ! -f "store_pet.smx" ]; then
 fi
 mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modules
 mv store_pet.smx build/addons/sourcemod/plugins/modules
+
+
+#编译Store模组WeaponSkin
+echo "Compiling store module [weapon skin] ..."
+cp -f modules/store_weaponskin.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_weaponskin.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_weaponskin.sp >nul
+if [ ! -f "store_weaponskin.smx" ]; then
+    echo "Compile store module [weapon skin] failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store_weaponskin.sp build/addons/sourcemod/scripting/modules
+mv store_weaponskin.smx build/addons/sourcemod/plugins/modules
 
 
 #解压素材文件
@@ -308,4 +321,7 @@ if [ "$1" = "1.8" ] && [ "$5" = "master" ]; then
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_hg.smx"
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_sr.smx"
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_bh.smx"
+    cd modules
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_pet.smx"
+    lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_weaponskin.smx"
 fi

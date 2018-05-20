@@ -244,3 +244,20 @@ if [ ! -f "store_pet.smx" ]; then
 fi
 mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modules
 mv store_pet.smx build/addons/sourcemod/plugins/modules
+
+
+#编译Store模组WeaponSkin
+echo "Compiling store module [weapon skin] ..."
+cp -f modules/store_weaponskin.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_weaponskin.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_weaponskin.sp >nul
+if [ ! -f "store_weaponskin.smx" ]; then
+    echo "Compile store module [weapon skin] failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store_weaponskin.sp build/addons/sourcemod/scripting/modules
+mv store_weaponskin.smx build/addons/sourcemod/plugins/modules

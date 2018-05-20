@@ -2152,7 +2152,7 @@ public Action Timer_DatabaseTimeout(Handle timer, int userid)
 
     if(g_iDatabaseRetries < 100)
     {
-        SQL_TConnect(SQLCallback_Connect, "store");
+        SQL_TConnect(SQLCallback_Connect, "csgo");
         CreateTimer(30.0, Timer_DatabaseTimeout);
         ++g_iDatabaseRetries;
     }

@@ -318,7 +318,7 @@ VALUES
 
 
 --
---  Add aura/part manually.
+--  Add aura/particle manually.
 --
 --  * sql script example *
 INSERT INTO `store_item_child` 
@@ -341,7 +341,7 @@ INSERT INTO `store_item_child`
 VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
-    '{type}',                                   -- force to 'part' or 'aure'
+    '{type}',                                   -- force to 'particle' or 'aure'
     '{unique_identifier}',                      -- maxlen 32 bytes
     '1',                                        -- 1 = can buy
     '1',                                        -- 1 = can gift

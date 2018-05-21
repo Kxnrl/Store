@@ -5,21 +5,13 @@
 [![Download](https://csgogamers.com/static/image/download.png)](https://plugins.csgogamers.com/Store/)
 
 This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarnai/store-plugin/)
-
-
-### Credits:  
-- Original Edition: [Zephyrus](https://github.com/dvarnai "GitHub")  
-- FPVM_Interface: [franug](https://github.com/Franc1sco "GitHub")  
-- Chat-Processor: [Drixevel](https://github.com/Drixevel "GitHub")  
-- FirstPersonDeath: [Eun](https://forums.alliedmods.net/member.php?u=102471 "AlliedModders")  
-- Spec Target Fix: [shufen](https://github.com/Xectali "GitHub")  
-- Mirror mode: [franug](https://github.com/Franc1sco "GitHub")  
-
-
-### Modules:
+  
+  
+  
+### Modules and Features:
 * Chat ( Core included )  - Process player name tag, name color, chat color.
 * Grenade ( Core included ) - When player throw a grenade, set nade model or add trail.
-* Model ( Core included ) - Allow player use custom weapon instead of valve`s model.
+* Model ( Core included ) - Allow player use custom weapon instead of valve's model.
 * VIP ( Core included ) - NOT effective, only add to store menu.
 * TPMode ( Core included ) - Allow player change to third-person or mirror mode.
 * Spray ( Core included ) - Allow player spray paint on object surface.
@@ -31,15 +23,10 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
   * Skin ( Core included ) - Allow player use custom skin and custom arms. (death sound and firstperson-death support)
   * Hats ( Core included ) - Allow player wear hat/glass/facemask/shield/wing.
   * trail ( Core included ) - Create a material trail that follow the player.
-* Pet ( optional ) - Create a pet that follow the player.
-
-
-### Features:
-* SourcePawn new Syntax
-* Module integration
-* more stuff
-
-
+* Pets ( optional ) - Create a pet that follow the player.
+* WeaponSkin ( optional ) - Allow use valve weaon skin and knife skin. ***Will trigger GSLT ban***
+  
+  
 ### Commands:
 * **sm_store** - Open store menu. [alias: ***buyammo1***/***sm_shop***/***sm_shop***]
 * **sm_inv** - Open store menu as inventory mode. [alias: ***sm_inventory***]
@@ -50,9 +37,9 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
 * **spray** - Trigger -> spary paint.
 * **sm_tp** - Toggle -> third-person mode or first-person mode.
 * **sm_seeme** - Toggle -> mirror mode or normal mode.
-* **sm_arms** - (administator command) Fix player`s arms.
-
-
+* **sm_arms** - (administator command) Fix player's arms.
+  
+  
 ### How to install
 * Download latest build from https://plugins.csgogamers.com/Store/
 * Extract all files on disk.
@@ -62,8 +49,13 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
   * materials ( optional )
   * particles ( optional )
   * sound ( optional )
-* Import SQL table to your database ( source: addons/sourcemod/configs/database.sql )
-* Import item data to your database ( source: php/sql in utils folder )
+* Import SQL table to your database. ( SQL scripts: addons/sourcemod/configs/database.sql )
+* If you upgrade from original zeph store: 
+  - Add "uid" key for each item in 'addons/sourcemod/configs/items.txt'.  
+  - Upload 'addons/sourcemod/configs/items.txt' to your web host.  
+  - Upload 'utils/insertitem.php', 'utils/loaditem.php', 'utils/kvphp.php' to your web host.  
+  - Import item data to your database ( tools: utils/insertitem.php )
+  - Check item validate ( tools: utils/loaditem.php )
 * make sure your database.cfg ( path: addons/sourcemod/configs/database.cfg )
 ``` keyvalues
 "csgo"
@@ -77,8 +69,13 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
 }
 ```
 * Start your server and check error logs
-
-
+  
+  
+### How to add item or parent manually  
+* Add Parent -> 'utils/addparent.sql'
+* Add Item -> 'utils/additem.sql'
+  
+  
 ### License  
 * SourceMod plugins license under GPLv3 License.  
 * Shell, SQL and PHP scripts license under MIT License.  
@@ -89,10 +86,21 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
 [shanapu](https://github.com/shanapu "GitHub")  
 [zipcore](https://github.com/zipcore "GitHub")  
   
-   
+  
+### Credits:  
+- Original Edition: [Zephyrus](https://github.com/dvarnai "GitHub")  
+- FPVM_Interface: [franug](https://github.com/Franc1sco "GitHub")  
+- Chat-Processor: [Drixevel](https://github.com/Drixevel "GitHub")  
+- FirstPersonDeath: [Eun](https://forums.alliedmods.net/member.php?u=102471 "AlliedModders")  
+- Spec Target Fix: [shufen](https://github.com/Xectali "GitHub")  
+- Mirror mode: [franug](https://github.com/Franc1sco "GitHub") 
+  
+  
 #### Any other questions
 * **Steam** : https://steamcommunity.com/profiles/76561198048432253/
 * **Telegram** : https://t.me/Kxnrl
-
-
-
+  
+  
+#### Donate
+* **Steam**: [Trade Offer](https://steamcommunity.com/tradeoffer/new/?partner=88166525&token=lszXBJeY)
+* **AliPay**: h673321480[AT]163.com

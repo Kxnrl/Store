@@ -294,10 +294,20 @@ int GetWeaponClassname(int weapon, int index = -1, char[] classname, int maxLen)
 
     switch(index)
     {
-        case 60: return strcopy(classname, maxLen, "weapon_m4a1_silencer");
-        case 61: return strcopy(classname, maxLen, "weapon_usp_silencer");
-        case 63: return strcopy(classname, maxLen, "weapon_cz75a");
-        case 64: return strcopy(classname, maxLen, "weapon_revolver");
+        case 60 : return strcopy(classname, maxLen, "weapon_m4a1_silencer");
+        case 61 : return strcopy(classname, maxLen, "weapon_usp_silencer");
+        case 63 : return strcopy(classname, maxLen, "weapon_cz75a");
+        case 64 : return strcopy(classname, maxLen, "weapon_revolver");
+        case 500: return strcopy(classname, maxLen, "weapon_bayonet");
+        case 506: return strcopy(classname, maxLen, "weapon_knife_gut");
+		case 505: return strcopy(classname, maxLen, "weapon_knife_flip");
+		case 508: return strcopy(classname, maxLen, "weapon_knife_m9_bayonet");
+		case 507: return strcopy(classname, maxLen, "weapon_knife_karambit");
+		case 509: return strcopy(classname, maxLen, "weapon_knife_tactical");
+		case 515: return strcopy(classname, maxLen, "weapon_knife_butterfly");
+		case 512: return strcopy(classname, maxLen, "weapon_knife_falchion");
+		case 516: return strcopy(classname, maxLen, "weapon_knife_push");
+        case 514: return strcopy(classname, maxLen, "weapon_knife_survival_bowie");
     }
 
     return strlen(classname);

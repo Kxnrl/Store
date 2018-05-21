@@ -6,7 +6,7 @@
 --  Add playerskin manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -28,8 +28,8 @@ INSERT INTO `store_item_child`
     `arms`,
     `team`,
     `sound`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'playerskin',                               -- force to 'playerskin'
@@ -59,7 +59,7 @@ VALUES
 --  Add hat/wings/shield manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -78,8 +78,8 @@ INSERT INTO `store_item_child`
     `angles`,
     `attachment`,
     `slot`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'hat',                                      -- force to 'hat'
@@ -106,7 +106,7 @@ VALUES
 --  Add nadetrail manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -122,8 +122,8 @@ INSERT INTO `store_item_child`
     `pm`,
     `material`,
     `color`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'nadetrail',                                -- force to 'nadetrail'
@@ -147,7 +147,7 @@ VALUES
 --  Add nadeskin manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -163,8 +163,8 @@ INSERT INTO `store_item_child`
     `pm`,
     `model`,
     `grenade`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'nadeskin',                                 -- force to 'nadeskin'
@@ -188,7 +188,7 @@ VALUES
 --  Add models manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -207,8 +207,8 @@ INSERT INTO `store_item_child`
     `worldmodel`,
     `dropmodel`,
     `weapon`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'hat',                                      -- force to 'hat'
@@ -235,7 +235,7 @@ VALUES
 --  Add sound manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -253,8 +253,8 @@ INSERT INTO `store_item_child`
     `shortname`,
     `volume`,
     `cooldown`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'sound',                                    -- force to 'sound'
@@ -280,7 +280,7 @@ VALUES
 --  Add trail manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -296,8 +296,8 @@ INSERT INTO `store_item_child`
     `pm`,
     `slot`,
     `material`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'trail',                                    -- force to 'trail'
@@ -321,7 +321,7 @@ VALUES
 --  Add aura/part manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -337,8 +337,8 @@ INSERT INTO `store_item_child`
     `pm`,
     `effect`,
     `model`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     '{type}',                                   -- force to 'part' or 'aure'
@@ -362,7 +362,7 @@ VALUES
 --  Add neon manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -380,8 +380,8 @@ INSERT INTO `store_item_child`
     `brightness`,
     `distance`,
     `distancefade`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'neon',                                     -- force to 'neon'
@@ -407,7 +407,7 @@ VALUES
 --  Add msgcolor/namecolor manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -422,8 +422,8 @@ INSERT INTO `store_item_child`
     `1m`,
     `pm`,
     `color`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     '{type}',                                   -- force to 'msgcolor' or 'namecolor'
@@ -446,7 +446,7 @@ VALUES
 --  Add nametag manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -461,8 +461,8 @@ INSERT INTO `store_item_child`
     `1m`,
     `pm`,
     `color`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'nametag',                                  -- force to 'nametag'
@@ -485,7 +485,7 @@ VALUES
 --  Add pet manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -506,8 +506,8 @@ INSERT INTO `store_item_child`
     `position`,
     `angles`,
     `slot`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'nametag',                                  -- force to 'nametag'
@@ -536,7 +536,7 @@ VALUES
 --  Add weaponskin manually.
 --
 --  * sql script example *
-INSERT INTO `store_item_child`
+INSERT INTO `store_item_child` 
 (
     `parent`,
     `type`,
@@ -556,8 +556,8 @@ INSERT INTO `store_item_child`
     `weart`,
     `wearf`,
     `slot`
-)
-VALUES
+) 
+VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
     'nametag',                                  -- force to 'nametag'

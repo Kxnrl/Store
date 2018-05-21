@@ -1,8 +1,11 @@
 #define Module_Part
 
+#define MAX_PART 128
+
 int g_iParts = 0; 
 int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-char g_szPartName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];  
+char g_szPartName[MAX_PART][PLATFORM_MAX_PATH];
+char g_szPartFPcf[MAX_PART][PLATFORM_MAX_PATH];
 char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 void Part_OnClientDisconnect(int client)
@@ -20,6 +23,7 @@ public bool Part_Config(Handle kv, int itemid)
 { 
     Store_SetDataIndex(itemid, g_iParts); 
     KvGetString(kv, "effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);
+    KvGetString(kv, "model",  g_szPartFPcf[g_iParts], PLATFORM_MAX_PATH);
     ++g_iParts;
     return true;
 }
@@ -44,8 +48,31 @@ public int Part_Remove(int client)
 
 public void Part_OnMapStart()
 {
-    PreDownload("particles/FX.pcf");
-    PrecacheGeneric("particles/FX.pcf", true);
+    ArrayList path = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+    ArrayList fail = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+    for(int index = 0; index < g_iAuras; ++index)
+    {
+        if(fail.FindString(g_szPartFPcf[index]) != -1)
+            continue;
+
+        if(path.FindString(g_szPartFPcf[index]) != -1)
+        {
+            PrecacheParticleEffect(g_szPartName[index]);
+            continue;
+        }
+
+        if(PreDownload(g_szPartFPcf[index]))
+        {
+            PrecacheGeneric(g_szPartFPcf[index], true);
+            PrecacheEffect("ParticleEffect");
+            PrecacheParticleEffect(g_szPartName[index]);
+            path.PushString(g_szPartFPcf[index]);
+        }
+        else
+            fail.PushString(g_szPartFPcf[index]);
+    }
+    delete path;
+    delete fail;
 }
 
 void Store_RemoveClientPart(int client)

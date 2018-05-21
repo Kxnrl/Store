@@ -1,20 +1,40 @@
 #define Module_Aura
 
+#define MAX_AURA 128
+
 int g_iAuras = 0; 
 int g_iClientAura[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-char g_szAuraName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];  
+char g_szAuraName[MAX_AURA][PLATFORM_MAX_PATH];
+char g_szAuraFPcf[MAX_AURA][PLATFORM_MAX_PATH];
 char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 public void Aura_OnMapStart()
 {
-    if(PreDownload("particles/FX.pcf"))
+    ArrayList path = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+    ArrayList fail = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+    for(int index = 0; index < g_iAuras; ++index)
     {
-        PrecacheGeneric("particles/FX.pcf", true);
-        PrecacheEffect("ParticleEffect");
+        if(fail.FindString(g_szAuraFPcf[index]) != -1)
+            continue;
 
-        for(int index = 0; index < g_iAuras; ++index)
+        if(path.FindString(g_szAuraFPcf[index]) != -1)
+        {
             PrecacheParticleEffect(g_szAuraName[index]);
+            continue;
+        }
+
+        if(PreDownload(g_szAuraFPcf[index]))
+        {
+            PrecacheGeneric(g_szAuraFPcf[index], true);
+            PrecacheEffect("ParticleEffect");
+            PrecacheParticleEffect(g_szAuraName[index]);
+            path.PushString(g_szAuraFPcf[index]);
+        }
+        else
+            fail.PushString(g_szAuraFPcf[index]);
     }
+    delete path;
+    delete fail;
 }
 
 bool PreDownload(const char[] path)
@@ -30,8 +50,12 @@ public void Aura_OnClientDisconnect(int client)
 
 public bool Aura_Config(Handle kv, int itemid) 
 { 
+    if(g_iAuras >= MAX_AURA)
+        return false;
+
     Store_SetDataIndex(itemid, g_iAuras); 
     KvGetString(kv, "effect", g_szAuraName[g_iAuras], PLATFORM_MAX_PATH);
+    KvGetString(kv, "model",  g_szAuraFPcf[g_iAuras], PLATFORM_MAX_PATH);
 
     ++g_iAuras;
 

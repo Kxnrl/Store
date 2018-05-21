@@ -145,7 +145,9 @@ public void Event_GiveNamedItemPost(int client, const char[] classname, const CE
             }
         }
         else
+        {
             //PrintToChat(client, "Slot[%d] -> null", slot);
+        }
     }
 }
 

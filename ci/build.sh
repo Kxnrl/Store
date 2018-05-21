@@ -255,7 +255,7 @@ do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_weaponskin.sp
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_weaponskin.sp >nul
 if [ ! -f "store_weaponskin.smx" ]; then
     echo "Compile store module [weapon skin] failed!"
     exit 1;

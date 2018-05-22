@@ -309,7 +309,7 @@ fi
 #上传
 echo "Upload file ..."
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/$5/$1/ $FILE"
-
+RSYNC_PASSWORD=$RSYNC_PSWD rsync -avzn --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$5/$1
 
 #RAW
 if [ "$1" = "1.8" ] && [ "$5" = "master" ]; then

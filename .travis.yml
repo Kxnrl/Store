@@ -4,6 +4,7 @@ addons:
     - lib32stdc++6
     - p7zip-full
     - lftp
+    - rsync
 
 language: c
 

@@ -309,11 +309,13 @@ fi
 #上传
 echo "Upload file ..."
 lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/$5/$1/ $FILE"
-RSYNC_PASSWORD=$RSYNC_PSWD rsync -avzn --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$5/$1
+
+echo "Upload file RSYNC ..."
+RSYNC_PASSWORD=$RSYNC_PSWD rsync -avzP --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$5/$1
 
 #RAW
 if [ "$1" = "1.8" ] && [ "$5" = "master" ]; then
-    echo "Upload RAW..."
+    echo "Upload RAW [core] ..."
     cd addons/sourcemod/plugins
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_tt.smx"
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_ze.smx"
@@ -325,7 +327,12 @@ if [ "$1" = "1.8" ] && [ "$5" = "master" ]; then
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_hg.smx"
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_sr.smx"
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_bh.smx"
+    echo "Upload RAW [core] RSYNC ..."
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avzP --port $RSYNC_PORT ./*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/Raw
     cd modules
+    echo "Upload RAW [modules] ..."
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_pet.smx"
     lftp -c "open -u $FTP_USER,$FTP_PSWD $FTP_HOST; put -O /Store/Raw/ store_weaponskin.smx"
+    echo "Upload RAW [modules] RSYNC ..."
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avzP --port $RSYNC_PORT ./*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/Raw
 fi

@@ -308,12 +308,12 @@ fi
 
 #上传
 echo "Upload file RSYNC ..."
-RSYNC_PASSWORD=$RSYNC_PSWD rsync -avzP --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$5/$1
+RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$5/$1/
 
 #RAW
 if [ "$1" = "1.8" ] && [ "$5" = "master" ]; then
     echo "Upload RAW [core] RSYNC ..."
-    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avzP --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
     echo "Upload RAW [modules] RSYNC ..."
-    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avzP --port $RSYNC_PORT ./addons/sourcemod/plugins/modules/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/modules/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
 fi

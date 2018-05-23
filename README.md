@@ -2,7 +2,7 @@
 
 **stable** : [![Build Status](https://img.shields.io/travis/Kxnrl/Store/master.svg?style=flat-square)](https://travis-ci.org/Kxnrl/Store?branch=master)
 
-[![Download](https://csgogamers.com/static/image/download.png)](https://plugins.csgogamers.com/Store/)
+[![Download](https://csgogamers.com/static/image/download.png)](https://build.kxnrl.com/)
 
 This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarnai/store-plugin/)
   
@@ -41,7 +41,7 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
   
   
 ### How to install
-* Download latest build from https://plugins.csgogamers.com/Store/
+* [Download](https://build.kxnrl.com/) latest build.
 * Extract all files on disk.
 * Upload to server following folders: 
   * addons 

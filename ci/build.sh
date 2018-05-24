@@ -3,7 +3,6 @@
 git fetch --unshallow
 COUNT=$(git rev-list --count HEAD)
 FILE=$COUNT-$2-$3.7z
-DATE=$(date +"%Y/%m/%d %H:%M:%S")
 
 
 #INFO
@@ -291,7 +290,7 @@ mv -f include build/addons/sourcemod/scripting
 #打包
 echo "Compress file ..."
 cd build
-if [ "$5" = "master" ]; then
+if [ "$2" = "master" ]; then
 #    7z a $FILE -t7z -mx9 README.md addons utils materials models particles sound >nul
 # disallow package resouorce.
     7z a $FILE -t7z -mx9 README.md addons utils >nul
@@ -302,10 +301,10 @@ fi
 
 #上传
 echo "Upload file RSYNC ..."
-RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$5/$1/
+RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$2/$1/
 
 #RAW
-if [ "$1" = "1.8" ] && [ "$5" = "master" ]; then
+if [ "$1" = "1.8" ] && [ "$2" = "master" ]; then
     echo "Upload RAW [core] RSYNC ..."
     RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
     echo "Upload RAW [modules] RSYNC ..."

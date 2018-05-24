@@ -3,7 +3,6 @@
 git fetch --unshallow
 COUNT=$(git rev-list --count HEAD)
 FILE=$COUNT-$2-$3.7z
-DATE=$(date +"%Y/%m/%d %H:%M:%S")
 
 
 #INFO
@@ -31,8 +30,6 @@ echo "Prepare compile ..."
 for file in store.sp
 do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
-  sed -i "s%<commit_branch>%$5%g" $file > output.txt
-  sed -i "s%<commit_date>%$DATE%g" $file > output.txt
   rm output.txt
 done
 
@@ -232,8 +229,6 @@ cp -f modules/store_pet.sp addons/sourcemod/scripting
 for file in addons/sourcemod/scripting/store_pet.sp
 do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
-  sed -i "s%<commit_branch>%$5%g" $file > output.txt
-  sed -i "s%<commit_date>%$DATE%g" $file > output.txt
   rm output.txt
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp >nul

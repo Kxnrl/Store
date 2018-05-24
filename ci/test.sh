@@ -1,15 +1,9 @@
 #!/bin/bash
 
-#参数
-FTP_HOST=$2
-FTP_USER=$3
-FTP_PSWD=$4
-
 git fetch --unshallow
 COUNT=$(git rev-list --count HEAD)
-FILE=$COUNT-$5-$6.7z
+FILE=$COUNT-$2-$3.7z
 DATE=$(date +"%Y/%m/%d %H:%M:%S")
-ENV="GM_PR"
 
 
 #INFO

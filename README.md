@@ -1,10 +1,11 @@
 # Store
 
-**stable** : [![Build Status](https://img.shields.io/travis/Kxnrl/Store/master.svg?style=flat-square)](https://travis-ci.org/Kxnrl/Store?branch=master)
-
-[![Download](https://csgogamers.com/static/image/download.png)](https://build.kxnrl.com/)
-
-This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarnai/store-plugin/)
+|Build Status|Download|
+|---|---
+|[![Build Status](https://img.shields.io/travis/Kxnrl/Store/master.svg?style=flat-square)](https://travis-ci.org/Kxnrl/AdvMusicPlayer?branch=master) |[![Download](https://static.kxnrl.com/images/web/buttons/download.png)](https://build.kxnrl.com/Store/)  
+  
+  
+A sourcemod in-game Store system. 
   
   
   
@@ -88,19 +89,20 @@ This is a Redux version fully rewrite from [ZephStore](https://github.com/dvarna
   
   
 ### Credits:  
-- Original Edition: [Zephyrus](https://github.com/dvarnai "GitHub")  
+- Original Store: [Zephyrus](https://github.com/dvarnai "GitHub")  
 - FPVM_Interface: [franug](https://github.com/Franc1sco "GitHub")  
 - Chat-Processor: [Drixevel](https://github.com/Drixevel "GitHub")  
 - FirstPersonDeath: [Eun](https://forums.alliedmods.net/member.php?u=102471 "AlliedModders")  
 - Spec Target Fix: [shufen](https://github.com/Xectali "GitHub")  
 - Mirror mode: [franug](https://github.com/Franc1sco "GitHub") 
+- Weapon Skin: [kaganus](https://github.com/kaganus "GitHub") 
   
   
 #### Any other questions
-* **Steam** : https://steamcommunity.com/profiles/76561198048432253/
-* **Telegram** : https://t.me/Kxnrl
+* [Steam](https://steamcommunity.com/profiles/76561198048432253/)
+* [Telegram](https://t.me/Kxnrl)
   
   
 #### Donate
-* **Steam**: [Trade Offer](https://steamcommunity.com/tradeoffer/new/?partner=88166525&token=lszXBJeY)
+* [Steam Trade Offer](https://steamcommunity.com/tradeoffer/new/?partner=88166525&token=lszXBJeY)
 * **AliPay**: h673321480[AT]163.com

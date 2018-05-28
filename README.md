@@ -21,7 +21,7 @@ A sourcemod in-game Store system.
   * Aura ( Core included ) - Create a aura that follow the player.
   * Part ( Core included ) - Create a particle trail that follow the player.
   * None ( Core included ) - Create a neon effect that follow the player.
-  * Skin ( Core included ) - Allow player use custom skin and custom arms. (death sound and firstperson-death support)
+  * Skin ( Core included ) - Custom player skin and arms. (death sound and firstperson-death support)
   * Hats ( Core included ) - Allow player wear hat/glass/facemask/shield/wing.
   * trail ( Core included ) - Create a material trail that follow the player.
 * Pets ( optional ) - Create a pet that follow the player.
@@ -54,9 +54,10 @@ A sourcemod in-game Store system.
 * If you upgrade from original zeph store: 
   - Add "uid" key for each item in 'addons/sourcemod/configs/items.txt'.  
   - Upload 'addons/sourcemod/configs/items.txt' to your web host.  
-  - Upload 'utils/insertitem.php', 'utils/loaditem.php', 'utils/kvphp.php' to your web host.  
-  - Import item data to your database ( tools: utils/insertitem.php )
-  - Check item validate ( tools: utils/loaditem.php )
+  - Upload 'utils/insertParent.php', 'utils/insertItem.php', 'utils/loaditem.php', 'utils/kvphp.php' to your web host.  
+  - Import parent data to your database. ( exec: php insertParent.php or goto: yourwebserver/insertParent.php )
+  - Import item data to your database. ( exec: php insertItem.php or goto: yourwebserver/insertItem.php )
+  - Check item validate ( exec: php loaditem.php or goto: yourwebserver/loaditem.php )
 * make sure your database.cfg ( path: addons/sourcemod/configs/database.cfg )
 ``` keyvalues
 "csgo"

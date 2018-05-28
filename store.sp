@@ -2823,7 +2823,7 @@ void UTIL_ReloadConfig()
     else
         SQL_SetCharset(ItemDB, "utf8");
 
-    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY id ASC;", 128);
+    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY `id` ASC;", 128);
     if(item_parent == null)
     {
         SQL_GetError(ItemDB, error, 256);
@@ -2841,7 +2841,7 @@ void UTIL_ReloadConfig()
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
     }
 
-    DBResultSet item_child = SQL_Query(ItemDB, "SELECT * FROM store_item_child ORDER BY parent ASC, id ASC;", 128);
+    DBResultSet item_child = SQL_Query(ItemDB, "SELECT * FROM store_item_child ORDER BY parent ASC", 128);
     if(item_child == null)
     {
         SQL_GetError(ItemDB, error, 256);

@@ -2823,7 +2823,7 @@ void UTIL_ReloadConfig()
     else
         SQL_SetCharset(ItemDB, "utf8");
 
-    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY `id` ASC;", 128);
+    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY `id` ASC;");
     if(item_parent == null)
     {
         SQL_GetError(ItemDB, error, 256);
@@ -2841,7 +2841,7 @@ void UTIL_ReloadConfig()
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
     }
 
-    DBResultSet item_child = SQL_Query(ItemDB, "SELECT * FROM store_item_child ORDER BY parent ASC", 128);
+    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC");
     if(item_child == null)
     {
         SQL_GetError(ItemDB, error, 256);
@@ -2960,7 +2960,8 @@ void UTIL_ReloadConfig()
         KeyValues kv = new KeyValues("Store", "", "");
         kv.JumpToKey(g_eItems[g_iItems][szName], true);
         //for(int field = 16; field < item_child.FieldCount; ++field)
-        for(int field = 1; field < item_child.FieldCount; ++field)
+        int count = item_child.FieldCount - 1;
+        for(int field = 1; field < count; ++field)
         {
             char key[32], values[192];
             item_child.FieldNumToName(field, key, 32);

@@ -51,8 +51,7 @@ CREATE TABLE `store_item_parent` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(32) DEFAULT NULL,
   `parent` tinyint(3) NOT NULL DEFAULT '-1',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `n` (`name`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 

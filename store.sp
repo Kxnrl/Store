@@ -2823,7 +2823,7 @@ void UTIL_ReloadConfig()
     else
         SQL_SetCharset(ItemDB, "utf8");
 
-    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY `id` ASC;");
+    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;");
     if(item_parent == null)
     {
         SQL_GetError(ItemDB, error, 256);
@@ -2840,6 +2840,8 @@ void UTIL_ReloadConfig()
         g_eItems[g_iItems][iParent] = item_parent.FetchInt(2);
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
     }
+    
+    g_iItems++;
 
     DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC");
     if(item_child == null)
@@ -3139,9 +3141,10 @@ int UTIL_GetEquippedItemFromHandler(int client, int handler, int slot = 0)
 bool UTIL_PackageHasClientItem(int client, int packageid, bool invmode = false)
 {
     for(int i =0;i<g_iItems;++i)
-        if(g_eItems[i][iParent] == packageid && (invmode && Store_HasClientItem(client, i) || !invmode) && AllowItemForAuth(client, g_eItems[i][szSteam]) && AllowItemForVIP(client, g_eItems[i][bVIP]))
+       if(g_eItems[i][iParent] == packageid && ((invmode && Store_HasClientItem(client, i)) || !invmode))
             if((g_eItems[i][iHandler] == g_iPackageHandler && UTIL_PackageHasClientItem(client, i, invmode)) || g_eItems[i][iHandler] != g_iPackageHandler)
                 return true;
+
     return false;
 }
 

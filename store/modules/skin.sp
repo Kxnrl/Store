@@ -48,7 +48,7 @@ void Skin_OnPluginStart()
     mp_round_restart_delay = FindConVar("mp_round_restart_delay");
     HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
     SetConVarString(mp_round_restart_delay, "12", true);
-    
+
     spec_replay_enable = FindConVar("spec_replay_enable");
     HookConVarChange(spec_replay_enable, Skin_OnConVarChanged);
     SetConVarString(spec_replay_enable, "0", true);
@@ -65,8 +65,11 @@ public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const cha
         SetConVarString(sv_disablefreezecam, "1", true);    
 
     if(convar == mp_round_restart_delay)
-        SetConVarString(mp_round_restart_delay, "12", true);
-    
+    {
+        if(mp_round_restart_delay.FloatValue < 12.0)
+            SetConVarFloat(mp_round_restart_delay, 12.0, true);
+    }
+
     if(convar == spec_replay_enable)
         SetConVarString(spec_replay_enable, "0", true);
 }

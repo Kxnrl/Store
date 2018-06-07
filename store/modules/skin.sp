@@ -26,6 +26,7 @@ int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 bool g_bSpecJoinPending[MAXPLAYERS+1];
 char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+char g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 ConVar mp_round_restart_delay;
 ConVar sv_disablefreezecam;
@@ -157,8 +158,6 @@ public void PlayerSkins_OnMapStart()
         }
     }
 
-    //PrecacheDefaultModel();
-    
     PrecacheModel2("models/blackout.mdl", true);
 
 #if defined GM_ZE
@@ -209,12 +208,19 @@ void Store_PreSetClientModel(int client)
 
         if(g_ePlayerSkins[m_iData][szSound][0] != 0)
             FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
+        
+        return;
     }
 #if defined GM_ZE
     else
     {
         CreateTimer(0.02, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
+        return;
     }
+#endif
+
+#if defined Module_Hats
+    Store_SetClientHat(client);
 #endif
 }
 
@@ -234,6 +240,7 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
             FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
 
         g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
+        strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
         strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
@@ -255,11 +262,14 @@ public void ArmsFix_OnArmsFixed(int client)
 {
 #if defined GM_ZE
     if(g_iClientTeam[client] == 2)
+    {
+        strcopy(g_szSkinModel[client], 256, "#zombie");
         return;
+    }
 #endif
 
     char model[192];
-    GetClientModel(client, model, 192);
+    GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
     if(StrContains(model, "models/player/custom_player/legacy/", false) == 0)
     {
         LogError("Failed to set playerskin on %L in forward ArmsFix_OnSpawnModel", client);
@@ -273,18 +283,19 @@ public void ArmsFix_OnArmsFixed(int client)
         {
             int m_iData = Store_GetDataIndex(m_iEquipped);
             Store_SetClientModel(client, m_iData);
+            return;
         }
 #if defined GM_ZE
         else
         {
             SetEntityModel(client, Model_ZE_Newbee);
-            
-#if defined Module_Hats
-            Store_SetClientHat(client);
-#endif
         }
 #endif
     }
+
+#if defined Module_Hats
+    Store_SetClientHat(client);
+#endif
 }
 
 void Store_SetClientModel(int client, int m_iData)
@@ -294,12 +305,17 @@ void Store_SetClientModel(int client, int m_iData)
     
 #if defined GM_ZE
     if(g_iClientTeam[client] == 2)
+    {
+        strcopy(g_szSkinModel[client], 256, "#zombie");
         return;
+    }
 #endif
 
     SetEntityModel(client, g_ePlayerSkins[m_iData][szModel]);
-    
-    if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+    strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
+
+    // Has valve gloves?
+    if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null") && GetEntPropEnt(client, Prop_Send, "m_hMyWearables") == -1)
         SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
@@ -322,7 +338,10 @@ public Action Store_SetClientModelZE(Handle timer, int client)
         return Plugin_Stop;
 
     if(g_iClientTeam[client] == 2)
+    {
+        strcopy(g_szSkinModel[client], 256, "#zombie");
         return Plugin_Stop;
+    }
 
     SetEntityModel(client, Model_ZE_Newbee);
 

@@ -66,6 +66,7 @@ public Action Event_PlayerSpawn_Pre(Handle event, const char[] name, bool dontBr
     RequestFrame(OnClientSpawnPost, client);
 
 #if defined Module_Skin
+    strcopy(g_szSkinModel[client], 256, "#default");
     g_iSkinLevel[client] = 0;
     g_szDeathVoice[client][0] = '\0';
     Store_PreSetClientModel(client);
@@ -97,7 +98,7 @@ public void OnClientSpawnPost(int client)
     Store_SetClientPart(client);
 #endif
 
-#if defined Module_Hats    
+#if defined Module_Hats && !defined Module_Skin
     Store_SetClientHat(client);
 #endif
 }
@@ -148,10 +149,6 @@ public void ZR_OnClientInfected(int client, int attacker, bool motherInfect, boo
     for(int i = 1; i < STORE_MAX_SLOTS; ++i)
         Store_RemoveClientHats(client, i);
 #endif
-
-#if defined Module_Skin
-    strcopy(g_szSkinModel[client], 256, "zombie");
-#endif
 }
 
 public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, bool teleportOverride, bool teleport)
@@ -164,7 +161,7 @@ public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, boo
 #endif
 
 #if defined Module_Skin
-    strcopy(g_szSkinModel[client], 256, "zombie");
+    strcopy(g_szSkinModel[client], 256, "#zombie");
 #endif
 }
 

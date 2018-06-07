@@ -735,7 +735,7 @@ public int Native_HasPlayerSkin(Handle myself, int numParams)
     int client = GetNativeCell(1);
     char model[192];
     GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
-    return (StrContains(g_szSkinModel[client], "maoling") != -1 && StrContains(model, "maoling") != -1);
+    return (StrContains(g_szSkinModel[client], "#default") == -1 && StrContains(g_szSkinModel[client], "#zombie") == -1 && StrContains(model, "models/player/custom_player/legacy/") == -1);
 #else
     return false;
 #endif
@@ -745,7 +745,9 @@ public int Native_GetPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
-    if(StrContains(g_szSkinModel[client], "maoling") == -1)
+    char model[192];
+    GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
+    if(StrContains(g_szSkinModel[client], "#default") != -1 || StrContains(g_szSkinModel[client], "#zombie") != -1 || StrContains(model, "models/player/custom_player/legacy/") != -1)
         return false;
 
     if(SetNativeString(2, g_szSkinModel[client], GetNativeCell(3)) == SP_ERROR_NONE)

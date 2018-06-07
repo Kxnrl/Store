@@ -219,13 +219,21 @@ void Store_PreSetClientModel(int client)
     }
 #endif
 
-#if defined Module_Hats
+#if defined Module_Hats && !defined GM_ZE
     Store_SetClientHat(client);
 #endif
 }
 
 public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[] arms, int armsLen)
 {
+#if defined GM_ZE
+    if(g_iClientTeam[client] == 2)
+    {
+        strcopy(g_szSkinModel[client], 256, "#zombie");
+        return Plugin_Continue;
+    }
+#endif
+    
 #if defined Global_Skin
     int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 #else
@@ -248,7 +256,7 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         return Plugin_Changed;
     }
 #if defined GM_ZE
-    else
+    else if(g_iClientTeam[client] == 3)
     {
         strcopy(model, modelLen, Model_ZE_Newbee);
         return Plugin_Changed;

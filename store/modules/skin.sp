@@ -2,6 +2,10 @@
 
 #define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
 
+#undef REQUIRE_PLUGIN
+#include <armsfix>
+#define REQUIRE_PLUGIN
+
 enum PlayerSkin
 {
     String:szModel[PLATFORM_MAX_PATH],
@@ -13,6 +17,8 @@ enum PlayerSkin
 
 PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 
+bool g_pArmsFix;
+
 int g_iPlayerSkins = 0;
 int g_iSkinLevel[MAXPLAYERS+1];
 int g_iPreviewTimes[MAXPLAYERS+1];
@@ -20,7 +26,6 @@ int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 bool g_bSpecJoinPending[MAXPLAYERS+1];
 char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
-char g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 ConVar spec_freeze_time;
 ConVar mp_round_restart_delay;
 ConVar sv_disablefreezecam;
@@ -142,10 +147,10 @@ public void PlayerSkins_OnMapStart()
 
         if(g_ePlayerSkins[i][szSound][0] != 0)
         {
-            Format(szPath, 256, "sound/%s", g_ePlayerSkins[i][szSound]);
+            FormatEx(szPath, 256, "sound/%s", g_ePlayerSkins[i][szSound]);
             if(FileExists(szPath, true))
             {
-                Format(szPathStar, 256, "*%s", g_ePlayerSkins[i][szSound]);
+                FormatEx(szPathStar, 256, "*%s", g_ePlayerSkins[i][szSound]);
                 AddToStringTable(FindStringTable("soundprecache"), szPathStar);
                 Downloader_AddFileToDownloadsTable(szPath);
             }
@@ -188,7 +193,8 @@ public int PlayerSkins_Remove(int client, int id)
 
 void Store_PreSetClientModel(int client)
 {
-    strcopy(g_szSkinModel[client], 256, "default");
+    if(g_pArmsFix && !ArmsFix_ModelSafe(client))
+        return;
 
 #if defined Global_Skin
     int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
@@ -198,17 +204,11 @@ void Store_PreSetClientModel(int client)
 
     if(m_iEquipped >= 0)
     {
-        //SetDefaultSkin(client, g_iClientTeam[client]);
-
         int m_iData = Store_GetDataIndex(m_iEquipped);
-
-        //if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
-        //    SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
-
         CreateTimer(0.02, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
 
         if(g_ePlayerSkins[m_iData][szSound][0] != 0)
-            Format(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
+            FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
     }
 #if defined GM_ZE
     else
@@ -218,6 +218,75 @@ void Store_PreSetClientModel(int client)
 #endif
 }
 
+public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[] arms, int armsLen)
+{
+#if defined Global_Skin
+    int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
+#else
+    int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
+#endif
+
+    if(m_iEquipped >= 0)
+    {
+        int m_iData = Store_GetDataIndex(m_iEquipped);
+        
+        if(g_ePlayerSkins[m_iData][szSound][0] != 0)
+            FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
+
+        g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
+        strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
+        if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+            strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
+        
+        return Plugin_Changed;
+    }
+#if defined GM_ZE
+    else
+    {
+        strcopy(model, modelLen, Model_ZE_Newbee);
+        return Plugin_Changed;
+    }
+#endif
+
+    return Plugin_Continue;
+}
+
+public void ArmsFix_OnArmsFixed(int client)
+{
+#if defined GM_ZE
+    if(g_iClientTeam[client] == 2)
+        return;
+#endif
+
+    char model[192];
+    GetClientModel(client, model, 192);
+    if(StrContains(model, "models/player/custom_player/legacy/", false) == 0)
+    {
+        LogError("Failed to set playerskin on %L in forward ArmsFix_OnSpawnModel", client);
+
+#if defined Global_Skin
+        int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
+#else
+        int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
+#endif
+        if(m_iEquipped >= 0)
+        {
+            int m_iData = Store_GetDataIndex(m_iEquipped);
+            Store_SetClientModel(client, m_iData);
+        }
+#if defined GM_ZE
+        else
+        {
+            SetEntityModel(client, Model_ZE_Newbee);
+            
+#if defined Module_Hats
+            Store_SetClientHat(client);
+#endif
+        }
+#endif
+    }
+}
+
 void Store_SetClientModel(int client, int m_iData)
 {
     if(!IsClientInGame(client) || !IsPlayerAlive(client))
@@ -225,19 +294,14 @@ void Store_SetClientModel(int client, int m_iData)
     
 #if defined GM_ZE
     if(g_iClientTeam[client] == 2)
-    {
-        strcopy(g_szSkinModel[client], 256, "zombie");
         return;
-    }
 #endif
 
     SetEntityModel(client, g_ePlayerSkins[m_iData][szModel]);
     
     if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
         SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
-    
-    strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
-    
+
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
 
 #if defined Module_Hats
@@ -245,10 +309,9 @@ void Store_SetClientModel(int client, int m_iData)
 #endif
 }
 
-public Action Timer_SetClientModel(Handle timer, int Value)
+public Action Timer_SetClientModel(Handle timer, int val)
 {
-    Store_SetClientModel(Value & 0x7f, Value >> 7);
-
+    Store_SetClientModel(val & 0x7f, val >> 7);
     return Plugin_Stop;
 }
 
@@ -259,12 +322,8 @@ public Action Store_SetClientModelZE(Handle timer, int client)
         return Plugin_Stop;
 
     if(g_iClientTeam[client] == 2)
-    {
-        strcopy(g_szSkinModel[client], 256, "zombie");
         return Plugin_Stop;
-    }
 
-    strcopy(g_szSkinModel[client], 256, "default");
     SetEntityModel(client, Model_ZE_Newbee);
 
 #if defined Module_Hats
@@ -321,7 +380,7 @@ void Store_PreviewSkin(int client, int itemid)
 
     int m_iViewModel = CreateEntityByName("prop_dynamic_override"); //prop_physics_multiplayer
     char m_szTargetName[32];
-    Format(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
+    FormatEx(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
     DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
     DispatchKeyValue(m_iViewModel, "spawnflags", "64");
     DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_eItems[itemid][iData]][szModel]);
@@ -425,7 +484,7 @@ public void FirstPersonDeathCamera(int client)
 bool SpawnCamAndAttach(int client, int ragdoll)
 {
     char m_szTargetName[32]; 
-    Format(m_szTargetName, 32, "ragdoll%d", client);
+    FormatEx(m_szTargetName, 32, "ragdoll%d", client);
     DispatchKeyValue(ragdoll, "targetname", m_szTargetName);
 
     int iEntity = CreateEntityByName("prop_dynamic");
@@ -433,7 +492,7 @@ bool SpawnCamAndAttach(int client, int ragdoll)
         return false;
 
     char m_szCamera[32]; 
-    Format(m_szCamera, 32, "ragdollCam%d", iEntity);
+    FormatEx(m_szCamera, 32, "ragdollCam%d", iEntity);
 
     DispatchKeyValue(iEntity, "targetname", m_szCamera);
     DispatchKeyValue(iEntity, "parentname", m_szTargetName);
@@ -446,7 +505,7 @@ bool SpawnCamAndAttach(int client, int ragdoll)
     GetClientEyeAngles(client, m_fAngles);
     
     char m_szCamAngles[64];
-    Format(m_szCamAngles, 64, "%f %f %f", m_fAngles[0], m_fAngles[1], m_fAngles[2]);
+    FormatEx(m_szCamAngles, 64, "%f %f %f", m_fAngles[0], m_fAngles[1], m_fAngles[2]);
 
     DispatchKeyValue(iEntity, "angles", m_szCamAngles);
 

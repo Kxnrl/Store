@@ -20,6 +20,11 @@ echo "Download PTaH.inc ..."
 wget "https://github.com/komashchenko/PTaH/raw/master/PTaH.inc" -q -O include/PTaH.inc
 
 
+#ArmsFix
+echo "Download armsfix.inc ..."
+wget "https://github.com/Kxnrl/CSGO-ArmsFix/raw/master/include/armsfix.inc" -q -O include/armsfix.inc
+
+
 #设置文件为可执行
 echo "Set compiler env ..."
 chmod +x addons/sourcemod/scripting/spcomp

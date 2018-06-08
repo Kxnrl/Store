@@ -280,8 +280,6 @@ public void ArmsFix_OnArmsFixed(int client)
     GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
     if(StrContains(model, "models/player/custom_player/legacy/", false) == 0)
     {
-        LogError("Failed to set playerskin on %L in forward ArmsFix_OnSpawnModel", client);
-
 #if defined Global_Skin
         int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 #else
@@ -289,6 +287,7 @@ public void ArmsFix_OnArmsFixed(int client)
 #endif
         if(m_iEquipped >= 0)
         {
+            LogError("Failed to set playerskin on %L in forward ArmsFix_OnSpawnModel", client);
             int m_iData = Store_GetDataIndex(m_iEquipped);
             Store_SetClientModel(client, m_iData);
             return;

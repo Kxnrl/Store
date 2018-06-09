@@ -205,10 +205,6 @@ void Store_PreSetClientModel(int client)
     {
         int m_iData = Store_GetDataIndex(m_iEquipped);
         CreateTimer(0.02, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
-
-        if(g_ePlayerSkins[m_iData][szSound][0] != 0)
-            FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
-        
         return;
     }
 #if defined GM_ZE
@@ -252,7 +248,11 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
-        
+
+        int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
+		if(gloves != -1)
+			AcceptEntityInput(gloves, "KillHierarchy");
+
         return Plugin_Changed;
     }
 #if defined GM_ZE
@@ -320,9 +320,16 @@ void Store_SetClientModel(int client, int m_iData)
 
     SetEntityModel(client, g_ePlayerSkins[m_iData][szModel]);
     strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
+    
+    if(g_ePlayerSkins[m_iData][szSound][0] != 0)
+        FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
+    
+    int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
+    if(gloves != -1)
+        AcceptEntityInput(gloves, "KillHierarchy");
 
     // Has valve gloves?
-    if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null") && GetEntPropEnt(client, Prop_Send, "m_hMyWearables") == -1)
+    if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
         SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
@@ -388,15 +395,6 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
         }
 
     return Plugin_Continue;
-}
-
-public Action Timer_RemoveSpeaker(Handle timer, int iRef)
-{
-    int entity = EntRefToEntIndex(iRef);
-    if(IsValidEdict(entity))
-        AcceptEntityInput(entity, "Kill");
-
-    return Plugin_Stop;
 }
 
 void Store_PreviewSkin(int client, int itemid)

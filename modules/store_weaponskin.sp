@@ -36,11 +36,12 @@ int g_iWeaponSkin = 0;
 int g_iOffsetName = -1;
 int g_iOffsetMyWP = -1;
 
-#define SLOT_1 0
-#define SLOT_2 1
-#define SLOT_3 2
-#define SLOT_4 3
-#define SLOT_5 4
+#define SLOT_0 "!!!!WE START AT 1!!!!"
+#define SLOT_1 1
+#define SLOT_2 2
+#define SLOT_3 3
+#define SLOT_4 4
+#define SLOT_5 5
 
 public void OnPluginStart()
 {
@@ -89,6 +90,7 @@ public int WeaponSkin_Equip(int client, int id)
     DataPack pack = new DataPack();
     pack.WriteCell(GetClientUserId(client));
     pack.WriteCell(m_iData);
+    pack.WriteCell(0);
     pack.Reset();
     RequestFrame(CheckClientWeapon, pack);
 
@@ -98,21 +100,29 @@ public int WeaponSkin_Equip(int client, int id)
 public int WeaponSkin_Remove(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
+
+    DataPack pack = new DataPack();
+    pack.WriteCell(GetClientUserId(client));
+    pack.WriteCell(m_iData);
+    pack.WriteCell(1);
+    pack.Reset();
+    RequestFrame(CheckClientWeapon, pack);
+
     return g_eWeaponSkin[m_iData][iSlot];
 }
 
 public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemView &item, bool &ignoredCEconItemView)
 {
-    if(IsFakeClient(client))
+    if(IsFakeClient(client) || !IsPlayerAlive(client))
         return Plugin_Continue;
-    
-    if(StrContains(classname, "weapon_") != 0)
+
+    if(!IsWeaponKnife(classname))
         return Plugin_Continue;
 
     int itemid = Store_GetEquippedItem(client, "weaponskin", SLOT_3);
     if(itemid < 0)
         return Plugin_Continue;
-    
+
     int m_iData = Store_GetDataIndex(itemid);
 
     ignoredCEconItemView = true;
@@ -129,24 +139,14 @@ public void Event_GiveNamedItemPost(int client, const char[] classname, const CE
     if(StrContains(classname, "weapon_") != 0)
         return;
 
-    //PrintToChat(client, "Event_GiveNamedItemPost -> %s", classname);
-
     for(int slot = 1; slot < STORE_MAX_SLOTS; ++slot)
     {
         int itemid = Store_GetEquippedItem(client, "weaponskin", slot);
         if(itemid >= 0)
         {
             int m_iData = Store_GetDataIndex(itemid);
-            //PrintToChat(client, "Checking Slot[%d]", slot);
             if(strcmp(classname, g_eWeaponSkin[m_iData][szWeapon], false) == 0)
-            {
-                //PrintToChat(client, "Replace %s To %s",  classname, g_eWeaponSkin[m_iData][szUnique]);
                 SetWeaponEconmoney(client, m_iData, entity);
-            }
-        }
-        else
-        {
-            //PrintToChat(client, "Slot[%d] -> null", slot);
         }
     }
 }
@@ -190,27 +190,38 @@ void CheckClientWeapon(DataPack dp)
 {
     int client = GetClientOfUserId(dp.ReadCell());
     int data   = dp.ReadCell();
+    int unique = dp.ReadCell();
     delete dp;
 
     if(!IsPlayerAlive(client))
-    {
-        //PrintToChat(client, "Equipped but Dead");
         return;
-    }
 
-    int weapon = GetPlayerWeaponEntity(client, g_eWeaponSkin[data][szWeapon]);
-    if(weapon == -1)
+    int weapon = -1;
+    if(g_eWeaponSkin[data][iSlot] == SLOT_3)
     {
-        //PrintToChat(client, "Equipped but weapon was not found.");
-        return;
+        weapon = GetPlayerWeaponSlot(client, SLOT_2);
+        char classname[32];
+        GetEdictClassname(weapon, classname, 32);
+        if(strcmp(classname, "weapon_taser") == 0)
+        {
+            int taser = weapon;
+            DataPack pack = new DataPack();
+            pack.WriteCell(client);
+            pack.WriteCell(weapon);
+            pack.Reset();
+            RemovePlayerItem(client, taser);
+            weapon = GetPlayerWeaponSlot(client, SLOT_2);
+            CreateTimer(0.1, Timer_GiveTaser, pack, TIMER_FLAG_NO_MAPCHANGE);
+        }
     }
+    else weapon = GetPlayerWeaponEntity(client, g_eWeaponSkin[data][szWeapon]);
+
+    if(weapon == -1)
+        return;
 
     int prevOwner = GetEntPropEnt(weapon, Prop_Send, "m_hPrevOwner");
     if(prevOwner != -1)
-    {
-        //PrintToChat(client, "PrevOwner is %d", prevOwner);
         return;
-    }
 
     int PAmmo = GetEntProp(weapon, Prop_Data, "m_iPrimaryAmmoCount");
     int SAmmo = GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount");
@@ -219,21 +230,18 @@ void CheckClientWeapon(DataPack dp)
 
     if(!RemovePlayerItem(client, weapon))
         LogError("RemovePlayerItem -> %N -> %d.%s", client, weapon, g_eWeaponSkin[data][szWeapon]);
-    
+
     if(!AcceptEntityInput(weapon, "KillHierarchy"))
         LogError("AcceptEntityInput -> %N -> %d.%s", client, weapon, g_eWeaponSkin[data][szWeapon]);
 
-    if(g_eWeaponSkin[data][iSlot] == SLOT_3)
+    if(unique && g_eWeaponSkin[data][iSlot] == SLOT_3)
     {
-        //PrintToChat(client, "Give new %s", "weapon_knife");
-        weapon = GivePlayerItem(client, "weapon_knife");
+        GivePlayerItem(client, "weapon_knife");
         return;
     }
-    else
-    {
-        //PrintToChat(client, "Give new %s", g_eWeaponSkin[data][szWeapon]);
-        weapon = GivePlayerItem(client, g_eWeaponSkin[data][szWeapon]);
-    }
+
+    weapon = GivePlayerItem(client, g_eWeaponSkin[data][szWeapon]);
+    
 
     if(!IsValidEdict(weapon))
         return;
@@ -247,6 +255,20 @@ void CheckClientWeapon(DataPack dp)
     pack.Reset();
 
     CreateTimer(0.1, Timer_RevertAmmo, pack);
+}
+
+public Action Timer_GiveTaser(Handle timer, DataPack pack)
+{
+    int client = pack.ReadCell();
+    int weapon = pack.ReadCell();
+    delete pack;
+
+    if(IsClientInGame(client) && IsPlayerAlive(client))
+        EquipPlayerWeapon(client, weapon);
+    else
+        AcceptEntityInput(weapon, "Kill");
+    
+    return Plugin_Stop;
 }
 
 public Action Timer_RevertAmmo(Handle timer, DataPack pack)
@@ -294,21 +316,44 @@ int GetWeaponClassname(int weapon, int index = -1, char[] classname, int maxLen)
 
     switch(index)
     {
+        case 42 : return strcopy(classname, maxLen, "weapon_knife");
+        case 59 : return strcopy(classname, maxLen, "weapon_knife_t");
         case 60 : return strcopy(classname, maxLen, "weapon_m4a1_silencer");
         case 61 : return strcopy(classname, maxLen, "weapon_usp_silencer");
         case 63 : return strcopy(classname, maxLen, "weapon_cz75a");
         case 64 : return strcopy(classname, maxLen, "weapon_revolver");
         case 500: return strcopy(classname, maxLen, "weapon_bayonet");
         case 506: return strcopy(classname, maxLen, "weapon_knife_gut");
-		case 505: return strcopy(classname, maxLen, "weapon_knife_flip");
-		case 508: return strcopy(classname, maxLen, "weapon_knife_m9_bayonet");
-		case 507: return strcopy(classname, maxLen, "weapon_knife_karambit");
-		case 509: return strcopy(classname, maxLen, "weapon_knife_tactical");
-		case 515: return strcopy(classname, maxLen, "weapon_knife_butterfly");
-		case 512: return strcopy(classname, maxLen, "weapon_knife_falchion");
-		case 516: return strcopy(classname, maxLen, "weapon_knife_push");
+        case 505: return strcopy(classname, maxLen, "weapon_knife_flip");
+        case 508: return strcopy(classname, maxLen, "weapon_knife_m9_bayonet");
+        case 507: return strcopy(classname, maxLen, "weapon_knife_karambit");
+        case 509: return strcopy(classname, maxLen, "weapon_knife_tactical");
+        case 515: return strcopy(classname, maxLen, "weapon_knife_butterfly");
+        case 512: return strcopy(classname, maxLen, "weapon_knife_falchion");
+        case 516: return strcopy(classname, maxLen, "weapon_knife_push");
         case 514: return strcopy(classname, maxLen, "weapon_knife_survival_bowie");
     }
 
     return strlen(classname);
+}
+
+bool IsWeaponKnife(const char[] classname)
+{
+    if(
+        strcmp(classname, "weapon_knife") == 0 ||
+        strcmp(classname, "weapon_knife_t") == 0 ||
+        strcmp(classname, "weapon_bayonet") == 0 ||
+        strcmp(classname, "weapon_knife_gut") == 0 ||
+        strcmp(classname, "weapon_knife_flip") == 0 ||
+        strcmp(classname, "weapon_knife_m9_bayonet") == 0 ||
+        strcmp(classname, "weapon_knife_karambit") == 0 ||
+        strcmp(classname, "weapon_knife_tactical") == 0 ||
+        strcmp(classname, "weapon_knife_butterfly") == 0 ||
+        strcmp(classname, "weapon_knife_falchion") == 0 ||
+        strcmp(classname, "weapon_knife_push") == 0 ||
+        strcmp(classname, "weapon_knife_survival_bowie") == 0
+      )
+    return true;
+
+    return false;
 }

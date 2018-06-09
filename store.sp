@@ -3142,6 +3142,9 @@ int UTIL_GetEquippedItemFromHandler(int client, int handler, int slot = 0)
 
 bool UTIL_PackageHasClientItem(int client, int packageid, bool invmode = false)
 {
+    if(g_eItems[packageid][szSteam][0] != 0 && AllowItemForAuth(client, g_eItems[packageid][szSteam]))
+        return false;
+
     for(int i =0;i<g_iItems;++i)
        if(g_eItems[i][iParent] == packageid && ((invmode && Store_HasClientItem(client, i)) || !invmode))
             if((g_eItems[i][iHandler] == g_iPackageHandler && UTIL_PackageHasClientItem(client, i, invmode)) || g_eItems[i][iHandler] != g_iPackageHandler)

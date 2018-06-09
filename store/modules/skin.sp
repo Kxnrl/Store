@@ -179,7 +179,11 @@ public int PlayerSkins_Equip(int client, int id)
     if(IsClientInGame(client) && IsPlayerAlive(client))
         tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
+#if defined Global_Skin
+    return 2
+#else
     return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
+#endif
 }
 
 public int PlayerSkins_Remove(int client, int id)
@@ -187,7 +191,11 @@ public int PlayerSkins_Remove(int client, int id)
     if(IsClientInGame(client))
         tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
+#if defined Global_Skin
+    return 2
+#else
     return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
+#endif
 }
 
 void Store_PreSetClientModel(int client)

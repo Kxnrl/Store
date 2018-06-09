@@ -2229,12 +2229,20 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             g_eClients[client][iDateOfJoin] = SQL_FetchInt(hndl, 4);
             g_eClients[client][iDateOfLastJoin] = m_iTime;
             g_eClients[client][bBan] = (SQL_FetchInt(hndl, 6) == 1 || g_eClients[client][iCredits] < 0) ? true : false;
-
-            FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
-            SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
+            
+            if(g_eClients[client][bBan])
+            {
+                g_eClients[client][bLoaded] = true;
+                g_eClients[client][iItems] = 0;
+                tPrintToChat(client, "%T", "Inventory has been loaded", client);
+            }
+            else
+            {
+                FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
+                SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
+            }
 
             UTIL_LogMessage(client, 0, "Joined");
-            
             g_iDataProtect[client] = GetTime()+90;
         }
         else
@@ -2244,16 +2252,6 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
             SQL_EscapeString(g_hDatabase, m_szName, m_szEName, 128);
             FormatEx(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', 300, %d, %d, '0')", g_eClients[client][szAuthId], m_szEName, m_iTime, m_iTime);
             SQL_TQuery(g_hDatabase, SQLCallback_InsertClient, m_szQuery, userid);
-            g_eClients[client][iCredits] = 0;
-            g_eClients[client][iOriginalCredits] = 0;
-            g_eClients[client][iDateOfJoin] = m_iTime;
-            g_eClients[client][iDateOfLastJoin] = m_iTime;
-            g_eClients[client][bLoaded] = true;
-            g_eClients[client][iItems] = 0;
-            
-            g_iDataProtect[client] = GetTime()+90;
-            
-            g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
         }
     }
 }
@@ -2267,19 +2265,22 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
         int client = GetClientOfUserId(userid);
         if(!client)
             return;
+        
+        char m_szQuery[512];
 
-        if(g_eClients[client][bBan])
+        if(SQL_GetRowCount(hndl) <= 0)
         {
+            if(UTIL_GetTotalInventoryItems(client) > 0)
+            {
+                FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+                SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
+                return;
+            }
             g_eClients[client][bLoaded] = true;
-            g_eClients[client][iItems] = 0;
-            return;
-        }
-
-        if(!SQL_GetRowCount(hndl))
-        {
-            g_eClients[client][bLoaded] = true;
-            g_eClients[client][iItems] = 0;
-            return;
+            tPrintToChat(client, "%T", "Inventory has been loaded", client);
+            g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
+            FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+            SQL_TVoid(g_hDatabase, m_szQuery);
         }
 
         char m_szUniqueId[PLATFORM_MAX_PATH];
@@ -2299,7 +2300,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
             SQL_FetchString(hndl, 2, STRING(m_szType));
             SQL_FetchString(hndl, 3, STRING(m_szUniqueId));
 
-            while((m_iUniqueId = UTIL_GetItemId(m_szUniqueId, m_iUniqueId))!=-1)
+            while((m_iUniqueId = UTIL_GetItemId(m_szUniqueId, m_iUniqueId)) != -1)
             {
                 g_eClientItems[client][i][iId] = SQL_FetchInt(hndl, 0);
                 g_eClientItems[client][i][iUniqueId] = m_iUniqueId;
@@ -2313,8 +2314,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
         }
         g_eClients[client][iItems] = i;
         g_iDataProtect[client] = GetTime()+15;
-        
-        char m_szQuery[512];
+
         if(i > 0)
         {
             FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
@@ -2340,7 +2340,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
         int client = GetClientOfUserId(userid);
         if(!client)
             return;
-        
+
         char m_szUniqueId[PLATFORM_MAX_PATH];
         char m_szType[16];
         int m_iUniqueId, m_iSlot;
@@ -2379,15 +2379,25 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
 
 public void SQLCallback_InsertClient(Handle owner, Handle hndl, const char[] error, int userid)
 {
+    int client = GetClientOfUserId(userid);
+    if(!client)
+        return;
     if(hndl==null)
+    {
         LogError("Error happened. Error: %s", error);
+        KickClient(client, "Failed to check your store account.");
+    }
     else
     {
-        int client = GetClientOfUserId(userid);
-        if(!client)
-            return;
-            
         g_eClients[client][iId] = SQL_GetInsertId(hndl);
+        g_eClients[client][iCredits] = 0;
+        g_eClients[client][iOriginalCredits] = 0;
+        g_eClients[client][iDateOfJoin] = GetTime();
+        g_eClients[client][iDateOfLastJoin] = g_eClients[client][iDateOfJoin];
+        g_eClients[client][iItems] = 0;
+        g_eClients[client][bLoaded] = true;
+        g_iDataProtect[client] = GetTime()+90;
+        g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
     }
 }
 
@@ -3243,6 +3253,16 @@ int UTIL_GetClientHandleFees(int client, int itemid)
         return RoundToFloor(UTIL_GetHighestPrice(itemid)*0.2);
     else
         return RoundToFloor(g_eClientItems[client][uid][iPriceOfPurchase]*0.1);
+}
+
+int UTIL_GetTotalInventoryItems(int client)
+{
+    int total = 0;
+    for(int i = 0; i < g_iItems; ++i)
+        if(g_eItems[i][iHandler] != g_iPackageHandler)
+            if(Store_HasClientItem(client, i))
+                total++;
+    return total;
 }
 
 void UTIL_CheckModules()

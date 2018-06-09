@@ -200,6 +200,7 @@ void CheckClientWeapon(DataPack dp)
     if(g_eWeaponSkin[data][iSlot] == SLOT_3)
     {
         weapon = GetPlayerWeaponSlot(client, SLOT_2);
+        if(weapon == -1) return;
         char classname[32];
         GetEdictClassname(weapon, classname, 32);
         if(strcmp(classname, "weapon_taser") == 0)

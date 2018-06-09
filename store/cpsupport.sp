@@ -105,7 +105,7 @@ public Action CP_OnChatMessage(int& client, char[] flagstring, char[] name, char
     strcopy(STRING(m_szNameColor), "{teamcolor}");
 
     if(m_iEquippedNameTag >= 0)
-        StrCat(STRING(m_szNameTag), g_szNameTags[Store_GetDataIndex(m_iEquippedNameTag)]);
+        strcopy(STRING(m_szNameTag), g_szNameTags[Store_GetDataIndex(m_iEquippedNameTag)]);
 
     bool rainbowname = false;
     if(m_iEquippedNameColor >= 0)
@@ -122,7 +122,7 @@ public Action CP_OnChatMessage(int& client, char[] flagstring, char[] name, char
         String_Rainbow(name, buffer, 128);
         Format(name, 128, "%s%s", m_szNameTag, buffer);
     }
-    else Format(name, 128, "%s%s%s", m_szNameTag, m_szNameColor, name);
+    else Format(name, 128, "%s%s %s", m_szNameTag, m_szNameColor, name);
 
     if(m_iEquippedMsgColor >= 0)
     {

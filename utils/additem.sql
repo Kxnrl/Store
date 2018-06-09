@@ -560,7 +560,7 @@ INSERT INTO `store_item_child`
 VALUES 
 (
     '{YOUR PARENT ID FROM store_item_parent}',  -- parten id
-    'nametag',                                  -- force to 'nametag'
+    'weaponskin',                               -- force to 'weaponskin'
     '{unique_identifier}',                      -- maxlen 32 bytes
     '1',                                        -- 1 = can buy
     '1',                                        -- 1 = can gift

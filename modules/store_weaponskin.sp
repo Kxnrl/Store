@@ -178,7 +178,7 @@ void SetWeaponEconmoney(int client, int data, int weapon)
         default: SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", g_eWeaponSkin[data][fWearF]);
     }
 
-    SetEntDataString(weapon, g_iOffsetName, "!store", 16);
+    //SetEntDataString(weapon, g_iOffsetName, "!store", 16);
 
     SetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity", client);
     SetEntPropEnt(weapon, Prop_Send, "m_hPrevOwner", -1);

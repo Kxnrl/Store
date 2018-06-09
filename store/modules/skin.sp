@@ -250,8 +250,8 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
 
         int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
-		if(gloves != -1)
-			AcceptEntityInput(gloves, "KillHierarchy");
+        if(gloves != -1)
+            AcceptEntityInput(gloves, "KillHierarchy");
 
         return Plugin_Changed;
     }

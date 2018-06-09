@@ -165,7 +165,7 @@ void SetWeaponEconmoney(int client, int data, int weapon)
     }
 
     SetEntProp(weapon, Prop_Send, "m_nFallbackPaintKit", g_eWeaponSkin[data][iPaint]);
-    SetEntProp(weapon, Prop_Send, "m_nFallbackSeed", (g_eWeaponSkin[data][iSeed] == -1 ? GetRandomInt(0, 1024) : g_eWeaponSkin[data][iSeed]);
+    SetEntProp(weapon, Prop_Send, "m_nFallbackSeed", (g_eWeaponSkin[data][iSeed] == -1) ? GetRandomInt(0, 1024) : g_eWeaponSkin[data][iSeed]);
     SetEntProp(weapon, Prop_Send, "m_iEntityQuality", (g_eWeaponSkin[data][iSlot] == SLOT_3) ? 3 : 8);
 
     switch(g_eWeaponSkin[data][iWearT])

@@ -180,7 +180,7 @@ public int PlayerSkins_Equip(int client, int id)
         tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
 #if defined Global_Skin
-    return 2
+    return 2;
 #else
     return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 #endif
@@ -192,7 +192,7 @@ public int PlayerSkins_Remove(int client, int id)
         tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
 #if defined Global_Skin
-    return 2
+    return 2;
 #else
     return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 #endif

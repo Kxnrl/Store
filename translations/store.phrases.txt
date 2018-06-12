@@ -432,25 +432,13 @@
     "vwmodel"
     {
         "en" "weapon model"
-        "chi" "武器模型/皮肤"
+        "chi" "武器模型"
     }
     
-    "you are already vip"
+    "weaponskin"
     {
-        "en" "You are already VIP"
-        "chi" "你已经是VIP了"
-    }
-
-    "go to forum to buy vip"
-    {
-        "en" "Buy VIP ? \n    visit https://csgogamers.com"
-        "chi" "购买VIP ?\n    请登录https://csgogamers.com"
-    }
-    
-    "go to forum to buy vip chat"
-    {
-        "en" "Buy VIP => visit https://csgogamers.com"
-        "chi" "购买VIP请登录https://csgogamers.com"
+        "en" "Weapon skin"
+        "chi" "武器皮肤"
     }
     
     "cat banned"
@@ -580,15 +568,15 @@
     "opencase earned day"
     {
         "#format" "{1:N},{2:s},{3:s},{4:s}"
-        "en"  "\x0E{1} \x01opened an \x0C{2}\x01, earned [\x04{3}\x01](\x05{4}天\x01)"
-        "chi" "\x0E{1}\x01在\x0C{2}\x01中获得了[\x04{3}\x01](\x05{4}天\x01)"
+        "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}天{normal})"
+        "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}{4}天{normal})"
     }
     
     "opencase earned perm"
     {
         "#format" "{1:N},{2:s},{3:s}"
-        "en"  "\x0E{1} \x01opened an \x0C{2}\x01, earned [\x04{3}\x01](\x05{4}permanent\x01)"
-        "chi" "\x0E{1}\x01在\x0C{2}\x01中获得了[\x04{3}\x01](\x05天\x01)"
+        "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}permanent{normal})"
+        "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}天{normal})"
     }
     
     "quickly sell"
@@ -612,29 +600,29 @@
     "open and sell day chat"
     {
         "#format" "{1:s},{2:d},{3:d}"
-        "en" "You sold [\x04{1}\x01](\x05{2}days\x01) , earn \x04{3}\x01 credits"
-        "chi" "你出售了[\x04{1}\x01](\x05{2}天\x01)获得了\x04{3}\x01信用点"
+        "en" "You sold [{green}{1}{normal}]({yellow}{2}days{normal}) , earn {green}{3}{normal} credits"
+        "chi" "你出售了[{green}{1}{normal}]({yellow}{2}天{normal})获得了{green}{3}{normal}信用点"
     }
     
     "open and sell permanent chat"
     {
         "#format" "{1:s},{2:d}"
-        "en" "You sold [\x04{1}\x01](\x05permanent\x01) , earn \x04{2}\x01 credits"
-        "chi" "你出售了[\x04{1}\x01](\x05永久\x01)获得了\x04{2}\x01信用点"
+        "en" "You sold [{green}{1}{normal}]({yellow}permanent{normal}) , earn {green}{2}{normal} credits"
+        "chi" "你出售了[{green}{1}{normal}]({yellow}永久{normal})获得了{green}{2}{normal}信用点"
     }
     
     "open and add day chat"
     {
         "#format" "{1:s},{2:s},{3:d}"
-        "en" "You open \x0C{1}\x01 and receive [\x04{2}\x01](\x05{3}days\x01)"
-        "chi" "你打开\x0C{1}\x01获得了[\x04{2}\x01](\x05{3}天\x01)"
+        "en" "You open {blue}{1}{normal} and receive [{green}{2}{normal}]({yellow}{3}days{normal})"
+        "chi" "你打开{blue}{1}{normal}获得了[{green}{2}{normal}]({yellow}{3}天{normal})"
     }
     
     "open and sell permanent chat"
     {
         "#format" "{1:s},{2:d}"
-        "en" "You open \x0C{1}\x01 and receive [\x04{2}\x01](\x05permanent\x01)"
-        "chi" "你打开\x0C{1}\x01获得了[\x04{2}\x01](\x05永久\x01)"
+        "en" "You open {blue}{1}{normal} and receive [{green}{2}{normal}]({yellow}permanent{normal})"
+        "chi" "你打开{blue}{1}{normal}获得了[{green}{2}{normal}]({yellow}永久{normal})"
     }
     
     "open and cancel"
@@ -665,8 +653,8 @@
     "Compose successfully broadcast"
     {
         "#format" "{1:N},{2:s}"
-        "en" "\x0C{1}\x04 commposed a skin \x01[\x10{2}\x01]"
-        "chi" "\x0C{1}\x04成功合成了皮肤\x10{2}"
+        "en" "{blue}{1}{green} commposed a skin {normal}[{orange}{2}{normal}]"
+        "chi" "{blue}{1}{green}成功合成了皮肤{orange}{2}"
     }
     
     "select case"

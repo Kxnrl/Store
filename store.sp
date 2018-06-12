@@ -1401,7 +1401,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
     if(itemid < 0)
     {
         LogError("Item Id Error %s", modelname);
-        tPrintToChat(client, "\x07%T", client, "unknown error");
+        tPrintToChat(client, "\x07%T", "unknown error", client);
         return Plugin_Stop;
     }
 

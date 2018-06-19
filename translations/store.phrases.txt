@@ -238,7 +238,7 @@
     
     "Gift No Players"
     {
-        "en" "There's noone you can gift this item to."
+        "en" "There's no one you can gift this item to."
         "chi" "没有可赠送物品的玩家."
     }
     
@@ -479,7 +479,7 @@
     
     "sound no equip"
     {
-        "en" "You are not equipped sound effects."
+        "en" "You haven't equiped sound effects."
         "chi" "你还没有打开音效功能,请在Store装备"
     }
     
@@ -518,25 +518,25 @@
     
     "tp not allow"
     {
-        "en" "This Game Mode, TP mode is not allow"
+        "en" "This Game Mode, TP mode is not allowed"
         "chi" "当前模式不允许使用TP"
     }
     
     "tp dead"
     {
-        "en" "You are dead"
+        "en" "You are a dead man now, TP mode is not allowed"
         "chi" "你已经嗝屁了,还想开TP?"
     }
     
     "tp seeme"
     {
-        "en" "You are in SeeMe mode!"
+        "en" "You are in SeeMe mode, TP mode is unavailable"
         "chi" "你已经开了SeeMe,还想开TP?"
     }
     
     "seeme tp"
     {
-        "en" "You are in TP mode!"
+        "en" "You are in TP mode, SeeMe mode is unavailable!"
         "chi" "你已经开了TP,还想开SeeMe?"
     }
     
@@ -653,7 +653,7 @@
     "Compose successfully broadcast"
     {
         "#format" "{1:N},{2:s}"
-        "en" "{blue}{1}{green} commposed a skin {normal}[{orange}{2}{normal}]"
+        "en" "{blue}{1}{green} composed a skin {normal}[{orange}{2}{normal}]"
         "chi" "{blue}{1}{green}成功合成了皮肤{orange}{2}"
     }
     

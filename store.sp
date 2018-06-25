@@ -258,6 +258,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     MarkNativeAsOptional("SetClientCookie");
 #endif
 
+#if defined Module_Skin
+    MarkNativeAsOptional("ArmsFix_ModelSafe");
+#endif
+
     g_bLateLoad = late;
 
     // RegLibrary

@@ -8,8 +8,9 @@ $db_user = "";
 $db_pswd = "";
 $db_host = "";
 $db_name = "";
+$db_port = "3306";
 
-$database = mysqli_connect($db_host, $db_user, $db_pswd, $db_name);
+$database = mysqli_connect($db_host, $db_user, $db_pswd, $db_name, $db_port);
 
 $store = array();
 $parent = array();

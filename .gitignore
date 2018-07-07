@@ -56,6 +56,7 @@ include/sdktools_stringtables.inc
 include/sdktools_tempents.inc
 include/sdktools_tempents_stocks.inc
 include/sdktools_trace.inc
+include/sdktools_variant_t.inc
 include/sdktools_voice.inc
 include/smlib.inc
 include/sorting.inc

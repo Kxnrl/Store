@@ -377,7 +377,7 @@ public Action Store_SetClientModelZE(Handle timer, int client)
 
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-    if(channel != SNDCHAN_VOICE || !IsValidClient(client))
+    if(channel != SNDCHAN_VOICE || !IsValidClient(client) || sample[0] != '~')
         return Plugin_Continue;
     
 #if defined GM_ZE
@@ -389,12 +389,12 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
         return Plugin_Continue;
 
     if  ( 
-            StrEqual(sample, "~player/death1.wav", false)||
-            StrEqual(sample, "~player/death2.wav", false)||
-            StrEqual(sample, "~player/death3.wav", false)||
-            StrEqual(sample, "~player/death4.wav", false)||
-            StrEqual(sample, "~player/death5.wav", false)||
-            StrEqual(sample, "~player/death6.wav", false)
+            strcmp(sample, "~player/death1.wav", false) == 0 ||
+            strcmp(sample, "~player/death2.wav", false) == 0 ||
+            strcmp(sample, "~player/death3.wav", false) == 0 ||
+            strcmp(sample, "~player/death4.wav", false) == 0 ||
+            strcmp(sample, "~player/death5.wav", false) == 0 ||
+            strcmp(sample, "~player/death6.wav", false) == 0 
         )
         {
             strcopy(sample, 128, g_szDeathVoice[client]);

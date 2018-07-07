@@ -309,7 +309,7 @@ echo "Upload file RSYNC ..."
 RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$2/$1/
 
 #RAW
-if [ "$1" = "1.8" ] && [ "$2" = "master" ]; then
+if [ "$1" = "1.9" ] && [ "$2" = "master" ]; then
     echo "Upload RAW [core] RSYNC ..."
     RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
     echo "Upload RAW [modules] RSYNC ..."

@@ -377,9 +377,12 @@ public Action Store_SetClientModelZE(Handle timer, int client)
 
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
+    if(sample[0] == 'c' && sample[1] == 'o' && strcmp(sample, "common/null.wav", false) == 0)
+        return Plugin_Continue;
+
     if(channel != SNDCHAN_VOICE || !IsValidClient(client) || sample[0] != '~')
         return Plugin_Continue;
-    
+
 #if defined GM_ZE
     if(g_iClientTeam[client] == 2)
         return Plugin_Continue;
@@ -397,12 +400,23 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
             strcmp(sample, "~player/death6.wav", false) == 0 
         )
         {
-            strcopy(sample, 128, g_szDeathVoice[client]);
-            volume = 1.0;
-            return Plugin_Changed;
+            //strcopy(sample, PLATFORM_MAX_PATH, g_szDeathVoice[client]);
+            //volume = 1.0;
+            //PrintToChat(client, "Replace Death Sound to [%s]", g_szDeathVoice[client]);
+            RequestFrame(Frame_Broadcast, client);
+            //return Plugin_Changed;
+            return Plugin_Handled;
         }
 
     return Plugin_Continue;
+}
+
+void Frame_Broadcast(int client)
+{
+    if(!IsClientInGame(client))
+        return;
+
+    EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE, SNDLEVEL_NONE, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, client);
 }
 
 void Store_PreviewSkin(int client, int itemid)

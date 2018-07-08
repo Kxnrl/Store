@@ -81,6 +81,10 @@ public void OnClientSpawnPost(int client)
 {
     if(!IsClientInGame(client) || !IsPlayerAlive(client))
         return;
+    
+#if defined Module_Skin
+    Store_RemoveClientGloves(client, -1);
+#endif
 
 #if defined Module_Trail
     Store_SetClientTrail(client);

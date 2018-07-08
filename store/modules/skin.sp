@@ -203,16 +203,11 @@ void Store_PreSetClientModel(int client)
     if(g_pArmsFix && !ArmsFix_ModelSafe(client))
         return;
 
-#if defined Global_Skin
-    int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
-#else
-    int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
-#endif
+    int m_iEquipped = GetEquippedSkin(client);
 
     if(m_iEquipped >= 0)
     {
-        int m_iData = Store_GetDataIndex(m_iEquipped);
-        CreateTimer(0.02, Timer_SetClientModel, client | (m_iData << 7), TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(0.02, Timer_SetClientModel, client | (Store_GetDataIndex(m_iEquipped) << 7), TIMER_FLAG_NO_MAPCHANGE);
         return;
     }
 #if defined GM_ZE
@@ -237,17 +232,13 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         return Plugin_Continue;
     }
 #endif
-    
-#if defined Global_Skin
-    int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
-#else
-    int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
-#endif
+
+    int m_iEquipped = GetEquippedSkin(client);
 
     if(m_iEquipped >= 0)
     {
         int m_iData = Store_GetDataIndex(m_iEquipped);
-        
+
         if(g_ePlayerSkins[m_iData][szSound][0] != 0)
             FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
 
@@ -257,9 +248,7 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
 
-        int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
-        if(gloves != -1)
-            AcceptEntityInput(gloves, "KillHierarchy");
+        Store_RemoveClientGloves(client, m_iData);
 
         return Plugin_Changed;
     }
@@ -332,9 +321,7 @@ void Store_SetClientModel(int client, int m_iData)
     if(g_ePlayerSkins[m_iData][szSound][0] != 0)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
     
-    int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
-    if(gloves != -1)
-        AcceptEntityInput(gloves, "KillHierarchy");
+    Store_RemoveClientGloves(client, m_iData);
 
     // Has valve gloves?
     if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
@@ -674,3 +661,22 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
     return Plugin_Continue;
 }
 #endif
+
+static int GetEquippedSkin(int client)
+{
+#if defined Global_Skin
+    return Store_GetEquippedItem(client, "playerskin", 2);
+#else
+    return Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
+#endif
+}
+
+void Store_RemoveClientGloves(int client, int m_iData = -1)
+{
+    if(m_iData == -1 && GetEquippedSkin(client) <= 0)
+        return;
+
+    int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
+    if(gloves != -1)
+        AcceptEntityInput(gloves, "KillHierarchy");
+}

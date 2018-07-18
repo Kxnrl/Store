@@ -176,10 +176,26 @@ void StartSoundToAll(int client)
         if(IsClientInGame(i))
             if(!g_bClientDisable[i] || i == client)
                 targets[total++] = i;
+            
+    float fPos[3];
+    GetClientEyePosition(client, fPos);
+    
+    float fAgl[3];
+    GetClientEyeAngles(client, fAgl);
+
+    fPos[2] -= 3.0;
+
+    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 2.0);
+    
+    if(speaker == -1)
+    {
+        LogError("Failed to Spawn Speaker entity");
+        return;
+    }
 
     char szPath[128];
     Format(szPath, 128, "*%s", g_eSounds[g_iSoundClient[client]][szSound]);
-    EmitSound(targets, total, szPath, SOUND_FROM_PLAYER, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]][fVolume]);
+    EmitSound(targets, total, szPath, speaker, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]][fVolume], SNDPITCH_NORMAL, speaker, fPos, fAgl, false);
 
     tPrintToChatAll("%t", "sound to all", client, g_eSounds[g_iSoundClient[client]][szName]);
 }

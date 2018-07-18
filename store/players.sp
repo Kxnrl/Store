@@ -115,7 +115,8 @@ public Action Event_PlayerDeath_Pre(Handle event, const char[] name, bool dontBr
         return Plugin_Continue;
 
 #if defined Module_Skin
-    AttemptState(client, false);
+    AttemptState(client, false); 
+    Broadcast_DeathSound(client);
     RequestFrame(FirstPersonDeathCamera, client);
 #endif
 

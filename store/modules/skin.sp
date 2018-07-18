@@ -390,7 +390,7 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
             //strcopy(sample, PLATFORM_MAX_PATH, g_szDeathVoice[client]);
             //volume = 1.0;
             //PrintToChat(client, "Replace Death Sound to [%s]", g_szDeathVoice[client]);
-            RequestFrame(Frame_Broadcast, client);
+            //RequestFrame(Frame_Broadcast, client);
             //return Plugin_Changed;
             return Plugin_Handled;
         }
@@ -398,12 +398,33 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
     return Plugin_Continue;
 }
 
-void Frame_Broadcast(int client)
+void Broadcast_DeathSound(int client)
 {
-    if(!IsClientInGame(client))
+    if(g_szDeathVoice[client][0] == '\0')
         return;
 
-    EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE, SNDLEVEL_NONE, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, client);
+#if defined GM_ZE
+    if(g_iClientTeam[client] == 2)
+        return Plugin_Continue;
+#endif
+
+    float fPos[3];
+    GetClientEyePosition(client, fPos);
+    
+    float fAgl[3];
+    GetClientEyeAngles(client, fAgl);
+
+    fPos[2] -= 3.0;
+
+    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 2.0);
+    
+    if(speaker == -1)
+    {
+        LogError("Failed to Spawn Speaker entity");
+        return;
+    }
+
+    EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NONE, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, speaker, fPos, fAgl, false);
 }
 
 void Store_PreviewSkin(int client, int itemid)

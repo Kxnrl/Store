@@ -592,43 +592,69 @@ stock void ReplaceColorsCode(char[] message, int maxLen, int team = 0)
 
 stock void RemoveAllColors(char[] message, int maxLen)
 {
-	ReplaceString(message, maxLen, "{normal}", "", false);
-	ReplaceString(message, maxLen, "{default}", "", false);
-	ReplaceString(message, maxLen, "{white}", "", false);
-	ReplaceString(message, maxLen, "{darkred}", "", false);
-	ReplaceString(message, maxLen, "{teamcolor}", "", false);
-	ReplaceString(message, maxLen, "{pink}", "", false);
-	ReplaceString(message, maxLen, "{green}", "", false);
-	ReplaceString(message, maxLen, "{HIGHLIGHT}", "", false);
-	ReplaceString(message, maxLen, "{lime}", "", false);
-	ReplaceString(message, maxLen, "{lightgreen}", "", false);
-	ReplaceString(message, maxLen, "{lime}", "", false);
-	ReplaceString(message, maxLen, "{lightred}", "", false);
-	ReplaceString(message, maxLen, "{red}", "", false);
-	ReplaceString(message, maxLen, "{gray}", "", false);
-	ReplaceString(message, maxLen, "{grey}", "", false);
-	ReplaceString(message, maxLen, "{olive}", "", false);
-	ReplaceString(message, maxLen, "{yellow}", "", false);
-	ReplaceString(message, maxLen, "{orange}", "", false);
-	ReplaceString(message, maxLen, "{silver}", "", false);
-	ReplaceString(message, maxLen, "{lightblue}", "", false);
-	ReplaceString(message, maxLen, "{blue}", "", false);
-	ReplaceString(message, maxLen, "{purple}", "", false);
-	ReplaceString(message, maxLen, "{darkorange}", "", false);
-	ReplaceString(message, maxLen, "\x01", "", false);
-	ReplaceString(message, maxLen, "\x02", "", false);
-	ReplaceString(message, maxLen, "\x03", "", false);
-	ReplaceString(message, maxLen, "\x04", "", false);
-	ReplaceString(message, maxLen, "\x05", "", false);
-	ReplaceString(message, maxLen, "\x06", "", false);
-	ReplaceString(message, maxLen, "\x07", "", false);
-	ReplaceString(message, maxLen, "\x08", "", false);
-	ReplaceString(message, maxLen, "\x09", "", false);
-	ReplaceString(message, maxLen, "\x10", "", false);
-	ReplaceString(message, maxLen, "\x0A", "", false);
-	ReplaceString(message, maxLen, "\x0B", "", false);
-	ReplaceString(message, maxLen, "\x0C", "", false);
-	ReplaceString(message, maxLen, "\x0D", "", false);
-	ReplaceString(message, maxLen, "\x0E", "", false);
-	ReplaceString(message, maxLen, "\x0F", "", false);
+    ReplaceString(message, maxLen, "{normal}", "", false);
+    ReplaceString(message, maxLen, "{default}", "", false);
+    ReplaceString(message, maxLen, "{white}", "", false);
+    ReplaceString(message, maxLen, "{darkred}", "", false);
+    ReplaceString(message, maxLen, "{teamcolor}", "", false);
+    ReplaceString(message, maxLen, "{pink}", "", false);
+    ReplaceString(message, maxLen, "{green}", "", false);
+    ReplaceString(message, maxLen, "{HIGHLIGHT}", "", false);
+    ReplaceString(message, maxLen, "{lime}", "", false);
+    ReplaceString(message, maxLen, "{lightgreen}", "", false);
+    ReplaceString(message, maxLen, "{lime}", "", false);
+    ReplaceString(message, maxLen, "{lightred}", "", false);
+    ReplaceString(message, maxLen, "{red}", "", false);
+    ReplaceString(message, maxLen, "{gray}", "", false);
+    ReplaceString(message, maxLen, "{grey}", "", false);
+    ReplaceString(message, maxLen, "{olive}", "", false);
+    ReplaceString(message, maxLen, "{yellow}", "", false);
+    ReplaceString(message, maxLen, "{orange}", "", false);
+    ReplaceString(message, maxLen, "{silver}", "", false);
+    ReplaceString(message, maxLen, "{lightblue}", "", false);
+    ReplaceString(message, maxLen, "{blue}", "", false);
+    ReplaceString(message, maxLen, "{purple}", "", false);
+    ReplaceString(message, maxLen, "{darkorange}", "", false);
+    ReplaceString(message, maxLen, "\x01", "", false);
+    ReplaceString(message, maxLen, "\x02", "", false);
+    ReplaceString(message, maxLen, "\x03", "", false);
+    ReplaceString(message, maxLen, "\x04", "", false);
+    ReplaceString(message, maxLen, "\x05", "", false);
+    ReplaceString(message, maxLen, "\x06", "", false);
+    ReplaceString(message, maxLen, "\x07", "", false);
+    ReplaceString(message, maxLen, "\x08", "", false);
+    ReplaceString(message, maxLen, "\x09", "", false);
+    ReplaceString(message, maxLen, "\x10", "", false);
+    ReplaceString(message, maxLen, "\x0A", "", false);
+    ReplaceString(message, maxLen, "\x0B", "", false);
+    ReplaceString(message, maxLen, "\x0C", "", false);
+    ReplaceString(message, maxLen, "\x0D", "", false);
+    ReplaceString(message, maxLen, "\x0E", "", false);
+    ReplaceString(message, maxLen, "\x0F", "", false);
+}
+
+stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float removeDelay = 0.1)
+{
+    int speaker = CreateEntityByName("info_target");
+    
+    if(speaker == -1)
+        return -1;
+
+    DispatchSpawn(speaker);
+
+    TeleportEntity(speaker, fPos, fAgl, NULL_VECTOR);
+
+    SetVariantString("!activator");
+    AcceptEntityInput(speaker, "SetParent", source, speaker, 0);
+
+    if(removeDelay > 0.0)
+    {
+        char input[128];
+        FormatEx(input, 128, "OnUser4 !self:Kill::%.2f:1", removeDelay);
+        SetVariantString(input);
+        AcceptEntityInput(speaker, "AddOutput");
+        AcceptEntityInput(speaker, "FireUser4");
+    }
+
+    return speaker;
 }

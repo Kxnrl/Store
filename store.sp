@@ -45,6 +45,9 @@ public Plugin myinfo =
 //GM_SR -> death surf server
 //GM_BH -> bhop server
 
+// VERIFY CREDITS
+#define DATA_VERIFY
+
 // Custom Module
 // skin does not match with team
 #if defined GM_TT || defined GM_ZE || defined GM_KZ || defined GM_BH
@@ -2318,6 +2321,11 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
         }
         g_eClients[client][iItems] = i;
         g_iDataProtect[client] = GetTime()+15;
+        
+#if defined DATA_VERIFY
+        FormatEx(STRING(m_szQuery), "SELECT * FROM `store_newlogs` WHERE `store_id` = '%d' AND (`reason` = 'Disconnect' OR `reason` = 'Add Funds')  ORDER BY `timestamp` DESC LIMIT 1", g_eClients[client][iId]);
+        SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_DATAVERIFY, m_szQuery, userid);
+#endif
 
         if(i > 0)
         {
@@ -2334,6 +2342,38 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
         }
     }
 }
+
+#if defined DATA_VERIFY
+public void SQLCallback_LoadClientInventory_DATAVERIFY(Handle owner, Handle hndl, const char[] error, int userid)
+{
+    if(hndl==null)
+        LogError("Error happened. Error: %s", error);
+    else
+    {    
+        int client = GetClientOfUserId(userid);
+        if(!client)
+            return;
+        
+        int credits = SQL_FetchInt(hndl, 0);
+        
+        int diff = g_eClients[client][iCredits] - credits;
+        
+        if(diff > 1000)
+        {
+            char m_szQuery[256];
+            FormatEx(STRING(m_szQuery), "UPDATE `store_players` SET `ban` = 1, `credits` = -1 WHERE `id` = '%d';", g_eClients[client][iId]);
+            SQL_TVoid(g_hDatabase, m_szQuery);
+
+            LogMessage("[CAT]  Store Inject detected :  \"%L\" -> credits[%d] -> loaded[%d] -> diff[%d]", client, credits, g_eClients[client][iCredits], diff);
+            ServerCommand("sm_ban #%d 0 \"[CAT] Store Inject detected.\"", GetClientUserId(client));
+            //BanClient(client, 0, BANFLAG_IP|BANFLAG_AUTHID, "[CAT] Store Inject detected", "[CAT] Store Inject detected");
+            return;
+        }
+
+        g_iDataProtect[client] = GetTime()+30;
+    }
+}
+#endif
 
 public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl, const char[] error, int userid)
 {

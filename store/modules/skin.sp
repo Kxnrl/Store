@@ -405,7 +405,7 @@ void Broadcast_DeathSound(int client)
 
 #if defined GM_ZE
     if(g_iClientTeam[client] == 2)
-        return Plugin_Continue;
+        return;
 #endif
 
     float fPos[3];

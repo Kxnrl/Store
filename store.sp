@@ -2348,8 +2348,8 @@ public void SQLCallback_LoadClientInventory_DATAVERIFY(Handle owner, Handle hndl
 {
     if(hndl==null)
         LogError("Error happened. Error: %s", error);
-    else
-    {    
+    else if(SQL_FetchRow(hndl))
+    {
         int client = GetClientOfUserId(userid);
         if(!client)
             return;
@@ -2371,6 +2371,15 @@ public void SQLCallback_LoadClientInventory_DATAVERIFY(Handle owner, Handle hndl
         }
 
         g_iDataProtect[client] = GetTime()+30;
+    }
+    else
+    {
+        int client = GetClientOfUserId(userid);
+        if(!client)
+            return;
+
+        LogMessage("[CAT]  Store invalid data detected :  \"%L\" -> no results", client);
+        KickClient(client, "[CAT] Store invalid data detected.");
     }
 }
 #endif

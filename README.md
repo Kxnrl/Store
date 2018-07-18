@@ -73,6 +73,38 @@ A sourcemod in-game Store system.
 * Start your server and check error logs
   
   
+### How to upgrade store from zephyrus store
+* Run SQL command before install our store
+``` SQL
+ALTER TABLE `store_players` ADD `ban` int(1) unsigned NOT NULL DEFAULT '0';
+DROP TABLE `store_equipment`;
+```
+* Install our store plugins and modules, Don't create a new store_players table. Follow install guide.
+* Uninstall zephyrus store plugins, if you want you use modules, keep these plugins.
+  
+  
+### How to define new game mode
+* Add definetion after line 
+``` sourcepawn
+#define <Compile_Environment>
+```
+e.g. "//GM_BR -> battle royole server"
+* Enable module you want
+``` sourcepawn
+// Module Skin
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#include "store/modules/skin.sp"
+#endif
+```
+to
+``` sourcepawn
+// Module Skin
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_BR
+#include "store/modules/skin.sp"
+#endif
+``` 
+  
+  
 ### How to add item or parent manually  
 * Add Parent -> 'utils/addparent.sql'
 * Add Item -> 'utils/additem.sql'

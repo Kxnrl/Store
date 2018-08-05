@@ -185,17 +185,9 @@ void StartSoundToAll(int client)
 
     fPos[2] -= 3.0;
 
-    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 2.0);
-    
-    if(speaker == -1)
-    {
-        LogError("Failed to Spawn Speaker entity");
-        return;
-    }
-
     char szPath[128];
     Format(szPath, 128, "*%s", g_eSounds[g_iSoundClient[client]][szSound]);
-    EmitSound(targets, total, szPath, speaker, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]][fVolume], SNDPITCH_NORMAL, speaker, fPos, fAgl, false);
+    EmitSound(targets, total, szPath, client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]][fVolume], SNDPITCH_NORMAL, client, fPos, fAgl, true);
 
     tPrintToChatAll("%t", "sound to all", client, g_eSounds[g_iSoundClient[client]][szName]);
 }

@@ -416,15 +416,7 @@ void Broadcast_DeathSound(int client)
 
     fPos[2] -= 3.0;
 
-    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 2.0);
-    
-    if(speaker == -1)
-    {
-        LogError("Failed to Spawn Speaker entity");
-        return;
-    }
-
-    EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NONE, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, speaker, fPos, fAgl, false);
+    EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.5, SNDPITCH_NORMAL, client, fPos, fAgl, true);
 }
 
 void Store_PreviewSkin(int client, int itemid)

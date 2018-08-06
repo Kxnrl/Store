@@ -217,7 +217,7 @@ void SetWeaponEconmoney(int client, int data, int weapon)
         default: SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", g_eWeaponSkin[data][fWearF]);
     }
 
-    if(!(GetUserFlagBits(client) & ADMFLAG_CUSTOM1))
+    if(GetUserFlagBits(client) & ADMFLAG_CUSTOM1)
     {
         char name[32];
         GetClientCookie(client, g_hCookieNamed, name, 32);
@@ -227,7 +227,6 @@ void SetWeaponEconmoney(int client, int data, int weapon)
             PrintToChat(client, "[\x04Store\x01]   Set your skin named \x04%s", name);
         }
     }
-    
 
     SetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity", client);
     SetEntPropEnt(weapon, Prop_Send, "m_hPrevOwner", -1);

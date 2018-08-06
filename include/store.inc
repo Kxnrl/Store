@@ -16,11 +16,11 @@ public SharedPlugin __pl_store =
 };
 
 
-#define ITEM_NAME_LENGTH 64
-#define STORE_MAX_ITEMS 2048
-#define STORE_MAX_HANDLERS 64
-#define STORE_MAX_PLANS 8
-#define STORE_MAX_SLOTS 6
+#define ITEM_NAME_LENGTH    64
+#define STORE_MAX_ITEMS     4096
+#define STORE_MAX_HANDLERS  64
+#define STORE_MAX_PLANS     8
+#define STORE_MAX_SLOTS     6
 
 enum Store_Item
 {

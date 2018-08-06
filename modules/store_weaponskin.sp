@@ -19,6 +19,7 @@ public Plugin myinfo =
 #include <sdktools>
 #include <store>
 #include <PTaH>
+#include <clientprefs>
 
 enum WeaponSkin
 {
@@ -35,6 +36,8 @@ any g_eWeaponSkin[STORE_MAX_ITEMS][WeaponSkin];
 int g_iWeaponSkin = 0;
 int g_iOffsetName = -1;
 int g_iOffsetMyWP = -1;
+
+Handle g_hCookieNamed;
 
 #define SLOT_0 "!!!!WE START AT 1!!!!"
 #define SLOT_1 1
@@ -57,6 +60,42 @@ public void OnPluginStart()
 
     PTaH(PTaH_GiveNamedItemPre, Hook, Event_GiveNamedItemPre);
     PTaH(PTaH_GiveNamedItem,    Hook, Event_GiveNamedItemPost);
+    
+    g_hCookieNamed = RegClientCookie("store_ws_name", "", CookieAccess_Protected);
+    
+    RegConsoleCmd("ws_name", Command_Named);
+}
+
+public Action Command_Named(int client, int args)
+{
+    if(!client)
+        return Plugin_Handled;
+    
+    if(!(GetUserFlagBits(client) & ADMFLAG_CUSTOM1))
+    {
+        PrintToChat(client, "[\x04Store\x01]   \x05You do not have permission to use this function.");
+        return Plugin_Handled;
+    }
+    
+    if(args != 1)
+    {
+        PrintToChat(client, "[\x04Store\x01]   \x05Usage: ws_name <name>");
+        return Plugin_Handled;
+    }
+    
+    char name[32];
+    GetCmdArg(1, name, 32);
+    
+    if(strlen(name) < 4)
+    {
+        PrintToChat(client, "[\x04Store\x01]   strlen(name) must be >= 4");
+        return Plugin_Handled;
+    }
+
+    SetClientCookie(client, g_hCookieNamed, name);
+    PrintToChat(client, "[\x04Store\x01]   Set your skin named \x04%s", name);
+
+    return Plugin_Handled;
 }
 
 public void WeaponSkin_Reset()
@@ -178,7 +217,17 @@ void SetWeaponEconmoney(int client, int data, int weapon)
         default: SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", g_eWeaponSkin[data][fWearF]);
     }
 
-    //SetEntDataString(weapon, g_iOffsetName, "!store", 16);
+    if(!(GetUserFlagBits(client) & ADMFLAG_CUSTOM1))
+    {
+        char name[32];
+        GetClientCookie(client, g_hCookieNamed, name, 32);
+        if(strlen(name) >= 4)
+        {
+            SetEntDataString(weapon, g_iOffsetName, name, 32);
+            PrintToChat(client, "[\x04Store\x01]   Set your skin named \x04%s", name);
+        }
+    }
+    
 
     SetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity", client);
     SetEntPropEnt(weapon, Prop_Send, "m_hPrevOwner", -1);

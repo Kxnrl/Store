@@ -13,6 +13,8 @@ enum Hat
 Hat g_eHats[STORE_MAX_ITEMS][Hat];
 int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
 int g_iHats = 0;
+int g_iSpecTarget[MAXPLAYERS+1];
+int g_iHatsOwners[2048];
 
 public bool Hats_Config(Handle kv, int itemid)
 {
@@ -36,7 +38,7 @@ public bool Hats_Config(Handle kv, int itemid)
 
 public void Hats_OnMapStart()
 {
-    for(int a = 0; a <= MaxClients; ++a)
+    for(int a = 1; a <= MaxClients; ++a)
         for(int b = 1; b < STORE_MAX_SLOTS; ++b)
             g_iClientHats[a][b] = 0;
 
@@ -45,6 +47,30 @@ public void Hats_OnMapStart()
         PrecacheModel2(g_eHats[i][szModel], true);
         Downloader_AddFileToDownloadsTable(g_eHats[i][szModel]);
     }
+
+    CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_Hats_Adjust(Handle timer)
+{
+    for(int client = 1; client <= MaxClients; ++client)
+        if(IsClientInGame(client))
+        {
+            if(IsClientObserver(client))
+            {
+                int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
+                int m_hObserverTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
+                g_iSpecTarget[client] = (m_iObserverMode == 4 && m_hObserverTarget >= 0) ? m_hObserverTarget : -1;
+            }
+            else g_iSpecTarget[client] = client;
+        }
+
+    return Plugin_Continue;
+}
+
+public void OnEntityDestroyed(int entity)
+{
+    g_iHatsOwners[entity] = -1;
 }
 
 public void Hats_Reset()
@@ -121,6 +147,8 @@ void CreateHat(int client, int itemid = -1, int slot = 0)
         DispatchKeyValue(m_iEnt, "solid", "0");
         SetEntPropEnt(m_iEnt, Prop_Send, "m_hOwnerEntity", client);
 
+        g_iHatsOwners[m_iEnt] = client;
+
         if(g_eHats[m_iData][bBonemerge])
             Bonemerge(m_iEnt);
 
@@ -156,29 +184,13 @@ void Store_RemoveClientHats(int client, int slot)
 
 public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-    if(IsPlayerTP(client))
-        return Plugin_Continue;
+    if(g_iSpecTarget[client] == g_iHatsOwners[ent])
+        return IsPlayerTP(client) ? Plugin_Continue : Plugin_Handled;
 
 #if defined AllowHide
     if(g_bHideMode[client])
         return Plugin_Handled;
 #endif
-
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
-        if(ent == g_iClientHats[client][i])
-            return Plugin_Handled;
-
-    if(IsClientObserver(client))
-    {
-        int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
-        int m_hObserverTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
-        if(m_iObserverMode == 4 && m_hObserverTarget >= 0)
-        {
-            for(int i = 1; i < STORE_MAX_SLOTS; ++i)
-                if(ent == g_iClientHats[m_hObserverTarget][i])
-                    return Plugin_Handled;
-        }
-    }
 
     return Plugin_Continue;
 }

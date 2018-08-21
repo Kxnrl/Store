@@ -11,7 +11,7 @@ enum Hat
 }
 
 Hat g_eHats[STORE_MAX_ITEMS][Hat];
-int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
+int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS] = {INVALID_ENT_REFERENCE, ...};
 int g_iHats = 0;
 int g_iSpecTarget[MAXPLAYERS+1];
 int g_iHatsOwners[2048];
@@ -40,7 +40,7 @@ public void Hats_OnMapStart()
 {
     for(int a = 1; a <= MaxClients; ++a)
         for(int b = 1; b < STORE_MAX_SLOTS; ++b)
-            g_iClientHats[a][b] = 0;
+            g_iClientHats[a][b] = INVALID_ENT_REFERENCE;
 
     for(int i = 0; i < g_iHats; ++i)
     {
@@ -155,7 +155,7 @@ void CreateHat(int client, int itemid = -1, int slot = 0)
         DispatchSpawn(m_iEnt);    
         AcceptEntityInput(m_iEnt, "TurnOn", m_iEnt, m_iEnt, 0);
 
-        g_iClientHats[client][g_eHats[m_iData][iSlot]]=m_iEnt;
+        g_iClientHats[client][g_eHats[m_iData][iSlot]] = EntIndexToEntRef(m_iEnt);
         
         SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
         
@@ -171,15 +171,16 @@ void CreateHat(int client, int itemid = -1, int slot = 0)
 
 void Store_RemoveClientHats(int client, int slot)
 {
-    if(g_iClientHats[client][slot] != 0 && IsValidEdict(g_iClientHats[client][slot]))
+    if(g_iClientHats[client][slot] != INVALID_ENT_REFERENCE)
     {
-        SDKUnhook(g_iClientHats[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Hat);
-        char m_szClassname[64];
-        GetEdictClassname(g_iClientHats[client][slot], STRING(m_szClassname));
-        if(strcmp("prop_dynamic", m_szClassname)==0)
-            AcceptEntityInput(g_iClientHats[client][slot], "Kill");
+        int entity = EntRefToEntIndex(g_iClientHats[client][slot]);
+        if(IsValidEdict(entity))
+        {
+            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
+            AcceptEntityInput(entity, "Kill");
+        }
+        g_iClientHats[client][slot] = INVALID_ENT_REFERENCE;
     }
-    g_iClientHats[client][slot] = 0;
 }
 
 public Action Hook_SetTransmit_Hat(int ent, int client)

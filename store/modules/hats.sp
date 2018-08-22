@@ -11,7 +11,7 @@ enum Hat
 }
 
 Hat g_eHats[STORE_MAX_ITEMS][Hat];
-int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS] = {INVALID_ENT_REFERENCE, ...};
+int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
 int g_iHats = 0;
 int g_iSpecTarget[MAXPLAYERS+1];
 int g_iHatsOwners[2048];

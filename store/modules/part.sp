@@ -2,11 +2,11 @@
 
 #define MAX_PART 128
 
-int g_iParts = 0; 
-int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-char g_szPartName[MAX_PART][PLATFORM_MAX_PATH];
-char g_szPartFPcf[MAX_PART][PLATFORM_MAX_PATH];
-char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static int g_iParts = 0; 
+static int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static char g_szPartName[MAX_PART][PLATFORM_MAX_PATH];
+static char g_szPartFPcf[MAX_PART][PLATFORM_MAX_PATH];
+static char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 void Part_OnClientDisconnect(int client)
 {
@@ -50,7 +50,7 @@ public void Part_OnMapStart()
 {
     ArrayList path = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
     ArrayList fail = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
-    for(int index = 0; index < g_iAuras; ++index)
+    for(int index = 0; index < g_iParts; ++index)
     {
         if(fail.FindString(g_szPartFPcf[index]) != -1)
             continue;

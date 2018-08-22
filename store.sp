@@ -707,8 +707,7 @@ public int Native_ExtClientItem(Handle myself, int numParams)
 public int Native_GetSkinLevel(Handle myself, int numParams)
 {
 #if defined Module_Skin
-    int client = GetNativeCell(1);
-    return IsPlayerAlive(client) ? g_iSkinLevel[client] : 0;
+    return Store_GetPlayerSkinLevel(GetNativeCell(1));
 #else
     return 0;
 #endif
@@ -740,9 +739,12 @@ public int Native_HasPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
-    char model[192];
-    GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
-    return (StrContains(g_szSkinModel[client], "#default") == -1 && StrContains(g_szSkinModel[client], "#zombie") == -1 && StrContains(model, "models/player/custom_player/legacy/") == -1);
+    
+    char model[2][192];
+    Store_GetClientSkinModel(client, model[0], 192);
+    Store_GetPlayerSkinModel(client, model[1], 192);
+
+    return (StrContains(model[1], "#default") == -1 && StrContains(model[1], "#zombie") == -1 && StrContains(model[0], "models/player/custom_player/legacy/") == -1);
 #else
     return false;
 #endif
@@ -752,12 +754,15 @@ public int Native_GetPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
-    char model[192];
-    GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
-    if(StrContains(g_szSkinModel[client], "#default") != -1 || StrContains(g_szSkinModel[client], "#zombie") != -1 || StrContains(model, "models/player/custom_player/legacy/") != -1)
+    
+    char model[2][192];
+    Store_GetClientSkinModel(client, model[0], 192);
+    Store_GetPlayerSkinModel(client, model[1], 192);
+
+    if(StrContains(model[1], "#default") != -1 || StrContains(model[1], "#zombie") != -1 || StrContains(model[0], "models/player/custom_player/legacy/") != -1)
         return false;
 
-    if(SetNativeString(2, g_szSkinModel[client], GetNativeCell(3)) == SP_ERROR_NONE)
+    if(SetNativeString(2, model[1], GetNativeCell(3)) == SP_ERROR_NONE)
         return true;
 #endif
     return false;

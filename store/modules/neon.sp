@@ -8,9 +8,9 @@ enum Neon
     iFade
 }
 
-Neon g_eNeons[STORE_MAX_ITEMS][Neon];
-int g_iNeons = 0;
-int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static any g_eNeons[STORE_MAX_ITEMS][Neon];
+static int g_iNeons = 0;
+static int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 
 public bool Neon_Config(Handle kv, int itemid) 
 { 
@@ -28,7 +28,7 @@ public void Neon_OnMapStart()
     
 }
 
-public void Neon_OnClientDisconnect(int client)
+void Neon_OnClientDisconnect(int client)
 {
     Store_RemoveClientNeon(client);
 }

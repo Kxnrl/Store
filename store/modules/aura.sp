@@ -2,11 +2,11 @@
 
 #define MAX_AURA 128
 
-int g_iAuras = 0; 
-int g_iClientAura[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-char g_szAuraName[MAX_AURA][PLATFORM_MAX_PATH];
-char g_szAuraFPcf[MAX_AURA][PLATFORM_MAX_PATH];
-char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static int g_iAuras = 0; 
+static int g_iClientAura[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static char g_szAuraName[MAX_AURA][PLATFORM_MAX_PATH];
+static char g_szAuraFPcf[MAX_AURA][PLATFORM_MAX_PATH];
+static char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 public void Aura_OnMapStart()
 {
@@ -37,12 +37,7 @@ public void Aura_OnMapStart()
     delete fail;
 }
 
-bool PreDownload(const char[] path)
-{
-    return FileExists(path) && AddFileToDownloadsTable(path);
-}
-
-public void Aura_OnClientDisconnect(int client)
+void Aura_OnClientDisconnect(int client)
 {
     Store_RemoveClientAura(client);
     g_szAuraClient[client] = "";
@@ -142,29 +137,4 @@ public Action Hook_SetTransmit_Aura(int ent, int client)
 #endif
 
     return Plugin_Continue;
-}
-
-//https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4
-void PrecacheParticleEffect(const char[] effect)
-{
-    static int table = INVALID_STRING_TABLE;
-    
-    if (table == INVALID_STRING_TABLE)
-        table = FindStringTable("ParticleEffectNames");
-    
-    bool save = LockStringTables(false);
-    AddToStringTable(table, effect);
-    LockStringTables(save);
-}
-
-void PrecacheEffect(const char[] name)
-{
-    static int table = INVALID_STRING_TABLE;
-
-    if(table == INVALID_STRING_TABLE)
-        table = FindStringTable("EffectDispatch");
-
-    bool save = LockStringTables(false);
-    AddToStringTable(table, name);
-    LockStringTables(save);
 }

@@ -10,11 +10,11 @@ enum Hat
     iSlot
 }
 
-Hat g_eHats[STORE_MAX_ITEMS][Hat];
-int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
-int g_iHats = 0;
-int g_iSpecTarget[MAXPLAYERS+1];
-int g_iHatsOwners[2048];
+static any g_eHats[STORE_MAX_ITEMS][Hat];
+static int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iHats = 0;
+static int g_iSpecTarget[MAXPLAYERS+1];
+static int g_iHatsOwners[2048];
 
 public bool Hats_Config(Handle kv, int itemid)
 {
@@ -105,7 +105,7 @@ void Store_SetClientHat(int client)
     }
 }
 
-void CreateHat(int client, int itemid = -1, int slot = 0)
+static void CreateHat(int client, int itemid = -1, int slot = 0)
 {
     int  m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "hat", slot) : itemid);
     
@@ -196,7 +196,7 @@ public Action Hook_SetTransmit_Hat(int ent, int client)
     return Plugin_Continue;
 }
 
-void Bonemerge(int ent)
+static void Bonemerge(int ent)
 {
     int m_iEntEffects = GetEntProp(ent, Prop_Send, "m_fEffects"); 
     m_iEntEffects &= ~32;

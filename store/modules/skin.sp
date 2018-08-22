@@ -15,23 +15,22 @@ enum PlayerSkin
     iTeam
 }
 
-PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
+static any g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 
-bool g_pArmsFix;
+static int    g_iPlayerSkins = 0;
+static int    g_iSkinLevel[MAXPLAYERS+1];
+static int    g_iPreviewTimes[MAXPLAYERS+1];
+static int    g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static int    g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static bool   g_pArmsFix;
+static char   g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static char   g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static ConVar spec_freeze_time;
+static ConVar mp_round_restart_delay;
+static ConVar sv_disablefreezecam;
+static ConVar spec_replay_enable;
 
-int g_iPlayerSkins = 0;
-int g_iSkinLevel[MAXPLAYERS+1];
-int g_iPreviewTimes[MAXPLAYERS+1];
-int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-bool g_bSpecJoinPending[MAXPLAYERS+1];
-char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
-char g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
-ConVar spec_freeze_time;
-ConVar mp_round_restart_delay;
-ConVar sv_disablefreezecam;
-ConVar spec_replay_enable;
-
+bool   g_bSpecJoinPending[MAXPLAYERS+1];
 Handle g_tKillPreview[MAXPLAYERS+1];
 
 void Skin_OnPluginStart()
@@ -302,7 +301,7 @@ public void ArmsFix_OnArmsFixed(int client)
 #endif
 }
 
-void Store_SetClientModel(int client, int m_iData)
+static void Store_SetClientModel(int client, int m_iData)
 {
     if(!IsClientInGame(client) || !IsPlayerAlive(client))
         return;
@@ -516,7 +515,6 @@ public void FirstPersonDeathCamera(int client)
     if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
         return;
 
-
     int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 
     if(m_iRagdoll < 0)
@@ -527,7 +525,7 @@ public void FirstPersonDeathCamera(int client)
 }
 
 #if !defined GM_TT
-bool SpawnCamAndAttach(int client, int ragdoll)
+static bool SpawnCamAndAttach(int client, int ragdoll)
 {
     char m_szTargetName[32]; 
     FormatEx(m_szTargetName, 32, "ragdoll%d", client);
@@ -623,7 +621,7 @@ void AttemptState(int client, bool spec)
 #define FFADE_STAYOUT   0x0008        // ignores the duration, stays faded out until new ScreenFade message received
 #define FFADE_PURGE     0x0010        // Purges all other fades, replacing them with this one
 
-void FadeScreenBlack(int client)
+static void FadeScreenBlack(int client)
 {
     Handle pb = StartMessageOne("Fade", client);
     PbSetInt(pb, "duration", 4096);
@@ -633,7 +631,7 @@ void FadeScreenBlack(int client)
     EndMessage();
 }
 
-void FadeScreenWhite(int client)
+static void FadeScreenWhite(int client)
 {
     Handle pb = StartMessageOne("Fade", client);
     PbSetInt(pb, "duration", 1536);
@@ -641,14 +639,6 @@ void FadeScreenWhite(int client)
     PbSetInt(pb, "flags", FFADE_IN|FFADE_PURGE);
     PbSetColor(pb, "clr", {0, 0, 0, 0});
     EndMessage();
-}
-#endif
-
-#if defined GM_ZE
-public void CG_OnRoundEnd(int winner)
-{
-    for(int client = 1; client <= MaxClients; ++client)
-        g_iClientTeam[client] = 3;
 }
 #endif
 
@@ -692,4 +682,26 @@ void Store_RemoveClientGloves(int client, int m_iData = -1)
     int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
     if(gloves != -1)
         AcceptEntityInput(gloves, "KillHierarchy");
+}
+
+void Store_ResetPlayerSkin(int client)
+{
+    strcopy(g_szSkinModel[client], 256, "#default");
+    g_iSkinLevel[client] = 0;
+    g_szDeathVoice[client][0] = '\0';
+}
+
+int Store_GetPlayerSkinLevel(int client)
+{
+    return g_iSkinLevel[client];
+}
+
+void Store_GetClientSkinModel(int client, char[] model, int maxLen)
+{
+    GetEntPropString(client, Prop_Data, "m_ModelName", model, maxLen);
+}
+
+void Store_GetPlayerSkinModel(int client, char[] model, int maxLen)
+{
+    strcopy(model, maxLen, g_szSkinModel[client]);
 }

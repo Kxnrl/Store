@@ -66,9 +66,7 @@ public Action Event_PlayerSpawn_Pre(Handle event, const char[] name, bool dontBr
     RequestFrame(OnClientSpawnPost, client);
 
 #if defined Module_Skin
-    strcopy(g_szSkinModel[client], 256, "#default");
-    g_iSkinLevel[client] = 0;
-    g_szDeathVoice[client][0] = '\0';
+    Store_ResetPlayerSkin(client);
     Store_PreSetClientModel(client);
     CreateTimer(0.1, Timer_ClearCamera, client);
     if(g_tKillPreview[client] != null) TriggerTimer(g_tKillPreview[client], false);
@@ -118,6 +116,7 @@ public Action Event_PlayerDeath_Pre(Handle event, const char[] name, bool dontBr
     AttemptState(client, false); 
     Broadcast_DeathSound(client);
     RequestFrame(FirstPersonDeathCamera, client);
+    Store_ResetPlayerSkin(client);
 #endif
 
 #if defined Module_Aura
@@ -166,7 +165,7 @@ public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, boo
 #endif
 
 #if defined Module_Skin
-    strcopy(g_szSkinModel[client], 256, "#zombie");
+    Store_ResetPlayerSkin(client);
 #endif
 }
 

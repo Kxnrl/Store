@@ -658,3 +658,33 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float rem
 
     return speaker;
 }
+
+stock bool PreDownload(const char[] path)
+{
+    return FileExists(path) && AddFileToDownloadsTable(path);
+}
+
+//https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4
+stock void PrecacheParticleEffect(const char[] effect)
+{
+    static int table = INVALID_STRING_TABLE;
+    
+    if (table == INVALID_STRING_TABLE)
+        table = FindStringTable("ParticleEffectNames");
+    
+    bool save = LockStringTables(false);
+    AddToStringTable(table, effect);
+    LockStringTables(save);
+}
+
+stock void PrecacheEffect(const char[] name)
+{
+    static int table = INVALID_STRING_TABLE;
+
+    if(table == INVALID_STRING_TABLE)
+        table = FindStringTable("EffectDispatch");
+
+    bool save = LockStringTables(false);
+    AddToStringTable(table, name);
+    LockStringTables(save);
+}

@@ -42,15 +42,18 @@ Handle g_cCookie;
 
 public void OnPluginStart()
 {
-    Store_RegisterHandler("pet", Pets_OnMapStart, Pets_Reset, Pets_Config, Pets_Equip, Pets_Remove, true);
-    
     RegConsoleCmd("sm_hidepets", Command_Hide);
-    
+
     g_cCookie = RegClientCookie("store_pets_hide", "Allow client hide pets", CookieAccess_Protected);
 
     HookEvent("player_spawn", Pets_PlayerSpawn, EventHookMode_Post);
     HookEvent("player_death", Pets_PlayerDeath, EventHookMode_Post);
     HookEvent("player_team", Pets_PlayerTeam, EventHookMode_Post);
+}
+
+public void Store_OnStoreInit(Handle store_plugin)
+{
+    Store_RegisterHandler("pet", Pets_OnMapStart, Pets_Reset, Pets_Config, Pets_Equip, Pets_Remove, true);
 }
 
 public Action Command_Hide(int client, int args)

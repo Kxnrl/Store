@@ -56,14 +56,17 @@ public void OnPluginStart()
     if(g_iOffsetMyWP == -1)
         SetFailState("Offset 'CBasePlayer' -> 'm_hMyWeapons' was not found.");
 
-    Store_RegisterHandler("weaponskin", INVALID_FUNCTION, WeaponSkin_Reset, WeaponSkin_Config, WeaponSkin_Equip, WeaponSkin_Remove, true, false);
-
     PTaH(PTaH_GiveNamedItemPre, Hook, Event_GiveNamedItemPre);
     PTaH(PTaH_GiveNamedItem,    Hook, Event_GiveNamedItemPost);
     
     g_hCookieNamed = RegClientCookie("store_ws_name", "", CookieAccess_Protected);
     
     RegConsoleCmd("ws_name", Command_Named);
+}
+
+public void Store_OnStoreInit(Handle store_plugin)
+{
+    Store_RegisterHandler("weaponskin", INVALID_FUNCTION, WeaponSkin_Reset, WeaponSkin_Config, WeaponSkin_Equip, WeaponSkin_Remove, true, false);
 }
 
 public Action Command_Named(int client, int args)

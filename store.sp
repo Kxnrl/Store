@@ -68,6 +68,7 @@ public Plugin myinfo =
 Handle g_hDatabase = null;
 Handle g_ArraySkin = null;
 Handle g_hOnStoreAvailable = null;
+Handle g_hOnStoreInit = null;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
 int g_eClients[MAXPLAYERS+1][Client_Data];
@@ -204,12 +205,6 @@ public void OnPluginStart()
     g_iPackageHandler = Store_RegisterHandler("package", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
 }
 
-public void OnAllPluginsLoaded()
-{
-    // Initiaze module
-    UTIL_CheckModules();
-}
-
 public void OnPluginEnd()
 {
     for(int client = 1; client <= MaxClients; ++client)
@@ -221,6 +216,7 @@ public void OnPluginEnd()
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnStoreInit = CreateGlobalForward("Store_OnStoreInit", ET_Ignore, Param_Cell);
 
     CreateNative("Store_RegisterHandler", Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler", Native_RegisterMenuHandler);
@@ -2873,9 +2869,37 @@ int UTIL_GetClientItemId(int client, int itemid)
     return -1;
 }
 
+void Store_ResetAll()
+{
+    for(int i = 0; i < g_iTypeHandlers; ++i)
+    {
+        g_eTypeHandlers[i][szType][0]   = '\0';
+        g_eTypeHandlers[i][bEquipable]  = false;
+        g_eTypeHandlers[i][bRaw]        = false;
+        g_eTypeHandlers[i][hPlugin]     = INVALID_HANDLE;
+        g_eTypeHandlers[i][bEquipable]  = false;
+        g_eTypeHandlers[i][fnMapStart]  = INVALID_FUNCTION;
+        g_eTypeHandlers[i][fnReset]     = INVALID_FUNCTION;
+        g_eTypeHandlers[i][fnConfig]    = INVALID_FUNCTION;
+        g_eTypeHandlers[i][fnUse]       = INVALID_FUNCTION;
+        g_eTypeHandlers[i][fnRemove]    = INVALID_FUNCTION;
+    }
+
+    g_iItems = 0;
+    g_iTypeHandlers = 0;
+    g_iMenuHandlers = 0;
+}
+
 void UTIL_ReloadConfig()
 {
-    g_iItems = 0;
+    Store_ResetAll();
+
+    Call_StartForward(g_hOnStoreInit);
+    Call_PushCell(GetMyHandle());
+    Call_Finish();
+
+    // Initiaze module
+    UTIL_CheckModules();
 
     for(int i = 0; i < g_iTypeHandlers; ++i)
     {

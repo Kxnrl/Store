@@ -70,6 +70,9 @@ public Action Timer_Hats_Adjust(Handle timer)
 
 public void OnEntityDestroyed(int entity)
 {
+    if(entity > 2048 || entity < MaxClients)
+        return;
+
     g_iHatsOwners[entity] = -1;
 }
 

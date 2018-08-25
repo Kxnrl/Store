@@ -46,7 +46,7 @@ public Plugin myinfo =
 //GM_BH -> bhop server
 
 // VERIFY CREDITS
-#define DATA_VERIFY
+//#define DATA_VERIFY
 
 // Custom Module
 // skin does not match with team

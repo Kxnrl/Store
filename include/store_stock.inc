@@ -403,7 +403,7 @@ stock bool AllowItemForAuth(int client, const char[] authid)
         return true;
 
     char m_szAuthId[32];
-    if(!GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32, true))
+    if(!GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32))
         return false;
 
     if(StrContains(authid, m_szAuthId) == -1)

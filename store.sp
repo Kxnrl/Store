@@ -200,9 +200,6 @@ public void OnPluginStart()
         SQL_TConnect(SQLCallback_Connect, "csgo");
         CreateTimer(30.0, Timer_DatabaseTimeout);
     }
-
-    // Initiaze the fake package handler
-    g_iPackageHandler = Store_RegisterHandler("package", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
 }
 
 public void OnPluginEnd()
@@ -2888,6 +2885,9 @@ void Store_ResetAll()
     g_iItems = 0;
     g_iTypeHandlers = 0;
     g_iMenuHandlers = 0;
+    
+    // Initiaze the fake package handler
+    g_iPackageHandler = Store_RegisterHandler("package", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
 }
 
 void UTIL_ReloadConfig()

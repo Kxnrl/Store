@@ -56,11 +56,11 @@ public Action Timer_Hats_Adjust(Handle timer)
     for(int client = 1; client <= MaxClients; ++client)
         if(IsClientInGame(client))
         {
-            if(IsClientObserver(client))
+            if(!IsPlayerAlive(client))
             {
                 int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
                 int m_hObserverTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
-                g_iSpecTarget[client] = (m_iObserverMode == 4 && m_hObserverTarget >= 0) ? m_hObserverTarget : -1;
+                g_iSpecTarget[client] = (m_iObserverMode == 4 && m_hObserverTarget > 0) ? m_hObserverTarget : -1;
             }
             else g_iSpecTarget[client] = client;
         }
@@ -70,7 +70,7 @@ public Action Timer_Hats_Adjust(Handle timer)
 
 public void OnEntityDestroyed(int entity)
 {
-    if(entity > 2048 || entity < MaxClients)
+    if(entity > 2048 || entity < 0)
         return;
 
     g_iHatsOwners[entity] = -1;
@@ -188,7 +188,7 @@ void Store_RemoveClientHats(int client, int slot)
 
 public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-    if(g_iSpecTarget[client] == g_iHatsOwners[ent])
+    if(g_iSpecTarget[client] == g_iHatsOwners[ent] || client == g_iHatsOwners[ent])
         return IsPlayerTP(client) ? Plugin_Continue : Plugin_Handled;
 
 #if defined AllowHide

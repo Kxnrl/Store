@@ -113,7 +113,9 @@ public int Pets_Equip(int client, int id)
     ResetPet(client, g_ePets[m_iData][iSlot]);
 
     if(IsPlayerAlive(client))
-        CreatePet(client, g_ePets[m_iData][iSlot]);
+        CreatePet(client, id, g_ePets[m_iData][iSlot]);
+    
+    PrintToChat(client, "Equppied %d", id);
 
     return g_ePets[m_iData][iSlot];
 }
@@ -122,34 +124,35 @@ public int Pets_Remove(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
     ResetPet(client, g_ePets[m_iData][iSlot]);
+    PrintToChat(client, "Removed %d", id);
     return g_ePets[m_iData][iSlot];
 }
 
 void Store_SetClientPet(int client)
 {
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
         ResetPet(client, i);
-        CreatePet(client, i);
+        CreatePet(client, -1, i);
     }
 }
 
 void Store_ClientDeathPet(int client)
 {
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
         DeathPet(client, i);
 }
 
 void Store_RemovePet(int client)
 {
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
         ResetPet(client, i);
 }
 
 public void OnClientConnected(int client)
 {
     g_bHide[client] = false;
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
         g_iPetRef[client][i] = INVALID_ENT_REFERENCE;
 }
 
@@ -206,7 +209,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
     GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", CurVec);
     float CurDist = GetVectorLength(CurVec);
     
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
         AdjustPet(client, i, CurDist);
 
     return Plugin_Continue;
@@ -236,13 +239,16 @@ void AdjustPet(int client, int slot, const float fDist)
     }
 }
 
-void CreatePet(int client, int slot)
+void CreatePet(int client, int itemid = -1, int slot = 0)
 {
     if(g_iPetRef[client][slot] != INVALID_ENT_REFERENCE)
+    {
+        LogError("Why you create entity with equipped slot?");
         return;
+    }
 
-    int  m_iEquipped = Store_GetEquippedItem(client, "pet", slot);
-    
+    int m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "pet", slot) : itemid);
+
     if(m_iEquipped < 0)
         return;
     
@@ -354,7 +360,7 @@ public void Hook_OnAnimationDone(const char[] output, int caller, int activator,
     if(1 <= owner <= MaxClients && IsClientInGame(owner))
     {
         int iRef = EntIndexToEntRef(caller);
-        for(int slot = 1; slot < STORE_MAX_SLOTS; ++slot)
+        for(int slot = 0; slot < STORE_MAX_SLOTS; ++slot)
             if(g_iPetRef[owner][slot] == iRef)
                 g_iPetRef[owner][slot] = INVALID_ENT_REFERENCE;
     }

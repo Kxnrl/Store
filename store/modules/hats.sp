@@ -39,7 +39,7 @@ public bool Hats_Config(Handle kv, int itemid)
 public void Hats_OnMapStart()
 {
     for(int a = 1; a <= MaxClients; ++a)
-        for(int b = 1; b < STORE_MAX_SLOTS; ++b)
+        for(int b = 0; b < STORE_MAX_SLOTS; ++b)
             g_iClientHats[a][b] = INVALID_ENT_REFERENCE;
 
     for(int i = 0; i < g_iHats; ++i)
@@ -101,7 +101,7 @@ public int Hats_Remove(int client, int id)
 
 void Store_SetClientHat(int client)
 {
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
         Store_RemoveClientHats(client, i);
         CreateHat(client, -1, i);
@@ -110,7 +110,7 @@ void Store_SetClientHat(int client)
 
 static void CreateHat(int client, int itemid = -1, int slot = 0)
 {
-    int  m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "hat", slot) : itemid);
+    int m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "hat", slot) : itemid);
     
     if(m_iEquipped >= 0)
     {

@@ -181,7 +181,7 @@ public void Event_GiveNamedItemPost(int client, const char[] classname, const CE
     if(StrContains(classname, "weapon_") != 0)
         return;
 
-    for(int slot = 1; slot < STORE_MAX_SLOTS; ++slot)
+    for(int slot = 0; slot < STORE_MAX_SLOTS; ++slot)
     {
         int itemid = Store_GetEquippedItem(client, "weaponskin", slot);
         if(itemid >= 0)

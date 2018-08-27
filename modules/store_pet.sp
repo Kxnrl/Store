@@ -313,7 +313,7 @@ void ResetPet(int client, int slot)
 
     g_iPetRef[client][slot] = INVALID_ENT_REFERENCE;
 
-    if(!IsValidEntity(client))
+    if(entity == -1 || !IsValidEdict(client))
         return;
     
     SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);

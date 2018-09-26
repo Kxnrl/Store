@@ -36,7 +36,7 @@ Handle g_hOnFPDeathCamera = null;
 
 void Skin_OnPluginStart()
 {
-    g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell);
+    g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
     g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
 
     AddNormalSoundHook(Hook_NormalSound);

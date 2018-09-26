@@ -674,6 +674,21 @@ static int GetEquippedSkin(int client)
 #endif
 }
 
+#if defined GM_ZE
+public void ZR_HumanClient(int client, bool respawn = false, bool protect = false)
+{
+    // If client has been respawned.
+    if(respawn) 
+        return;
+
+    // Dead Player.
+    if(!IsPlayerAlive(client))
+        return;
+
+    Store_PreSetClientModel(client);
+}
+#endif
+
 void Store_RemoveClientGloves(int client, int m_iData = -1)
 {
     if(m_iData == -1 && GetEquippedSkin(client) <= 0)

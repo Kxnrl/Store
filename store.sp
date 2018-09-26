@@ -69,7 +69,10 @@ Handle g_hDatabase = null;
 Handle g_ArraySkin = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
+
+#if defined Module_Skin 
 Handle g_hOnPlayerSkinDefault = null;
+#endif
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
 int g_eClients[MAXPLAYERS+1][Client_Data];
@@ -215,7 +218,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 {
     g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnStoreInit = CreateGlobalForward("Store_OnStoreInit", ET_Ignore, Param_Cell);
+    
+#if defined Module_Skin 
     g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell);
+#endif
 
     CreateNative("Store_RegisterHandler", Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler", Native_RegisterMenuHandler);

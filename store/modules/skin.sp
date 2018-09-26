@@ -675,7 +675,7 @@ static int GetEquippedSkin(int client)
 }
 
 #if defined GM_ZE
-public void ZR_HumanClient(int client, bool respawn = false, bool protect = false)
+public void ZR_OnClientHumanPost(int client, bool respawn, bool protect)
 {
     // If client has been respawned.
     if(respawn) 

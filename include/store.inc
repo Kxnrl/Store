@@ -69,6 +69,7 @@ native bool Store_GetPlayerSkin(int client, char[] skin, int maxLen);
 native bool Store_GetItemList(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level);
 native void Store_SaveClientAll(int client);
 
-forward void Store_OnStoreInit(Handle store_plugin);
-forward void Store_OnStoreAvailable(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level); // ArrayList will be automatically freed.
-forward bool Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
+forward void   Store_OnStoreInit(Handle store_plugin);
+forward void   Store_OnStoreAvailable(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level); // ArrayList will be automatically freed.
+forward bool   Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
+forward Action Store_OnFPDeathCamera(int client);

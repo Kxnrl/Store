@@ -31,8 +31,14 @@ static ConVar spec_replay_enable;
 bool   g_bSpecJoinPending[MAXPLAYERS+1];
 Handle g_tKillPreview[MAXPLAYERS+1];
 
+Handle g_hOnPlayerSkinDefault = null;
+Handle g_hOnFPDeathCamera = null;
+
 void Skin_OnPluginStart()
 {
+    g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell);
+    g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
+
     AddNormalSoundHook(Hook_NormalSound);
 
     Store_RegisterHandler("playerskin", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
@@ -486,8 +492,16 @@ public Action Timer_KillPreview(Handle timer, int client)
 
 public void FirstPersonDeathCamera(int client)
 {
-#if !defined GM_TT
     if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
+        return;
+
+    Action ret = Plugin_Continue;
+    
+    Call_StartForward(g_hOnFPDeathCamera);
+    Call_PushCell(client);
+    Call_Finish(ret);
+    
+    if(ret >= Plugin_Handled)
         return;
 
     int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
@@ -496,10 +510,8 @@ public void FirstPersonDeathCamera(int client)
         return;
 
     SpawnCamAndAttach(client, m_iRagdoll);
-#endif
 }
 
-#if !defined GM_TT
 static bool SpawnCamAndAttach(int client, int ragdoll)
 {
     char m_szTargetName[32]; 
@@ -550,7 +562,6 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
 
     return true;
 }
-#endif
 
 public Action Timer_ClearCamera(Handle timer, int client)
 {
@@ -569,9 +580,7 @@ public Action Timer_ClearCamera(Handle timer, int client)
     if(IsClientInGame(client))
     {
         SetClientViewEntity(client, client);
-#if !defined GM_TT
         FadeScreenWhite(client);
-#endif
     }
 
     return Plugin_Stop;
@@ -587,8 +596,6 @@ void AttemptState(int client, bool spec)
         ClientCommand(client, "cl_spec_mode 6");
     }
 }
-
-#if !defined GM_TT
 
 #define FFADE_IN        0x0001        // Just here so we don't pass 0 into the function
 #define FFADE_OUT       0x0002        // Fade out (not in)
@@ -615,9 +622,7 @@ static void FadeScreenWhite(int client)
     PbSetColor(pb, "clr", {0, 0, 0, 0});
     EndMessage();
 }
-#endif
 
-#if !defined GM_TT
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
     if(IsPlayerAlive(client))
@@ -638,7 +643,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
     return Plugin_Continue;
 }
-#endif
 
 static int GetEquippedSkin(int client)
 {

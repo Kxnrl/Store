@@ -1,7 +1,5 @@
 #define Module_Skin
 
-#define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
-
 #undef REQUIRE_PLUGIN
 #include <armsfix>
 #define REQUIRE_PLUGIN
@@ -158,14 +156,6 @@ public void PlayerSkins_OnMapStart()
     }
 
     PrecacheModel2("models/blackout.mdl", true);
-
-#if defined GM_ZE
-    if(FileExists(Model_ZE_Newbee))
-    {
-        PrecacheModel2(Model_ZE_Newbee, true);
-        Downloader_AddFileToDownloadsTable(Model_ZE_Newbee);
-    }
-#endif
 }
 
 public void PlayerSkins_Reset()
@@ -209,15 +199,10 @@ void Store_PreSetClientModel(int client)
         CreateTimer(0.02, Timer_SetClientModel, client | (Store_GetDataIndex(m_iEquipped) << 7), TIMER_FLAG_NO_MAPCHANGE);
         return;
     }
-#if defined GM_ZE
-    else
-    {
-        CreateTimer(0.02, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
-        return;
-    }
-#endif
 
-#if defined Module_Hats && !defined GM_ZE
+    Store_CallDefaultSkin(client);
+
+#if defined Module_Hats
     Store_SetClientHat(client);
 #endif
 }
@@ -251,13 +236,29 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
 
         return Plugin_Changed;
     }
-#if defined GM_ZE
-    else if(g_iClientTeam[client] == 3)
+
+    char skin_t[128], arms_t[128];
+
+    bool ret = false;
+    
+    Call_StartForward(g_hOnPlayerSkinDefault);
+    Call_PushCell(client);
+    Call_PushCell(g_iClientTeam[client]);
+    Call_PushStringEx(skin_t, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_PushStringEx(arms_t,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_Finish(ret);
+
+    if(ret)
     {
-        strcopy(model, modelLen, Model_ZE_Newbee);
+        strcopy( arms,  armsLen, skin_t);
+        strcopy(model, modelLen, arms_t);
+
+        if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
+
         return Plugin_Changed;
     }
-#endif
 
     return Plugin_Continue;
 }
@@ -288,12 +289,8 @@ public void ArmsFix_OnArmsFixed(int client)
             Store_SetClientModel(client, m_iData);
             return;
         }
-#if defined GM_ZE
-        else
-        {
-            SetEntityModel(client, Model_ZE_Newbee);
-        }
-#endif
+        
+        Store_CallDefaultSkin(client);
     }
 
 #if defined Module_Hats
@@ -338,28 +335,6 @@ public Action Timer_SetClientModel(Handle timer, int val)
     Store_SetClientModel(val & 0x7f, val >> 7);
     return Plugin_Stop;
 }
-
-#if defined GM_ZE
-public Action Store_SetClientModelZE(Handle timer, int client)
-{
-    if(!IsClientInGame(client) || !IsPlayerAlive(client))
-        return Plugin_Stop;
-
-    if(g_iClientTeam[client] == 2)
-    {
-        strcopy(g_szSkinModel[client], 256, "#zombie");
-        return Plugin_Stop;
-    }
-
-    SetEntityModel(client, Model_ZE_Newbee);
-
-#if defined Module_Hats
-    Store_SetClientHat(client);
-#endif
-
-    return Plugin_Stop;
-}
-#endif
 
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
@@ -719,4 +694,32 @@ void Store_GetClientSkinModel(int client, char[] model, int maxLen)
 void Store_GetPlayerSkinModel(int client, char[] model, int maxLen)
 {
     strcopy(model, maxLen, g_szSkinModel[client]);
+}
+
+void Store_CallDefaultSkin(int client)
+{
+    char skin_t[128], arms_t[128];
+
+    bool ret = false;
+
+    Call_StartForward(g_hOnPlayerSkinDefault);
+    Call_PushCell(client);
+    Call_PushCell(g_iClientTeam[client]);
+    Call_PushStringEx(skin_t, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_PushStringEx(arms_t,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_Finish(ret);
+
+    if(ret)
+    {
+        if(IsModelPrecached(skin_t))
+            SetEntityModel(client, skin_t);
+
+        if(IsModelPrecached(arms_t))
+        {
+            Store_RemoveClientGloves(client, 0);
+            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+        }
+    }
 }

@@ -262,6 +262,23 @@ mv addons/sourcemod/scripting/store_weaponskin.sp build/addons/sourcemod/scripti
 mv store_weaponskin.smx build/addons/sourcemod/plugins/modules
 
 
+#编译Store模组DefaultSkin
+echo "Compiling store module [default skin] ..."
+cp -f modules/store_defaultskin.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_defaultskin.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_defaultskin.sp >nul
+if [ ! -f "store_defaultskin.smx" ]; then
+    echo "Compile store module [default skin] failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store_defaultskin.sp build/addons/sourcemod/scripting/modules
+mv store_defaultskin.smx build/addons/sourcemod/plugins/modules
+
+
 #解压素材文件
 echo "Extract resource file ..."
 echo "Processing archive: resources/materials/materials.7z"

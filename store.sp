@@ -2927,15 +2927,35 @@ void UTIL_ReloadConfig()
     if(item_parent.RowCount <= 0)
         SetFailState("Can not retrieve item.child from database: no result row");
 
+    StringMap parent_map = new StringMap();
     while(item_parent.FetchRow())
     {
-        g_iItems = item_parent.FetchInt(0);
+        // Store to Map
+        char idx[8];
+        IntToString(item_parent.FetchInt(0), idx, 8);
+        parent_map.SetValue(idx, g_iItems);
+        
         item_parent.FetchString(1, g_eItems[g_iItems][szName], 64);
+        
+        // parent
         g_eItems[g_iItems][iParent] = item_parent.FetchInt(2);
+        if(g_eItems[g_iItems][iParent] > -1)
+        {
+            int index;
+            IntToString(g_eItems[g_iItems][iParent], idx, 8);
+            if(!parent_map.GetValue(idx, index))
+            {
+                LogError("Id [%s] not found in parent_map", idx);
+                continue;
+            }
+            g_eItems[g_iItems][iParent] = index;
+        }
+        
+        // package handler
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
+
+        g_iItems++;
     }
-    
-    g_iItems++;
 
     DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC");
     if(item_child == null)

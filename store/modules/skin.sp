@@ -258,8 +258,8 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
 
     if(ret)
     {
-        strcopy( arms,  armsLen, skin_t);
-        strcopy(model, modelLen, arms_t);
+        strcopy( arms,  armsLen, arms_t);
+        strcopy(model, modelLen, skin_t);
 
         if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
 

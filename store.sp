@@ -33,7 +33,7 @@ public Plugin myinfo =
 //////////////////////////////
 
 // Server
-#define GM_PR//<Compile_Environment>
+#define <Compile_Environment>
 //GM_TT -> ttt server
 //GM_ZE -> zombie escape server
 //GM_MG -> mini games server
@@ -3183,7 +3183,7 @@ int UTIL_GetParent(int itemId, int parentId)
 
         if(!g_aParentMap.GetValue(parent_str, index))
         {
-            LogError("Id [%s] not found in parent_map -> %s", parent_str, g_eItems[index][szName]);
+            LogError("Id [%s] not found in parent_map -> %s", parent_str, g_eItems[itemId][szName]);
             return -1;
         }
         

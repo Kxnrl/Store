@@ -4,7 +4,7 @@
 #define PLUGIN_NAME         "Store - Default player skins"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "store module default player skins"
-#define PLUGIN_VERSION      "2.2.<commit_count>"
+#define PLUGIN_VERSION      "2.3.<commit_count>"
 #define PLUGIN_URL          "https://kxnrl.com"
 
 public Plugin myinfo = 

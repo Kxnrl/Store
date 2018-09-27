@@ -33,7 +33,7 @@ public Plugin myinfo =
 //////////////////////////////
 
 // Server
-#define <Compile_Environment>
+#define GM_PR//<Compile_Environment>
 //GM_TT -> ttt server
 //GM_ZE -> zombie escape server
 //GM_MG -> mini games server
@@ -69,6 +69,8 @@ Handle g_hDatabase = null;
 Handle g_ArraySkin = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
+
+StringMap g_aParentMap = null;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
 int g_eClients[MAXPLAYERS+1][Client_Data];
@@ -167,6 +169,9 @@ public void OnPluginStart()
     // Check Engine
     if(GetEngineVersion() != Engine_CSGO)
         SetFailState("Current game is not be supported! CSGO only!");
+    
+    if(g_aParentMap == null)
+        g_aParentMap = new StringMap();
 
     // Setting default values
     for(int client = 1; client <= MaxClients; ++client)
@@ -2034,7 +2039,7 @@ public void DisplayPlayerMenu(int client)
     char m_szID[11];
     for(int i = 1; i <= MaxClients; ++i)
     {
-        if(!IsClientInGame(i))
+        if(!IsClientInGame(i) || IsFakeClient(i))
             continue;
 
         if(!AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szSteam]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
@@ -2810,6 +2815,12 @@ void UTIL_GiftItem(int client, int receiver, int item)
         DisplayItemMenu(client, m_iId);
         return;
     }
+    
+    if(IsFakeClient(receiver) || IsClientSourceTV(receiver))
+    {
+        tPrintToChat(client, "%T", "receiver BOT");
+        return;
+    }
 
     g_iDataProtect[client] = GetTime()+15;
     g_iDataProtect[receiver] = GetTime()+15;
@@ -2927,34 +2938,39 @@ void UTIL_ReloadConfig()
     if(item_parent.RowCount <= 0)
         SetFailState("Can not retrieve item.child from database: no result row");
 
-    StringMap parent_map = new StringMap();
+    g_aParentMap.Clear();
+    
+    char parent_str[12];
+
     while(item_parent.FetchRow())
     {
         // Store to Map
-        char idx[8];
-        IntToString(item_parent.FetchInt(0), idx, 8);
-        parent_map.SetValue(idx, g_iItems);
-        
+        IntToString(item_parent.FetchInt(0), parent_str, 12);
+        if(!g_aParentMap.SetValue(parent_str, g_iItems, true))
+        {
+            LogError("Failed to bind itemId[%d] to parentId[%s]", g_iItems, parent_str);
+            continue;
+        }
+
+        // name
         item_parent.FetchString(1, g_eItems[g_iItems][szName], 64);
-        
+
+        //LogMessage("Bind itemId[%d] to parentId[%s] -> %s", g_iItems, parent_str, g_eItems[g_iItems][szName]);
+
         // parent
         g_eItems[g_iItems][iParent] = item_parent.FetchInt(2);
-        if(g_eItems[g_iItems][iParent] > -1)
-        {
-            int index;
-            IntToString(g_eItems[g_iItems][iParent], idx, 8);
-            if(!parent_map.GetValue(idx, index))
-            {
-                LogError("Id [%s] not found in parent_map", idx);
-                continue;
-            }
-            g_eItems[g_iItems][iParent] = index;
-        }
-        
+
         // package handler
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
 
         g_iItems++;
+    }
+    
+    // Refresh Parent's parent.
+    for(int parent = 0; parent < g_iItems; parent++)
+    {
+        // Interval
+        g_eItems[parent][iParent] = UTIL_GetParent(parent, g_eItems[parent][iParent]);
     }
 
     DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC");
@@ -2971,18 +2987,21 @@ void UTIL_ReloadConfig()
 
     while(item_child.FetchRow())
     {
-        // Field 0 -> parent
-        g_eItems[g_iItems][iParent] = item_child.FetchInt(0);
-
         // Field 1 -> type
         char m_szType[32];
         item_child.FetchString(1, m_szType, 32);
         if(strcmp(m_szType, "ITEM_ERROR") == 0)
+        {
+            //LogError("Failed to loaded %s -> ITEM_ERROR", g_eItems[g_iItems][szName]);
             continue;
+        }
 
         int m_iHandler = UTIL_GetTypeHandler(m_szType);
         if(m_iHandler == -1)
+        {
+            //LogError("Failed to loaded %s -> Invalid m_iHandler", g_eItems[g_iItems][szName]);
             continue;
+        }
         g_eItems[g_iItems][iHandler] = m_iHandler;
         
         // Field 2 -> uid
@@ -2991,7 +3010,10 @@ void UTIL_ReloadConfig()
 
         // Ignore bad item or dumplicate item
         if(strcmp(m_szUniqueId, "ITEM_ERROR") == 0 || item_array.FindString(m_szUniqueId) != -1)
+        {
+            //LogError("Failed to loaded %s -> Ignore bad item or dumplicate item", g_eItems[g_iItems][szName]);
             continue;
+        }
         item_array.PushString(m_szUniqueId);
         g_eItems[g_iItems][szUniqueId][0] = '\0';
         strcopy(g_eItems[g_iItems][szUniqueId], 32, m_szUniqueId);
@@ -3096,8 +3118,16 @@ void UTIL_ReloadConfig()
         }
 
         delete kv;
+        
+        //LogMessage("Loaded Item -> %s", g_eItems[g_iItems][szName]);
 
         if(!m_bSuccess)
+            continue;
+        
+        // Field 0 -> parent
+        g_eItems[g_iItems][iParent] = UTIL_GetParent(g_iItems, item_child.FetchInt(0));
+        
+        if(g_eItems[g_iItems][iParent] == -1)
             continue;
 
         if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && StrContains(m_szUniqueId, "skin_", false) == 0)
@@ -3141,6 +3171,29 @@ void UTIL_ReloadConfig()
     GetCurrentMap(map, 128);
     if(strlen(map) > 3 && IsMapValid(map))
         ForceChangeLevel(map, "Reload Map to prevent server crash!");
+}
+
+int UTIL_GetParent(int itemId, int parentId)
+{
+    if(parentId > -1)
+    {
+        int index;
+        char parent_str[12];
+        IntToString(parentId, parent_str, 12);
+
+        if(!g_aParentMap.GetValue(parent_str, index))
+        {
+            LogError("Id [%s] not found in parent_map -> %s", parent_str, g_eItems[index][szName]);
+            return -1;
+        }
+        
+        //LogMessage("Loaded %s -> parent is [%s]", g_eItems[itemId][szName], g_eItems[index][szName]);
+
+        return index;
+    }
+    //else LogMessage("%s -> parent is [TopMenu]", g_eItems[itemId][szName]);
+
+    return -1;
 }
 
 int UTIL_GetTypeHandler(const char[] type)

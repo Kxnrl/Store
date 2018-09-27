@@ -668,4 +668,10 @@
         "en" "Select case"
         "chi" "选择你要开的箱子"
     }
+    
+    "receiver BOT"
+    {
+        "en" "{red}You can not gift an item to BOT."
+        "chi" "{red}你不能给BOT送东西."
+    }
 }

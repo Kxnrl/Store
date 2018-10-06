@@ -201,7 +201,6 @@ int RandomColor()
         case 14: return '\x0C';
         case 15: return '\x0E';
         case 16: return '\x0F';
-        default: return '\x01';
     }
 
     return '\x01';

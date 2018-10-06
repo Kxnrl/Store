@@ -3,9 +3,7 @@
 #define TEAM_SPEC 1
 UserMsg g_umUMId;
 Handle g_tMsgFmt;
-bool g_bDeathChat;
 bool g_bChat[MAXPLAYERS+1];
-
 
 char g_szNameTags[STORE_MAX_ITEMS][128];
 char g_szNameColors[STORE_MAX_ITEMS][32];
@@ -36,8 +34,6 @@ public void CPSupport_OnPluginStart()
         LogError("Error hooking the user message (SayText2), CP support will be disabled.");
         return;
     }
-
-    g_bDeathChat = (FindPluginByFile("zombiereloaded.smx") || FindPluginByFile("mg_stats.smx") || FindPluginByFile("sm_hosties.smx"));
 
     Store_RegisterHandler("nametag", CPSupport_OnMappStart, CPSupport_Reset, NameTags_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("namecolor", CPSupport_OnMappStart, CPSupport_Reset, NameColors_Config, CPSupport_Equip, CPSupport_Remove, true);
@@ -243,6 +239,7 @@ public Action Command_Say(int client, const char[] command, int argc)
 {
     g_bChat[client] = true;
     CreateTimer(0.1, Timer_Say, client);
+    return Plugin_Continue;
 }
 
 public Action Timer_Say(Handle timer, int client)
@@ -354,36 +351,33 @@ void Frame_OnChatMessage_SayText2(Handle data)
     }
     else
     {
-        if(g_bDeathChat)
+#if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_SR || defined GM_BH
+        if(ChatToAll(m_szFlag))
         {
-            if(ChatToAll(m_szFlag))
-            {
-                for(int i = 1; i <= MaxClients; ++i)
-                    if(IsClientInGame(i) && !IsFakeClient(i))
-                        target_list[target_count++] = i;
-            }
-            else
-            {
-                for(int i = 1; i <= MaxClients; ++i)
-                    if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender]))
-                        target_list[target_count++] = i;
-            }
+            for(int i = 1; i <= MaxClients; ++i)
+                if(IsClientInGame(i) && !IsFakeClient(i))
+                    target_list[target_count++] = i;
         }
         else
         {
-            if(ChatToAll(m_szFlag))
-            {
-                for(int i = 1; i <= MaxClients; ++i)
-                    if(IsClientInGame(i) && !IsFakeClient(i) && (!IsPlayerAlive(i)))
-                        target_list[target_count++] = i;
-            }
-            else
-            {
-                for(int i = 1; i <= MaxClients; ++i)
-                    if(IsClientInGame(i) && !IsFakeClient(i) && ((!IsPlayerAlive(i) && g_iClientTeam[i] == g_iClientTeam[m_iSender])))
-                        target_list[target_count++] = i;
-            }
+            for(int i = 1; i <= MaxClients; ++i)
+                if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iClientTeam[i] == TEAM_SPEC))
+                    target_list[target_count++] = i;
         }
+#else
+        if(ChatToAll(m_szFlag))
+        {
+            for(int i = 1; i <= MaxClients; ++i)
+                if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i))
+                    target_list[target_count++] = i;
+        }
+        else
+        {
+            for(int i = 1; i <= MaxClients; ++i)
+                if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iClientTeam[i] == TEAM_SPEC))
+                    target_list[target_count++] = i;
+        }
+#endif
     }
     
     char m_szBuffer[512];
@@ -408,7 +402,7 @@ void Frame_OnChatMessage_SayText2(Handle data)
 
 stock bool ChatToAll(const char[] flag)
 {
-    if(StrContains(flag, "_All", false) != -1)
+    if(StrContains(flag, "_All", true) != -1)
         return true;
 
     return false;
@@ -416,7 +410,7 @@ stock bool ChatToAll(const char[] flag)
 
 stock bool ChatFromDead(const char[] flag)
 {
-    if(StrContains(flag, "Dead", false) != -1)
+    if(StrContains(flag, "Dead", true) != -1)
         return true;
 
     return false;

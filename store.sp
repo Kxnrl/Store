@@ -61,6 +61,10 @@ public Plugin myinfo =
 #if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_BH
 #define AllowHide
 #endif
+// death chat
+#if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_SR || defined GM_BH
+#define DeathChat
+#endif
 
 //////////////////////////////
 //     GLOBAL VARIABLES     //

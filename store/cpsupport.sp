@@ -351,7 +351,7 @@ void Frame_OnChatMessage_SayText2(Handle data)
     }
     else
     {
-#if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_SR || defined GM_BH
+#if defined DeathChat
         if(ChatToAll(m_szFlag))
         {
             for(int i = 1; i <= MaxClients; ++i)

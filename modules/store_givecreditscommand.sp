@@ -49,6 +49,7 @@ public Action CommandCredits(int client, int args)
     int target_list[MAXPLAYERS], target_count;
     bool tn_is_ml;
 
+    GetCmdArg(1, arg, 32);
     if ((target_count = ProcessTargetString(
             arg,
             client,

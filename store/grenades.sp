@@ -19,12 +19,12 @@ enum GrenadeTrail
     iCacheID
 }
 
-int g_eGrenadeSkins[STORE_MAX_ITEMS][GrenadeSkin];
-int g_eGrenadeTrails[STORE_MAX_ITEMS][GrenadeTrail];
-int g_iGrenadeSkins = 0;
-int g_iSlots = 0;
-int g_iGrenadeTrails = 0;
-char g_szSlots[6][64];
+static int g_eGrenadeSkins[STORE_MAX_ITEMS][GrenadeSkin];
+static int g_eGrenadeTrails[STORE_MAX_ITEMS][GrenadeTrail];
+static int g_iGrenadeSkins = 0;
+static int g_iSlots = 0;
+static int g_iGrenadeTrails = 0;
+static char g_szSlots[6][64];
 
 
 public void Grenades_OnPluginStart()

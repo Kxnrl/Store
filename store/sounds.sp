@@ -14,15 +14,15 @@ enum Sound
     iCooldown
 }
 
-int g_iSounds = 0;
-int g_iSoundClient[MAXPLAYERS+1];
-int g_iSoundSpam[MAXPLAYERS+1];
-bool g_bClientDisable[MAXPLAYERS+1];
-bool g_bClientPrefs;
+static int g_iSounds = 0;
+static int g_iSoundClient[MAXPLAYERS+1];
+static int g_iSoundSpam[MAXPLAYERS+1];
+static bool g_bClientDisable[MAXPLAYERS+1];
+static bool g_bClientPrefs;
 
-Sound g_eSounds[STORE_MAX_ITEMS][Sound];
+static Sound g_eSounds[STORE_MAX_ITEMS][Sound];
 
-Handle g_hCookieSounds;
+static Handle g_hCookieSounds;
 
 public void Sounds_OnPluginStart()
 {

@@ -1,17 +1,17 @@
 #define Module_Chat
 
 #define TEAM_SPEC 1
-UserMsg g_umUMId;
-Handle g_tMsgFmt;
-bool g_bChat[MAXPLAYERS+1];
+static UserMsg g_umUMId;
+static Handle g_tMsgFmt;
+static bool g_bChat[MAXPLAYERS+1];
 
-char g_szNameTags[STORE_MAX_ITEMS][128];
-char g_szNameColors[STORE_MAX_ITEMS][32];
-char g_szMessageColors[STORE_MAX_ITEMS][32];
+static char g_szNameTags[STORE_MAX_ITEMS][128];
+static char g_szNameColors[STORE_MAX_ITEMS][32];
+static char g_szMessageColors[STORE_MAX_ITEMS][32];
 
-int g_iNameTags = 0;
-int g_iNameColors = 0;
-int g_iMessageColors = 0;
+static int g_iNameTags = 0;
+static int g_iNameColors = 0;
+static int g_iMessageColors = 0;
 
 public void CPSupport_OnPluginStart()
 {

@@ -1,11 +1,11 @@
 #define Module_Model
 
-int g_iRefPVM[MAXPLAYERS+1];
-int g_iOldSequence[MAXPLAYERS+1];
-bool g_bHooked[MAXPLAYERS+1];
-char g_szCurWpn[MAXPLAYERS+1][64];
-float g_fOldCycle[MAXPLAYERS+1];
-Handle g_tClientWeapon[MAXPLAYERS+1];
+static int g_iRefPVM[MAXPLAYERS+1];
+static int g_iOldSequence[MAXPLAYERS+1];
+static bool g_bHooked[MAXPLAYERS+1];
+static char g_szCurWpn[MAXPLAYERS+1][64];
+static float g_fOldCycle[MAXPLAYERS+1];
+static Handle g_tClientWeapon[MAXPLAYERS+1];
 
 enum CustomModel
 {

@@ -1,4 +1,5 @@
 # SourceMod
+# =========================
 compile.dat
 compile.exe
 spcomp.exe
@@ -73,6 +74,15 @@ include/usermessages.inc
 include/vector.inc
 include/version.inc
 include/version_auto.inc
+
+# Third-Party
+# =========================
+include/PTaH.inc
+include/armsfix.inc
+
+# VSCode
+# =========================
+.vscode/*
 
 # OSX
 # =========================

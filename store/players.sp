@@ -60,7 +60,7 @@ public Action Event_PlayerSpawn_Pre(Handle event, const char[] name, bool dontBr
 {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
-    if(IsFakeClient(client))
+    if(IsFakeClient(client) || g_iClientTeam[client] <= 1)
         return Plugin_Continue;
 
     RequestFrame(OnClientSpawnPost, client);

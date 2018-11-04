@@ -674,4 +674,11 @@
         "en" "{red}You can not gift an item to BOT."
         "chi" "{red}你不能给BOT送东西."
     }
+    
+    "give command"
+    {
+        "#format" "{1:N},{2:s}"
+        "en" "{blue}{1}{normal} gifted {green} {1} credits {normal} to you."
+        "chi" "{blue}{1}{normal} 赠送了 {green} {1} 信用点 {normal} 给你."
+    }
 }

@@ -1,6 +1,8 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#pragma dynamic 131072
+
 #define PLUGIN_NAME         "Store - Default player skins"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "store module default player skins"

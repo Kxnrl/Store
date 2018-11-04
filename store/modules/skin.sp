@@ -249,7 +249,7 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
     
     Call_StartForward(g_hOnPlayerSkinDefault);
     Call_PushCell(client);
-    Call_PushCell(g_iClientTeam[client]);
+    Call_PushCell(g_iClientTeam[client]-2);
     Call_PushStringEx(skin_t, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(128);
     Call_PushStringEx(arms_t,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
@@ -708,7 +708,7 @@ void Store_CallDefaultSkin(int client)
 
     Call_StartForward(g_hOnPlayerSkinDefault);
     Call_PushCell(client);
-    Call_PushCell(g_iClientTeam[client]);
+    Call_PushCell(g_iClientTeam[client]-2);
     Call_PushStringEx(skin_t, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(128);
     Call_PushStringEx(arms_t,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);

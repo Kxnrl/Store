@@ -2,7 +2,8 @@
 
 #define TEAM_SPEC 1
 static UserMsg g_umUMId;
-static Handle g_tMsgFmt;
+static Handle g_hCPForward;
+static StringMap g_tMsgFmt;
 static bool g_bChat[MAXPLAYERS+1];
 
 static char g_szNameTags[STORE_MAX_ITEMS][128];
@@ -15,7 +16,11 @@ static int g_iMessageColors = 0;
 
 public void CPSupport_OnPluginStart()
 {
-    g_tMsgFmt = CreateTrie();
+    CheckCPandSCP();
+
+    g_tMsgFmt = new StringMap();
+
+    g_hCPForward = CreateGlobalForward("CP_OnChatMessage", ET_Hook, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
 
     AddCommandListener(Command_Say, "say");
     AddCommandListener(Command_Say, "say_team");
@@ -42,7 +47,7 @@ public void CPSupport_OnPluginStart()
 
 public void CPSupport_OnMappStart()
 {
-
+    CheckCPandSCP();
 }
 
 public void CPSupport_Reset()
@@ -66,7 +71,7 @@ public bool NameColors_Config(Handle kv, int itemid)
     Store_SetDataIndex(itemid, g_iNameColors);
     KvGetString(kv, "color", g_szNameColors[g_iNameColors], 32);
     ++g_iNameColors;
-    
+
     return true;
 }
 
@@ -75,7 +80,7 @@ public bool MsgColors_Config(Handle kv, int itemid)
     Store_SetDataIndex(itemid, g_iMessageColors);
     KvGetString(kv, "color", g_szMessageColors[g_iMessageColors], 32);
     ++g_iMessageColors;
-    
+
     return true;
 }
 
@@ -89,12 +94,12 @@ public int CPSupport_Remove(int client, int id)
 
 }
 
-public Action CP_OnChatMessage(int& client, char[] flagstring, char[] name, char[] message)
+Action CP_Forward(int& client, char[] flagstring, char[] name, char[] message, ArrayList hRecipients, bool &removedColor, bool &processColor)
 {
     int m_iEquippedNameTag = Store_GetEquippedItem(client, "nametag");
     int m_iEquippedNameColor = Store_GetEquippedItem(client, "namecolor");
     int m_iEquippedMsgColor = Store_GetEquippedItem(client, "msgcolor");
-    
+
     char m_szNameTag[128];
     char m_szNameColor[32];
 
@@ -107,7 +112,7 @@ public Action CP_OnChatMessage(int& client, char[] flagstring, char[] name, char
     if(m_iEquippedNameColor >= 0)
     {
         int m_iData = Store_GetDataIndex(m_iEquippedNameColor);
-        if(StrEqual(g_szNameColors[m_iData], "rainbow"))
+        if(strcmp(g_szNameColors[m_iData], "rainbow") == 0)
             rainbowname = true;
         else strcopy(STRING(m_szNameColor), g_szNameColors[m_iData]);
     }
@@ -123,7 +128,7 @@ public Action CP_OnChatMessage(int& client, char[] flagstring, char[] name, char
     if(m_iEquippedMsgColor >= 0)
     {
         int m_iData = Store_GetDataIndex(m_iEquippedMsgColor);
-        if(StrEqual(g_szMessageColors[m_iData], "rainbow"))
+        if(strcmp(g_szMessageColors[m_iData], "rainbow") == 0)
         {
             char buffer[256];
             String_Rainbow(message, buffer, 256);
@@ -131,6 +136,26 @@ public Action CP_OnChatMessage(int& client, char[] flagstring, char[] name, char
         }
         else Format(message, 256, "%s%s", g_szMessageColors[m_iData], message);
     }
+
+    Call_StartForward(g_hCPForward);
+    Call_PushCellRef(client);
+    Call_PushCell(hRecipients);
+    Call_PushStringEx(flagstring, 32, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(name, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(message, 256, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCellRef(processColor);
+    Call_PushCellRef(removedColor);
+
+    Action iResults;
+    int error = Call_Finish(iResults);
+    if (error != SP_ERROR_NONE)
+    {
+        ThrowNativeError(error, "Global Forward 'CP_OnChatMessage' has failed to fire. [Error code: %d]", error);
+        return Plugin_Continue;
+    }
+
+    if(iResults >= Plugin_Handled)
+        return Plugin_Handled;
 
     return Plugin_Changed;
 }
@@ -212,16 +237,16 @@ bool GenerateMessageFormats()
     {
         case Engine_CSGO:
         {
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT_Loc", "(CT) {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT", "(CT) {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_T_Loc", "(TE) {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_T", "(TE) {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_CT_Dead", "*DEAD*(CT) {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_T_Dead", "*DEAD*(TE) {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_Spec", "(SPEC) {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_All", " {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_AllDead", "*DEAD* {1} :  {2}");
-            SetTrieString(g_tMsgFmt, "Cstrike_Chat_AllSpec", "*SPEC* {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_CT_Loc",  "(CT) {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_CT",      "(CT) {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_T_Loc",   "(TE) {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_T",       "(TE) {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_CT_Dead", "*DEAD*(CT) {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_T_Dead",  "*DEAD*(TE) {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_Spec",    "(SPEC) {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_All",     " {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_AllDead", "*DEAD* {1} :  {2}");
+            g_tMsgFmt.SetString("Cstrike_Chat_AllSpec", "*SPEC* {1} :  {2}");
             return true;
         }
     }
@@ -236,6 +261,9 @@ void Chat_OnClientConnected(int client)
 
 public Action Command_Say(int client, const char[] command, int argc)
 {
+    if(g_bChat[client])
+        return Plugin_Handled;
+
     g_bChat[client] = true;
     CreateTimer(0.1, Timer_Say, client);
     return Plugin_Continue;
@@ -259,15 +287,15 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 
     g_bChat[m_iSender] = false;
 
-    bool m_bChat = PbReadBool(msg, "chat");
+    bool m_bChat = msg.ReadBool("chat");
 
     char m_szFlag[32], m_szName[128], m_szMsg[256], m_szFmt[32];
 
-    PbReadString(msg, "msg_name", m_szFlag, 32);
-    PbReadString(msg, "params", m_szName, 128, 0);
-    PbReadString(msg, "params", m_szMsg, 256, 1);
+    msg.ReadString("msg_name", m_szFlag, 32);
+    msg.ReadString("params", m_szName, 128, 0);
+    msg.ReadString("params", m_szMsg, 256, 1);
 
-    if(!GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, 32))
+    if(!g_tMsgFmt.GetString(m_szFlag, m_szFmt, 32))
         return Plugin_Continue;
 
     RemoveAllColors(m_szName, 128);
@@ -279,59 +307,7 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
     char m_szFlagCopy[32];
     strcopy(m_szFlagCopy, 32, m_szFlag);
 
-    Action iResults = CP_OnChatMessage(m_iSender, m_szFlag, m_szName, m_szMsg);
-
-    if(iResults >= Plugin_Handled || iResults == Plugin_Continue)
-        return iResults;
-
-    if(!StrEqual(m_szFlag, m_szFlagCopy) && !GetTrieString(g_tMsgFmt, m_szFlag, m_szFmt, 256))
-        return Plugin_Continue;
-
-    if(StrEqual(m_szNameCopy, m_szName))
-    {
-        switch(g_iClientTeam[m_iSender])
-        {
-            case  3: Format(m_szName, 128, "\x0B%s", m_szName);
-            case  2: Format(m_szName, 128, "\x05%s", m_szName);
-            default: Format(m_szName, 128, "\x01%s", m_szName);
-        }
-    }
-
-    Handle hPack = CreateDataPack();
-    WritePackCell(hPack, m_iSender);
-    WritePackCell(hPack, m_bChat);
-    WritePackString(hPack, m_szName);
-    WritePackString(hPack, m_szMsg);
-    WritePackString(hPack, m_szFlag);
-    WritePackString(hPack, m_szFmt);
-
-    ResetPack(hPack);
-
-    RequestFrame(Frame_OnChatMessage_SayText2, hPack);
-
-    return Plugin_Handled;
-}
-
-void Frame_OnChatMessage_SayText2(Handle data)
-{
-    int m_iSender = ReadPackCell(data);
-    bool m_bChat = ReadPackCell(data);
-
-    char m_szName[128];
-    ReadPackString(data, m_szName, 128);
-
-    char m_szMsg[256];
-    ReadPackString(data, m_szMsg, 256);
-
-    char m_szFlag[32];
-    ReadPackString(data, m_szFlag, 32);
-
-    char m_szFmt[32];
-    ReadPackString(data, m_szFmt, 32);
-
-    CloseHandle(data);
-
-    int target_list[MAXPLAYERS+1], target_count;
+    ArrayList hRecipients = new ArrayList();
 
     if(!ChatFromDead(m_szFlag) || g_iClientTeam[m_iSender] == TEAM_SPEC)
     {
@@ -339,13 +315,13 @@ void Frame_OnChatMessage_SayText2(Handle data)
         {
             for(int i = 1; i <= MaxClients; ++i)
                 if(IsClientInGame(i) && !IsFakeClient(i))
-                    target_list[target_count++] = i;
+                    hRecipients.Push(i);
         }
         else
         {
             for(int i = 1; i <= MaxClients; ++i)
                 if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender]))
-                    target_list[target_count++] = i;
+                    hRecipients.Push(i);
         }
     }
     else
@@ -355,30 +331,101 @@ void Frame_OnChatMessage_SayText2(Handle data)
         {
             for(int i = 1; i <= MaxClients; ++i)
                 if(IsClientInGame(i) && !IsFakeClient(i))
-                    target_list[target_count++] = i;
+                    hRecipients.Push(i);
         }
         else
         {
             for(int i = 1; i <= MaxClients; ++i)
                 if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iClientTeam[i] == TEAM_SPEC))
-                    target_list[target_count++] = i;
+                    hRecipients.Push(i);
         }
 #else
         if(ChatToAll(m_szFlag))
         {
             for(int i = 1; i <= MaxClients; ++i)
                 if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i))
-                    target_list[target_count++] = i;
+                    hRecipients.Push(i);
         }
         else
         {
             for(int i = 1; i <= MaxClients; ++i)
                 if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iClientTeam[i] == TEAM_SPEC))
-                    target_list[target_count++] = i;
+                    hRecipients.Push(i);
         }
 #endif
     }
-    
+
+    bool removedColor = false;
+    bool processColor = true;
+    Action iResults = CP_Forward(m_iSender, m_szFlag, m_szName, m_szMsg, hRecipients, removedColor, processColor);
+
+    if(iResults != Plugin_Changed)
+    {
+        delete hRecipients;
+        return iResults;
+    }
+
+    if(strcmp(m_szFlag, m_szFlagCopy) != 0 && !g_tMsgFmt.GetString(m_szFlag, m_szFmt, 256))
+    {
+        delete hRecipients;
+        return Plugin_Continue;
+    }
+
+    if(strcmp(m_szNameCopy, m_szName) == 0)
+    {
+        switch(g_iClientTeam[m_iSender])
+        {
+            case  3: Format(m_szName, 128, "\x0B%s", m_szName);
+            case  2: Format(m_szName, 128, "\x05%s", m_szName);
+            default: Format(m_szName, 128, "\x01%s", m_szName);
+        }
+    }
+
+    DataPack pack = new DataPack();
+    pack.WriteCell(m_iSender);
+    pack.WriteCell(m_bChat);
+    pack.WriteCell(hRecipients);
+    pack.WriteString(m_szName);
+    pack.WriteString(m_szMsg);
+    pack.WriteString(m_szFlag);
+    pack.WriteString(m_szFmt);
+    pack.WriteCell(removedColor);
+    pack.WriteCell(processColor);
+    pack.Reset();
+
+    RequestFrame(Frame_OnChatMessage_SayText2, pack);
+
+    return Plugin_Handled;
+}
+
+void Frame_OnChatMessage_SayText2(DataPack data)
+{
+    int m_iSender = data.ReadCell();
+    bool m_bChat = data.ReadCell();
+
+    int target_list[MAXPLAYERS+1], target_count;
+    ArrayList hRecipients = view_as<ArrayList>(data.ReadCell());
+    for(int x = 0; x < hRecipients.Length; ++x)
+        target_list[target_count++] = hRecipients.Get(x);
+
+    char m_szName[128];
+    data.ReadString(m_szName, 128);
+
+    char m_szMsg[256];
+    data.ReadString(m_szMsg, 256);
+
+    char m_szFlag[32];
+    data.ReadString(m_szFlag, 32);
+
+    char m_szFmt[32];
+    data.ReadString(m_szFmt, 32);
+
+    bool removedColor = data.ReadCell();
+    bool processColor = data.ReadCell();
+
+    delete hRecipients;
+    delete data;
+
     char m_szBuffer[512];
     strcopy(m_szBuffer, 512, m_szFmt);
 
@@ -386,31 +433,70 @@ void Frame_OnChatMessage_SayText2(Handle data)
     ReplaceString(m_szBuffer, 512, "{1}", m_szName);
     ReplaceString(m_szBuffer, 512, "{2}", m_szMsg);
 
-    ReplaceColorsCode(m_szBuffer, 512, g_iClientTeam[m_iSender]);
+    if(removedColor)
+    {
+        RemoveAllColors(m_szName, 128);
+        RemoveAllColors(m_szMsg, 256);
+    }
 
-    Handle pb = StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
-    PbSetInt(pb, "ent_idx", m_iSender);
-    PbSetBool(pb, "chat", m_bChat);
-    PbSetString(pb, "msg_name", m_szBuffer);
-    PbAddString(pb, "params", "");
-    PbAddString(pb, "params", "");
-    PbAddString(pb, "params", "");
-    PbAddString(pb, "params", "");
+    if(processColor)
+    {
+        ReplaceColorsCode(m_szBuffer, 512, g_iClientTeam[m_iSender]);
+    }
+
+    Protobuf pb = view_as<Protobuf>(StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+    if(pb == null)
+    {
+        LogError("Frame_OnChatMessage_SayText2 -> StartMessageEx -> null");
+        return;
+    }
+    pb.SetInt("ent_idx", m_iSender);
+    pb.SetBool("chat", m_bChat);
+    pb.SetString("msg_name", m_szBuffer);
+    pb.AddString("params", "");
+    pb.AddString("params", "");
+    pb.AddString("params", "");
+    pb.AddString("params", "");
     EndMessage();
 }
 
 stock bool ChatToAll(const char[] flag)
 {
-    if(StrContains(flag, "_All", true) != -1)
-        return true;
-
-    return false;
+    return (StrContains(flag, "_All", true) != -1);
 }
 
 stock bool ChatFromDead(const char[] flag)
 {
-    if(StrContains(flag, "Dead", true) != -1)
-        return true;
+    return (StrContains(flag, "Dead", true) != -1);
+}
 
-    return false;
+static void CheckCPandSCP()
+{
+    if(FindPluginByFile("chat-processor.smx") != INVALID_HANDLE)
+    {
+        char path[2][128];
+        BuildPath(Path_SM, path[0], 128, "plugins/chat-processor.smx");
+        BuildPath(Path_SM, path[1], 128, "plugins/disabled/chat-processor.smx");
+        if(!RenameFile(path[1], path[0]))
+        {
+            LogError("Failed to move 'chat-processor.smx' to disabled folder.");
+            DeleteFile(path[0]);
+        }
+        ServerCommand("sm plugins unload chat-processor.smx");
+        LogMessage("'chat-processor.smx' detected!");
+    }
+
+    if(FindPluginByFile("simple-chatprocessor.smx") != INVALID_HANDLE)
+    {
+        char path[2][128];
+        BuildPath(Path_SM, path[0], 128, "plugins/simple-chatprocessor");
+        BuildPath(Path_SM, path[1], 128, "plugins/disabled/simple-chatprocessor");
+        if(!RenameFile(path[1], path[0]))
+        {
+            LogError("Failed to move 'simple-chatprocessor.smx' to disabled folder.");
+            DeleteFile(path[0]);
+        }
+        ServerCommand("sm plugins unload simple-chatprocessor.smx");
+        LogMessage("'simple-chatprocessor.smx' detected!");
+    }
 }

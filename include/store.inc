@@ -73,3 +73,6 @@ forward void   Store_OnStoreInit(Handle store_plugin);
 forward void   Store_OnStoreAvailable(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level); // ArrayList will be automatically freed.
 forward bool   Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
 forward Action Store_OnFPDeathCamera(int client);
+
+// CP Support
+forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

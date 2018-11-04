@@ -3077,21 +3077,33 @@ void UTIL_ReloadConfig()
         int price_1m = item_child.FetchInt(14);
         int price_pm = item_child.FetchInt(15);
         
-        if(price_1d != 0 && price_1m != 0)
+        if(price_1d != 0 || price_1m != 0)
         {
-            strcopy(g_ePlans[g_iItems][0][szName], 32, "1 day");
-            g_ePlans[g_iItems][0][iPrice] = price_1d;
-            g_ePlans[g_iItems][0][iTime] = 86400;
+            g_eItems[g_iItems][iPlans] = 0;
+
+            if(price_1d > 0)
+            {
+                strcopy(g_ePlans[g_iItems][0][szName], 32, "1 day");
+                g_ePlans[g_iItems][0][iPrice] = price_1d;
+                g_ePlans[g_iItems][0][iTime] = 86400;
+                g_eItems[g_iItems][iPlans]++;
+            }
             
-            strcopy(g_ePlans[g_iItems][1][szName], 32, "1 month");
-            g_ePlans[g_iItems][1][iPrice] = price_1m;
-            g_ePlans[g_iItems][1][iTime] = 2592000;
+            if(price_1m > 0)
+            {
+                strcopy(g_ePlans[g_iItems][1][szName], 32, "1 month");
+                g_ePlans[g_iItems][1][iPrice] = price_1m;
+                g_ePlans[g_iItems][1][iTime] = 2592000;
+                g_eItems[g_iItems][iPlans]++;
+            }
             
-            strcopy(g_ePlans[g_iItems][2][szName], 32, "Permanent");
-            g_ePlans[g_iItems][2][iPrice] = price_pm;
-            g_ePlans[g_iItems][2][iTime] = 0;
-   
-            g_eItems[g_iItems][iPlans] = 3;
+            if(price_pm > 0)
+            {
+                strcopy(g_ePlans[g_iItems][2][szName], 32, "Permanent");
+                g_ePlans[g_iItems][2][iPrice] = price_pm;
+                g_ePlans[g_iItems][2][iTime] = 0;
+                g_eItems[g_iItems][iPlans]++;
+            }
         }
         else
         {

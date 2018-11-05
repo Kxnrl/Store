@@ -74,7 +74,7 @@ Handle g_ArraySkin = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
 
-StringMap g_aParentMap = null;
+StringMap g_smParentMap = null;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
 int g_eClients[MAXPLAYERS+1][Client_Data];
@@ -174,8 +174,8 @@ public void OnPluginStart()
     if(GetEngineVersion() != Engine_CSGO)
         SetFailState("Current game is not be supported! CSGO only!");
     
-    if(g_aParentMap == null)
-        g_aParentMap = new StringMap();
+    if(g_smParentMap == null)
+        g_smParentMap = new StringMap();
 
     // Setting default values
     for(int client = 1; client <= MaxClients; ++client)
@@ -1217,7 +1217,7 @@ public void DisplayPreviewMenu(int client, int itemid)
     UTIL_GetLevelType(itemid, leveltype, 32);
     AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
 
-    AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%T", "Open Case Available", client);
+    AddMenuItemEx(m_hMenu, (g_ArraySkin.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLE, "3", "%T", "Open Case Available", client);
 
     if(g_eItems[itemid][bCompose])  //合成
         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Preview Compose Available", client);
@@ -1381,6 +1381,10 @@ public Action Timer_OpeningCase(Handle timer, int client)
     static int times[MAXPLAYERS+1];
     
     int size = GetArraySize(g_ArraySkin);
+    if(size <= 0)
+        return Plugin_Stop;
+
+
     int aid = UTIL_GetRandomInt(0, size-1);
     char modelname[32];
     GetArrayString(g_ArraySkin, aid, modelname, 32);
@@ -1712,7 +1716,7 @@ public void DisplayItemMenu(int client, int itemid)
             char leveltype[32];
             UTIL_GetLevelType(itemid, leveltype, 32);
             AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
-            AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "%T", "Open Case Available", client);
+            AddMenuItemEx(m_hMenu, (g_ArraySkin.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLE, "4", "%T", "Open Case Available", client);
         }
 
         if(!m_bEquipped)
@@ -2942,7 +2946,7 @@ void UTIL_ReloadConfig()
     if(item_parent.RowCount <= 0)
         SetFailState("Can not retrieve item.child from database: no result row");
 
-    g_aParentMap.Clear();
+    g_smParentMap.Clear();
     
     char parent_str[12];
 
@@ -2950,7 +2954,7 @@ void UTIL_ReloadConfig()
     {
         // Store to Map
         IntToString(item_parent.FetchInt(0), parent_str, 12);
-        if(!g_aParentMap.SetValue(parent_str, g_iItems, true))
+        if(!g_smParentMap.SetValue(parent_str, g_iItems, true))
         {
             LogError("Failed to bind itemId[%d] to parentId[%s]", g_iItems, parent_str);
             continue;
@@ -3197,7 +3201,7 @@ int UTIL_GetParent(int itemId, int parentId)
         char parent_str[12];
         IntToString(parentId, parent_str, 12);
 
-        if(!g_aParentMap.GetValue(parent_str, index))
+        if(!g_smParentMap.GetValue(parent_str, index))
         {
             LogError("Id [%s] not found in parent_map -> %s", parent_str, g_eItems[itemId][szName]);
             return -1;

@@ -108,21 +108,25 @@ void Store_SetClientPart(int client)
         AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
 
         ActivateEntity(iEnt);
-        
+
+#if defined AllowHide
         //https://github.com/neko-pm/auramenu/blob/master/scripting/dominoaura-menu.sp
         SetEdictFlags(iEnt, GetEdictFlags(iEnt)&(~FL_EDICT_ALWAYS)); //to allow settransmit hooks
         SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Part);
+#endif
 
         g_iClientPart[client] = EntIndexToEntRef(iEnt);
     }
 }
 
-public Action Hook_SetTransmit_Part(int ent, int client)
-{
 #if defined AllowHide
+public Action Hook_SetTransmit_Part(int entity, int client)
+{
     if(g_bHideMode[client])
+    {
+        SetEdictFlags(entity, GetEdictFlags(entity) ^ FL_EDICT_ALWAYS);
         return Plugin_Handled;
-#endif
-
+    }
     return Plugin_Continue;
 }
+#endif

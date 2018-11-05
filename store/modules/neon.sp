@@ -58,9 +58,14 @@ public int Neon_Remove(int client)
 }
 
 #if defined AllowHide
-public Action Hook_SetTransmit_Neon(int ent, int client)
+public Action Hook_SetTransmit_Neon(int entity, int client)
 {
-    return !(g_bHideMode[client]) ? Plugin_Continue : Plugin_Handled;
+    if(g_bHideMode[client])
+    {
+        SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
+        return Plugin_Handled;
+    }
+    return Plugin_Continue;
 }
 #endif
 

@@ -69,11 +69,11 @@ public Plugin myinfo =
 //////////////////////////////
 //     GLOBAL VARIABLES     //
 //////////////////////////////
-Handle g_hDatabase = null;
-Handle g_ArraySkin = null;
+Database g_hDatabase = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
 
+ArrayList g_ArraySkin = null;
 StringMap g_smParentMap = null;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
@@ -126,11 +126,11 @@ char g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
 #include "store/modules/skin.sp"
 #endif
 // Module Neon
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_ZE
 #include "store/modules/neon.sp"
 #endif
 // Module Aura & Part
-#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_ZE
 #include "store/modules/aura.sp"
 #include "store/modules/part.sp"
 #endif
@@ -1217,7 +1217,7 @@ public void DisplayPreviewMenu(int client, int itemid)
     UTIL_GetLevelType(itemid, leveltype, 32);
     AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
 
-    AddMenuItemEx(m_hMenu, (g_ArraySkin.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLE, "3", "%T", "Open Case Available", client);
+    AddMenuItemEx(m_hMenu, (g_ArraySkin.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%T", "Open Case Available", client);
 
     if(g_eItems[itemid][bCompose])  //合成
         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Preview Compose Available", client);
@@ -1379,15 +1379,14 @@ public Action Timer_OpeningCase(Handle timer, int client)
     }
 
     static int times[MAXPLAYERS+1];
-    
-    int size = GetArraySize(g_ArraySkin);
-    if(size <= 0)
+
+    if(g_ArraySkin.Length <= 0)
         return Plugin_Stop;
 
 
-    int aid = UTIL_GetRandomInt(0, size-1);
+    int aid = UTIL_GetRandomInt(0, g_ArraySkin.Length-1);
     char modelname[32];
-    GetArrayString(g_ArraySkin, aid, modelname, 32);
+    g_ArraySkin.GetString(aid, modelname, 32);
     
     if(g_iClientCase[client] > 1)
     {
@@ -1716,7 +1715,7 @@ public void DisplayItemMenu(int client, int itemid)
             char leveltype[32];
             UTIL_GetLevelType(itemid, leveltype, 32);
             AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
-            AddMenuItemEx(m_hMenu, (g_ArraySkin.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLE, "4", "%T", "Open Case Available", client);
+            AddMenuItemEx(m_hMenu, (g_ArraySkin.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "4", "%T", "Open Case Available", client);
         }
 
         if(!m_bEquipped)
@@ -2195,7 +2194,7 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
         if(g_hDatabase != null)
             return;
 
-        g_hDatabase = hndl;
+        g_hDatabase = view_as<Database>(hndl);
 
         // Do some housekeeping
         SQL_SetCharset(g_hDatabase, "utf8");
@@ -3151,7 +3150,7 @@ void UTIL_ReloadConfig()
             continue;
 
         if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && StrContains(m_szUniqueId, "skin_", false) == 0)
-            PushArrayString(g_ArraySkin, m_szUniqueId);
+            g_ArraySkin.PushString(m_szUniqueId);
 
         ++g_iItems;
     }

@@ -62,7 +62,7 @@ void Skin_OnPluginStart()
     HookConVarChange(spec_replay_enable, Skin_OnConVarChanged);
     SetConVarString(spec_replay_enable, "0", true);
 
-    g_ArraySkin = CreateArray(ByteCountToCells(256));
+    g_ArraySkin = new ArrayList(ByteCountToCells(256));
 }
 
 public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)

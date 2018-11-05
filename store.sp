@@ -73,7 +73,11 @@ Database g_hDatabase = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
 
-ArrayList g_ArraySkin = null;
+#if defined AllowHide
+ArrayList g_aFrameHook = null;
+#endif
+
+ArrayList g_aCaseSkins = null;
 StringMap g_smParentMap = null;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
@@ -209,6 +213,11 @@ public void OnPluginStart()
         SQL_TConnect(SQLCallback_Connect, "csgo");
         CreateTimer(30.0, Timer_DatabaseTimeout);
     }
+    
+    g_aCaseSkins = new ArrayList(ByteCountToCells(256));
+#if defined AllowHide
+    g_aFrameHook = new ArrayList();
+#endif
 }
 
 public void OnPluginEnd()
@@ -289,6 +298,24 @@ public void OnMapStart()
         }
     }
 }
+
+#if defined AllowHide
+public void OnGameFrame()
+{
+    if(g_aFrameHook.Length <= 0)
+        return;
+    
+    for(int index = 0; index < g_aFrameHook.Length; ++index)
+    {
+        int entity = EntRefToEntIndex(g_aFrameHook.Get(index));
+        if(!IsValidEdict(entity))
+            continue;
+        
+        SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
+        tPrintToChatAll("Global -> %d -> Set", entity);
+    }
+}
+#endif
 
 //////////////////////////////
 //         NATIVES          //
@@ -1217,7 +1244,7 @@ public void DisplayPreviewMenu(int client, int itemid)
     UTIL_GetLevelType(itemid, leveltype, 32);
     AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
 
-    AddMenuItemEx(m_hMenu, (g_ArraySkin.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%T", "Open Case Available", client);
+    AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%T", "Open Case Available", client);
 
     if(g_eItems[itemid][bCompose])  //合成
         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Preview Compose Available", client);
@@ -1380,13 +1407,13 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
     static int times[MAXPLAYERS+1];
 
-    if(g_ArraySkin.Length <= 0)
+    if(g_aCaseSkins.Length <= 0)
         return Plugin_Stop;
 
 
-    int aid = UTIL_GetRandomInt(0, g_ArraySkin.Length-1);
+    int aid = UTIL_GetRandomInt(0, g_aCaseSkins.Length-1);
     char modelname[32];
-    g_ArraySkin.GetString(aid, modelname, 32);
+    g_aCaseSkins.GetString(aid, modelname, 32);
     
     if(g_iClientCase[client] > 1)
     {
@@ -1715,7 +1742,7 @@ public void DisplayItemMenu(int client, int itemid)
             char leveltype[32];
             UTIL_GetLevelType(itemid, leveltype, 32);
             AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
-            AddMenuItemEx(m_hMenu, (g_ArraySkin.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "4", "%T", "Open Case Available", client);
+            AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "4", "%T", "Open Case Available", client);
         }
 
         if(!m_bEquipped)
@@ -2886,6 +2913,11 @@ int UTIL_GetClientItemId(int client, int itemid)
 
 void Store_ResetAll()
 {
+    g_aCaseSkins.Clear();
+#if defined AllowHide
+    g_aFrameHook.Clear();
+#endif
+
     for(int i = 0; i < g_iTypeHandlers; ++i)
     {
         g_eTypeHandlers[i][szType][0]   = '\0';
@@ -3150,7 +3182,7 @@ void UTIL_ReloadConfig()
             continue;
 
         if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && StrContains(m_szUniqueId, "skin_", false) == 0)
-            g_ArraySkin.PushString(m_szUniqueId);
+            g_aCaseSkins.PushString(m_szUniqueId);
 
         ++g_iItems;
     }
@@ -3474,6 +3506,10 @@ void UTIL_CheckModules()
 
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
+#if defined AllowHide
+    g_aFrameHook.Clear();
+#endif
+
     for(int client = 1; client <= MaxClients; ++client)
     {
 #if defined Module_Spray

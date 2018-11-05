@@ -112,6 +112,7 @@ void Store_SetClientAura(int client)
         //https://github.com/neko-pm/auramenu/blob/master/scripting/dominoaura-menu.sp
         SetEdictFlags(iEnt, GetEdictFlags(iEnt)&(~FL_EDICT_ALWAYS)); //to allow settransmit hooks
         SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
+        g_aFrameHook.Push(g_iClientAura[client]);
 #endif
     }
 }
@@ -119,11 +120,6 @@ void Store_SetClientAura(int client)
 #if defined AllowHide
 public Action Hook_SetTransmit_Aura(int entity, int client)
 {
-    if(g_bHideMode[client])
-    {
-        SetEdictFlags(entity, GetEdictFlags(entity) ^ FL_EDICT_ALWAYS);
-        return Plugin_Handled;
-    }
-    return Plugin_Continue;
+    return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
 }
 #endif

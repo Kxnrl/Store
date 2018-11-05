@@ -352,7 +352,7 @@ VALUES
     '{price of 1 day}',                         -- credits
     '{price of 1 month}',                       -- credits
     '{price of permanent}',                     -- credits
-    '{effect name}',                            -- e.g. "materials/maoling/trails/huaji.vmt"
+    '{effect name}',                            -- e.g. "particle_nmsl"
     '{path of particles}'                       -- e.g. "particles/FX.pcf"
 );
 

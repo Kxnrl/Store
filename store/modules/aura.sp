@@ -10,31 +10,17 @@ static char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 public void Aura_OnMapStart()
 {
-    ArrayList path = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
-    ArrayList fail = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+    if(g_iAuras <= 0)
+        return;
+
+    PrecacheEffect("ParticleEffect");
+
     for(int index = 0; index < g_iAuras; ++index)
     {
-        if(fail.FindString(g_szAuraFPcf[index]) != -1)
-            continue;
-
-        if(path.FindString(g_szAuraFPcf[index]) != -1)
-        {
-            PrecacheParticleEffect(g_szAuraName[index]);
-            continue;
-        }
-
-        if(PreDownload(g_szAuraFPcf[index]))
-        {
-            PrecacheGeneric(g_szAuraFPcf[index], true);
-            PrecacheEffect("ParticleEffect");
-            PrecacheParticleEffect(g_szAuraName[index]);
-            path.PushString(g_szAuraFPcf[index]);
-        }
-        else
-            fail.PushString(g_szAuraFPcf[index]);
+        PrecacheGeneric(g_szAuraFPcf[index], true);
+        PrecacheParticleEffect(g_szAuraName[index]);
+        AddFileToDownloadsTable(g_szAuraFPcf[index]);
     }
-    delete path;
-    delete fail;
 }
 
 void Aura_OnClientDisconnect(int client)
@@ -52,8 +38,10 @@ public bool Aura_Config(Handle kv, int itemid)
     KvGetString(kv, "effect", g_szAuraName[g_iAuras], PLATFORM_MAX_PATH);
     KvGetString(kv, "model",  g_szAuraFPcf[g_iAuras], PLATFORM_MAX_PATH);
 
-    ++g_iAuras;
+    if(!FileExists(g_szAuraFPcf[g_iAuras], true))
+        return false;
 
+    ++g_iAuras;
     return true; 
 }
 
@@ -110,12 +98,12 @@ void Store_SetClientAura(int client)
         DispatchKeyValue(iEnt , "start_active", "1");
         DispatchKeyValue(iEnt, "effect_name", g_szAuraClient[client]);
         DispatchSpawn(iEnt);
-        
+
         TeleportEntity(iEnt, clientOrigin, NULL_VECTOR, NULL_VECTOR);
 
         SetVariantString("!activator");
         AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
-        
+
         ActivateEntity(iEnt);
 
         g_iClientAura[client] = EntIndexToEntRef(iEnt);
@@ -128,9 +116,6 @@ void Store_SetClientAura(int client)
 
 public Action Hook_SetTransmit_Aura(int ent, int client)
 {
-    //if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-    //    SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
-
 #if defined AllowHide
     if(g_bHideMode[client])
         return Plugin_Handled;

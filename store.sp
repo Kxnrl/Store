@@ -312,7 +312,6 @@ public void OnGameFrame()
             continue;
         
         SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
-        tPrintToChatAll("Global -> %d -> Set", entity);
     }
 }
 #endif

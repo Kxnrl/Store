@@ -3,6 +3,8 @@
 git fetch --unshallow
 COUNT=$(git rev-list --count HEAD)
 FILE=$COUNT-$2-$3.7z
+LATEST=Store-SM$1-latest.7z
+STABLE=Store-SM$1-stable.7z
 
 
 #INFO
@@ -332,7 +334,9 @@ cd build
 if [ "$2" = "master" ]; then
 #    7z a $FILE -t7z -mx9 README.md addons utils materials models particles sound >nul
 # disallow package resouorce.
-    7z a $FILE -t7z -mx9 README.md addons utils >nul
+    7z a $FILE   -t7z -mx9 README.md addons utils >nul
+    7z a $LATEST -t7z -mx9 README.md addons utils >nul
+    7z a $STABLE -t7z -mx9 README.md addons utils >nul
 else
     7z a $FILE -t7z -mx9 README.md addons utils >nul
 fi
@@ -340,7 +344,13 @@ fi
 
 #上传
 echo "Upload file RSYNC ..."
-RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$2/$1/
+if [ "$2" = "stable" ]; then
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$STABLE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
+else
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$1/
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$LATEST $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
+fi
+
 
 #RAW
 if [ "$1" = "1.9" ] && [ "$2" = "master" ]; then

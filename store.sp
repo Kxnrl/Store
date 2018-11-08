@@ -73,10 +73,6 @@ Database g_hDatabase = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
 
-#if defined AllowHide
-ArrayList g_aFrameHook = null;
-#endif
-
 ArrayList g_aCaseSkins = null;
 StringMap g_smParentMap = null;
 
@@ -215,9 +211,6 @@ public void OnPluginStart()
     }
     
     g_aCaseSkins = new ArrayList(ByteCountToCells(256));
-#if defined AllowHide
-    g_aFrameHook = new ArrayList();
-#endif
 }
 
 public void OnPluginEnd()
@@ -298,23 +291,6 @@ public void OnMapStart()
         }
     }
 }
-
-#if defined AllowHide
-public void OnGameFrame()
-{
-    if(g_aFrameHook.Length <= 0)
-        return;
-    
-    for(int index = 0; index < g_aFrameHook.Length; ++index)
-    {
-        int entity = EntRefToEntIndex(g_aFrameHook.Get(index));
-        if(!IsValidEdict(entity))
-            continue;
-        
-        SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
-    }
-}
-#endif
 
 //////////////////////////////
 //         NATIVES          //
@@ -2913,9 +2889,6 @@ int UTIL_GetClientItemId(int client, int itemid)
 void Store_ResetAll()
 {
     g_aCaseSkins.Clear();
-#if defined AllowHide
-    g_aFrameHook.Clear();
-#endif
 
     for(int i = 0; i < g_iTypeHandlers; ++i)
     {
@@ -3505,10 +3478,6 @@ void UTIL_CheckModules()
 
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-#if defined AllowHide
-    g_aFrameHook.Clear();
-#endif
-
     for(int client = 1; client <= MaxClients; ++client)
     {
 #if defined Module_Spray

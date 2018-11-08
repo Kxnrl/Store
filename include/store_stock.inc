@@ -66,9 +66,11 @@ enum Compose_Data
     types
 }
 
-Handle g_hCachedFiles;
-Handle g_hCachedNums;
-Handle g_hCustomFiles;
+static ArrayList g_hCachedFiles;
+static StringMap g_hCachedNums;
+static StringMap g_hCustomFiles;
+static char g_szModelExts[][16] = {".phy", ".dx90.vtx", ".vtx", ".vvd", ".ani"};
+static char g_szMaterialKeys[][64] = {"$baseTexture", "$bumpmap", "$lightwarptexture"};
 
 stock int PrecacheModel2(const char[] model, bool preload = false)
 {
@@ -82,218 +84,215 @@ stock int PrecacheModel2(const char[] model, bool preload = false)
     return PrecacheModel(model, preload);
 }
 
-char g_szModelExts[][16] = {".phy", ".dx90.vtx", ".vtx", ".vvd", ".ani"};
 stock int Downloader_AddFileToDownloadsTable(const char[] filename)
 {
-    if(!FileExists2(filename))
-        return 0;
+	if(!FileExists2(filename))
+		return 0;
 
-    if(g_hCachedNums == INVALID_HANDLE)
-    {
-        g_hCachedNums = CreateTrie();
-        g_hCachedFiles = CreateArray(PLATFORM_MAX_PATH);
-    }
+	if(g_hCachedNums == null)
+	{
+		g_hCachedNums = new StringMap();
+		g_hCachedFiles = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	}
 
-    AddFileToDownloadsTable(filename);
+	AddFileToDownloadsTable(filename);
 
-    int m_iValue;
-    if(GetTrieValue(g_hCachedNums, filename, m_iValue))
-    {
-        int m_iStart = FindStringInArray(g_hCachedFiles, filename)+1;
-        char m_szFile[PLATFORM_MAX_PATH];
-        for(int i = m_iStart-m_iValue-1; i < m_iStart-1; ++i)
-        {
-            if(i<0)
-                break;
-            GetArrayString(g_hCachedFiles, i, m_szFile, sizeof(m_szFile));
-            AddFileToDownloadsTable(m_szFile);
-        }
-        return true;
-    }
+	int m_iValue;
+	if(g_hCachedNums.GetValue(filename, m_iValue))
+	{
+		int m_iStart = g_hCachedFiles.FindString(filename)+1;
+		char m_szFile[PLATFORM_MAX_PATH];
+		for(int i = m_iStart-m_iValue-1; i<m_iStart-1 ; ++i)
+		{
+			if(i<0)
+				break;
+			g_hCachedFiles.GetString(i, STRING(m_szFile));
+			AddFileToDownloadsTable(m_szFile);
+		}
+		return true;
+	}
 
-    char m_szExt[16];
-    int x_iDot = FindCharInString(filename, '.', true);
-    if(x_iDot == -1)
-        return true;
+	char m_szExt[16];
+	int m_iDot = FindCharInString(filename, '.', true);
+	if(m_iDot == -1)
+		return true;
 
-    int m_iNumFiles = 0;
+	int m_iNumFiles = 0;
 
-    strcopy(m_szExt, sizeof(m_szExt), filename[x_iDot]);
-    char m_szMaterials[32][PLATFORM_MAX_PATH];
-    int x_iNum;
-    if(strcmp(m_szExt, ".mdl") == 0)
-    {
-        char m_szFiles[sizeof(g_szModelExts)][PLATFORM_MAX_PATH];
-        char m_szInternal[64];
+	strcopy(STRING(m_szExt), filename[m_iDot]);
+	char m_szMaterials[32][PLATFORM_MAX_PATH];
+	int m_iNum;
+	if(strcmp(m_szExt, ".mdl") == 0)
+	{
+		char m_szFiles[sizeof(g_szModelExts)][PLATFORM_MAX_PATH];
+		char m_szInternal[64];
 
-        x_iNum = Downloader_ParseMDL(filename, STRING(m_szInternal), m_szMaterials, sizeof(m_szMaterials), sizeof(m_szMaterials[]));
-        for(int i = 0; i < x_iNum; ++i)
-        {
-            if(FileExists2(m_szMaterials[i]))
-                m_iNumFiles += Downloader_AddFileToDownloadsTable(m_szMaterials[i])+1;
-        }
+		m_iNum = Downloader_ParseMDL(filename, m_szInternal, sizeof(m_szInternal), m_szMaterials, sizeof(m_szMaterials), sizeof(m_szMaterials[]));
+		for(int i=0; i<m_iNum; ++i)
+		{
+			if(FileExists2(m_szMaterials[i]))
+				m_iNumFiles += Downloader_AddFileToDownloadsTable(m_szMaterials[i])+1;
+		}
 
-        x_iNum = Downloader_GetModelFiles(filename, m_szInternal, m_szFiles, sizeof(m_szFiles), sizeof(m_szFiles[]));
-        for(int i = 0; i < x_iNum; ++i)
-            m_iNumFiles += Downloader_AddFileToDownloadsTable(m_szFiles[i])+1;
-    } else if(strcmp(m_szExt, ".vmt") == 0)
-    {
-        x_iNum = Downloader_GetMaterialsFromVMT(filename, m_szMaterials, sizeof(m_szMaterials), sizeof(m_szMaterials[]));
-        char m_szMaterial[PLATFORM_MAX_PATH];
-        for(int i = 0; i < x_iNum; ++i)
-        {
-            Format(m_szMaterial, sizeof(m_szMaterial), "materials\\%s.vtf", m_szMaterials[i]);
-            if(FileExists2(m_szMaterial))
-                m_iNumFiles += Downloader_AddFileToDownloadsTable(m_szMaterial)+1;
-        }
-    }
+		m_iNum = Downloader_GetModelFiles(filename, m_szInternal, m_szFiles, sizeof(m_szFiles), sizeof(m_szFiles[]));
+		for(int i=0; i<m_iNum; ++i)
+			m_iNumFiles += Downloader_AddFileToDownloadsTable(m_szFiles[i])+1;
+	} else if(strcmp(m_szExt, ".vmt") == 0)
+	{
+		m_iNum = Downloader_GetMaterialsFromVMT(filename, m_szMaterials, sizeof(m_szMaterials), sizeof(m_szMaterials[]));
+		char m_szMaterial[PLATFORM_MAX_PATH];
+		for(int i=0; i<m_iNum; ++i)
+		{
+			Format(STRING(m_szMaterial), "materials\\%s.vtf", m_szMaterials[i]);
+			if(FileExists2(m_szMaterial))
+				m_iNumFiles += Downloader_AddFileToDownloadsTable(m_szMaterial)+1;
+		}
+	}
 
-    PushArrayString(g_hCachedFiles, filename);
-    SetTrieValue(g_hCachedNums, filename, m_iNumFiles);
+	g_hCachedFiles.PushString(filename);
+	g_hCachedNums.SetValue(filename, m_iNumFiles);
 
-    return m_iNumFiles;
+	return m_iNumFiles;
 }
 
 stock int Downloader_GetModelFiles(const char[] model, const char[] internal, char[][] files, int maxsize, int maxlen)
 {
-    char m_szRawPath1[PLATFORM_MAX_PATH];
-    char m_szRawPath2[PLATFORM_MAX_PATH];
-    strcopy(STRING(m_szRawPath1), model);
-    Format(STRING(m_szRawPath2), "models/%s", internal);
+	char m_szRawPath1[PLATFORM_MAX_PATH];
+	char m_szRawPath2[PLATFORM_MAX_PATH];
+	strcopy(STRING(m_szRawPath1), model);
+	Format(STRING(m_szRawPath2), "models/%s", internal);
 
-    int m_iDot = FindCharInString(m_szRawPath1, '.', true);
-    if(m_iDot == -1)
-        return 0;
-    m_szRawPath1[m_iDot] = 0;
+	int m_iDot = FindCharInString(m_szRawPath1, '.', true);
+	if(m_iDot == -1)
+		return 0;
+	m_szRawPath1[m_iDot] = 0;
 
-    m_iDot = FindCharInString(m_szRawPath2, '.', true);
-    if(m_iDot == -1)
-        return 0;
-    m_szRawPath2[m_iDot] = 0;
+	m_iDot = FindCharInString(m_szRawPath2, '.', true);
+	if(m_iDot == -1)
+		return 0;
+	m_szRawPath2[m_iDot] = 0;
 
-    int m_iNum = 0;
-    for(int i = 0; i<sizeof(g_szModelExts); ++i)
-    {
-        if(m_iNum == maxsize)
-            break;
-        Format(files[m_iNum], maxlen, "%s%s", m_szRawPath1, g_szModelExts[i]);
-        if(FileExists2(files[m_iNum]))
-            ++m_iNum;
-        else
-        {
-            Format(files[m_iNum], maxlen, "%s%s", m_szRawPath2, g_szModelExts[i]);
-            if(FileExists2(files[m_iNum]))
-                ++m_iNum;
-        }
-    }
-    return m_iNum;
+	int m_iNum = 0;
+	for(int i=0; i<sizeof(g_szModelExts); ++i)
+	{
+		if(m_iNum == maxsize)
+			break;
+		Format(files[m_iNum], maxlen, "%s%s", m_szRawPath1, g_szModelExts[i]);
+		if(FileExists2(files[m_iNum]))
+			++m_iNum;
+		else
+		{
+			Format(files[m_iNum], maxlen, "%s%s", m_szRawPath2, g_szModelExts[i]);
+			if(FileExists2(files[m_iNum]))
+				++m_iNum;
+		}
+	}
+	return m_iNum;
 }
 
-char g_szMaterialKeys[][64] = {"$baseTexture", "$bumpmap", "$lightwarptexture"};
 stock int Downloader_GetMaterialsFromVMT(const char[] vmt, char[][] materials, int maxsize, int maxlen)
 {
-    if(!FileExists2(vmt))
-        return 0;
+	if(!FileExists2(vmt))
+		return 0;
 
-    char m_szLine[512];
+	char m_szLine[512];
 
-    Handle m_hFile = OpenFile2(vmt, "r");
-    
-    bool m_bFound[sizeof(g_szMaterialKeys)];
-    int m_iPos;
-    int m_iLast;
-    int m_iNum = 0;
-    while(ReadFileLine(m_hFile, m_szLine, sizeof(m_szLine))!=false)
-    {
-        if(m_iNum == sizeof(g_szMaterialKeys) || maxsize == m_iNum)
-            break;
+	File m_hFile = OpenFile2(vmt, "r");
 
-        for(int i = 0; i < sizeof(g_szMaterialKeys); ++i)
-        {
-            if(m_bFound[i])
-                continue;
+	bool m_bFound[sizeof(g_szMaterialKeys)];
+	int m_iPos;
+	int m_iLast;
+	int m_iNum = 0;
+	while(ReadFileLine(m_hFile, STRING(m_szLine))!=false)
+	{
+		if(m_iNum == sizeof(g_szMaterialKeys) || maxsize == m_iNum)
+			break;
 
-            if((m_iPos = StrContains(m_szLine, g_szMaterialKeys[i], false)) > 0)
-            {
-                m_bFound[i]=true;
-                while(m_szLine[m_iPos] != '"' && m_szLine[m_iPos] != ' ' && m_szLine[m_iPos] != '	')
-                    ++m_iPos;
-                while(m_szLine[m_iPos] == ' ' || m_szLine[m_iPos] == '	' || m_szLine[m_iPos] == '"')
-                    ++m_iPos;
-                m_iLast = m_iPos;
-                while(m_szLine[m_iLast] != '"' && m_szLine[m_iLast] != '\r' && m_szLine[m_iLast] != '\n' && m_szLine[m_iLast] != ' ' && m_szLine[m_iLast] != '	' && m_szLine[m_iLast] != 0)
-                    ++m_iLast;
-                m_szLine[m_iLast] = 0;
-                strcopy(materials[m_iNum], maxlen, m_szLine[m_iPos]);
-                ++m_iNum;
-            }
-        }
-    }
+		for(int i=0;i<sizeof(g_szMaterialKeys);++i)
+		{
+			if(m_bFound[i])
+				continue;
+			if((m_iPos = StrContains(m_szLine, g_szMaterialKeys[i], false)) > 0)
+			{
+				m_bFound[i]=true;
+				while(m_szLine[m_iPos] != '"' && m_szLine[m_iPos] != ' ' && m_szLine[m_iPos] != '	')
+					++m_iPos;
+				while(m_szLine[m_iPos] == ' ' || m_szLine[m_iPos] == '	' || m_szLine[m_iPos] == '"')
+					++m_iPos;
+				m_iLast = m_iPos;
+				while(m_szLine[m_iLast] != '"' && m_szLine[m_iLast] != '\r' && m_szLine[m_iLast] != '\n' && m_szLine[m_iLast] != ' ' && m_szLine[m_iLast] != '	' && m_szLine[m_iLast] != 0)
+					++m_iLast;
+				m_szLine[m_iLast] = 0;
+				strcopy(materials[m_iNum], maxlen, m_szLine[m_iPos]);
+				++m_iNum;
+			}
+		}
+	}
 
-    CloseHandle(m_hFile);
+	delete m_hFile;
 
-    return m_iNum;
+	return m_iNum;
 }
 
 stock int Downloader_ParseMDL(const char[] model, char[] internal, int maxlen1, char[][] files, int maxsize, int maxlen2)
 {
-    if(!FileExists2(model))
-        return 0;
+	if(!FileExists2(model))
+		return 0;
 
-    int m_iID;
-    int m_iVersion;
-    int x_iNum = 0;
-    int m_iDirNum = 0;
-    int m_iOffset = 0;
-    int m_iDirOffset = 0;
-    int m_iNameOffset = 0;
-    int m_iIdx = 0;
+	int m_iID;
+	int m_iVersion;
+	int m_iNum = 0;
+	int m_iDirNum = 0;
+	int m_iOffset = 0;
+	int m_iDirOffset = 0;
+	int m_iNameOffset = 0;
+	int m_iIdx = 0;
 
-    Handle m_hFile = OpenFile2(model, "rb");
-    if(m_hFile==INVALID_HANDLE)
-        return 0;
+	File m_hFile = OpenFile2(model, "rb");
+	if(m_hFile == null)
+		return 0;
 
-    ReadFileCell(m_hFile, m_iID, 4);
-    ReadFileCell(m_hFile, m_iVersion, 4);
-    FileSeek(m_hFile, 4, SEEK_CUR);
-    ReadFileString(m_hFile, internal, maxlen1);
+	m_hFile.ReadInt32(m_iID);
+	m_hFile.ReadInt32(m_iVersion);
+	m_hFile.Seek(4, SEEK_CUR);
+	m_hFile.ReadString(internal, maxlen1);
 
-    FileSeek(m_hFile, 204, SEEK_SET);
-    ReadFileCell(m_hFile, x_iNum, 4);
-    ReadFileCell(m_hFile, m_iOffset, 4);
-    ReadFileCell(m_hFile, m_iDirNum, 4);
-    ReadFileCell(m_hFile, m_iDirOffset, 4);
+	m_hFile.Seek(204, SEEK_SET);
+	m_hFile.ReadInt32(m_iNum);
+	m_hFile.ReadInt32(m_iOffset);
+	m_hFile.ReadInt32(m_iDirNum);
+	m_hFile.ReadInt32(m_iDirOffset);
 
-    char m_szPath[PLATFORM_MAX_PATH];
-    if(m_iDirNum!=0)
-    {
-        FileSeek(m_hFile, m_iDirOffset, SEEK_SET);
-        ReadFileCell(m_hFile, m_iDirOffset, 4);
-        FileSeek(m_hFile, m_iDirOffset, SEEK_SET);
-        ReadFileString(m_hFile, STRING(m_szPath));
-    }
+	char m_szPath[PLATFORM_MAX_PATH];
+	if(m_iDirNum!=0)
+	{
+		m_hFile.Seek(m_iDirOffset, SEEK_SET);
+		m_hFile.ReadInt32(m_iDirOffset);
+		m_hFile.Seek(m_iDirOffset, SEEK_SET);
+		m_hFile.ReadString(STRING(m_szPath));
+	}
 
-    char m_szMaterial[PLATFORM_MAX_PATH];
-    for(m_iIdx = 0; m_iIdx < x_iNum; ++m_iIdx)
-    {
-        FileSeek(m_hFile, m_iOffset+m_iIdx*64, SEEK_SET);
-        ReadFileCell(m_hFile, m_iNameOffset, 4);
-        FileSeek(m_hFile, m_iNameOffset-4, SEEK_CUR);
-        ReadFileString(m_hFile, STRING(m_szMaterial));
+	char m_szMaterial[PLATFORM_MAX_PATH];
+	for(m_iIdx=0; m_iIdx<m_iNum; ++m_iIdx)
+	{
+		m_hFile.Seek(m_iOffset+m_iIdx*64, SEEK_SET);
+		m_hFile.ReadInt32(m_iNameOffset);
+		m_hFile.Seek(m_iNameOffset-4, SEEK_CUR);
+		m_hFile.ReadString(STRING(m_szMaterial));
 
-        Format(files[m_iIdx], maxlen2, "materials\\%s%s.vmt", m_szPath, m_szMaterial);
-    }
+		Format(files[m_iIdx], maxlen2, "materials\\%s%s.vmt", m_szPath, m_szMaterial);
+	}
 
-    return x_iNum;
+	return m_iNum;
 }
 
-stock Handle OpenFile2(const char[] file, const char[] mode)
+stock File OpenFile2(const char[] file, const char[] mode)
 {
     if(g_hCustomFiles == INVALID_HANDLE)
         CacheCustomDirectory();
 
     char m_szPath[PLATFORM_MAX_PATH];
-    if(!GetTrieString(g_hCustomFiles, file, STRING(m_szPath)))
+    if(!g_hCustomFiles.GetString(file, STRING(m_szPath)))
     {
         strcopy(STRING(m_szPath), file);
     }
@@ -301,64 +300,64 @@ stock Handle OpenFile2(const char[] file, const char[] mode)
     return OpenFile(m_szPath, mode);
 }
 
-public void CacheCustomDirectory()
+stock void CacheCustomDirectory()
 {
-    g_hCustomFiles = CreateTrie();
+	g_hCustomFiles = new StringMap();
 
-    Handle m_hDir = OpenDirectory("custom");
-    if(m_hDir == INVALID_HANDLE)
-        return;
+	DirectoryListing  m_hDir = OpenDirectory("custom");
+	if(m_hDir == null)
+		return;
 
-    char m_szDirectory[PLATFORM_MAX_PATH] = "custom/";
-    FileType m_eType;
-    int m_unLen = strlen(m_szDirectory);
+	char m_szDirectory[PLATFORM_MAX_PATH] = "custom/";
+	FileType m_eType;
+	int m_unLen = strlen(m_szDirectory);
 
-    while(ReadDirEntry(m_hDir, m_szDirectory[m_unLen], sizeof(m_szDirectory)-m_unLen, m_eType))
-    {
-        if(m_eType != FileType_Directory)
-            continue;
+	while(m_hDir.GetNext(m_szDirectory[m_unLen], sizeof(m_szDirectory)-m_unLen, m_eType))
+	{
+		if(m_eType != FileType_Directory)
+			continue;
 
-        if(strcmp(m_szDirectory[m_unLen], ".")==0 || strcmp(m_szDirectory[m_unLen], "..")==0)
-            continue;
+		if(strcmp(m_szDirectory[m_unLen], ".")==0 || strcmp(m_szDirectory[m_unLen], "..")==0)
+			continue;
 
-        CacheDirectory(m_szDirectory);
-    }
-    CloseHandle(m_hDir);
+		CacheDirectory(m_szDirectory);
+	}
+	delete m_hDir;
 }
 
-public void CacheDirectory(const char[] directory)
+stock void CacheDirectory(const char[] directory)
 {
-    Handle m_hDir = OpenDirectory(directory);
-    char m_szPath[PLATFORM_MAX_PATH];
-    FileType m_eType;
-    Format(STRING(m_szPath), "%s/", directory);
-    int m_unLen = strlen(m_szPath);
-    int m_unOffset = FindCharInString(m_szPath, '/')+1;
-    m_unOffset += FindCharInString(m_szPath[m_unOffset], '/')+1;
+	DirectoryListing m_hDir = OpenDirectory(directory);
+	char m_szPath[PLATFORM_MAX_PATH];
+	FileType m_eType;
+	Format(STRING(m_szPath), "%s/", directory);
+	int m_unLen = strlen(m_szPath);
+	int m_unOffset = FindCharInString(m_szPath, '/')+1;
+	m_unOffset += FindCharInString(m_szPath[m_unOffset], '/')+1;
 
-    while(ReadDirEntry(m_hDir, m_szPath[m_unLen], sizeof(m_szPath)-m_unLen, m_eType))
-    {
-        if(strcmp(m_szPath[m_unLen], ".")==0 || strcmp(m_szPath[m_unLen], "..")==0)
-            continue;
+	while(m_hDir.GetNext(m_szPath[m_unLen], sizeof(m_szPath)-m_unLen, m_eType))
+	{
+		if(strcmp(m_szPath[m_unLen], ".")==0 || strcmp(m_szPath[m_unLen], "..")==0)
+			continue;
 
-        if(m_eType == FileType_Directory)
-            CacheDirectory(m_szPath);
-        else if(m_eType == FileType_File)
-        {
-            SetTrieString(g_hCustomFiles, m_szPath[m_unOffset], m_szPath);
-        }
-    }
-    CloseHandle(m_hDir);
+		if(m_eType == FileType_Directory)
+			CacheDirectory(m_szPath);
+		else if(m_eType == FileType_File)
+		{
+			g_hCustomFiles.SetString(m_szPath[m_unOffset], m_szPath);
+		}
+	}
+	delete m_hDir;
 }
 
 stock bool FileExists2(const char[] file)
 {
-    if(g_hCustomFiles == INVALID_HANDLE)
+    if(g_hCustomFiles == null)
         CacheCustomDirectory();
 
     char m_szPath[PLATFORM_MAX_PATH];
 
-    if(!GetTrieString(g_hCustomFiles, file, STRING(m_szPath)))
+    if(!g_hCustomFiles.GetString(file, STRING(m_szPath)))
         return FileExists(file);
 
     return FileExists(m_szPath);
@@ -374,27 +373,27 @@ public bool TraceRayDontHitSelf(int entity, int mask, any data)
 stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, char[] display, any ...)
 {
     char m_display[256];
-    VFormat(m_display, sizeof(m_display), display, 6);
+    VFormat(STRING(m_display), display, 6);
     return (GetMenuItemCount(menu)==position) ? AddMenuItem(menu, info, m_display, style) : InsertMenuItem(menu, position, info, m_display, style);
 }
 
-public void SQLCallback_Void_PrintQuery(Handle owner, Handle hndl, const char[] error, any data)
+public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack data)
 {
-    if(hndl==INVALID_HANDLE)
+    if(results == null || error[0])
     {
         char query[2048];
         ReadPackString(data, STRING(query));
         LogError("SQL error happened.\nQuery: %s\nError: %s", query, error);
     }
-    CloseHandle(data);
+    delete data;
 }
 
-public void SQL_TVoid(Handle db, char[] query)
+public void SQL_TVoid(Database db, char[] query)
 {
-    Handle data = CreateDataPack();
-    WritePackString(data, query);
-    ResetPack(data);
-    SQL_TQuery(db, SQLCallback_Void_PrintQuery, query, data);
+    DataPack data = new DataPack();
+    data.WriteString(query);
+    data.Reset();
+    db.Query(SQLCallback_Void_PrintQuery, query, data);
 }
 
 stock bool AllowItemForAuth(int client, const char[] authid)
@@ -531,7 +530,7 @@ stock void SetMenuTitleEx(Handle menu, const char[] fmt, any ...)
 stock bool AddMenuItemEx(Handle menu, int style, char[] info, char[] display, any ...)
 {
     char m_display[256];
-    VFormat(m_display, sizeof(m_display), display, 5);
+    VFormat(STRING(m_display), display, 5);
     return AddMenuItem(menu, info, m_display, style);
 }
 
@@ -687,4 +686,9 @@ stock void PrecacheEffect(const char[] name)
     bool save = LockStringTables(false);
     AddToStringTable(table, name);
     LockStringTables(save);
+}
+
+stock void SetTransmitFlags(int entity)
+{
+    SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
 }

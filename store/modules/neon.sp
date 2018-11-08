@@ -60,6 +60,7 @@ public int Neon_Remove(int client)
 #if defined AllowHide
 public Action Hook_SetTransmit_Neon(int entity, int client)
 {
+    SetTransmitFlags(entity);
     return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
 }
 #endif
@@ -129,7 +130,6 @@ void Store_SetClientNeon(int client)
         //    SetEdictFlags(ent, GetEdictFlags(ent) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
         SetEdictFlags(iNeon, GetEdictFlags(iNeon)&(~FL_EDICT_ALWAYS));
         SDKHook(iNeon, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
-        g_aFrameHook.Push(g_iClientNeon[client]);
 #endif
     }
 }

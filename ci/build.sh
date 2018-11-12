@@ -3,6 +3,8 @@
 git fetch --unshallow
 COUNT=$(git rev-list --count HEAD)
 FILE=$COUNT-$2-$3.7z
+LATEST=Store-SM$1-latest.7z
+STABLE=Store-SM$1-stable.7z
 
 
 #INFO
@@ -262,6 +264,40 @@ mv addons/sourcemod/scripting/store_weaponskin.sp build/addons/sourcemod/scripti
 mv store_weaponskin.smx build/addons/sourcemod/plugins/modules
 
 
+#编译Store模组DefaultSkin
+echo "Compiling store module [default skin] ..."
+cp -f modules/store_defaultskin.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_defaultskin.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_defaultskin.sp >nul
+if [ ! -f "store_defaultskin.smx" ]; then
+    echo "Compile store module [default skin] failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store_defaultskin.sp build/addons/sourcemod/scripting/modules
+mv store_defaultskin.smx build/addons/sourcemod/plugins/modules
+
+
+#编译Store模组GiveCreditsCommand
+echo "Compiling store module [give credits command] ..."
+cp -f modules/store_givecreditscommand.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_givecreditscommand.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_givecreditscommand.sp >nul
+if [ ! -f "store_givecreditscommand.smx" ]; then
+    echo "Compile store module [give credits command] failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store_givecreditscommand.sp build/addons/sourcemod/scripting/modules
+mv store_givecreditscommand.smx build/addons/sourcemod/plugins/modules
+
+
 #解压素材文件
 echo "Extract resource file ..."
 echo "Processing archive: resources/materials/materials.7z"
@@ -298,7 +334,9 @@ cd build
 if [ "$2" = "master" ]; then
 #    7z a $FILE -t7z -mx9 README.md addons utils materials models particles sound >nul
 # disallow package resouorce.
-    7z a $FILE -t7z -mx9 README.md addons utils >nul
+    7z a $FILE   -t7z -mx9 README.md addons utils >nul
+    7z a $LATEST -t7z -mx9 README.md addons utils >nul
+    7z a $STABLE -t7z -mx9 README.md addons utils >nul
 else
     7z a $FILE -t7z -mx9 README.md addons utils >nul
 fi
@@ -306,7 +344,13 @@ fi
 
 #上传
 echo "Upload file RSYNC ..."
-RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$2/$1/
+if [ "$2" = "stable" ]; then
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$STABLE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
+else
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$1/
+    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$LATEST $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
+fi
+
 
 #RAW
 if [ "$1" = "1.9" ] && [ "$2" = "master" ]; then

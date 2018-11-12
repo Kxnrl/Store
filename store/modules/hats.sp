@@ -10,9 +10,11 @@ enum Hat
     iSlot
 }
 
-Hat g_eHats[STORE_MAX_ITEMS][Hat];
-int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
-int g_iHats = 0;
+static any g_eHats[STORE_MAX_ITEMS][Hat];
+static int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iHats = 0;
+static int g_iSpecTarget[MAXPLAYERS+1];
+static int g_iHatsOwners[2048];
 
 public bool Hats_Config(Handle kv, int itemid)
 {
@@ -36,15 +38,42 @@ public bool Hats_Config(Handle kv, int itemid)
 
 public void Hats_OnMapStart()
 {
-    for(int a = 0; a <= MaxClients; ++a)
-        for(int b = 1; b < STORE_MAX_SLOTS; ++b)
-            g_iClientHats[a][b] = 0;
+    for(int a = 1; a <= MaxClients; ++a)
+        for(int b = 0; b < STORE_MAX_SLOTS; ++b)
+            g_iClientHats[a][b] = INVALID_ENT_REFERENCE;
 
     for(int i = 0; i < g_iHats; ++i)
     {
         PrecacheModel2(g_eHats[i][szModel], true);
         Downloader_AddFileToDownloadsTable(g_eHats[i][szModel]);
     }
+
+    CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_Hats_Adjust(Handle timer)
+{
+    for(int client = 1; client <= MaxClients; ++client)
+        if(IsClientInGame(client))
+        {
+            if(!IsPlayerAlive(client))
+            {
+                int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
+                int m_hObserverTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
+                g_iSpecTarget[client] = (m_iObserverMode == 4 && m_hObserverTarget > 0) ? m_hObserverTarget : -1;
+            }
+            else g_iSpecTarget[client] = client;
+        }
+
+    return Plugin_Continue;
+}
+
+public void OnEntityDestroyed(int entity)
+{
+    if(entity > 2048 || entity < 0)
+        return;
+
+    g_iHatsOwners[entity] = -1;
 }
 
 public void Hats_Reset()
@@ -72,16 +101,16 @@ public int Hats_Remove(int client, int id)
 
 void Store_SetClientHat(int client)
 {
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
+    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
         Store_RemoveClientHats(client, i);
         CreateHat(client, -1, i);
     }
 }
 
-void CreateHat(int client, int itemid = -1, int slot = 0)
+static void CreateHat(int client, int itemid = -1, int slot = 0)
 {
-    int  m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "hat", slot) : itemid);
+    int m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "hat", slot) : itemid);
     
     if(m_iEquipped >= 0)
     {
@@ -121,13 +150,15 @@ void CreateHat(int client, int itemid = -1, int slot = 0)
         DispatchKeyValue(m_iEnt, "solid", "0");
         SetEntPropEnt(m_iEnt, Prop_Send, "m_hOwnerEntity", client);
 
+        g_iHatsOwners[m_iEnt] = client;
+
         if(g_eHats[m_iData][bBonemerge])
             Bonemerge(m_iEnt);
 
         DispatchSpawn(m_iEnt);    
         AcceptEntityInput(m_iEnt, "TurnOn", m_iEnt, m_iEnt, 0);
 
-        g_iClientHats[client][g_eHats[m_iData][iSlot]]=m_iEnt;
+        g_iClientHats[client][g_eHats[m_iData][iSlot]] = EntIndexToEntRef(m_iEnt);
         
         SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
         
@@ -143,47 +174,32 @@ void CreateHat(int client, int itemid = -1, int slot = 0)
 
 void Store_RemoveClientHats(int client, int slot)
 {
-    if(g_iClientHats[client][slot] != 0 && IsValidEdict(g_iClientHats[client][slot]))
+    if(g_iClientHats[client][slot] != INVALID_ENT_REFERENCE)
     {
-        SDKUnhook(g_iClientHats[client][slot], SDKHook_SetTransmit, Hook_SetTransmit_Hat);
-        char m_szClassname[64];
-        GetEdictClassname(g_iClientHats[client][slot], STRING(m_szClassname));
-        if(strcmp("prop_dynamic", m_szClassname)==0)
-            AcceptEntityInput(g_iClientHats[client][slot], "Kill");
+        int entity = EntRefToEntIndex(g_iClientHats[client][slot]);
+        if(IsValidEdict(entity))
+        {
+            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
+            AcceptEntityInput(entity, "Kill");
+        }
+        g_iClientHats[client][slot] = INVALID_ENT_REFERENCE;
     }
-    g_iClientHats[client][slot] = 0;
 }
 
 public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-    if(IsPlayerTP(client))
-        return Plugin_Continue;
+    if(g_iSpecTarget[client] == g_iHatsOwners[ent] || client == g_iHatsOwners[ent])
+        return IsPlayerTP(client) ? Plugin_Continue : Plugin_Handled;
 
 #if defined AllowHide
     if(g_bHideMode[client])
         return Plugin_Handled;
 #endif
 
-    for(int i = 1; i < STORE_MAX_SLOTS; ++i)
-        if(ent == g_iClientHats[client][i])
-            return Plugin_Handled;
-
-    if(IsClientObserver(client))
-    {
-        int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
-        int m_hObserverTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
-        if(m_iObserverMode == 4 && m_hObserverTarget >= 0)
-        {
-            for(int i = 1; i < STORE_MAX_SLOTS; ++i)
-                if(ent == g_iClientHats[m_hObserverTarget][i])
-                    return Plugin_Handled;
-        }
-    }
-
     return Plugin_Continue;
 }
 
-void Bonemerge(int ent)
+static void Bonemerge(int ent)
 {
     int m_iEntEffects = GetEntProp(ent, Prop_Send, "m_fEffects"); 
     m_iEntEffects &= ~32;

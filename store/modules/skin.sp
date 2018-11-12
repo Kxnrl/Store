@@ -1,7 +1,5 @@
 #define Module_Skin
 
-#define Model_ZE_Newbee "models/player/custom_player/legacy/tm_leet_variant_classic.mdl"
-
 #undef REQUIRE_PLUGIN
 #include <armsfix>
 #define REQUIRE_PLUGIN
@@ -15,27 +13,32 @@ enum PlayerSkin
     iTeam
 }
 
-PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
+static any g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 
-bool g_pArmsFix;
+static int    g_iPlayerSkins = 0;
+static int    g_iSkinLevel[MAXPLAYERS+1];
+static int    g_iPreviewTimes[MAXPLAYERS+1];
+static int    g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static int    g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static bool   g_pArmsFix;
+static char   g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static char   g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static ConVar spec_freeze_time;
+static ConVar mp_round_restart_delay;
+static ConVar sv_disablefreezecam;
+static ConVar spec_replay_enable;
 
-int g_iPlayerSkins = 0;
-int g_iSkinLevel[MAXPLAYERS+1];
-int g_iPreviewTimes[MAXPLAYERS+1];
-int g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-int g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-bool g_bSpecJoinPending[MAXPLAYERS+1];
-char g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
-char g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
-ConVar spec_freeze_time;
-ConVar mp_round_restart_delay;
-ConVar sv_disablefreezecam;
-ConVar spec_replay_enable;
-
+bool   g_bSpecJoinPending[MAXPLAYERS+1];
 Handle g_tKillPreview[MAXPLAYERS+1];
+
+Handle g_hOnPlayerSkinDefault = null;
+Handle g_hOnFPDeathCamera = null;
 
 void Skin_OnPluginStart()
 {
+    g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
+    g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
+
     AddNormalSoundHook(Hook_NormalSound);
 
     Store_RegisterHandler("playerskin", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
@@ -58,8 +61,6 @@ void Skin_OnPluginStart()
     spec_replay_enable = FindConVar("spec_replay_enable");
     HookConVarChange(spec_replay_enable, Skin_OnConVarChanged);
     SetConVarString(spec_replay_enable, "0", true);
-
-    g_ArraySkin = CreateArray(ByteCountToCells(256));
 }
 
 public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -159,14 +160,6 @@ public void PlayerSkins_OnMapStart()
     }
 
     PrecacheModel2("models/blackout.mdl", true);
-
-#if defined GM_ZE
-    if(FileExists(Model_ZE_Newbee))
-    {
-        PrecacheModel2(Model_ZE_Newbee, true);
-        Downloader_AddFileToDownloadsTable(Model_ZE_Newbee);
-    }
-#endif
 }
 
 public void PlayerSkins_Reset()
@@ -210,15 +203,10 @@ void Store_PreSetClientModel(int client)
         CreateTimer(0.02, Timer_SetClientModel, client | (Store_GetDataIndex(m_iEquipped) << 7), TIMER_FLAG_NO_MAPCHANGE);
         return;
     }
-#if defined GM_ZE
-    else
-    {
-        CreateTimer(0.02, Store_SetClientModelZE, client, TIMER_FLAG_NO_MAPCHANGE);
-        return;
-    }
-#endif
 
-#if defined Module_Hats && !defined GM_ZE
+    Store_CallDefaultSkin(client);
+
+#if defined Module_Hats
     Store_SetClientHat(client);
 #endif
 }
@@ -252,13 +240,29 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
 
         return Plugin_Changed;
     }
-#if defined GM_ZE
-    else if(g_iClientTeam[client] == 3)
+
+    char skin_t[128], arms_t[128];
+
+    bool ret = false;
+    
+    Call_StartForward(g_hOnPlayerSkinDefault);
+    Call_PushCell(client);
+    Call_PushCell(g_iClientTeam[client]-2);
+    Call_PushStringEx(skin_t, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_PushStringEx(arms_t,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_Finish(ret);
+
+    if(ret)
     {
-        strcopy(model, modelLen, Model_ZE_Newbee);
+        strcopy( arms,  armsLen, arms_t);
+        strcopy(model, modelLen, skin_t);
+
+        if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
+
         return Plugin_Changed;
     }
-#endif
 
     return Plugin_Continue;
 }
@@ -289,12 +293,8 @@ public void ArmsFix_OnArmsFixed(int client)
             Store_SetClientModel(client, m_iData);
             return;
         }
-#if defined GM_ZE
-        else
-        {
-            SetEntityModel(client, Model_ZE_Newbee);
-        }
-#endif
+        
+        Store_CallDefaultSkin(client);
     }
 
 #if defined Module_Hats
@@ -302,7 +302,7 @@ public void ArmsFix_OnArmsFixed(int client)
 #endif
 }
 
-void Store_SetClientModel(int client, int m_iData)
+static void Store_SetClientModel(int client, int m_iData)
 {
     if(!IsClientInGame(client) || !IsPlayerAlive(client))
         return;
@@ -339,28 +339,6 @@ public Action Timer_SetClientModel(Handle timer, int val)
     Store_SetClientModel(val & 0x7f, val >> 7);
     return Plugin_Stop;
 }
-
-#if defined GM_ZE
-public Action Store_SetClientModelZE(Handle timer, int client)
-{
-    if(!IsClientInGame(client) || !IsPlayerAlive(client))
-        return Plugin_Stop;
-
-    if(g_iClientTeam[client] == 2)
-    {
-        strcopy(g_szSkinModel[client], 256, "#zombie");
-        return Plugin_Stop;
-    }
-
-    SetEntityModel(client, Model_ZE_Newbee);
-
-#if defined Module_Hats
-    Store_SetClientHat(client);
-#endif
-
-    return Plugin_Stop;
-}
-#endif
 
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
@@ -512,10 +490,17 @@ public Action Timer_KillPreview(Handle timer, int client)
 
 public void FirstPersonDeathCamera(int client)
 {
-#if !defined GM_TT
     if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
         return;
 
+    Action ret = Plugin_Continue;
+    
+    Call_StartForward(g_hOnFPDeathCamera);
+    Call_PushCell(client);
+    Call_Finish(ret);
+    
+    if(ret >= Plugin_Handled)
+        return;
 
     int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 
@@ -523,11 +508,9 @@ public void FirstPersonDeathCamera(int client)
         return;
 
     SpawnCamAndAttach(client, m_iRagdoll);
-#endif
 }
 
-#if !defined GM_TT
-bool SpawnCamAndAttach(int client, int ragdoll)
+static bool SpawnCamAndAttach(int client, int ragdoll)
 {
     char m_szTargetName[32]; 
     FormatEx(m_szTargetName, 32, "ragdoll%d", client);
@@ -577,7 +560,6 @@ bool SpawnCamAndAttach(int client, int ragdoll)
 
     return true;
 }
-#endif
 
 public Action Timer_ClearCamera(Handle timer, int client)
 {
@@ -596,9 +578,7 @@ public Action Timer_ClearCamera(Handle timer, int client)
     if(IsClientInGame(client))
     {
         SetClientViewEntity(client, client);
-#if !defined GM_TT
         FadeScreenWhite(client);
-#endif
     }
 
     return Plugin_Stop;
@@ -615,15 +595,13 @@ void AttemptState(int client, bool spec)
     }
 }
 
-#if !defined GM_TT
-
 #define FFADE_IN        0x0001        // Just here so we don't pass 0 into the function
 #define FFADE_OUT       0x0002        // Fade out (not in)
 #define FFADE_MODULATE  0x0004        // Modulate (don't blend)
 #define FFADE_STAYOUT   0x0008        // ignores the duration, stays faded out until new ScreenFade message received
 #define FFADE_PURGE     0x0010        // Purges all other fades, replacing them with this one
 
-void FadeScreenBlack(int client)
+static void FadeScreenBlack(int client)
 {
     Handle pb = StartMessageOne("Fade", client);
     PbSetInt(pb, "duration", 4096);
@@ -633,7 +611,7 @@ void FadeScreenBlack(int client)
     EndMessage();
 }
 
-void FadeScreenWhite(int client)
+static void FadeScreenWhite(int client)
 {
     Handle pb = StartMessageOne("Fade", client);
     PbSetInt(pb, "duration", 1536);
@@ -642,17 +620,7 @@ void FadeScreenWhite(int client)
     PbSetColor(pb, "clr", {0, 0, 0, 0});
     EndMessage();
 }
-#endif
 
-#if defined GM_ZE
-public void CG_OnRoundEnd(int winner)
-{
-    for(int client = 1; client <= MaxClients; ++client)
-        g_iClientTeam[client] = 3;
-}
-#endif
-
-#if !defined GM_TT
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
     if(IsPlayerAlive(client))
@@ -673,7 +641,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
     return Plugin_Continue;
 }
-#endif
 
 static int GetEquippedSkin(int client)
 {
@@ -684,6 +651,21 @@ static int GetEquippedSkin(int client)
 #endif
 }
 
+#if defined GM_ZE
+public void ZR_OnClientHumanPost(int client, bool respawn, bool protect)
+{
+    // If client has been respawned.
+    if(respawn) 
+        return;
+
+    // Dead Player.
+    if(!IsPlayerAlive(client))
+        return;
+
+    Store_PreSetClientModel(client);
+}
+#endif
+
 void Store_RemoveClientGloves(int client, int m_iData = -1)
 {
     if(m_iData == -1 && GetEquippedSkin(client) <= 0)
@@ -692,4 +674,54 @@ void Store_RemoveClientGloves(int client, int m_iData = -1)
     int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
     if(gloves != -1)
         AcceptEntityInput(gloves, "KillHierarchy");
+}
+
+void Store_ResetPlayerSkin(int client)
+{
+    strcopy(g_szSkinModel[client], 256, "#default");
+    g_iSkinLevel[client] = 0;
+    g_szDeathVoice[client][0] = '\0';
+}
+
+int Store_GetPlayerSkinLevel(int client)
+{
+    return g_iSkinLevel[client];
+}
+
+void Store_GetClientSkinModel(int client, char[] model, int maxLen)
+{
+    GetEntPropString(client, Prop_Data, "m_ModelName", model, maxLen);
+}
+
+void Store_GetPlayerSkinModel(int client, char[] model, int maxLen)
+{
+    strcopy(model, maxLen, g_szSkinModel[client]);
+}
+
+void Store_CallDefaultSkin(int client)
+{
+    char skin_t[128], arms_t[128];
+
+    bool ret = false;
+
+    Call_StartForward(g_hOnPlayerSkinDefault);
+    Call_PushCell(client);
+    Call_PushCell(g_iClientTeam[client]-2);
+    Call_PushStringEx(skin_t, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_PushStringEx(arms_t,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_Finish(ret);
+
+    if(ret)
+    {
+        if(IsModelPrecached(skin_t))
+            SetEntityModel(client, skin_t);
+
+        if(IsModelPrecached(arms_t))
+        {
+            Store_RemoveClientGloves(client, 0);
+            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+        }
+    }
 }

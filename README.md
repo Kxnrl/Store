@@ -2,7 +2,7 @@
 
 |Build Status|Download|
 |---|---
-|[![Build Status](https://img.shields.io/travis/Kxnrl/Store/master.svg?style=flat-square)](https://travis-ci.org/Kxnrl/AdvMusicPlayer?branch=master) |[![Download](https://static.kxnrl.com/images/web/buttons/download.png)](https://build.kxnrl.com/Store/)  
+|[![Build Status](https://img.shields.io/travis/Kxnrl/Store/master.svg?style=flat-square)](https://travis-ci.org/Kxnrl/Store?branch=master) |[![Download](https://static.kxnrl.com/images/web/buttons/download.png)](https://build.kxnrl.com/Store/)  
   
   
 A sourcemod in-game Store system. 
@@ -26,6 +26,7 @@ A sourcemod in-game Store system.
   * trail ( Core included ) - Create a material trail that follow the player.
 * Pets ( optional ) - Create a pet that follow the player.
 * WeaponSkin ( optional ) - Allow use valve weaon skin and knife skin. ***Will trigger GSLT ban***
+* DefaultSkin (Optional) - Set player skin if player does not equip player skin. ***Requires Skin module***
   
   
 ### Commands:
@@ -42,7 +43,7 @@ A sourcemod in-game Store system.
   
   
 ### How to install
-* [Download](https://build.kxnrl.com/) latest build.
+* [Download](https://build.kxnrl.com/Store/) latest build.
 * Extract all files on disk.
 * Upload to server following folders: 
   * addons 
@@ -50,6 +51,7 @@ A sourcemod in-game Store system.
   * materials ( optional )
   * particles ( optional )
   * sound ( optional )
+* Selete store_(GameMode).smx, and rename it to store.smx, others must be deleted. ***install 1 only***
 * Import SQL table to your database. ( SQL scripts: addons/sourcemod/configs/database.sql )
 * If you upgrade from original zeph store: 
   - Add "uid" key for each item in 'addons/sourcemod/configs/items.txt'.  
@@ -74,13 +76,13 @@ A sourcemod in-game Store system.
   
   
 ### How to upgrade store from zephyrus store
-* Run SQL command before install our store
+* Delete your old store database table, but keep store_players and store_items.  
+* Run SQL command before install our store.  
 ``` SQL
-ALTER TABLE `store_players` ADD `ban` int(1) unsigned NOT NULL DEFAULT '0';
-DROP TABLE `store_equipment`;
+ALTER TABLE `store_players` ADD `ban` int(1) unsigned NOT NULL DEFAULT '0';  
 ```
-* Install our store plugins and modules, Don't create a new store_players table. Follow install guide.
-* Uninstall zephyrus store plugins, if you want you use modules, keep these plugins.
+* Install our store follow install guide, but DON'T create new store_players and store_items tables. 
+* Uninstall zephyrus store plugins, if you want you use modules, keep these plugins.  
   
   
 ### How to define new game mode
@@ -108,6 +110,17 @@ to
 ### How to add item or parent manually  
 * Add Parent -> 'utils/addparent.sql'
 * Add Item -> 'utils/additem.sql'
+  
+  
+### For developer
+* utils/additem.sql -> Add item via SQL command.
+* utils/addparent.sql -> Add parent via SQL command.
+* utils/insertItem.php -> Import items from items.txt.
+* utils/insertParent.php -> Import parents from items.txt.
+* utils/loaditem.php -> Verify items in SQL database.
+* website/config.php -> Configs of website API.
+* website/example.php -> An example of website-API.
+* website/store.class.php -> Store web-API.
   
   
 ### License  
@@ -139,3 +152,4 @@ to
 #### Donate
 * [Steam Trade Offer](https://steamcommunity.com/tradeoffer/new/?partner=88166525&token=lszXBJeY)
 * **AliPay**: h673321480[AT]163.com
+* **Paypal**: h673321480[AT]live.com

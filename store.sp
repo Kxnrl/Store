@@ -7,7 +7,7 @@
 #define PLUGIN_NAME         "Store - The Resurrection"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "a sourcemod store system"
-#define PLUGIN_VERSION      "2.2.<commit_count>"
+#define PLUGIN_VERSION      "2.3.<commit_count>"
 #define PLUGIN_URL          "https://kxnrl.com"
 
 public Plugin myinfo = 
@@ -46,7 +46,7 @@ public Plugin myinfo =
 //GM_BH -> bhop server
 
 // VERIFY CREDITS
-#define DATA_VERIFY
+//#define DATA_VERIFY
 
 // Custom Module
 // skin does not match with team
@@ -61,13 +61,20 @@ public Plugin myinfo =
 #if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_BH
 #define AllowHide
 #endif
+// death chat
+#if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_SR || defined GM_BH
+#define DeathChat
+#endif
 
 //////////////////////////////
 //     GLOBAL VARIABLES     //
 //////////////////////////////
-Handle g_hDatabase = null;
-Handle g_ArraySkin = null;
+Database g_hDatabase = null;
 Handle g_hOnStoreAvailable = null;
+Handle g_hOnStoreInit = null;
+
+ArrayList g_aCaseSkins = null;
+StringMap g_smParentMap = null;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
 int g_eClients[MAXPLAYERS+1][Client_Data];
@@ -119,11 +126,11 @@ char g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
 #include "store/modules/skin.sp"
 #endif
 // Module Neon
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_ZE
 #include "store/modules/neon.sp"
 #endif
 // Module Aura & Part
-#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_ZE
 #include "store/modules/aura.sp"
 #include "store/modules/part.sp"
 #endif
@@ -166,6 +173,9 @@ public void OnPluginStart()
     // Check Engine
     if(GetEngineVersion() != Engine_CSGO)
         SetFailState("Current game is not be supported! CSGO only!");
+    
+    if(g_smParentMap == null)
+        g_smParentMap = new StringMap();
 
     // Setting default values
     for(int client = 1; client <= MaxClients; ++client)
@@ -199,15 +209,8 @@ public void OnPluginStart()
         SQL_TConnect(SQLCallback_Connect, "csgo");
         CreateTimer(30.0, Timer_DatabaseTimeout);
     }
-
-    // Initiaze the fake package handler
-    g_iPackageHandler = Store_RegisterHandler("package", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
-}
-
-public void OnAllPluginsLoaded()
-{
-    // Initiaze module
-    UTIL_CheckModules();
+    
+    g_aCaseSkins = new ArrayList(ByteCountToCells(256));
 }
 
 public void OnPluginEnd()
@@ -221,6 +224,7 @@ public void OnPluginEnd()
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnStoreInit = CreateGlobalForward("Store_OnStoreInit", ET_Ignore, Param_Cell);
 
     CreateNative("Store_RegisterHandler", Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler", Native_RegisterMenuHandler);
@@ -707,8 +711,7 @@ public int Native_ExtClientItem(Handle myself, int numParams)
 public int Native_GetSkinLevel(Handle myself, int numParams)
 {
 #if defined Module_Skin
-    int client = GetNativeCell(1);
-    return IsPlayerAlive(client) ? g_iSkinLevel[client] : 0;
+    return Store_GetPlayerSkinLevel(GetNativeCell(1));
 #else
     return 0;
 #endif
@@ -740,9 +743,12 @@ public int Native_HasPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
-    char model[192];
-    GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
-    return (StrContains(g_szSkinModel[client], "#default") == -1 && StrContains(g_szSkinModel[client], "#zombie") == -1 && StrContains(model, "models/player/custom_player/legacy/") == -1);
+    
+    char model[2][192];
+    Store_GetClientSkinModel(client, model[0], 192);
+    Store_GetPlayerSkinModel(client, model[1], 192);
+
+    return (StrContains(model[1], "#default") == -1 && StrContains(model[1], "#zombie") == -1 && StrContains(model[0], "models/player/custom_player/legacy/") == -1);
 #else
     return false;
 #endif
@@ -752,12 +758,15 @@ public int Native_GetPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
-    char model[192];
-    GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
-    if(StrContains(g_szSkinModel[client], "#default") != -1 || StrContains(g_szSkinModel[client], "#zombie") != -1 || StrContains(model, "models/player/custom_player/legacy/") != -1)
+    
+    char model[2][192];
+    Store_GetClientSkinModel(client, model[0], 192);
+    Store_GetPlayerSkinModel(client, model[1], 192);
+
+    if(StrContains(model[1], "#default") != -1 || StrContains(model[1], "#zombie") != -1 || StrContains(model[0], "models/player/custom_player/legacy/") != -1)
         return false;
 
-    if(SetNativeString(2, g_szSkinModel[client], GetNativeCell(3)) == SP_ERROR_NONE)
+    if(SetNativeString(2, model[1], GetNativeCell(3)) == SP_ERROR_NONE)
         return true;
 #endif
     return false;
@@ -1204,13 +1213,13 @@ public void DisplayPreviewMenu(int client, int itemid)
     
     SetMenuTitleEx(m_hMenu, "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
 
-    AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
-    
+    AddMenuItemEx(m_hMenu, (g_eItems[g_iItems][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
+
     char leveltype[32];
     UTIL_GetLevelType(itemid, leveltype, 32);
-    AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
+    AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
 
-    AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%T", "Open Case Available", client);
+    AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "3", "%T", "Open Case Available", client);
 
     if(g_eItems[itemid][bCompose])  //合成
         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Preview Compose Available", client);
@@ -1372,11 +1381,14 @@ public Action Timer_OpeningCase(Handle timer, int client)
     }
 
     static int times[MAXPLAYERS+1];
-    
-    int size = GetArraySize(g_ArraySkin);
-    int aid = UTIL_GetRandomInt(0, size-1);
+
+    if(g_aCaseSkins.Length <= 0)
+        return Plugin_Stop;
+
+
+    int aid = UTIL_GetRandomInt(0, g_aCaseSkins.Length-1);
     char modelname[32];
-    GetArrayString(g_ArraySkin, aid, modelname, 32);
+    g_aCaseSkins.GetString(aid, modelname, 32);
     
     if(g_iClientCase[client] > 1)
     {
@@ -1700,12 +1712,12 @@ public void DisplayItemMenu(int client, int itemid)
     {
         if(StrEqual(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "playerskin"))
         {
-            AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%s", g_eItems[itemid][szDesc]);
+            AddMenuItemEx(m_hMenu, (g_eItems[g_iItems][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%s", g_eItems[itemid][szDesc]);
     
             char leveltype[32];
             UTIL_GetLevelType(itemid, leveltype, 32);
-            AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
-            AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "%T", "Open Case Available", client);
+            AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
+            AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "4", "%T", "Open Case Available", client);
         }
 
         if(!m_bEquipped)
@@ -2036,7 +2048,7 @@ public void DisplayPlayerMenu(int client)
     char m_szID[11];
     for(int i = 1; i <= MaxClients; ++i)
     {
-        if(!IsClientInGame(i))
+        if(!IsClientInGame(i) || IsFakeClient(i))
             continue;
 
         if(!AllowItemForAuth(client, g_eItems[g_iSelectedItem[client]][szSteam]) || !AllowItemForVIP(client, g_eItems[g_iSelectedItem[client]][bVIP]))
@@ -2184,7 +2196,7 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
         if(g_hDatabase != null)
             return;
 
-        g_hDatabase = hndl;
+        g_hDatabase = view_as<Database>(hndl);
 
         // Do some housekeeping
         SQL_SetCharset(g_hDatabase, "utf8");
@@ -2812,6 +2824,12 @@ void UTIL_GiftItem(int client, int receiver, int item)
         DisplayItemMenu(client, m_iId);
         return;
     }
+    
+    if(IsFakeClient(receiver) || IsClientSourceTV(receiver))
+    {
+        tPrintToChat(client, "%T", "receiver BOT");
+        return;
+    }
 
     g_iDataProtect[client] = GetTime()+15;
     g_iDataProtect[receiver] = GetTime()+15;
@@ -2868,9 +2886,42 @@ int UTIL_GetClientItemId(int client, int itemid)
     return -1;
 }
 
+void Store_ResetAll()
+{
+    g_aCaseSkins.Clear();
+
+    for(int i = 0; i < g_iTypeHandlers; ++i)
+    {
+        g_eTypeHandlers[i][szType][0]   = '\0';
+        g_eTypeHandlers[i][bEquipable]  = false;
+        g_eTypeHandlers[i][bRaw]        = false;
+        g_eTypeHandlers[i][hPlugin]     = INVALID_HANDLE;
+        g_eTypeHandlers[i][bEquipable]  = false;
+        g_eTypeHandlers[i][fnMapStart]  = INVALID_FUNCTION;
+        g_eTypeHandlers[i][fnReset]     = INVALID_FUNCTION;
+        g_eTypeHandlers[i][fnConfig]    = INVALID_FUNCTION;
+        g_eTypeHandlers[i][fnUse]       = INVALID_FUNCTION;
+        g_eTypeHandlers[i][fnRemove]    = INVALID_FUNCTION;
+    }
+
+    g_iItems = 0;
+    g_iTypeHandlers = 0;
+    g_iMenuHandlers = 0;
+    
+    // Initiaze the fake package handler
+    g_iPackageHandler = Store_RegisterHandler("package", INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION, INVALID_FUNCTION);
+}
+
 void UTIL_ReloadConfig()
 {
-    g_iItems = 0;
+    Store_ResetAll();
+
+    Call_StartForward(g_hOnStoreInit);
+    Call_PushCell(GetMyHandle());
+    Call_Finish();
+
+    // Initiaze module
+    UTIL_CheckModules();
 
     for(int i = 0; i < g_iTypeHandlers; ++i)
     {
@@ -2898,15 +2949,40 @@ void UTIL_ReloadConfig()
     if(item_parent.RowCount <= 0)
         SetFailState("Can not retrieve item.child from database: no result row");
 
+    g_smParentMap.Clear();
+    
+    char parent_str[12];
+
     while(item_parent.FetchRow())
     {
-        g_iItems = item_parent.FetchInt(0);
+        // Store to Map
+        IntToString(item_parent.FetchInt(0), parent_str, 12);
+        if(!g_smParentMap.SetValue(parent_str, g_iItems, true))
+        {
+            LogError("Failed to bind itemId[%d] to parentId[%s]", g_iItems, parent_str);
+            continue;
+        }
+
+        // name
         item_parent.FetchString(1, g_eItems[g_iItems][szName], 64);
+
+        //LogMessage("Bind itemId[%d] to parentId[%s] -> %s", g_iItems, parent_str, g_eItems[g_iItems][szName]);
+
+        // parent
         g_eItems[g_iItems][iParent] = item_parent.FetchInt(2);
+
+        // package handler
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
+
+        g_iItems++;
     }
     
-    g_iItems++;
+    // Refresh Parent's parent.
+    for(int parent = 0; parent < g_iItems; parent++)
+    {
+        // Interval
+        g_eItems[parent][iParent] = UTIL_GetParent(parent, g_eItems[parent][iParent]);
+    }
 
     DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC");
     if(item_child == null)
@@ -2922,18 +2998,21 @@ void UTIL_ReloadConfig()
 
     while(item_child.FetchRow())
     {
-        // Field 0 -> parent
-        g_eItems[g_iItems][iParent] = item_child.FetchInt(0);
-
         // Field 1 -> type
         char m_szType[32];
         item_child.FetchString(1, m_szType, 32);
         if(strcmp(m_szType, "ITEM_ERROR") == 0)
+        {
+            //LogError("Failed to loaded %s -> ITEM_ERROR", g_eItems[g_iItems][szName]);
             continue;
+        }
 
         int m_iHandler = UTIL_GetTypeHandler(m_szType);
         if(m_iHandler == -1)
+        {
+            //LogError("Failed to loaded %s -> Invalid m_iHandler", g_eItems[g_iItems][szName]);
             continue;
+        }
         g_eItems[g_iItems][iHandler] = m_iHandler;
         
         // Field 2 -> uid
@@ -2942,7 +3021,10 @@ void UTIL_ReloadConfig()
 
         // Ignore bad item or dumplicate item
         if(strcmp(m_szUniqueId, "ITEM_ERROR") == 0 || item_array.FindString(m_szUniqueId) != -1)
+        {
+            //LogError("Failed to loaded %s -> Ignore bad item or dumplicate item", g_eItems[g_iItems][szName]);
             continue;
+        }
         item_array.PushString(m_szUniqueId);
         g_eItems[g_iItems][szUniqueId][0] = '\0';
         strcopy(g_eItems[g_iItems][szUniqueId], 32, m_szUniqueId);
@@ -3002,21 +3084,33 @@ void UTIL_ReloadConfig()
         int price_1m = item_child.FetchInt(14);
         int price_pm = item_child.FetchInt(15);
         
-        if(price_1d != 0 && price_1m != 0)
+        if(price_1d != 0 || price_1m != 0)
         {
-            strcopy(g_ePlans[g_iItems][0][szName], 32, "1 day");
-            g_ePlans[g_iItems][0][iPrice] = price_1d;
-            g_ePlans[g_iItems][0][iTime] = 86400;
+            g_eItems[g_iItems][iPlans] = 0;
+
+            if(price_1d > 0)
+            {
+                strcopy(g_ePlans[g_iItems][0][szName], 32, "1 day");
+                g_ePlans[g_iItems][0][iPrice] = price_1d;
+                g_ePlans[g_iItems][0][iTime] = 86400;
+                g_eItems[g_iItems][iPlans]++;
+            }
             
-            strcopy(g_ePlans[g_iItems][1][szName], 32, "1 month");
-            g_ePlans[g_iItems][1][iPrice] = price_1m;
-            g_ePlans[g_iItems][1][iTime] = 2592000;
+            if(price_1m > 0)
+            {
+                strcopy(g_ePlans[g_iItems][1][szName], 32, "1 month");
+                g_ePlans[g_iItems][1][iPrice] = price_1m;
+                g_ePlans[g_iItems][1][iTime] = 2592000;
+                g_eItems[g_iItems][iPlans]++;
+            }
             
-            strcopy(g_ePlans[g_iItems][2][szName], 32, "Permanent");
-            g_ePlans[g_iItems][2][iPrice] = price_pm;
-            g_ePlans[g_iItems][2][iTime] = 0;
-   
-            g_eItems[g_iItems][iPlans] = 3;
+            if(price_pm > 0)
+            {
+                strcopy(g_ePlans[g_iItems][2][szName], 32, "Permanent");
+                g_ePlans[g_iItems][2][iPrice] = price_pm;
+                g_ePlans[g_iItems][2][iTime] = 0;
+                g_eItems[g_iItems][iPlans]++;
+            }
         }
         else
         {
@@ -3047,12 +3141,20 @@ void UTIL_ReloadConfig()
         }
 
         delete kv;
+        
+        //LogMessage("Loaded Item -> %s", g_eItems[g_iItems][szName]);
 
         if(!m_bSuccess)
             continue;
+        
+        // Field 0 -> parent
+        g_eItems[g_iItems][iParent] = UTIL_GetParent(g_iItems, item_child.FetchInt(0));
+        
+        if(g_eItems[g_iItems][iParent] == -1)
+            continue;
 
-        if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && StrContains(m_szUniqueId, "skin_", false) == 0)
-            PushArrayString(g_ArraySkin, m_szUniqueId);
+        if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0)
+            g_aCaseSkins.PushString(m_szUniqueId);
 
         ++g_iItems;
     }
@@ -3092,6 +3194,29 @@ void UTIL_ReloadConfig()
     GetCurrentMap(map, 128);
     if(strlen(map) > 3 && IsMapValid(map))
         ForceChangeLevel(map, "Reload Map to prevent server crash!");
+}
+
+int UTIL_GetParent(int itemId, int parentId)
+{
+    if(parentId > -1)
+    {
+        int index;
+        char parent_str[12];
+        IntToString(parentId, parent_str, 12);
+
+        if(!g_smParentMap.GetValue(parent_str, index))
+        {
+            LogError("Id [%s] not found in parent_map -> %s", parent_str, g_eItems[itemId][szName]);
+            return -1;
+        }
+        
+        //LogMessage("Loaded %s -> parent is [%s]", g_eItems[itemId][szName], g_eItems[index][szName]);
+
+        return index;
+    }
+    //else LogMessage("%s -> parent is [TopMenu]", g_eItems[itemId][szName]);
+
+    return -1;
 }
 
 int UTIL_GetTypeHandler(const char[] type)
@@ -3205,10 +3330,10 @@ int UTIL_GetEquippedItemFromHandler(int client, int handler, int slot = 0)
 
 bool UTIL_PackageHasClientItem(int client, int packageid, bool invmode = false)
 {
-    if(g_eItems[packageid][szSteam][0] != 0 && AllowItemForAuth(client, g_eItems[packageid][szSteam]))
+    if(g_eItems[packageid][szSteam][0] != 0 && !AllowItemForAuth(client, g_eItems[packageid][szSteam]))
         return false;
 
-    for(int i =0;i<g_iItems;++i)
+    for(int i = 0; i < g_iItems; ++i)
        if(g_eItems[i][iParent] == packageid && ((invmode && Store_HasClientItem(client, i)) || !invmode))
             if((g_eItems[i][iHandler] == g_iPackageHandler && UTIL_PackageHasClientItem(client, i, invmode)) || g_eItems[i][iHandler] != g_iPackageHandler)
                 return true;

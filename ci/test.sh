@@ -260,3 +260,37 @@ if [ ! -f "store_weaponskin.smx" ]; then
 fi
 mv addons/sourcemod/scripting/store_weaponskin.sp build/addons/sourcemod/scripting/modules
 mv store_weaponskin.smx build/addons/sourcemod/plugins/modules
+
+
+#编译Store模组DefaultSkin
+echo "Compiling store module [default skin] ..."
+cp -f modules/store_defaultskin.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_defaultskin.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_defaultskin.sp >nul
+if [ ! -f "store_defaultskin.smx" ]; then
+    echo "Compile store module [default skin] failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store_defaultskin.sp build/addons/sourcemod/scripting/modules
+mv store_defaultskin.smx build/addons/sourcemod/plugins/modules
+
+
+#编译Store模组GiveCreditsCommand
+echo "Compiling store module [give credits command] ..."
+cp -f modules/store_givecreditscommand.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_givecreditscommand.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_givecreditscommand.sp >nul
+if [ ! -f "store_givecreditscommand.smx" ]; then
+    echo "Compile store module [give credits command] failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store_givecreditscommand.sp build/addons/sourcemod/scripting/modules
+mv store_givecreditscommand.smx build/addons/sourcemod/plugins/modules

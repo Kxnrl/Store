@@ -4,7 +4,7 @@
 #define PLUGIN_NAME         "Store - Weapon Skin"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "store module weapon skin"
-#define PLUGIN_VERSION      "2.2.<commit_count>"
+#define PLUGIN_VERSION      "2.3.<commit_count>"
 #define PLUGIN_URL          "https://kxnrl.com"
 
 public Plugin myinfo = 
@@ -56,14 +56,17 @@ public void OnPluginStart()
     if(g_iOffsetMyWP == -1)
         SetFailState("Offset 'CBasePlayer' -> 'm_hMyWeapons' was not found.");
 
-    Store_RegisterHandler("weaponskin", INVALID_FUNCTION, WeaponSkin_Reset, WeaponSkin_Config, WeaponSkin_Equip, WeaponSkin_Remove, true, false);
-
     PTaH(PTaH_GiveNamedItemPre, Hook, Event_GiveNamedItemPre);
     PTaH(PTaH_GiveNamedItem,    Hook, Event_GiveNamedItemPost);
     
     g_hCookieNamed = RegClientCookie("store_ws_name", "", CookieAccess_Protected);
     
     RegConsoleCmd("ws_name", Command_Named);
+}
+
+public void Store_OnStoreInit(Handle store_plugin)
+{
+    Store_RegisterHandler("weaponskin", INVALID_FUNCTION, WeaponSkin_Reset, WeaponSkin_Config, WeaponSkin_Equip, WeaponSkin_Remove, true, false);
 }
 
 public Action Command_Named(int client, int args)
@@ -178,7 +181,7 @@ public void Event_GiveNamedItemPost(int client, const char[] classname, const CE
     if(StrContains(classname, "weapon_") != 0)
         return;
 
-    for(int slot = 1; slot < STORE_MAX_SLOTS; ++slot)
+    for(int slot = 0; slot < STORE_MAX_SLOTS; ++slot)
     {
         int itemid = Store_GetEquippedItem(client, "weaponskin", slot);
         if(itemid >= 0)

@@ -2,11 +2,11 @@
 
 #define MAX_PART 128
 
-int g_iParts = 0; 
-int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-char g_szPartName[MAX_PART][PLATFORM_MAX_PATH];
-char g_szPartFPcf[MAX_PART][PLATFORM_MAX_PATH];
-char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static int g_iParts = 0; 
+static int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static char g_szPartName[MAX_PART][PLATFORM_MAX_PATH];
+static char g_szPartFPcf[MAX_PART][PLATFORM_MAX_PATH];
+static char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 void Part_OnClientDisconnect(int client)
 {
@@ -24,6 +24,10 @@ public bool Part_Config(Handle kv, int itemid)
     Store_SetDataIndex(itemid, g_iParts); 
     KvGetString(kv, "effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);
     KvGetString(kv, "model",  g_szPartFPcf[g_iParts], PLATFORM_MAX_PATH);
+    
+    if(!FileExists(g_szPartFPcf[g_iParts], true))
+        return false;
+    
     ++g_iParts;
     return true;
 }
@@ -48,31 +52,17 @@ public int Part_Remove(int client)
 
 public void Part_OnMapStart()
 {
-    ArrayList path = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
-    ArrayList fail = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
-    for(int index = 0; index < g_iAuras; ++index)
+    if(g_iParts <= 0)
+        return;
+
+    PrecacheEffect("ParticleEffect");
+
+    for(int index = 0; index < g_iParts; ++index)
     {
-        if(fail.FindString(g_szPartFPcf[index]) != -1)
-            continue;
-
-        if(path.FindString(g_szPartFPcf[index]) != -1)
-        {
-            PrecacheParticleEffect(g_szPartName[index]);
-            continue;
-        }
-
-        if(PreDownload(g_szPartFPcf[index]))
-        {
-            PrecacheGeneric(g_szPartFPcf[index], true);
-            PrecacheEffect("ParticleEffect");
-            PrecacheParticleEffect(g_szPartName[index]);
-            path.PushString(g_szPartFPcf[index]);
-        }
-        else
-            fail.PushString(g_szPartFPcf[index]);
+        PrecacheGeneric(g_szPartFPcf[index], true);
+        PrecacheParticleEffect(g_szPartName[index]);
+        AddFileToDownloadsTable(g_szPartFPcf[index]);
     }
-    delete path;
-    delete fail;
 }
 
 void Store_RemoveClientPart(int client)
@@ -101,35 +91,40 @@ void Store_SetClientPart(int client)
         GetClientAbsOrigin(client, clientOrigin);
 
         int iEnt = CreateEntityByName("info_particle_system");
-        
+
+        if(!IsValidEdict(iEnt))
+        {
+            LogError("Failed to create info_particle_system -> %N -> %s", client, g_szPartClient[client]);
+            return;
+        }
+
         DispatchKeyValue(iEnt, "start_active", "1");
         DispatchKeyValue(iEnt, "effect_name", g_szPartClient[client]);
         DispatchSpawn(iEnt);
         
-        TeleportEntity(iEnt, clientOrigin, NULL_VECTOR,NULL_VECTOR);
-        
-        ActivateEntity(iEnt);
-        
+        TeleportEntity(iEnt, clientOrigin, NULL_VECTOR, NULL_VECTOR);
+ 
         SetVariantString("!activator");
         AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
+
+        ActivateEntity(iEnt);
         
+        g_iClientPart[client] = EntIndexToEntRef(iEnt);
+
+#if defined AllowHide
+        //if(GetEdictFlags(iEnt) & FL_EDICT_ALWAYS)
+        //    SetEdictFlags(iEnt, GetEdictFlags(iEnt) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
         //https://github.com/neko-pm/auramenu/blob/master/scripting/dominoaura-menu.sp
         SetEdictFlags(iEnt, GetEdictFlags(iEnt)&(~FL_EDICT_ALWAYS)); //to allow settransmit hooks
         SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Part);
-
-        g_iClientPart[client] = EntIndexToEntRef(iEnt);
+#endif
     }
 }
 
-public Action Hook_SetTransmit_Part(int ent, int client)
-{
-    //if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-    //    SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
-
 #if defined AllowHide
-    if(g_bHideMode[client])
-        return Plugin_Handled;
-#endif
-
-    return Plugin_Continue;
+public Action Hook_SetTransmit_Part(int entity, int client)
+{
+    SetTransmitFlags(entity);
+    return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
 }
+#endif

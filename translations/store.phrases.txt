@@ -441,6 +441,12 @@
         "chi" "武器皮肤"
     }
     
+    "pet"
+    {
+        "en" "Pet"
+        "chi" "宠物"
+    }
+    
     "cat banned"
     {
         "en" "{darkred}You got a CAT ban..."
@@ -661,5 +667,18 @@
     {
         "en" "Select case"
         "chi" "选择你要开的箱子"
+    }
+    
+    "receiver BOT"
+    {
+        "en" "{red}You can not gift an item to BOT."
+        "chi" "{red}你不能给BOT送东西."
+    }
+    
+    "give command"
+    {
+        "#format" "{1:N},{2:d}"
+        "en" "{blue}{1}{normal} gifted {green} {2} credits {normal} to you."
+        "chi" "{blue}{1}{normal} 赠送了 {green} {2} 信用点 {normal} 给你."
     }
 }

@@ -2,47 +2,28 @@
 
 #define MAX_AURA 128
 
-int g_iAuras = 0; 
-int g_iClientAura[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-char g_szAuraName[MAX_AURA][PLATFORM_MAX_PATH];
-char g_szAuraFPcf[MAX_AURA][PLATFORM_MAX_PATH];
-char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static int g_iAuras = 0; 
+static int g_iClientAura[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static char g_szAuraName[MAX_AURA][PLATFORM_MAX_PATH];
+static char g_szAuraFPcf[MAX_AURA][PLATFORM_MAX_PATH];
+static char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
 public void Aura_OnMapStart()
 {
-    ArrayList path = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
-    ArrayList fail = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+    if(g_iAuras <= 0)
+        return;
+
+    PrecacheEffect("ParticleEffect");
+
     for(int index = 0; index < g_iAuras; ++index)
     {
-        if(fail.FindString(g_szAuraFPcf[index]) != -1)
-            continue;
-
-        if(path.FindString(g_szAuraFPcf[index]) != -1)
-        {
-            PrecacheParticleEffect(g_szAuraName[index]);
-            continue;
-        }
-
-        if(PreDownload(g_szAuraFPcf[index]))
-        {
-            PrecacheGeneric(g_szAuraFPcf[index], true);
-            PrecacheEffect("ParticleEffect");
-            PrecacheParticleEffect(g_szAuraName[index]);
-            path.PushString(g_szAuraFPcf[index]);
-        }
-        else
-            fail.PushString(g_szAuraFPcf[index]);
+        PrecacheGeneric(g_szAuraFPcf[index], true);
+        PrecacheParticleEffect(g_szAuraName[index]);
+        AddFileToDownloadsTable(g_szAuraFPcf[index]);
     }
-    delete path;
-    delete fail;
 }
 
-bool PreDownload(const char[] path)
-{
-    return FileExists(path) && AddFileToDownloadsTable(path);
-}
-
-public void Aura_OnClientDisconnect(int client)
+void Aura_OnClientDisconnect(int client)
 {
     Store_RemoveClientAura(client);
     g_szAuraClient[client] = "";
@@ -57,8 +38,10 @@ public bool Aura_Config(Handle kv, int itemid)
     KvGetString(kv, "effect", g_szAuraName[g_iAuras], PLATFORM_MAX_PATH);
     KvGetString(kv, "model",  g_szAuraFPcf[g_iAuras], PLATFORM_MAX_PATH);
 
-    ++g_iAuras;
+    if(!FileExists(g_szAuraFPcf[g_iAuras], true))
+        return false;
 
+    ++g_iAuras;
     return true; 
 }
 
@@ -115,56 +98,28 @@ void Store_SetClientAura(int client)
         DispatchKeyValue(iEnt , "start_active", "1");
         DispatchKeyValue(iEnt, "effect_name", g_szAuraClient[client]);
         DispatchSpawn(iEnt);
-        
+
         TeleportEntity(iEnt, clientOrigin, NULL_VECTOR, NULL_VECTOR);
 
         SetVariantString("!activator");
         AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
-        
+
         ActivateEntity(iEnt);
 
         g_iClientAura[client] = EntIndexToEntRef(iEnt);
 
+#if defined AllowHide
         //https://github.com/neko-pm/auramenu/blob/master/scripting/dominoaura-menu.sp
         SetEdictFlags(iEnt, GetEdictFlags(iEnt)&(~FL_EDICT_ALWAYS)); //to allow settransmit hooks
         SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
+#endif
     }
 }
 
-public Action Hook_SetTransmit_Aura(int ent, int client)
-{
-    //if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-    //    SetEdictFlags(ent, (GetEdictFlags(ent) ^ FL_EDICT_ALWAYS));
-
 #if defined AllowHide
-    if(g_bHideMode[client])
-        return Plugin_Handled;
+public Action Hook_SetTransmit_Aura(int entity, int client)
+{
+    SetTransmitFlags(entity);
+    return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
+}
 #endif
-
-    return Plugin_Continue;
-}
-
-//https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4
-void PrecacheParticleEffect(const char[] effect)
-{
-    static int table = INVALID_STRING_TABLE;
-    
-    if (table == INVALID_STRING_TABLE)
-        table = FindStringTable("ParticleEffectNames");
-    
-    bool save = LockStringTables(false);
-    AddToStringTable(table, effect);
-    LockStringTables(save);
-}
-
-void PrecacheEffect(const char[] name)
-{
-    static int table = INVALID_STRING_TABLE;
-
-    if(table == INVALID_STRING_TABLE)
-        table = FindStringTable("EffectDispatch");
-
-    bool save = LockStringTables(false);
-    AddToStringTable(table, name);
-    LockStringTables(save);
-}

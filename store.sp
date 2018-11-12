@@ -1213,11 +1213,11 @@ public void DisplayPreviewMenu(int client, int itemid)
     
     SetMenuTitleEx(m_hMenu, "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
 
-    AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
-    
+    AddMenuItemEx(m_hMenu, (g_eItems[g_iItems][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
+
     char leveltype[32];
     UTIL_GetLevelType(itemid, leveltype, 32);
-    AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
+    AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == -1) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
 
     AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%T", "Open Case Available", client);
 
@@ -1712,11 +1712,11 @@ public void DisplayItemMenu(int client, int itemid)
     {
         if(StrEqual(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "playerskin"))
         {
-            AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%s", g_eItems[itemid][szDesc]);
+            AddMenuItemEx(m_hMenu, (g_eItems[g_iItems][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%s", g_eItems[itemid][szDesc]);
     
             char leveltype[32];
             UTIL_GetLevelType(itemid, leveltype, 32);
-            AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
+            AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == -1) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
             AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "4", "%T", "Open Case Available", client);
         }
 

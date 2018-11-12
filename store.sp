@@ -1217,7 +1217,7 @@ public void DisplayPreviewMenu(int client, int itemid)
 
     char leveltype[32];
     UTIL_GetLevelType(itemid, leveltype, 32);
-    AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == -1) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
+    AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
 
     AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%T", "Open Case Available", client);
 
@@ -1716,7 +1716,7 @@ public void DisplayItemMenu(int client, int itemid)
     
             char leveltype[32];
             UTIL_GetLevelType(itemid, leveltype, 32);
-            AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == -1) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
+            AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
             AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "4", "%T", "Open Case Available", client);
         }
 

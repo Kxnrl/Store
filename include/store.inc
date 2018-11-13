@@ -35,7 +35,7 @@ enum Store_Item
     iHandler,
     iPlans,
     iLevels,
-    bool:bCase,
+    iCaseType,
     bool:bIgnore,
     bool:bBuyable,
     bool:bGiftable,

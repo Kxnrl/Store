@@ -73,7 +73,7 @@ Database g_hDatabase = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
 
-ArrayList g_aCaseSkins = null;
+ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
 
 int g_eItems[STORE_MAX_ITEMS][Store_Item];
@@ -210,7 +210,7 @@ public void OnPluginStart()
         CreateTimer(30.0, Timer_DatabaseTimeout);
     }
     
-    g_aCaseSkins = new ArrayList(ByteCountToCells(256));
+    for(int x = 0; x < 3; ++x) g_aCaseSkins[x] = new ArrayList(ByteCountToCells(256));
 }
 
 public void OnPluginEnd()
@@ -655,7 +655,7 @@ public int Native_HasClientItem(Handle myself, int numParams)
         return AllowItemForVIP(client, g_eItems[itemid][bVIP]);
 
     // Is the item free (available for everyone)?
-    if(!g_eItems[itemid][bIgnore] && !g_eItems[itemid][bCase] && !g_eItems[itemid][bCompose] && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+    if(!g_eItems[itemid][bIgnore] && g_eItems[itemid][iCaseType] <= 0 && !g_eItems[itemid][bCompose] && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
         return true;
 
     // Check if the client actually has the item
@@ -1219,7 +1219,7 @@ public void DisplayPreviewMenu(int client, int itemid)
     UTIL_GetLevelType(itemid, leveltype, 32);
     AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
 
-    AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "3", "%T", "Open Case Available", client);
+    AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "3", "%T", "Open Case Available", client);
 
     if(g_eItems[itemid][bCompose])  //合成
         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Preview Compose Available", client);
@@ -1227,7 +1227,7 @@ public void DisplayPreviewMenu(int client, int itemid)
         AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
     else if(g_eItems[itemid][bIgnore]) //组专属或活动限定
         AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
-    else if(g_eItems[itemid][bCase]) //开箱专属
+    else if(g_eItems[itemid][iCaseType] > 0) //开箱专属
         AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
     else
     {
@@ -1321,11 +1321,11 @@ void UTIL_OpenSkinCase(int client)
     SetMenuTitleEx(menu, "%T\n%T: %d", "select case", client, "credits", client, g_eClients[client][iCredits]);
     SetMenuExitBackButton(menu, true);
 
-    AddMenuItemEx(menu, g_eClients[client][iCredits] >=  8888 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%s(8888%T)\nSkin Level: 2|3(1day~%T)", g_szCase[1], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >=  8888 && g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%s(8888%T)\nSkin Level: 2|3(1day~%T)", g_szCase[1], "credits", client, "permanent", client);
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
-    AddMenuItemEx(menu, g_eClients[client][iCredits] >= 23333 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "2", "%s(23333%T)\nSkin Level: 2|3|4(1day~%T)", g_szCase[2], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= 23333 && g_aCaseSkins[1].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "2", "%s(23333%T)\nSkin Level: 2|3|4(1day~%T)", g_szCase[2], "credits", client, "permanent", client);
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
-    AddMenuItemEx(menu, g_eClients[client][iCredits] >= 68888 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%s(68888%T)\nSkin Level: 2|3|4(#%T#)", g_szCase[3], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= 68888 && g_aCaseSkins[2].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%s(68888%T)\nSkin Level: 2|3|4(#%T#)", g_szCase[3], "credits", client, "permanent", client);
 
     DisplayMenu(menu, client, 0);
 }
@@ -1382,13 +1382,13 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
     static int times[MAXPLAYERS+1];
 
-    if(g_aCaseSkins.Length <= 0)
+    if(g_aCaseSkins[g_iClientCase[client]-1].Length <= 0)
         return Plugin_Stop;
 
 
-    int aid = UTIL_GetRandomInt(0, g_aCaseSkins.Length-1);
+    int aid = UTIL_GetRandomInt(0, g_aCaseSkins[g_iClientCase[client]-1].Length-1);
     char modelname[32];
-    g_aCaseSkins.GetString(aid, modelname, 32);
+    g_aCaseSkins[g_iClientCase[client]-1].GetString(aid, modelname, 32);
     
     if(g_iClientCase[client] > 1)
     {
@@ -1717,7 +1717,7 @@ public void DisplayItemMenu(int client, int itemid)
             char leveltype[32];
             UTIL_GetLevelType(itemid, leveltype, 32);
             AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
-            AddMenuItemEx(m_hMenu, (g_aCaseSkins.Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "4", "%T", "Open Case Available", client);
+            AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "4", "%T", "Open Case Available", client);
         }
 
         if(!m_bEquipped)
@@ -2888,7 +2888,7 @@ int UTIL_GetClientItemId(int client, int itemid)
 
 void Store_ResetAll()
 {
-    g_aCaseSkins.Clear();
+    for(int x = 0; x < 3; ++x) g_aCaseSkins[x].Clear();
 
     for(int i = 0; i < g_iTypeHandlers; ++i)
     {
@@ -3070,9 +3070,7 @@ void UTIL_ReloadConfig()
             strcopy(g_eItems[g_iItems][szDesc], 128, m_szDesc);
 
         // Field 11 -> case
-        char m_bitCase[2];
-        item_child.FetchString(11, m_bitCase, 2);
-        g_eItems[g_iItems][bCase] = (m_bitCase[0] == 1) ? true : false;
+        g_eItems[g_iItems][iCaseType] = item_child.FetchInt(11);
 
         // Field 12 -> Compose
         char m_bitCompose[2];
@@ -3153,8 +3151,18 @@ void UTIL_ReloadConfig()
         if(g_eItems[g_iItems][iParent] == -1)
             continue;
 
-        if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0)
-            g_aCaseSkins.PushString(m_szUniqueId);
+        if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && g_eItems[g_iItems][iCaseType] > -1)
+        {
+            g_aCaseSkins[0].PushString(m_szUniqueId);
+            if(g_eItems[g_iItems][iCaseType] > 0)
+            {
+                g_aCaseSkins[1].PushString(m_szUniqueId);
+                if(g_eItems[g_iItems][iCaseType] > 1)
+                {
+                    g_aCaseSkins[2].PushString(m_szUniqueId);
+                }
+            }
+        }
 
         ++g_iItems;
     }

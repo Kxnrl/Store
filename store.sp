@@ -1385,35 +1385,19 @@ public Action Timer_OpeningCase(Handle timer, int client)
     if(g_aCaseSkins[g_iClientCase[client]-1].Length <= 0)
         return Plugin_Stop;
 
-
-    int aid = UTIL_GetRandomInt(0, g_aCaseSkins[g_iClientCase[client]-1].Length-1);
-    char modelname[32];
-    g_aCaseSkins[g_iClientCase[client]-1].GetString(aid, modelname, 32);
-    
-    if(g_iClientCase[client] > 1)
-    {
-        int rp = (times[client] < 13) ? 750 : 970;
-        if(UTIL_GetRandomInt(1, 1000) > rp)
-        {
-            switch(UTIL_GetRandomInt(1, 5))
-            {
-                // 夕立
-                case 1: strcopy(modelname, 32, "skin_yuudachi_kai2");
-                // 艾米莉亚
-                case 2: strcopy(modelname, 32, "skin_emilia_normal");
-                // 普魯魯特
-                case 3: strcopy(modelname, 32, "skin_pururut_normal");
-                // 巡音流歌
-                case 4: strcopy(modelname, 32, "skin_luka_punk");
-                // NextBlack
-                case 5: strcopy(modelname, 32, "skin_noire_nextform");
-                // 神崎兰子
-                case 6: strcopy(modelname, 32, "skin_kanzaki_normal");
-                // IA
-                case 7: strcopy(modelname, 32, "skin_ia_tda");
-            }
-        }
+    int type = 0;
+    int radm = UTIL_GetRandomInt(1, 1000);
+    if(radm > 950) {
+        if(g_iClientCase[client] > 1) type = 2; else type = 1;  // 5% SSRare
+    } else if(radm > 800) {
+        if(g_iClientCase[client] > 0) type = 1; else type = 0;  // 15% SRare
+    } else {
+        type = 0;                                               // 80% Rare
     }
+
+    int aid = UTIL_GetRandomInt(0, g_aCaseSkins[type].Length-1);
+    char modelname[32];
+    g_aCaseSkins[type].GetString(aid, modelname, 32);
 
     int itemid = UTIL_GetItemId(modelname);
 
@@ -3154,6 +3138,7 @@ void UTIL_ReloadConfig()
         if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && g_eItems[g_iItems][iCaseType] > -1)
         {
             g_aCaseSkins[0].PushString(m_szUniqueId);
+
             if(g_eItems[g_iItems][iCaseType] > 0)
             {
                 g_aCaseSkins[1].PushString(m_szUniqueId);

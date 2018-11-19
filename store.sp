@@ -2182,8 +2182,12 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
         g_hDatabase = view_as<Database>(hndl);
 
         // Do some housekeeping
-        SQL_SetCharset(g_hDatabase, "utf8");
-        
+        if(SQL_SetCharset(g_hDatabase, "utf8mb4"))
+        {
+            // if failure
+            SQL_SetCharset(g_hDatabase, "utf8");
+        }
+
         char m_szQuery[256];
         FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
         SQL_TVoid(g_hDatabase, m_szQuery);

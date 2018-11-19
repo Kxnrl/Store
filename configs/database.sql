@@ -8,7 +8,7 @@ CREATE TABLE `store_players` (
   `ban` int(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `authid` (`authid`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_opencase` (
@@ -20,7 +20,7 @@ CREATE TABLE `store_opencase` (
   `handle` varchar(16) NOT NULL DEFAULT 'ERROR',
   `type` tinyint(3) NOT NULL DEFAULT '1',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_newlogs` (
@@ -31,7 +31,7 @@ CREATE TABLE `store_newlogs` (
   `reason` varchar(256) NOT NULL DEFAULT 'unknown reason',
   `timestamp` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_items` (
@@ -44,7 +44,7 @@ CREATE TABLE `store_items` (
   `price_of_purchase` int(11) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `p` (`player_id`,`type`,`unique_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_item_parent` (
@@ -52,7 +52,7 @@ CREATE TABLE `store_item_parent` (
   `name` varchar(32) DEFAULT NULL,
   `parent` tinyint(3) NOT NULL DEFAULT '-1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_item_child` (
@@ -103,7 +103,7 @@ CREATE TABLE `store_item_child` (
   `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin',
   PRIMARY KEY (`type`,`uid`),
   KEY `p` (`parent`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- if u upgrade from 2.0, exec this in your database
 ALTER TABLE `store_item_child`
@@ -123,4 +123,4 @@ CREATE TABLE `store_equipment` (
   `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`player_id`,`type`,`slot`),
   KEY `key` (`player_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

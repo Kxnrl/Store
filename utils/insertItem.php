@@ -14,7 +14,7 @@ $db_user = "";
 $db_pswd = "";
 $db_host = "";
 $db_name = "";
-$db_port = "3306";
+$db_port = "";
 
 $database = mysqli_connect($db_host, $db_user, $db_pswd, $db_name, $db_port);
 

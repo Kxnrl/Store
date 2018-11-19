@@ -107,6 +107,9 @@ bool g_bHideMode[MAXPLAYERS+1];
 bool g_bInvMode[MAXPLAYERS+1];
 
 bool g_bLateLoad;
+
+// Case Options
+int  g_inCase[4] = {0, 8888, 23333, 68888};
 char g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
 
 
@@ -1301,10 +1304,10 @@ public int MenuHandler_Preview(Handle menu, MenuAction action, int client, int p
         else if(selected == 3)
         {
 #if defined Module_Skin
-            if(g_eClients[client][iCredits] >= 8888)
+            if(g_eClients[client][iCredits] >= g_inCase[1])
                 UTIL_OpenSkinCase(client);
             else
-                tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 8888);
+                tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_inCase[1]);
 #else
             tPrintToChat(client, "%T", "Open Case not available", client);
 #endif
@@ -1321,11 +1324,11 @@ void UTIL_OpenSkinCase(int client)
     SetMenuTitleEx(menu, "%T\n%T: %d", "select case", client, "credits", client, g_eClients[client][iCredits]);
     SetMenuExitBackButton(menu, true);
 
-    AddMenuItemEx(menu, (g_eClients[client][iCredits] >=  8888 && g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%s(8888%T)\nSkin Level: 2|3(1day~%T)", g_szCase[1], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[1] && g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%s(%d%T)\nSkin Level: 2|3(1day~%T)", g_szCase[1], g_inCase[1], "credits", client, "permanent", client);
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
-    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= 23333 && g_aCaseSkins[1].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "2", "%s(23333%T)\nSkin Level: 2|3|4(1day~%T)", g_szCase[2], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[2] && g_aCaseSkins[1].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "2", "%s(%d%T)\nSkin Level: 2|3|4(1day~%T)", g_szCase[2], g_inCase[2], "credits", client, "permanent", client);
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
-    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= 68888 && g_aCaseSkins[2].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%s(68888%T)\nSkin Level: 2|3|4(#%T#)", g_szCase[3], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[3] && g_aCaseSkins[2].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%s(%d%T)\nSkin Level: 2|3|4(#%T#)", g_szCase[3], g_inCase[3], "credits", client, "permanent", client);
 
     DisplayMenu(menu, client, 0);
 }
@@ -1374,9 +1377,9 @@ public Action Timer_OpeningCase(Handle timer, int client)
     
     switch(g_iClientCase[client])
     {
-        case 1 : if(g_eClients[client][iCredits] <  8888) return Plugin_Stop;
-        case 2 : if(g_eClients[client][iCredits] < 23333) return Plugin_Stop;
-        case 3 : if(g_eClients[client][iCredits] < 68888) return Plugin_Stop;
+        case 1 : if(g_eClients[client][iCredits] < g_inCase[1]) return Plugin_Stop;
+        case 2 : if(g_eClients[client][iCredits] < g_inCase[2]) return Plugin_Stop;
+        case 3 : if(g_eClients[client][iCredits] < g_inCase[3]) return Plugin_Stop;
         default: return Plugin_Stop;
     }
 
@@ -1485,35 +1488,31 @@ public int MenuHandler_OpeningCase(Handle menu, MenuAction action, int client, i
         CloseHandle(menu);
 }
 
-int UTIL_GetSkinSellPrice(int client, int days)
+int UTIL_GetSkinSellPrice(int client, int itemid, int days)
 {
     if(days == 0)
-        return (g_iClientCase[client] == 3) ? 38888 : 50000;
+        return RoundToCeil(g_inCase[g_iClientCase[client]] * 0.8);
 
-    int buyc = 233;
+    if(g_eItems[itemid][iPlans] > 0)
+    {
+        if(days > 30)
+            return RoundToCeil(float(days) / 30.0 * g_ePlans[itemid][2][iPrice] * 0.85);
+        else if(days > 7)
+            return RoundToCeil(float(days) /  7.0 * g_ePlans[itemid][1][iPrice] * 0.85);
 
-    if(days > 150)
-        buyc = days*200;
-    else if(days > 31)
-        buyc = days*250;
-    else if(days > 7)
-        buyc = days*300;
-    else
-        buyc = days*350;
+        return RoundToCeil(float(days) /  1.0 * g_ePlans[itemid][1][iPrice] * 0.85);
+    }
 
-    if(buyc > 50000)
-        buyc = 50000;
-
-    return buyc;
+    return RoundToCeil(float(g_eItems[itemid][iPrice]) / 180.0 * days * 0.85);
 }
 
 void EndingCaseMenu(int client, int days, int itemid)
 {
     switch(g_iClientCase[client])
     {
-        case 1: Store_SetClientCredits(client, Store_GetClientCredits(client)- 8888, "Normal Case");
-        case 2: Store_SetClientCredits(client, Store_GetClientCredits(client)-23333, "Advanced Case");
-        case 3: Store_SetClientCredits(client, Store_GetClientCredits(client)-68888, "Ultima Case");
+        case 1: Store_SetClientCredits(client, Store_GetClientCredits(client)-g_inCase[1], "Normal Case");
+        case 2: Store_SetClientCredits(client, Store_GetClientCredits(client)-g_inCase[2], "Advanced Case");
+        case 3: Store_SetClientCredits(client, Store_GetClientCredits(client)-g_inCase[3], "Ultima Case");
         default: return;
     }
 
@@ -1543,7 +1542,7 @@ void EndingCaseMenu(int client, int days, int itemid)
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
 
-    int crd = UTIL_GetSkinSellPrice(client, days);
+    int crd = UTIL_GetSkinSellPrice(client, itemid, days);
     char fmt[32];
     FormatEx(fmt, 32, "sell_%d_%d", itemid, days);
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, fmt, "%T(%d)", "quickly sell", client, crd);
@@ -1578,7 +1577,7 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
 
             if(StrEqual(data[0], "sell"))
             {
-                int crd = UTIL_GetSkinSellPrice(client, days);
+                int crd = UTIL_GetSkinSellPrice(client, itemid, days);
                 char reason[128];
                 FormatEx(STRING(reason), "%T[%s]", "open case and quickly sell", client, name);
                 Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, reason);
@@ -1628,7 +1627,7 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 
                 if(Store_HasClientItem(client, itemid))
                 {
-                    int crd = UTIL_GetSkinSellPrice(client, days);
+                    int crd = UTIL_GetSkinSellPrice(client, itemid, days);
                     char reason[128];
                     FormatEx(STRING(reason), "%T[%s]", "open and cancel", client, name);
                     Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, reason);
@@ -2005,10 +2004,10 @@ public int MenuHandler_Item(Handle menu, MenuAction action, int client, int para
             else if(m_iId == 4)
             {
 #if defined Module_Skin
-                if(g_eClients[client][iCredits] >= 8888)
+                if(g_eClients[client][iCredits] >= g_inCase[1])
                     UTIL_OpenSkinCase(client);
                 else
-                    tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 8888);
+                    tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_inCase[1]);
 #else
                 tPrintToChat(client, "%T", "Open Case not available", client);
 #endif

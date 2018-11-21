@@ -436,10 +436,8 @@ public int Native_SetClientCredits(Handle myself, int numParams)
     {
         DataPack pack = new DataPack();
         pack.WriteCell(client);
-        pack.WriteCell(m_iCredits);
         pack.WriteCell(difference);
         pack.WriteCell(g_eClients[client][iId]);
-        pack.WriteCell(g_eClients[client][iCredits]);
         pack.WriteCell(GetTime());
         pack.WriteString(logMsg);
         CreateTimer(1.0, Timer_SetCreditsDelay, pack, TIMER_REPEAT);
@@ -459,10 +457,8 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
 {
     pack.Reset();
     int client = pack.ReadCell();
-    int m_iCredits = pack.ReadCell();
     int difference = pack.ReadCell();
     int m_iStoreId = pack.ReadCell();
-    int OrgCredits = pack.ReadCell();
     int iTimeStamp = pack.ReadCell();
     char logMsg[256];
     pack.ReadString(STRING(logMsg));
@@ -474,7 +470,7 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
         FormatEx(STRING(m_szQuery), "UPDATE store_players SET credits=credits+%d WHERE id=%d", difference, m_iStoreId);
         SQL_TVoid(g_hDatabase, m_szQuery);
         g_hDatabase.Escape(logMsg, eReason, 256);
-        FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", m_iStoreId, OrgCredits, difference, eReason, iTimeStamp);
+        FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", m_iStoreId, g_eClients[client][iCredits] + difference, difference, eReason, iTimeStamp);
         SQL_TVoid(g_hDatabase, m_szQuery);
         return Plugin_Stop;
     }
@@ -490,11 +486,11 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
         return Plugin_Stop;
     }
 
-    g_eClients[client][iCredits] = m_iCredits;
+    g_eClients[client][iCredits] += difference;
 
     UTIL_LogMessage(client, difference, logMsg);
     UTIL_SaveClientData(client, false);
-    
+
     return Plugin_Stop;
 } 
 
@@ -775,7 +771,7 @@ public void OnClientConnected(int client)
     g_eClients[client][iOriginalCredits] = 0;
     g_eClients[client][iItems]           = -1;
     g_eClients[client][bLoaded]          = false;
-    
+
 #if defined AllowHide
     g_bHideMode[client] = false;
 #endif
@@ -2631,9 +2627,9 @@ public void SQLCallback_RefreshCredits(Database db, DBResultSet results, const c
 void UTIL_DisconnectClient(int client)
 {
     ClearTimer(g_eClients[client][hTimer]);
-    g_eClients[client][iCredits] = -1;
-    g_eClients[client][iOriginalCredits] = -1;
-    g_eClients[client][iItems] = -1;
+    //g_eClients[client][iCredits] = -1;
+    //g_eClients[client][iOriginalCredits] = -1;
+    //g_eClients[client][iItems] = -1;
     g_eClients[client][bLoaded] = false;
 }
 

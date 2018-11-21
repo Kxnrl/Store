@@ -88,7 +88,6 @@ int g_iItems = 0;
 int g_iTypeHandlers = 0;
 int g_iMenuHandlers = 0;
 int g_iPackageHandler = -1;
-int g_iDatabaseRetries = 0;
 
 int g_iClientCase[MAXPLAYERS+1];
 int g_iMenuBack[MAXPLAYERS+1];
@@ -207,11 +206,7 @@ public void OnPluginStart()
     LoadTranslations("store.phrases");
 
     // Connect to the database
-    if(g_hDatabase == null)
-    {
-        SQL_TConnect(SQLCallback_Connect, "csgo");
-        CreateTimer(30.0, Timer_DatabaseTimeout);
-    }
+    Database.Connect(SQLCallback_Connection, "csgo", 0);
 
     for(int x = 0; x < 3; ++x) g_aCaseSkins[x] = new ArrayList(ByteCountToCells(256));
 }
@@ -478,7 +473,7 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
         char m_szQuery[512], eReason[256];
         FormatEx(STRING(m_szQuery), "UPDATE store_players SET credits=credits+%d WHERE id=%d", difference, m_iStoreId);
         SQL_TVoid(g_hDatabase, m_szQuery);
-        SQL_EscapeString(g_hDatabase, logMsg, eReason, 256);
+        g_hDatabase.Escape(logMsg, eReason, 256);
         FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", m_iStoreId, OrgCredits, difference, eReason, iTimeStamp);
         SQL_TVoid(g_hDatabase, m_szQuery);
         return Plugin_Stop;
@@ -2167,19 +2162,19 @@ public int MenuHandler_Confirm(Menu menu, MenuAction action, int client, int par
 //////////////////////////////
 //          TIMER           //
 //////////////////////////////
-public Action Timer_DatabaseTimeout(Handle timer, int userid)
+public Action Timer_DababaseRetry(Handle timer, int retry)
 {
     // Database is connected successfully
     if(g_hDatabase != null)
         return Plugin_Stop;
 
-    if(g_iDatabaseRetries < 100)
+    if(retry >= 100)
     {
-        SQL_TConnect(SQLCallback_Connect, "csgo");
-        CreateTimer(30.0, Timer_DatabaseTimeout);
-        ++g_iDatabaseRetries;
+        SetFailState("Database connection failed to initialize after 100 retrie");
+        return Plugin_Stop;
     }
-    else SetFailState("Database connection failed to initialize after 100 retrie");
+
+    Database.Connect(SQLCallback_Connection, "csgo", retry);
  
     return Plugin_Stop;
 }
@@ -2187,19 +2182,25 @@ public Action Timer_DatabaseTimeout(Handle timer, int userid)
 //////////////////////////////
 //       SQL CALLBACK       //
 //////////////////////////////
-public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, any data)
+public void SQLCallback_Connection(Database db, const char[] error, int retry)
 {
-    if(hndl==null)
+    retry++;
+
+    if(db == null || error[0])
     {
-        LogStoreError("Failed to connect to SQL database. [%03d] Error: %s", g_iDatabaseRetries, error);
+        LogStoreError("Failed to connect to SQL database. [%03d] Error: %s", retry, error);
+        CreateTimer(5.0, Timer_DababaseRetry, retry);
         return;
     }
 
     // If it's already connected we are good to go
     if(g_hDatabase != null)
+    {
+        delete db;
         return;
+    }
 
-    g_hDatabase = view_as<Database>(hndl);
+    g_hDatabase = db;
 
     // Do some housekeeping
     if(!g_hDatabase.SetCharset("utf8mb4"))
@@ -2229,9 +2230,9 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
     }
 }
 
-public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, const char[] error, int userid)
+public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet results, const char[] error, int userid)
 {
-    if(hndl==null)
+    if(results == null || error[0])
     {
         LogStoreError("Error happened. Error: %s", error);
         return;
@@ -2248,14 +2249,14 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
     GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), true);
     strcopy(g_eClients[client][szAuthId], 32, m_szSteamID[8]);
 
-    if(SQL_FetchRow(hndl))
+    if(results.FetchRow())
     {
-        g_eClients[client][iId] = SQL_FetchInt(hndl, 0);
-        g_eClients[client][iCredits] = SQL_FetchInt(hndl, 3);
-        g_eClients[client][iOriginalCredits] = SQL_FetchInt(hndl, 3);
-        g_eClients[client][iDateOfJoin] = SQL_FetchInt(hndl, 4);
+        g_eClients[client][iId] = results.FetchInt(0);
+        g_eClients[client][iCredits] = results.FetchInt(3);
+        g_eClients[client][iOriginalCredits] = results.FetchInt(3);
+        g_eClients[client][iDateOfJoin] = results.FetchInt(4);
         g_eClients[client][iDateOfLastJoin] = m_iTime;
-        g_eClients[client][bBan] = (SQL_FetchInt(hndl, 6) == 1 || g_eClients[client][iCredits] < 0) ? true : false;
+        g_eClients[client][bBan] = (results.FetchInt(6) == 1 || g_eClients[client][iCredits] < 0) ? true : false;
 
         if(g_eClients[client][bBan])
         {
@@ -2266,7 +2267,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
         else
         {
             FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
-            SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
+            g_hDatabase.Query(SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
         }
 
         UTIL_LogMessage(client, 0, "Joined");
@@ -2276,15 +2277,15 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
     {
         char m_szName[64], m_szEName[128];
         GetClientName(client, m_szName, 64);
-        SQL_EscapeString(g_hDatabase, m_szName, m_szEName, 128);
+        g_hDatabase.Escape(m_szName, m_szEName, 128);
         FormatEx(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', 300, %d, %d, '0')", g_eClients[client][szAuthId], m_szEName, m_iTime, m_iTime);
-        SQL_TQuery(g_hDatabase, SQLCallback_InsertClient, m_szQuery, userid);
+        g_hDatabase.Query(SQLCallback_InsertClient, m_szQuery, userid);
     }
 }
 
-public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, const char[] error, int userid)
+public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet results, const char[] error, int userid)
 {
-    if(hndl==null)
+    if(results == null || error[0])
     {
         LogStoreError("Error happened. Error: %s", error);
         return;
@@ -2293,15 +2294,15 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
     int client = GetClientOfUserId(userid);
     if(!client)
         return;
-    
+
     char m_szQuery[512];
 
-    if(SQL_GetRowCount(hndl) <= 0)
+    if(results.RowCount <= 0)
     {
         if(UTIL_GetTotalInventoryItems(client) > 0)
         {
             FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-            SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
+            g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
             return;
         }
         g_eClients[client][bLoaded] = true;
@@ -2318,40 +2319,40 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
     int m_iTime = GetTime();
     
     int i = 0;
-    while(SQL_FetchRow(hndl))
+    while(results.FetchRow())
     {
         m_iUniqueId = -1;
-        m_iExpiration = SQL_FetchInt(hndl, 5);
+        m_iExpiration = results.FetchInt(5);
         if(m_iExpiration && m_iExpiration <= m_iTime)
             continue;
         
-        SQL_FetchString(hndl, 2, STRING(m_szType));
-        SQL_FetchString(hndl, 3, STRING(m_szUniqueId));
+        results.FetchString(2, STRING(m_szType));
+        results.FetchString(3, STRING(m_szUniqueId));
 
         while((m_iUniqueId = UTIL_GetItemId(m_szUniqueId, m_iUniqueId)) != -1)
         {
-            g_eClientItems[client][i][iId] = SQL_FetchInt(hndl, 0);
+            g_eClientItems[client][i][iId] = results.FetchInt(0);
             g_eClientItems[client][i][iUniqueId] = m_iUniqueId;
             g_eClientItems[client][i][bSynced] = true;
             g_eClientItems[client][i][bDeleted] = false;
-            g_eClientItems[client][i][iDateOfPurchase] = SQL_FetchInt(hndl, 4);
+            g_eClientItems[client][i][iDateOfPurchase] = results.FetchInt(4);
             g_eClientItems[client][i][iDateOfExpiration] = m_iExpiration;
-            g_eClientItems[client][i][iPriceOfPurchase] = SQL_FetchInt(hndl, 6);
+            g_eClientItems[client][i][iPriceOfPurchase] = results.FetchInt(6);
             ++i;
         }
     }
     g_eClients[client][iItems] = i;
     g_iDataProtect[client] = GetTime()+15;
-        
+
 #if defined DATA_VERIFY
     FormatEx(STRING(m_szQuery), "SELECT * FROM `store_newlogs` WHERE `store_id` = '%d' AND (`reason` = 'Disconnect' OR `reason` = 'Add Funds')  ORDER BY `timestamp` DESC LIMIT 1", g_eClients[client][iId]);
-    SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_DATAVERIFY, m_szQuery, userid);
+    g_hDatabase.Query(SQLCallback_LoadClientInventory_DATAVERIFY, m_szQuery, userid);
 #endif
 
     if(i > 0)
     {
         FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
+        g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
     }
     else
     {
@@ -2364,21 +2365,21 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 }
 
 #if defined DATA_VERIFY
-public void SQLCallback_LoadClientInventory_DATAVERIFY(Handle owner, Handle hndl, const char[] error, int userid)
+public void SQLCallback_LoadClientInventory_DATAVERIFY(Database db, DBResultSet results, const char[] error, int userid)
 {
-    if(hndl==null)
+    if(results == null || error[0])
     {
         LogStoreError("Error happened. Error: %s", error);
         return;
     }
 
-    if(SQL_FetchRow(hndl))
+    if(results.FetchRow())
     {
         int client = GetClientOfUserId(userid);
         if(!client)
             return;
         
-        int credits = SQL_FetchInt(hndl, 0);
+        int credits = results.FetchInt(0);
         
         int diff = g_eClients[client][iCredits] - credits;
         
@@ -2408,9 +2409,9 @@ public void SQLCallback_LoadClientInventory_DATAVERIFY(Handle owner, Handle hndl
 }
 #endif
 
-public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl, const char[] error, int userid)
+public void SQLCallback_LoadClientInventory_Equipment(Database db, DBResultSet results, const char[] error, int userid)
 {
-    if(hndl==null)
+    if(results == null || error[0])
     {
         LogStoreError("Error happened. Error: %s", error);
         return;
@@ -2424,15 +2425,15 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
     char m_szType[16];
     int m_iUniqueId, m_iSlot;
 
-    while(SQL_FetchRow(hndl))
+    while(results.FetchRow())
     {
-        SQL_FetchString(hndl, 1, STRING(m_szType));
-        SQL_FetchString(hndl, 2, STRING(m_szUniqueId));
+        results.FetchString(1, STRING(m_szType));
+        results.FetchString(2, STRING(m_szUniqueId));
         m_iUniqueId = UTIL_GetItemId(m_szUniqueId);
         if(m_iUniqueId == -1)
             continue;
 
-        m_iSlot = SQL_FetchInt(hndl, 3);
+        m_iSlot = results.FetchInt(3);
 
         if(StrEqual(m_szType, "playerskin"))
         {
@@ -2455,20 +2456,20 @@ public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl,
     g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
 
-public void SQLCallback_InsertClient(Handle owner, Handle hndl, const char[] error, int userid)
+public void SQLCallback_InsertClient(Database db, DBResultSet results, const char[] error, int userid)
 {
     int client = GetClientOfUserId(userid);
     if(!client)
         return;
-    
-    if(hndl==null)
+
+    if(results == null || error[0])
     {
         LogStoreError("Error happened. Error: %s", error);
         KickClient(client, "Failed to check your store account.");
         return;
     }
 
-    g_eClients[client][iId] = SQL_GetInsertId(hndl);
+    g_eClients[client][iId] = results.InsertId;
     g_eClients[client][iCredits] = 0;
     g_eClients[client][iOriginalCredits] = 0;
     g_eClients[client][iDateOfJoin] = GetTime();
@@ -2498,8 +2499,7 @@ void UTIL_LoadClientInventory(int client)
         return;
 
     FormatEx(STRING(m_szQuery), "SELECT * FROM store_players WHERE `authid`=\"%s\"", m_szAuthId[8]);
-
-    SQL_TQuery(g_hDatabase, SQLCallback_LoadClientInventory_Credits, m_szQuery, g_eClients[client][iUserId]);
+    g_hDatabase.Query(SQLCallback_LoadClientInventory_Credits, m_szQuery, g_eClients[client][iUserId]);
 }
 
 void UTIL_SaveClientInventory(int client)
@@ -2589,7 +2589,7 @@ void UTIL_SaveClientData(int client, bool disconnect)
     
     char m_szQuery[512], m_szName[64], m_szEName[128];
     GetClientName(client, m_szName, 64);
-    SQL_EscapeString(g_hDatabase, m_szName, m_szEName, 128);
+    g_hDatabase.Escape(m_szName, m_szEName, 128);
     FormatEx(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`+%d, `date_of_last_join`=%d, `name`='%s' WHERE `id`=%d", g_eClients[client][iCredits]-g_eClients[client][iOriginalCredits], g_eClients[client][iDateOfLastJoin], m_szEName, g_eClients[client][iId]);
 
     if(disconnect)
@@ -2601,11 +2601,11 @@ void UTIL_SaveClientData(int client, bool disconnect)
     else
     {
         g_eClients[client][bRefresh] = true;
-        SQL_TQuery(g_hDatabase, SQLCallback_RefreshCredits, m_szQuery, GetClientUserId(client));
+        g_hDatabase.Query(SQLCallback_RefreshCredits, m_szQuery, GetClientUserId(client));
     }
 }
 
-public void SQLCallback_RefreshCredits(Handle owner, Handle hndl, const char[] error, int userid)
+public void SQLCallback_RefreshCredits(Database db, DBResultSet results, const char[] error, int userid)
 {
     int client = GetClientOfUserId(userid);
     if(!client)
@@ -2613,7 +2613,7 @@ public void SQLCallback_RefreshCredits(Handle owner, Handle hndl, const char[] e
     
     g_eClients[client][bRefresh] = false;
     
-    if(hndl == null)
+    if(results == null || error[0])
     {
         LogStoreError("Refresh \"%L\" data failed :  %s", client, error);
         return;
@@ -2639,22 +2639,22 @@ int UTIL_GetItemId(const char[] uid, int start = -1)
     return -1;
 }
 
-public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, int userid)
+public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] error, int userid)
 {
     int client = GetClientOfUserId(userid);
     if(!client)
         return;
 
-    if(hndl == null)
+    if(results == null || error[0])
     {
         LogStoreError("Error happened. Error: %s", error);
         return;
     }
 
-    if(!SQL_FetchRow(hndl))
+    if(!results.FetchRow())
         return;
 
-    int dbCredits = SQL_FetchInt(hndl, 0);
+    int dbCredits = results.FetchInt(0);
     int itemid = g_iSelectedItem[client];
     int plan = g_iSelectedPlan[client];
 
@@ -2785,7 +2785,7 @@ void UTIL_BuyItem(int client)
     g_iDataProtect[client] = GetTime()+15;
     char m_szQuery[255];
     FormatEx(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[client][iId]);
-    SQL_TQuery(g_hDatabase, SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
+    g_hDatabase.Query(SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
     g_eClients[client][bRefresh] = true;
 }
 
@@ -3365,7 +3365,7 @@ void UTIL_LogMessage(int client, int diff, const char[] message, any ...)
     VFormat(STRING(m_szReason), message, 4);
 
     char m_szQuery[512], EszReason[513];
-    SQL_EscapeString(g_hDatabase, m_szReason, EszReason, 513);
+    g_hDatabase.Escape(m_szReason, EszReason, 513);
     FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", g_eClients[client][iId], g_eClients[client][iCredits], diff, EszReason, GetTime());
     SQL_TVoid(g_hDatabase, m_szQuery);
 }

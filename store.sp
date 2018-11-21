@@ -1488,37 +1488,50 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
 void OpeningCaseMenu(int client, int days, const char[] name)
 {
-    Handle menu = CreateMenu(MenuHandler_OpeningCase);
-    SetMenuTitleEx(menu, "Opening Case...\n%s", g_szCase[g_iClientCase[client]]);
-    SetMenuExitButton(menu, false);
-    
-    AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "░░░░░░░░░░░░░░░░░░");
-    AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "░░░░░░░░░░░░░░░░░░");
+    static Panel m_hCasePanel = null;
 
-    AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "   %s", name);
+    if(m_hCasePanel != null)
+        delete m_hCasePanel;
+
+    m_hCasePanel = new Panel();
+
+    char fmt[128];
+
+    FormatEx(STRING(fmt), "   %s", g_szCase[g_iClientCase[client]]);
+    m_hCasePanel.DrawText(fmt);
+
+    m_hCasePanel.DrawText("                     ");
+    m_hCasePanel.DrawText("   ░░░░░░░░░░░░░░░░░░");
+    m_hCasePanel.DrawText("   ░░░░░░░░░░░░░░░░░░");
+    m_hCasePanel.DrawText("   ░░░░░░░░░░░░░░░░░░");
+
+    FormatEx(STRING(fmt), "   %s", name);
+    m_hCasePanel.DrawText(fmt);
+ 
     if(days)
     {
-        AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "   %d day%s", days, days > 1 ? "s" : "");
+        FormatEx(STRING(fmt), "      %d day%s", days, days > 1 ? "s" : "");
         PrintCenterText(client, "<big><u><b><font color='#dd2f2f' size='25'><center>%s</font> <font color='#15fb00' size='25'>%d Day%s</center>", name, days, days > 1 ? "s" : "");
     }
     else
     {
-        AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "%T", "permanent", client);
+        FormatEx(STRING(fmt), "   %T", "permanent", client);
         PrintCenterText(client, "<big><u><b><font color='#dd2f2f' size='25'><center>%s</font> <font color='#15fb00' size='25'>Permanent</center>", name);
     }
+    m_hCasePanel.DrawText(fmt);
 
-    AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "░░░░░░░░░░░░░░░░░░");
-    AddMenuItemEx(menu, ITEMDRAW_DEFAULT, "", "░░░░░░░░░░░░░░░░░░");
-    
-    DisplayMenu(menu, client, 1);
-    
+    m_hCasePanel.DrawText("   ░░░░░░░░░░░░░░░░░░");
+    m_hCasePanel.DrawText("   ░░░░░░░░░░░░░░░░░░");
+    m_hCasePanel.DrawText("   ░░░░░░░░░░░░░░░░░░");
+
     ClientCommand(client, "playgamesound ui/csgo_ui_crate_item_scroll.wav");
+
+    m_hCasePanel.Send(client, MenuHandler_OpeningCase, 5);
 }
 
-public int MenuHandler_OpeningCase(Handle menu, MenuAction action, int client, int param2)
+public int MenuHandler_OpeningCase(Menu menu, MenuAction action, int client, int param2)
 {
-    if(action == MenuAction_End)
-        CloseHandle(menu);
+    // Do nothing...
 }
 
 int UTIL_GetSkinSellPrice(int client, int itemid, int days)

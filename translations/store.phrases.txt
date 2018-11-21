@@ -573,8 +573,8 @@
     
     "opencase earned day"
     {
-        "#format" "{1:N},{2:s},{3:s},{4:s}"
-        "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}天{normal})"
+        "#format" "{1:N},{2:s},{3:s},{4:d}"
+        "en"  "{purple}{1} {normal}opened a(n) {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}day(s){normal})"
         "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}{4}天{normal})"
     }
     

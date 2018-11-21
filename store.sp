@@ -1390,12 +1390,45 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
     int type = 0;
     int radm = UTIL_GetRandomInt(1, 1000);
-    if(radm > 950) {
-        if(g_iClientCase[client] > 1) type = 2; else type = 1;  // 5% SSRare
-    } else if(radm > 800) {
-        if(g_iClientCase[client] > 0) type = 1; else type = 0;  // 15% SRare
-    } else {
-        type = 0;                                               // 80% Rare
+    if(radm > 950)
+    {
+        // 5% SSRare
+        if(g_iClientCase[client] > 1)
+        {
+            if(g_aCaseSkins[2].Length > 0)
+                type = 2;
+            else if(g_aCaseSkins[1].Length > 0)
+                type = 1;  
+            else
+                type = 0;
+        }
+        else 
+        {
+            if(g_aCaseSkins[1].Length > 0)
+                type = 1;
+            else
+                type = 0;
+        }
+    }
+    else if(radm > 800)
+    {
+        // 15% SRare
+        if(g_aCaseSkins[1].Length > 0)
+            type = 1;
+        else
+            type = 0;
+    }
+    else
+    {
+        // 80% Rare
+        type = 0;
+    }
+
+    if(g_aCaseSkins[type].Length <= 0)
+    {
+        tPrintToChat(client, "\x07%T \x0A->\x02 Null Array", "unknown error", client);
+        LogError("Null Array in Case Array [%s]", g_szCase[type+1]);
+        return Plugin_Stop;
     }
 
     int aid = UTIL_GetRandomInt(0, g_aCaseSkins[type].Length-1);
@@ -1407,7 +1440,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
     if(itemid < 0)
     {
         LogError("Item Id Error %s", modelname);
-        tPrintToChat(client, "\x07%T", "unknown error", client);
+        tPrintToChat(client, "\x07%T \x0A->\x02 Invalid Item", "unknown error", client);
         return Plugin_Stop;
     }
 

@@ -20,7 +20,7 @@ static int g_iSoundSpam[MAXPLAYERS+1];
 static bool g_bClientDisable[MAXPLAYERS+1];
 static bool g_bClientPrefs;
 
-static Sound g_eSounds[STORE_MAX_ITEMS][Sound];
+static any g_eSounds[STORE_MAX_ITEMS][Sound];
 
 static Handle g_hCookieSounds;
 
@@ -66,13 +66,13 @@ public void Sound_Reset()
     g_iSounds = 0;
 }
 
-public bool Sound_Config(Handle kv, int itemid)
+public bool Sound_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSounds);
-    KvGetString(kv, "sound", g_eSounds[g_iSounds][szSound], 128);
-    KvGetString(kv, "shortname", g_eSounds[g_iSounds][szName], 128);
-    g_eSounds[g_iSounds][fVolume] = KvGetFloat(kv, "volume", 0.3);
-    g_eSounds[g_iSounds][iCooldown] = KvGetNum(kv, "cooldown", 30);
+    kv.GetString("sound", g_eSounds[g_iSounds][szSound], 128);
+    kv.GetString("shortname", g_eSounds[g_iSounds][szName], 128);
+    g_eSounds[g_iSounds][fVolume] = kv.GetFloat("volume", 0.3);
+    g_eSounds[g_iSounds][iCooldown] = kv.GetNum("cooldown", 30);
 
     if(g_eSounds[g_iSounds][iCooldown] < 30)
         g_eSounds[g_iSounds][iCooldown] = 30;
@@ -84,7 +84,7 @@ public bool Sound_Config(Handle kv, int itemid)
         g_eSounds[g_iSounds][fVolume] = 0.05;
     
     char szPath[256];
-    Format(szPath, 256, "sound/%s", g_eSounds[g_iSounds][szSound]);
+    FormatEx(szPath, 256, "sound/%s", g_eSounds[g_iSounds][szSound]);
     if(FileExists(szPath, true))
     {
         ++g_iSounds;

@@ -56,9 +56,9 @@ void Players_OnClientDisconnect(int client)
 #endif
 }
 
-public Action Event_PlayerSpawn_Pre(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBroadcast)
 {
-    int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    int client = GetClientOfUserId(event.GetInt("userid"));
 
     if(IsFakeClient(client) || g_iClientTeam[client] <= 1)
         return Plugin_Continue;
@@ -66,6 +66,7 @@ public Action Event_PlayerSpawn_Pre(Handle event, const char[] name, bool dontBr
     RequestFrame(OnClientSpawnPost, client);
 
 #if defined Module_Skin
+    Store_RemoveClientGloves(client, -1);
     Store_ResetPlayerSkin(client);
     Store_PreSetClientModel(client);
     CreateTimer(0.1, Timer_ClearCamera, client);
@@ -105,9 +106,9 @@ public void OnClientSpawnPost(int client)
 #endif
 }
 
-public Action Event_PlayerDeath_Pre(Handle event, const char[] name, bool dontBroadcast)
+public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBroadcast)
 {
-    int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    int client = GetClientOfUserId(event.GetInt("userid"));
 
     if(IsFakeClient(client))
         return Plugin_Continue;

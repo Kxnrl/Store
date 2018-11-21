@@ -33,12 +33,12 @@ enum Pet
     iSlot
 }
 
-int g_ePets[STORE_MAX_ITEMS][Pet];
-int g_iPets = 0;
-int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
-int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
-bool g_bHide[MAXPLAYERS+1];
-Handle g_cCookie;
+static any g_ePets[STORE_MAX_ITEMS][Pet];
+static int g_iPets = 0;
+static int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static bool g_bHide[MAXPLAYERS+1];
+static Handle g_cCookie;
 
 public void OnPluginStart()
 {
@@ -72,7 +72,7 @@ public void Pets_OnMapStart()
 {
     for(int i = 0; i < g_iPets; ++i)
     {
-        PrecacheModel2(g_ePets[i][model], true);
+        PrecacheModel(g_ePets[i][model], true);
         Downloader_AddFileToDownloadsTable(g_ePets[i][model]);
     }
 }

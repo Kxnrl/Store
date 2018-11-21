@@ -33,7 +33,7 @@ public Plugin myinfo =
 //////////////////////////////
 
 // Server
-#define GM_MG //<Compile_Environment>
+#define <Compile_Environment>
 //GM_TT -> ttt server
 //GM_ZE -> zombie escape server
 //GM_MG -> mini games server

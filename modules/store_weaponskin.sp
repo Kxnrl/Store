@@ -32,12 +32,12 @@ enum WeaponSkin
     Float:fWearF
 }
 
-any g_eWeaponSkin[STORE_MAX_ITEMS][WeaponSkin];
-int g_iWeaponSkin = 0;
-int g_iOffsetName = -1;
-int g_iOffsetMyWP = -1;
+static any g_eWeaponSkin[STORE_MAX_ITEMS][WeaponSkin];
+static int g_iWeaponSkin = 0;
+static int g_iOffsetName = -1;
+static int g_iOffsetMyWP = -1;
 
-Handle g_hCookieNamed;
+static Handle g_hCookieNamed;
 
 #define SLOT_0 "!!!!WE START AT 1!!!!"
 #define SLOT_1 1

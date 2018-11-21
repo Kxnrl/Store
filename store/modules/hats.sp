@@ -16,18 +16,18 @@ static int g_iHats = 0;
 static int g_iSpecTarget[MAXPLAYERS+1];
 static int g_iHatsOwners[2048];
 
-public bool Hats_Config(Handle kv, int itemid)
+public bool Hats_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iHats);
     float m_fTemp[3];
-    KvGetString(kv, "model", g_eHats[g_iHats][szModel], PLATFORM_MAX_PATH);
+    kv.GetString("model", g_eHats[g_iHats][szModel], PLATFORM_MAX_PATH);
     KvGetVector(kv, "position", m_fTemp);
     g_eHats[g_iHats][fPosition] = m_fTemp;
     KvGetVector(kv, "angles", m_fTemp);
     g_eHats[g_iHats][fAngles] = m_fTemp;
-    g_eHats[g_iHats][bBonemerge] = (KvGetNum(kv, "bonemerge", 0)?true:false);
-    g_eHats[g_iHats][iSlot] = KvGetNum(kv, "slot");
-    KvGetString(kv, "attachment", g_eHats[g_iHats][szAttachment], 64, "facemask");
+    g_eHats[g_iHats][bBonemerge] = (kv.GetNum("bonemerge", 0)?true:false);
+    g_eHats[g_iHats][iSlot] = kv.GetNum("slot");
+    kv.GetString("attachment", g_eHats[g_iHats][szAttachment], 64, "facemask");
     
     if(!(FileExists(g_eHats[g_iHats][szModel], true)))
         return false;
@@ -188,7 +188,10 @@ void Store_RemoveClientHats(int client, int slot)
 
 public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-    if(g_iSpecTarget[client] == g_iHatsOwners[ent] || client == g_iHatsOwners[ent])
+    if(g_iSpecTarget[client] == g_iHatsOwners[ent])
+        return Plugin_Handled;
+
+    if(client == g_iHatsOwners[ent])
         return IsPlayerTP(client) ? Plugin_Continue : Plugin_Handled;
 
 #if defined AllowHide

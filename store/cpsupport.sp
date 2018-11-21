@@ -57,28 +57,28 @@ public void CPSupport_Reset()
     g_iMessageColors = 0;
 }
 
-public bool NameTags_Config(Handle kv, int itemid)
+public bool NameTags_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameTags);
-    KvGetString(kv, "tag", g_szNameTags[g_iNameTags], 128);
+    kv.GetString("tag", g_szNameTags[g_iNameTags], 128);
     ++g_iNameTags;
 
     return true;
 }
 
-public bool NameColors_Config(Handle kv, int itemid)
+public bool NameColors_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameColors);
-    KvGetString(kv, "color", g_szNameColors[g_iNameColors], 32);
+    kv.GetString("color", g_szNameColors[g_iNameColors], 32);
     ++g_iNameColors;
 
     return true;
 }
 
-public bool MsgColors_Config(Handle kv, int itemid)
+public bool MsgColors_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iMessageColors);
-    KvGetString(kv, "color", g_szMessageColors[g_iMessageColors], 32);
+    kv.GetString("color", g_szMessageColors[g_iMessageColors], 32);
     ++g_iMessageColors;
 
     return true;
@@ -94,7 +94,7 @@ public int CPSupport_Remove(int client, int id)
 
 }
 
-Action CP_Forward(int& client, char[] flagstring, char[] name, char[] message, ArrayList hRecipients, bool &removedColor, bool &processColor)
+Action CP_Forward(int &client, char[] flagstring, char[] name, char[] message, ArrayList hRecipients, bool &removedColor, bool &processColor)
 {
     int m_iEquippedNameTag = Store_GetEquippedItem(client, "nametag");
     int m_iEquippedNameColor = Store_GetEquippedItem(client, "namecolor");

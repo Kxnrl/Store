@@ -108,20 +108,20 @@ public Action Command_Arms(int client, int args)
     return Plugin_Handled;
 }
 
-public bool PlayerSkins_Config(Handle kv, int itemid)
+public bool PlayerSkins_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPlayerSkins);
     
-    KvGetString(kv, "model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
-    KvGetString(kv, "arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
-    KvGetString(kv, "sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
+    kv.GetString("model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
+    kv.GetString("arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
+    kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
     
-    g_ePlayerSkins[g_iPlayerSkins][iLevel] = KvGetNum(kv, "lvls", 0)+1;
+    g_ePlayerSkins[g_iPlayerSkins][iLevel] = kv.GetNum("lvls", 0)+1;
 
 #if defined Global_Skin
     g_ePlayerSkins[g_iPlayerSkins][iTeam] = 4;
 #else
-    g_ePlayerSkins[g_iPlayerSkins][iTeam] = KvGetNum(kv, "team");
+    g_ePlayerSkins[g_iPlayerSkins][iTeam] = kv.GetNum("team");
 #endif
 
     if(FileExists(g_ePlayerSkins[g_iPlayerSkins][szModel], true))
@@ -234,9 +234,10 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
         strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+        {
+            Store_RemoveClientGloves(client, 0);
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
-
-        Store_RemoveClientGloves(client, m_iData);
+        }
 
         return Plugin_Changed;
     }
@@ -320,12 +321,13 @@ static void Store_SetClientModel(int client, int m_iData)
     
     if(g_ePlayerSkins[m_iData][szSound][0] != 0)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
-    
-    Store_RemoveClientGloves(client, m_iData);
 
     // Has valve gloves?
     if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+    {
+        Store_RemoveClientGloves(client, 0);
         SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
+    }
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
 
@@ -603,21 +605,21 @@ void AttemptState(int client, bool spec)
 
 static void FadeScreenBlack(int client)
 {
-    Handle pb = StartMessageOne("Fade", client);
-    PbSetInt(pb, "duration", 4096);
-    PbSetInt(pb, "hold_time", 0);
-    PbSetInt(pb, "flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
-    PbSetColor(pb, "clr", {0, 0, 0, 255});
+    Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+    pb.SetInt("duration", 4096);
+    pb.SetInt("hold_time", 0);
+    pb.SetInt("flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
+    pb.SetColor("clr", {0, 0, 0, 255});
     EndMessage();
 }
 
 static void FadeScreenWhite(int client)
 {
-    Handle pb = StartMessageOne("Fade", client);
-    PbSetInt(pb, "duration", 1536);
-    PbSetInt(pb, "hold_time", 1536);
-    PbSetInt(pb, "flags", FFADE_IN|FFADE_PURGE);
-    PbSetColor(pb, "clr", {0, 0, 0, 0});
+    Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+    pb.SetInt("duration", 1536);
+    pb.SetInt("hold_time", 1536);
+    pb.SetInt("flags", FFADE_IN|FFADE_PURGE);
+    pb.SetColor("clr", {0, 0, 0, 0});
     EndMessage();
 }
 

@@ -37,7 +37,7 @@ public void GrenadeSkins_OnMapStart()
 {
     for(int i = 0; i< g_iGrenadeSkins; ++i)
     {
-        PrecacheModel2(g_eGrenadeSkins[i][szModel], true);
+        PrecacheModel(g_eGrenadeSkins[i][szModel], true);
         Downloader_AddFileToDownloadsTable(g_eGrenadeSkins[i][szModel]);
     }
 }
@@ -46,7 +46,7 @@ public void GrenadeTrails_OnMapStart()
 {
     for(int i = 0; i < g_iGrenadeTrails; ++i)
     {
-        g_eGrenadeTrails[i][iCacheID] = PrecacheModel2(g_eGrenadeTrails[i][szMaterial], true);
+        g_eGrenadeTrails[i][iCacheID] = PrecacheModel(g_eGrenadeTrails[i][szMaterial], true);
         Downloader_AddFileToDownloadsTable(g_eGrenadeTrails[i][szMaterial]);
     }
 }

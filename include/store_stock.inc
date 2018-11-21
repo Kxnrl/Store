@@ -390,18 +390,19 @@ stock void LogStoreError(const char[] buffer, any ...)
 
 public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack pack)
 {
-    if(results == null || error[0])
-    {
-        char query[1024];
-        pack.ReadString(STRING(query));
-        LogError("SQL error happened.\nQuery: %s\nError: %s", query, error);
-    }
+    float time = GetEngineTime() - pack.ReadFloat();
+    char query[1024];
+    pack.ReadString(STRING(query));
+    if(time > 2.0) LogMessage("Store SQL slow query: %f -> %s", time, query);
+    if(results == null || error[0]) LogStoreError("SQL error happened.\nQuery: %s\nError: %s", query, error);
+
     delete pack;
 }
 
 public void SQL_TVoid(Database db, char[] query)
 {
     DataPack data = new DataPack();
+    data.WriteFloat(GetEngineTime());
     data.WriteString(query);
     data.Reset();
     db.Query(SQLCallback_Void_PrintQuery, query, data);

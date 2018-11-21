@@ -364,10 +364,10 @@ public int Native_RegisterMenuHandler(Handle plugin, int numParams)
     int m_iId = g_iMenuHandlers;
     
     if(m_iHandler != -1)
-        m_iId = m_iHandler;
-    else
-        ++g_iMenuHandlers;
-    
+        return (g_eMenuHandlers[m_iId][hPlugin] == plugin) ? m_iId : -1; // Unique Plugin
+ 
+    ++g_iMenuHandlers;
+
     g_eMenuHandlers[m_iId][hPlugin] = plugin;
     g_eMenuHandlers[m_iId][fnMenu] = GetNativeCell(2);
     g_eMenuHandlers[m_iId][fnHandler] = GetNativeCell(3);

@@ -281,7 +281,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnMapStart()
 {
     for(int i = 0; i < g_iTypeHandlers; ++i)
-    if(g_eTypeHandlers[i][fnMapStart] != INVALID_FUNCTION)
+    if(g_eTypeHandlers[i][fnMapStart] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[i][hPlugin]) == Plugin_Running)
     {
         Call_StartFunction(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][fnMapStart]);
         Call_Finish();
@@ -586,7 +586,7 @@ public int Native_RemoveItem(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
-    if(itemid > 0 && g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove] != INVALID_FUNCTION)
+    if(itemid > 0 && g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin]) == Plugin_Running)
     {
         Call_StartFunction(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove]);
         Call_PushCell(client);
@@ -958,7 +958,7 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
 
                 for(int i = 0; i < g_iMenuHandlers; ++i)
                 {
-                    if(g_eMenuHandlers[i][hPlugin] == null)
+                    if(g_eMenuHandlers[i][hPlugin] == null || GetPluginStatus(g_eMenuHandlers[i][hPlugin]) != Plugin_Running)
                         continue;
     
                     Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnMenu]);
@@ -1087,6 +1087,9 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                 int ret;
                 for(int i = 0; i < g_iMenuHandlers; ++i)
                 {
+                    if(g_eMenuHandlers[i][hPlugin] == null || GetPluginStatus(g_eMenuHandlers[i][hPlugin]) != Plugin_Running)
+                        continue;
+                    
                     Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnHandler]);
                     Call_PushCell(client);
                     Call_PushString(m_szId);
@@ -1148,10 +1151,13 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                     {
                         if(g_eTypeHandlers[g_eItems[m_iId][iHandler]][bRaw])
                         {
-                            Call_StartFunction(g_eTypeHandlers[g_eItems[m_iId][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[m_iId][iHandler]][fnUse]);
-                            Call_PushCell(client);
-                            Call_PushCell(m_iId);
-                            Call_Finish();
+                            if(GetPluginStatus(g_eTypeHandlers[g_eItems[m_iId][iHandler]][hPlugin]) == Plugin_Running)
+                            {
+                                Call_StartFunction(g_eTypeHandlers[g_eItems[m_iId][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[m_iId][iHandler]][fnUse]);
+                                Call_PushCell(client);
+                                Call_PushCell(m_iId);
+                                Call_Finish();
+                            }
                         }
                         else DisplayItemMenu(client, m_iId);
                     }
@@ -1757,7 +1763,7 @@ void DisplayItemMenu(int client, int itemid)
 
     for(int i = 0; i < g_iMenuHandlers; ++i)
     {
-        if(g_eMenuHandlers[i][hPlugin] == null)
+        if(g_eMenuHandlers[i][hPlugin] == null || GetPluginStatus(g_eMenuHandlers[i][hPlugin]) != Plugin_Running)
             continue;
         Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnMenu]);
         Call_PushCellRef(m_hMenu);
@@ -1971,7 +1977,7 @@ public int MenuHandler_Item(Menu menu, MenuAction action, int client, int param2
                 int ret;
                 for(int i=0;i<g_iMenuHandlers;++i)
                 {
-                    if(g_eMenuHandlers[i][hPlugin] == null)
+                    if(g_eMenuHandlers[i][hPlugin] == null || GetPluginStatus(g_eMenuHandlers[i][hPlugin]) != Plugin_Running)
                         continue;
                     Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnHandler]);
                     Call_PushCell(client);
@@ -2144,7 +2150,7 @@ public int MenuHandler_Confirm(Menu menu, MenuAction action, int client, int par
             Handle m_hPlugin = pack.ReadCell();
             Function fnMenuCallback = pack.ReadFunction();
             delete pack;
-            if(m_hPlugin != null && fnMenuCallback != INVALID_FUNCTION)
+            if(m_hPlugin != null && fnMenuCallback != INVALID_FUNCTION && GetPluginStatus(m_hPlugin) == Plugin_Running)
             {
                 Call_StartFunction(m_hPlugin, fnMenuCallback);
                 Call_PushCell(INVALID_HANDLE);
@@ -2933,7 +2939,7 @@ void UTIL_ReloadConfig()
     UTIL_CheckModules();
 
     for(int i = 0; i < g_iTypeHandlers; ++i)
-    if(g_eTypeHandlers[i][fnReset] != INVALID_FUNCTION)
+    if(g_eTypeHandlers[i][fnReset] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[i][hPlugin]) == Plugin_Running)
     {
         Call_StartFunction(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][fnReset]);
         Call_Finish();
@@ -3139,7 +3145,7 @@ void UTIL_ReloadConfig()
         }
         
         bool m_bSuccess = true;
-        if(g_eTypeHandlers[m_iHandler][fnConfig] != INVALID_FUNCTION)
+        if(g_eTypeHandlers[m_iHandler][fnConfig] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[m_iHandler][hPlugin]) == Plugin_Running)
         {
             Call_StartFunction(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][fnConfig]);
             Call_PushCell(kv);
@@ -3270,7 +3276,7 @@ int UTIL_GetExpiration(int client, int itemid)
 int UTIL_UseItem(int client, int itemid, bool synced = false, int slot = 0)
 {
     int m_iSlot = slot;
-    if(g_eTypeHandlers[g_eItems[itemid][iHandler]][fnUse] != INVALID_FUNCTION)
+    if(g_eTypeHandlers[g_eItems[itemid][iHandler]][fnUse] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin]) == Plugin_Running)
     {
         int m_iReturn = -1;
         Call_StartFunction(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][fnUse]);
@@ -3299,7 +3305,7 @@ int UTIL_UseItem(int client, int itemid, bool synced = false, int slot = 0)
 int UTIL_UnequipItem(int client, int itemid, bool fn = true)
 {
     int m_iSlot = 0;
-    if(fn && itemid > 0 && g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove] != INVALID_FUNCTION)
+    if(fn && itemid > 0 && g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin]) == Plugin_Running)
     {
         Call_StartFunction(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove]);
         Call_PushCell(client);

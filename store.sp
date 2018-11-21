@@ -477,7 +477,6 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
     if(!IsClientInGame(client))
     {
         delete pack;
-        LogError("SetCreditsDelay -> id.%d -> diff.%d -> reason.%s", m_iStoreId, difference, logMsg);
         char m_szQuery[512], eReason[256];
         FormatEx(STRING(m_szQuery), "UPDATE store_players SET credits=credits+%d WHERE id=%d", difference, m_iStoreId);
         SQL_TVoid(g_hDatabase, m_szQuery);
@@ -492,7 +491,7 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
     
     if(m_iStoreId != g_eClients[client][iId])
     {
-        LogError("SetCreditsDelay -> id not match -> id.%d ? real.%d -> \"%L\" ", m_iStoreId, g_eClients[client][iId], client);
+        LogStoreError("SetCreditsDelay -> id not match -> id.%d ? real.%d -> \"%L\" ", m_iStoreId, g_eClients[client][iId], client);
         return Plugin_Stop;
     }
     
@@ -560,7 +559,7 @@ public int Native_GiveItem(Handle myself, int numParams)
     
     if(itemid < 0)
     {
-        LogError("Give %N itemid %d purchase %d expiration %d price %d", client, itemid, purchase, expiration, price);
+        LogStoreError("Native_GiveItem -> %N itemid %d purchase %d expiration %d price %d", client, itemid, purchase, expiration, price);
         return;
     }
 
@@ -584,7 +583,7 @@ public int Native_GiveItem(Handle myself, int numParams)
         if(exp > 0 && exp < expiration)
         {
             if(!Store_ExtClientItem(client, itemid, expiration-exp))
-                LogError("Ext %N %s failed. purchase %d expiration %d price %d", client, g_eItems[itemid][szName] , purchase, expiration, price);
+                LogStoreError("Ext \"%L\" %s failed. purchase %d expiration %d price %d", client, g_eItems[itemid][szName] , purchase, expiration, price);
         }
     }
 }
@@ -1427,7 +1426,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
     if(g_aCaseSkins[type].Length <= 0)
     {
         tPrintToChat(client, "\x07%T \x0A->\x02 Null Array", "unknown error", client);
-        LogError("Null Array in Case Array [%s]", g_szCase[type+1]);
+        LogStoreError("Null Array in Case Array [%s]", g_szCase[type+1]);
         return Plugin_Stop;
     }
 
@@ -1439,7 +1438,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
     if(itemid < 0)
     {
-        LogError("Item Id Error %s", modelname);
+        LogStoreError("Item Id Error %s", modelname);
         tPrintToChat(client, "\x07%T \x0A->\x02 Invalid Item", "unknown error", client);
         return Plugin_Stop;
     }
@@ -1651,7 +1650,7 @@ public int MenuHandler_OpenSuccessful(Handle menu, MenuAction action, int client
                 DisplayItemMenu(client, itemid);
             }
             else
-                LogError("%N Open case error: %s", client, info);
+                LogStoreError("\"%L\" Open case error: %s", client, info);
         }
         case MenuAction_Cancel:
         {
@@ -2218,40 +2217,41 @@ public Action Timer_DatabaseTimeout(Handle timer, int userid)
 public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, any data)
 {
     if(hndl==null)
-        LogError("Failed to connect to SQL database. Error: %s", error);
-    else
     {
-        // If it's already connected we are good to go
-        if(g_hDatabase != null)
-            return;
+        LogStoreError("Failed to connect to SQL database. Error: %s", error);
+        return
+    }
 
-        g_hDatabase = view_as<Database>(hndl);
+    // If it's already connected we are good to go
+    if(g_hDatabase != null)
+        return;
 
-        // Do some housekeeping
-        if(SQL_SetCharset(g_hDatabase, "utf8mb4"))
+    g_hDatabase = view_as<Database>(hndl);
+
+    // Do some housekeeping
+    if(SQL_SetCharset(g_hDatabase, "utf8mb4"))
+    {
+        // if failure
+        SQL_SetCharset(g_hDatabase, "utf8");
+    }
+
+    char m_szQuery[256];
+    FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
+    SQL_TVoid(g_hDatabase, m_szQuery);
+
+    // Load configs
+    UTIL_ReloadConfig();
+
+    // if Loaded late.
+    if(g_bLateLoad)
+    {
+        for(int client = 1; client <= MaxClients; ++client)
         {
-            // if failure
-            SQL_SetCharset(g_hDatabase, "utf8");
-        }
+            if(!IsClientInGame(client))
+                continue;
 
-        char m_szQuery[256];
-        FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
-        SQL_TVoid(g_hDatabase, m_szQuery);
-
-        // Load configs
-        UTIL_ReloadConfig();
-
-        // if Loaded late.
-        if(g_bLateLoad)
-        {
-            for(int client = 1; client <= MaxClients; ++client)
-            {
-                if(!IsClientInGame(client))
-                    continue;
-
-                OnClientConnected(client);
-                OnClientPostAdminCheck(client);
-            }
+            OnClientConnected(client);
+            OnClientPostAdminCheck(client);
         }
     }
 }
@@ -2259,7 +2259,7 @@ public void SQLCallback_Connect(Handle owner, Handle hndl, const char[] error, a
 public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, const char[] error, int userid)
 {
     if(hndl==null)
-        LogError("Error happened. Error: %s", error);
+        LogStoreError("Error happened. Error: %s", error);
     else
     {
         int client = GetClientOfUserId(userid);
@@ -2311,7 +2311,7 @@ public void SQLCallback_LoadClientInventory_Credits(Handle owner, Handle hndl, c
 public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, const char[] error, int userid)
 {
     if(hndl==null)
-        LogError("Error happened. Error: %s", error);
+        LogStoreError("Error happened. Error: %s", error);
     else
     {    
         int client = GetClientOfUserId(userid);
@@ -2392,7 +2392,7 @@ public void SQLCallback_LoadClientInventory_Items(Handle owner, Handle hndl, con
 public void SQLCallback_LoadClientInventory_DATAVERIFY(Handle owner, Handle hndl, const char[] error, int userid)
 {
     if(hndl==null)
-        LogError("Error happened. Error: %s", error);
+        LogStoreError("Error happened. Error: %s", error);
     else if(SQL_FetchRow(hndl))
     {
         int client = GetClientOfUserId(userid);
@@ -2432,7 +2432,7 @@ public void SQLCallback_LoadClientInventory_DATAVERIFY(Handle owner, Handle hndl
 public void SQLCallback_LoadClientInventory_Equipment(Handle owner, Handle hndl, const char[] error, int userid)
 {
     if(hndl==null)
-        LogError("Error happened. Error: %s", error);
+        LogStoreError("Error happened. Error: %s", error);
     else
     {
         int client = GetClientOfUserId(userid);
@@ -2482,7 +2482,7 @@ public void SQLCallback_InsertClient(Handle owner, Handle hndl, const char[] err
         return;
     if(hndl==null)
     {
-        LogError("Error happened. Error: %s", error);
+        LogStoreError("Error happened. Error: %s", error);
         KickClient(client, "Failed to check your store account.");
     }
     else
@@ -2506,7 +2506,7 @@ void UTIL_LoadClientInventory(int client)
 {
     if(g_hDatabase == null)
     {
-        LogError("Database connection is lost or not yet initialized.");
+        LogStoreError("Database connection is lost or not yet initialized.");
         return;
     }
     
@@ -2526,7 +2526,7 @@ void UTIL_SaveClientInventory(int client)
 {
     if(g_hDatabase == null)
     {
-        LogError("Database connection is lost or not yet initialized.");
+        LogStoreError("Database connection is lost or not yet initialized.");
         return;
     }
     
@@ -2597,7 +2597,7 @@ void UTIL_SaveClientData(int client, bool disconnect)
 {
     if(g_hDatabase == null)
     {
-        LogError("Database connection is lost or not yet initialized.");
+        LogStoreError("Database connection is lost or not yet initialized.");
         return;
     }
     
@@ -2635,7 +2635,7 @@ public void SQLCallback_RefreshCredits(Handle owner, Handle hndl, const char[] e
     
     if(hndl == null)
     {
-        LogError("Refresh \"%L\" data failed :  %s", client, error);
+        LogStoreError("Refresh \"%L\" data failed :  %s", client, error);
         return;
     }
 
@@ -2667,7 +2667,7 @@ public void SQLCallback_BuyItem(Handle owner, Handle hndl, const char[] error, i
 
     if(hndl == null)
     {
-        LogError("Error happened. Error: %s", error);
+        LogStoreError("Error happened. Error: %s", error);
     }
     else
     {
@@ -2992,7 +2992,7 @@ void UTIL_ReloadConfig()
         IntToString(item_parent.FetchInt(0), parent_str, 12);
         if(!g_smParentMap.SetValue(parent_str, g_iItems, true))
         {
-            LogError("Failed to bind itemId[%d] to parentId[%s]", g_iItems, parent_str);
+            LogStoreError("Failed to bind itemId[%d] to parentId[%s]", g_iItems, parent_str);
             continue;
         }
 
@@ -3036,14 +3036,14 @@ void UTIL_ReloadConfig()
         item_child.FetchString(1, m_szType, 32);
         if(strcmp(m_szType, "ITEM_ERROR") == 0)
         {
-            //LogError("Failed to loaded %s -> ITEM_ERROR", g_eItems[g_iItems][szName]);
+            //LogStoreError("Failed to loaded %s -> ITEM_ERROR", g_eItems[g_iItems][szName]);
             continue;
         }
 
         int m_iHandler = UTIL_GetTypeHandler(m_szType);
         if(m_iHandler == -1)
         {
-            //LogError("Failed to loaded %s -> Invalid m_iHandler", g_eItems[g_iItems][szName]);
+            //LogStoreError("Failed to loaded %s -> Invalid m_iHandler", g_eItems[g_iItems][szName]);
             continue;
         }
         g_eItems[g_iItems][iHandler] = m_iHandler;
@@ -3055,7 +3055,7 @@ void UTIL_ReloadConfig()
         // Ignore bad item or dumplicate item
         if(strcmp(m_szUniqueId, "ITEM_ERROR") == 0 || item_array.FindString(m_szUniqueId) != -1)
         {
-            //LogError("Failed to loaded %s -> Ignore bad item or dumplicate item", g_eItems[g_iItems][szName]);
+            //LogStoreError("Failed to loaded %s -> Ignore bad item or dumplicate item", g_eItems[g_iItems][szName]);
             continue;
         }
         item_array.PushString(m_szUniqueId);
@@ -3248,7 +3248,7 @@ int UTIL_GetParent(int itemId, int parentId)
 
         if(!g_smParentMap.GetValue(parent_str, index))
         {
-            LogError("Id [%s] not found in parent_map -> %s", parent_str, g_eItems[itemId][szName]);
+            LogStoreError("Id [%s] not found in parent_map -> %s", parent_str, g_eItems[itemId][szName]);
             return -1;
         }
         

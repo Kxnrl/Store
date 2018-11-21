@@ -377,15 +377,26 @@ stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, c
     return (GetMenuItemCount(menu)==position) ? AddMenuItem(menu, info, m_display, style) : InsertMenuItem(menu, position, info, m_display, style);
 }
 
-public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack data)
+stock void LogStoreError(const char[] buffer, any ...)
+{
+    char path[128];
+    if(!path[0])
+        BuildPath(Path_SM, path, 128, "logs/store.error.log");
+
+    char error[1024];
+    VFormat(error, 1024, buffer, 2);
+    LogToFileEx(path, error);
+}
+
+public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack pack)
 {
     if(results == null || error[0])
     {
-        char query[2048];
-        ReadPackString(data, STRING(query));
+        char query[1024];
+        pack.ReadString(STRING(query));
         LogError("SQL error happened.\nQuery: %s\nError: %s", query, error);
     }
-    delete data;
+    delete pack;
 }
 
 public void SQL_TVoid(Database db, char[] query)

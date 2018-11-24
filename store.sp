@@ -1520,11 +1520,11 @@ int UTIL_GetSkinSellPrice(int client, int itemid, int days)
     if(g_eItems[itemid][iPlans] > 0)
     {
         if(days > 30)
-            return RoundToCeil(float(days) / 30.0 * g_ePlans[itemid][2][iPrice] * 0.85);
+            return (g_ePlans[itemid][2][iPrice] > 0) ? RoundToCeil(float(days) / 365.0 * g_ePlans[itemid][2][iPrice] * 0.85) : 100;
         else if(days > 7)
-            return RoundToCeil(float(days) /  7.0 * g_ePlans[itemid][1][iPrice] * 0.85);
+            return (g_ePlans[itemid][1][iPrice] > 0) ?RoundToCeil(float(days) /   30.0 * g_ePlans[itemid][1][iPrice] * 0.85) : 100;
 
-        return RoundToCeil(float(days) /  1.0 * g_ePlans[itemid][1][iPrice] * 0.85);
+        return     (g_ePlans[itemid][0][iPrice] > 0) ?RoundToCeil(float(days) /    1.0 * g_ePlans[itemid][0][iPrice] * 0.85) : 100;
     }
 
     return RoundToCeil(float(g_eItems[itemid][iPrice]) / 180.0 * days * 0.85);

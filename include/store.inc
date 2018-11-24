@@ -17,7 +17,7 @@ public SharedPlugin __pl_store =
 
 
 #define ITEM_NAME_LENGTH    64
-#define STORE_MAX_ITEMS     4096
+#define STORE_MAX_ITEMS     1024
 #define STORE_MAX_HANDLERS  64
 #define STORE_MAX_PLANS     8
 #define STORE_MAX_SLOTS     6

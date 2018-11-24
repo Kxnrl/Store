@@ -406,7 +406,11 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     int target_list[MAXPLAYERS+1], target_count;
     ArrayList hRecipients = view_as<ArrayList>(data.ReadCell());
     for(int x = 0; x < hRecipients.Length; ++x)
-        target_list[target_count++] = hRecipients.Get(x);
+    {
+        int client = hRecipients.Get(x);
+        if(IsClientInGame(client))
+            target_list[target_count++] = client;
+    }
 
     char m_szName[128];
     data.ReadString(m_szName, 128);

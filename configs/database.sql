@@ -115,6 +115,9 @@ ADD `weart` tinyint(3) NOT NULL DEFAULT '-1' COMMENT 'weaponskin',
 ADD `paint` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'weaponskin',
 ADD `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin';
 
+-- if u upgrade from 2.2
+ALTER TABLE `store_item_child`
+MODIFY `case` TINYINT(2) DEFAULT 0 NOT NULL;
 
 CREATE TABLE `store_equipment` (
   `player_id` int(11) NOT NULL,

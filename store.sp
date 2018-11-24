@@ -3264,6 +3264,12 @@ bool UTIL_IsEquipped(int client, int itemid)
 
 int UTIL_GetExpiration(int client, int itemid)
 {
+    if(g_eItems[itemid][bVIP] && AllowItemForVIP(client, true))
+        return 0;
+    
+    if(g_eItems[itemid][bIgnore] && strlen(g_eItems[itemid][szAuthId]) > 3 && AllowItemForAuth(client, g_eItems[itemid][szAuthId]))
+        return 0;
+
     int uid = UTIL_GetClientItemId(client, itemid);
     if(uid < 0) ThrowError("UTIL_GetExpiration -> %L -> %d -> uid -1", client, itemid);
     return g_eClientItems[client][uid][iDateOfExpiration];

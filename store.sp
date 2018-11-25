@@ -433,7 +433,7 @@ public int Native_SetClientCredits(Handle myself, int numParams)
     char logMsg[128];
     if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
         strcopy(STRING(logMsg), "unknown SP_ERROR");
-    
+
     if(g_eClients[client][bRefresh])
     {
         DataPack pack = new DataPack();
@@ -1706,14 +1706,19 @@ void DisplayItemMenu(int client, int itemid)
         idx = FormatEx(STRING(m_szTitle), "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
 
     int m_iExpiration = UTIL_GetExpiration(client, itemid);
-    if(m_iExpiration != 0)
+    if(m_iExpiration > 0)
     {
         m_iExpiration = m_iExpiration-GetTime();
         int m_iDays = m_iExpiration/(24*60*60);
         int m_iHours = (m_iExpiration-m_iDays*24*60*60)/(60*60);
         FormatEx(m_szTitle[idx-1], sizeof(m_szTitle)-idx-1, "\n%T", "Title Expiration", client, m_iDays, m_iHours);
     }
-    
+    else if(m_iExpiration == 0)
+    {
+        // PM item
+        FormatEx(m_szTitle[idx-1], sizeof(m_szTitle)-idx-1, "\n%T", "Title Expiration PM", client);
+    }
+
     m_hMenu.SetTitle("%s\n ", m_szTitle);
 
     if(g_eTypeHandlers[g_eItems[itemid][iHandler]][bEquipable])
@@ -3278,7 +3283,7 @@ int UTIL_GetExpiration(int client, int itemid)
         return 0;
 
     int uid = UTIL_GetClientItemId(client, itemid);
-    if(uid < 0) ThrowError("UTIL_GetExpiration -> %L -> %d -> uid -1", client, itemid);
+    if(uid < 0) return -1; //ThrowError("UTIL_GetExpiration -> %L -> %d -> uid -1", client, itemid);
     return g_eClientItems[client][uid][iDateOfExpiration];
 }
 

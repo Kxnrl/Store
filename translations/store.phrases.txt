@@ -182,7 +182,13 @@
     {
         "#format" "{1:d},{2:d}"
         "en" "Expires in {1}d {2}h"
-        "chi" "使用时间剩余: {1}天{2}小时"
+        "chi" "剩余时间: {1}天{2}小时"
+    }
+    
+    "Title Expiration PM"
+    {
+        "en" "Expires in your life time."
+        "chi" "剩余时间: 你活多久用多久"
     }
 
     "Title Gift"

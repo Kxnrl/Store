@@ -202,6 +202,9 @@ public void OnPluginStart()
 
     HookEvent("round_start",        OnRoundStart,   EventHookMode_Post);
     HookEvent("player_death",       OnPlayerDeath,  EventHookMode_Post);
+    
+    // Prevent Server freezing by SQL databsae?
+    HookEventEx("cs_win_panel_match", OnGameOver, EventHookMode_Post);
 
     // Load the translations file
     LoadTranslations("store.phrases");
@@ -287,6 +290,25 @@ public void OnMapStart()
     {
         Call_StartFunction(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][fnMapStart]);
         Call_Finish();
+    }
+}
+
+public void OnConfigsExecuted()
+{
+    // Lookup cvars
+
+    ConVar mp_match_restart_delay = FindConVar("mp_match_restart_delay");
+    if(mp_match_restart_delay != null)
+    {
+        // 30 sec to exec sql command.
+        mp_match_restart_delay.SetFloat(40.0, true, true);
+    }
+    
+    ConVar mp_win_panel_display_time = FindConVar("mp_win_panel_display_time");
+    if(mp_win_panel_display_time != null)
+    {
+        // set value to half of mp_match_restart_delay
+        mp_win_panel_display_time.SetFloat(20.0, true, true);
     }
 }
 
@@ -2636,12 +2658,17 @@ public void SQLCallback_RefreshCredits(Database db, DBResultSet results, const c
     g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
 }
 
-void UTIL_DisconnectClient(int client)
+void UTIL_DisconnectClient(int client, bool pre = false)
 {
     ClearTimer(g_eClients[client][hTimer]);
-    //g_eClients[client][iCredits] = -1;
-    //g_eClients[client][iOriginalCredits] = -1;
-    //g_eClients[client][iItems] = -1;
+
+    if(pre)
+    {
+        g_eClients[client][iCredits] = -1;
+        g_eClients[client][iOriginalCredits] = -1;
+        g_eClients[client][iItems] = -1;
+    }
+
     g_eClients[client][bLoaded] = false;
 }
 
@@ -3551,6 +3578,26 @@ stock bool IsPlayerTP(int client)
         return true;
 #endif
     return false;
+}
+
+public void OnGameOver(Event e, const char[] name, bool dB)
+{
+    OnConfigsExecuted();
+
+    CreateTimer(5.0, Timer_InterMission, _, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_InterMission(Handle timer)
+{
+    for(int client = 1; client <= MaxClients; ++client)
+        if(IsClientInGame(client) && g_eClients[client][bLoaded])
+        {
+            UTIL_SaveClientData(client, true);
+            UTIL_SaveClientInventory(client);
+            UTIL_SaveClientEquipment(client);
+            UTIL_DisconnectClient(client, true);
+        }
+    return Plugin_Stop;
 }
 
 #define SIZE_OF_INT 2147483647

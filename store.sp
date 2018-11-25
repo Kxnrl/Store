@@ -108,6 +108,8 @@ bool g_bInvMode[MAXPLAYERS+1];
 
 bool g_bLateLoad;
 
+bool g_bInterMission;
+
 // Case Options
 int  g_inCase[4] = {0, 8888, 23333, 68888};
 char g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
@@ -285,30 +287,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 //////////////////////////////
 public void OnMapStart()
 {
+    g_bInterMission = false;
+    
     for(int i = 0; i < g_iTypeHandlers; ++i)
     if(g_eTypeHandlers[i][fnMapStart] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[i][hPlugin]) == Plugin_Running)
     {
         Call_StartFunction(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][fnMapStart]);
         Call_Finish();
-    }
-}
-
-public void OnConfigsExecuted()
-{
-    // Lookup cvars
-
-    ConVar mp_match_restart_delay = FindConVar("mp_match_restart_delay");
-    if(mp_match_restart_delay != null)
-    {
-        // 30 sec to exec sql command.
-        mp_match_restart_delay.SetFloat(40.0, true, true);
-    }
-    
-    ConVar mp_win_panel_display_time = FindConVar("mp_win_panel_display_time");
-    if(mp_win_panel_display_time != null)
-    {
-        // set value to half of mp_match_restart_delay
-        mp_win_panel_display_time.SetFloat(20.0, true, true);
     }
 }
 
@@ -448,9 +433,16 @@ public int Native_SetClientCredits(Handle myself, int numParams)
     int client = GetNativeCell(1);
     if(IsFakeClient(client) || !g_eClients[client][bLoaded] || g_eClients[client][bBan])
         return false;
-    
+
     int m_iCredits = GetNativeCell(2);
     int difference = m_iCredits-g_eClients[client][iCredits];
+    
+    if(g_bInterMission)
+    {
+        char path[128];
+        BuildPath(Path_SM, path, 128, "logs/store.warn.log");
+        LogToFileEx(path, "Native_SetClientCredits -> %L -> %d -> %d -> %d", client, g_eClients[client][iId], m_iCredits, difference);
+    }
 
     char logMsg[128];
     if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
@@ -3582,9 +3574,15 @@ stock bool IsPlayerTP(int client)
 
 public void OnGameOver(Event e, const char[] name, bool dB)
 {
-    OnConfigsExecuted();
+    g_bInterMission = true;
 
-    CreateTimer(5.0, Timer_InterMission, _, TIMER_FLAG_NO_MAPCHANGE);
+    InterMissionConVars();
+
+    for(int client = 1; client <= MaxClients; ++client)
+        if(IsClientInGame(client))
+            g_iDataProtect[client] = GetTime() + 99999999;
+
+    CreateTimer(2.5, Timer_InterMission, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_InterMission(Handle timer)
@@ -3647,4 +3645,29 @@ void Call_OnClientLoaded(int client)
     Call_StartForward(g_hOnClientLoaded);
     Call_PushCell(client);
     Call_Finish();
+}
+
+void InterMissionConVars()
+{
+    int players = GetClientCount(true);
+    
+    float delay = players * 0.5 + 5.0;
+
+    if(delay < 15.0) delay = 15.0;
+    if(delay > 30.0) delay = 30.0;
+
+    // Lookup cvars
+    ConVar mp_match_restart_delay = FindConVar("mp_match_restart_delay");
+    if(mp_match_restart_delay != null)
+    {
+        // 30 sec to exec sql command.
+        mp_match_restart_delay.SetFloat(delay, true, true);
+    }
+    
+    ConVar mp_win_panel_display_time = FindConVar("mp_win_panel_display_time");
+    if(mp_win_panel_display_time != null)
+    {
+        // set value to half of mp_match_restart_delay
+        mp_win_panel_display_time.SetFloat(delay / 2.0, true, true);
+    }
 }

@@ -72,6 +72,7 @@ public Plugin myinfo =
 Database g_hDatabase = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
+Handle g_hOnClientLoaded = null;
 
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
@@ -223,6 +224,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 {
     g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnStoreInit      = CreateGlobalForward("Store_OnStoreInit",      ET_Ignore, Param_Cell);
+    g_hOnClientLoaded   = CreateGlobalForward("Store_OnClientLoaded",   ET_Ignore, Param_Cell);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -2263,6 +2265,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
         if(g_eClients[client][bBan])
         {
             g_eClients[client][bLoaded] = true;
+            Call_OnClientLoaded(client);
             g_eClients[client][iItems] = 0;
             tPrintToChat(client, "%T", "Inventory has been loaded", client);
         }
@@ -2308,6 +2311,7 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
             return;
         }
         g_eClients[client][bLoaded] = true;
+        Call_OnClientLoaded(client);
         tPrintToChat(client, "%T", "Inventory has been loaded", client);
         g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
         FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
@@ -2359,6 +2363,7 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
     else
     {
         g_eClients[client][bLoaded] = true;
+        Call_OnClientLoaded(client);
         tPrintToChat(client, "%T", "Inventory has been loaded", client);
         g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
         FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
@@ -2454,6 +2459,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Database db, DBResultSet r
             UTIL_UnequipItem(client, m_iUniqueId);
     }
     g_eClients[client][bLoaded] = true;
+    Call_OnClientLoaded(client);
     tPrintToChat(client, "%T", "Inventory has been loaded", client);
     g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
@@ -2478,6 +2484,7 @@ public void SQLCallback_InsertClient(Database db, DBResultSet results, const cha
     g_eClients[client][iDateOfLastJoin] = g_eClients[client][iDateOfJoin];
     g_eClients[client][iItems] = 0;
     g_eClients[client][bLoaded] = true;
+    Call_OnClientLoaded(client);
     g_iDataProtect[client] = GetTime()+90;
     g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
@@ -3581,4 +3588,11 @@ public Action Timer_OnlineCredit(Handle timer, int client)
     PrintToChat(client, " \x0A%T%s", "earn credits from chat", client, szFrom);
 
     return Plugin_Continue;
+}
+
+void Call_OnClientLoaded(int client)
+{
+    Call_StartForward(g_hOnClientLoaded);
+    Call_PushCell(client);
+    Call_Finish();
 }

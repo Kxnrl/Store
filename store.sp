@@ -575,7 +575,7 @@ public int Native_GiveItem(Handle myself, int numParams)
         int m_iDateOfPurchase = (purchase==0 ? GetTime() : purchase);
         int m_iDateOfExpiration = expiration;
 
-        int m_iId = g_eClients[client][iItems]++;
+        int m_iId = ++g_eClients[client][iItems];
         g_eClientItems[client][m_iId][iId] = -1;
         g_eClientItems[client][m_iId][iUniqueId] = itemid;
         g_eClientItems[client][m_iId][iDateOfPurchase] = m_iDateOfPurchase;
@@ -2285,7 +2285,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
         {
             g_eClients[client][bLoaded] = true;
             Call_OnClientLoaded(client);
-            g_eClients[client][iItems] = 0;
+            g_eClients[client][iItems] = -1;
             tPrintToChat(client, "%T", "Inventory has been loaded", client);
         }
         else
@@ -2385,8 +2385,8 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
         Call_OnClientLoaded(client);
         tPrintToChat(client, "%T", "Inventory has been loaded", client);
         g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
-        FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        SQL_TVoid(g_hDatabase, m_szQuery);
+        //FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+        //SQL_TVoid(g_hDatabase, m_szQuery);
     }
 }
 
@@ -2713,7 +2713,7 @@ public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] e
         return;
     }
 
-    int m_iId = g_eClients[client][iItems]++;
+    int m_iId = ++g_eClients[client][iItems];
     g_eClientItems[client][m_iId][iId] = -1;
     g_eClientItems[client][m_iId][iUniqueId] = itemid;
     g_eClientItems[client][m_iId][iDateOfPurchase] = GetTime();

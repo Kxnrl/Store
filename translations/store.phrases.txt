@@ -587,7 +587,7 @@
     "opencase earned perm"
     {
         "#format" "{1:N},{2:s},{3:s}"
-        "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}permanent{normal})"
+        "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}permanent{normal})"
         "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}天{normal})"
     }
     

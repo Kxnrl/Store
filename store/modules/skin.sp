@@ -56,7 +56,7 @@ void Skin_OnPluginStart()
 
     mp_round_restart_delay = FindConVar("mp_round_restart_delay");
     HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
-    SetConVarString(mp_round_restart_delay, "12", true);
+    SetConVarString(mp_round_restart_delay, "8", true);
 
     spec_replay_enable = FindConVar("spec_replay_enable");
     HookConVarChange(spec_replay_enable, Skin_OnConVarChanged);
@@ -73,8 +73,8 @@ public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const cha
 
     if(convar == mp_round_restart_delay)
     {
-        if(mp_round_restart_delay.FloatValue < 12.0)
-            SetConVarFloat(mp_round_restart_delay, 12.0, true);
+        if(mp_round_restart_delay.FloatValue < 8.0)
+            SetConVarFloat(mp_round_restart_delay, 8.0, true);
     }
 
     if(convar == spec_replay_enable)
@@ -556,7 +556,7 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
     
     FadeScreenBlack(client);
 
-    CreateTimer(10.0, Timer_ClearCamera, client);
+    CreateTimer(7.0, Timer_ClearCamera, client);
 
     //SetEntPropEnt(client, Prop_Send, "m_hRagdoll", iEntity);
 
@@ -606,7 +606,7 @@ void AttemptState(int client, bool spec)
 static void FadeScreenBlack(int client)
 {
     Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
-    pb.SetInt("duration", 4096);
+    pb.SetInt("duration", 3072);
     pb.SetInt("hold_time", 0);
     pb.SetInt("flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
     pb.SetColor("clr", {0, 0, 0, 255});

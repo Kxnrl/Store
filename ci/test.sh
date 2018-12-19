@@ -11,8 +11,11 @@ echo "*** Trigger build ***"
 
 #下载SM
 echo "Download sourcemod ..."
-#wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
-wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
+if [ "$1" = "1.9" ]; then
+    wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
+else
+    wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
+fi
 tar -xzf sourcemod.tar.gz
 
 

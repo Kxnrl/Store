@@ -126,7 +126,7 @@ void Store_SetClientNeon(int client)
         g_iClientNeon[client] = EntIndexToEntRef(iNeon);
 
 #if defined AllowHide        
-        SetNeonFlags(entity);
+        SetNeonFlags(iNeon);
         SetEdictFlags(iNeon, GetEdictFlags(iNeon)&(~FL_EDICT_ALWAYS));
         SDKHook(iNeon, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
 #endif

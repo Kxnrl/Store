@@ -135,6 +135,6 @@ void Store_SetClientNeon(int client)
 
 static void SetNeonFlags(int entity)
 {
-    if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-        SetEdictFlags(ent, GetEdictFlags(ent) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
+    if(GetEdictFlags(entity) & FL_EDICT_ALWAYS)
+        SetEdictFlags(entity, GetEdictFlags(entity) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
 }

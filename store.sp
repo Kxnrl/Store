@@ -131,11 +131,11 @@ char g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
 #include "store/modules/skin.sp"
 #endif
 // Module Neon
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_ZE
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/modules/neon.sp"
 #endif
 // Module Aura & Part
-#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_ZE
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/modules/aura.sp"
 #include "store/modules/part.sp"
 #endif
@@ -162,11 +162,6 @@ char g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
 // Module Sound
 #if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/sounds.sp"
-#endif
-
-//ZE Credits timer
-#if defined GM_ZE
-#include <cstrike>
 #endif
 
 

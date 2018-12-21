@@ -344,18 +344,26 @@ public Action Timer_SetClientModel(Handle timer, int val)
 
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-    if(sample[0] == 'c' && sample[1] == 'o' && strcmp(sample, "common/null.wav", false) == 0)
+    // null wave fix
+    //if(sample[0] == 'c' && sample[1] == 'o' && strcmp(sample, "common/null.wav", false) == 0)
+    //    return Plugin_Handled;
+
+    // not death sound
+    if(channel != SNDCHAN_VOICE || sample[0] != '~')
         return Plugin_Continue;
 
-    if(channel != SNDCHAN_VOICE || !IsValidClient(client) || sample[0] != '~')
+    // not from local player
+    if(!IsValidClient(client))
         return Plugin_Continue;
 
 #if defined GM_ZE
+    // ignore zombie
     if(g_iClientTeam[client] == 2)
         return Plugin_Continue;
 #endif
 
-    if(g_szDeathVoice[client][0] == '\0')
+    // allow sound
+    if(g_szDeathVoice[client][0] != '*')
         return Plugin_Continue;
 
     if  ( 
@@ -367,20 +375,17 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
             strcmp(sample, "~player/death6.wav", false) == 0 
         )
         {
-            //strcopy(sample, PLATFORM_MAX_PATH, g_szDeathVoice[client]);
-            //volume = 1.0;
-            //PrintToChat(client, "Replace Death Sound to [%s]", g_szDeathVoice[client]);
-            //RequestFrame(Frame_Broadcast, client);
-            //return Plugin_Changed;
+            // Block
             return Plugin_Handled;
         }
 
+    // others
     return Plugin_Continue;
 }
 
 void Broadcast_DeathSound(int client)
 {
-    if(g_szDeathVoice[client][0] == '\0')
+    if(g_szDeathVoice[client][0] != '*')
         return;
 
 #if defined GM_ZE
@@ -397,6 +402,8 @@ void Broadcast_DeathSound(int client)
     fPos[2] -= 3.0;
 
     EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.5, SNDPITCH_NORMAL, client, fPos, fAgl, true);
+
+    g_szDeathVoice[client][0] = '\0';
 }
 
 void Store_PreviewSkin(int client, int itemid)

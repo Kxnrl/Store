@@ -402,8 +402,6 @@ void Broadcast_DeathSound(int client)
     fPos[2] -= 3.0;
 
     EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.5, SNDPITCH_NORMAL, client, fPos, fAgl, true);
-
-    g_szDeathVoice[client][0] = '\0';
 }
 
 void Store_PreviewSkin(int client, int itemid)

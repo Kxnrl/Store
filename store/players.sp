@@ -117,7 +117,6 @@ public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBro
     AttemptState(client, false); 
     Broadcast_DeathSound(client);
     RequestFrame(FirstPersonDeathCamera, client);
-    Store_ResetPlayerSkin(client);
 #endif
 
 #if defined Module_Aura

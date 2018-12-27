@@ -2,7 +2,8 @@
 
 #define TEAM_SPEC 1
 static UserMsg g_umUMId;
-static Handle g_hCPForward;
+static Handle g_hCPAForward;
+static Handle g_hCPPForward;
 static StringMap g_tMsgFmt;
 static bool g_bChat[MAXPLAYERS+1];
 
@@ -20,7 +21,8 @@ public void CPSupport_OnPluginStart()
 
     g_tMsgFmt = new StringMap();
 
-    g_hCPForward = CreateGlobalForward("CP_OnChatMessage", ET_Hook, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
+    g_hCPAForward = CreateGlobalForward("CP_OnChatMessage",     ET_Hook,   Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
+    g_hCPPForward = CreateGlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
 
     AddCommandListener(Command_Say, "say");
     AddCommandListener(Command_Say, "say_team");
@@ -94,7 +96,20 @@ public int CPSupport_Remove(int client, int id)
 
 }
 
-Action CP_Forward(int &client, char[] flagstring, char[] name, char[] message, ArrayList hRecipients, bool &removedColor, bool &processColor)
+void CPP_Forward(int client, const char[] flagstring, const char[] name, const char[] message, ArrayList hRecipients, bool removedColor, bool processColor)
+{
+    Call_StartForward(g_hCPPForward);
+    Call_PushCell(client);
+    Call_PushCell(hRecipients);
+    Call_PushString(flagstring);
+    Call_PushString(name);
+    Call_PushString(message);
+    Call_PushCell(processColor);
+    Call_PushCell(removedColor);
+    Call_Finish();
+}
+
+Action CPA_Forward(int &client, char[] flagstring, char[] name, char[] message, ArrayList hRecipients, bool &removedColor, bool &processColor)
 {
     int m_iEquippedNameTag = Store_GetEquippedItem(client, "nametag");
     int m_iEquippedNameColor = Store_GetEquippedItem(client, "namecolor");
@@ -137,7 +152,7 @@ Action CP_Forward(int &client, char[] flagstring, char[] name, char[] message, A
         else Format(message, 256, "%s%s", g_szMessageColors[m_iData], message);
     }
 
-    Call_StartForward(g_hCPForward);
+    Call_StartForward(g_hCPAForward);
     Call_PushCellRef(client);
     Call_PushCell(hRecipients);
     Call_PushStringEx(flagstring, 32, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
@@ -357,7 +372,7 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 
     bool removedColor = false;
     bool processColor = true;
-    Action iResults = CP_Forward(m_iSender, m_szFlag, m_szName, m_szMsg, hRecipients, removedColor, processColor);
+    Action iResults = CPA_Forward(m_iSender, m_szFlag, m_szName, m_szMsg, hRecipients, removedColor, processColor);
 
     if(iResults != Plugin_Changed)
     {
@@ -427,9 +442,6 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     bool removedColor = data.ReadCell();
     bool processColor = data.ReadCell();
 
-    delete hRecipients;
-    delete data;
-
     char m_szBuffer[512];
     strcopy(m_szBuffer, 512, m_szFmt);
 
@@ -451,6 +463,8 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     Protobuf pb = view_as<Protobuf>(StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
     if(pb == null)
     {
+        delete hRecipients;
+        delete data;
         LogError("Frame_OnChatMessage_SayText2 -> StartMessageEx -> null");
         return;
     }
@@ -462,6 +476,11 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     pb.AddString("params", "");
     pb.AddString("params", "");
     EndMessage();
+    
+    CPP_Forward(m_iSender, m_szFlag, m_szName, m_szMsg, hRecipients, removedColor, processColor);
+
+    delete hRecipients;
+    delete data;
 }
 
 stock bool ChatToAll(const char[] flag)

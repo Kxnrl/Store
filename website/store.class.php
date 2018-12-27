@@ -25,7 +25,7 @@ class Store
         $this->dbConnection = new \mysqli($_config['mysql']['host'], $_config['mysql']['user'], $_config['mysql']['pswd'], $_config['mysql']['name'], $_config['mysql']['port']);
 
         if($this->dbConnection->connect_errno) {
-            throw new DatabaseException("Failed to connect to database: " . $this->dbConnectionconnect_error);
+            throw new DatabaseException("Failed to connect to database: " . $this->dbConnection->connect_error);
         }
 
         if(!$this->dbConnection->query("SET NAMES 'utf8'")) {

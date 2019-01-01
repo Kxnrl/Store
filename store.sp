@@ -111,8 +111,10 @@ bool g_bLateLoad;
 bool g_bInterMission;
 
 // Case Options
-int  g_inCase[4] = {0, 8888, 23333, 68888};
-char g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
+static int   g_inCase[4] = {0, 8888, 23333, 68888};
+static char  g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
+static float g_fCreditsTimerInterval = 300.0;
+static int   g_iCreditsTimerOnline = 2;
 
 
 //////////////////////////////
@@ -813,7 +815,7 @@ public void OnClientConnected(int client)
     TPMode_OnClientConnected(client);
 }
 
-public void OnClientPostAdminCheck(int client)
+public void OnClientPutInServer(int client)
 {
     if(IsFakeClient(client))
         return;
@@ -2243,7 +2245,7 @@ public void SQLCallback_Connection(Database db, const char[] error, int retry)
                 continue;
 
             OnClientConnected(client);
-            OnClientPostAdminCheck(client);
+            OnClientPutInServer(client);
         }
     }
 }
@@ -2278,10 +2280,8 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
 
         if(g_eClients[client][bBan])
         {
-            g_eClients[client][bLoaded] = true;
-            Call_OnClientLoaded(client);
             g_eClients[client][iItems] = -1;
-            tPrintToChat(client, "%T", "Inventory has been loaded", client);
+            Call_OnClientLoaded(client);
         }
         else
         {
@@ -2324,12 +2324,11 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
             g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
             return;
         }
-        g_eClients[client][bLoaded] = true;
+
         Call_OnClientLoaded(client);
-        tPrintToChat(client, "%T", "Inventory has been loaded", client);
-        g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
         FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
         SQL_TVoid(g_hDatabase, m_szQuery);
+
         return;
     }
 
@@ -2377,12 +2376,10 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
     }
     else
     {
-        g_eClients[client][bLoaded] = true;
-        Call_OnClientLoaded(client);
-        tPrintToChat(client, "%T", "Inventory has been loaded", client);
-        g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
         FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
         SQL_TVoid(g_hDatabase, m_szQuery);
+        
+        Call_OnClientLoaded(client);
     }
 }
 
@@ -2473,10 +2470,8 @@ public void SQLCallback_LoadClientInventory_Equipment(Database db, DBResultSet r
         else
             UTIL_UnequipItem(client, m_iUniqueId);
     }
-    g_eClients[client][bLoaded] = true;
+
     Call_OnClientLoaded(client);
-    tPrintToChat(client, "%T", "Inventory has been loaded", client);
-    g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
 
 public void SQLCallback_InsertClient(Database db, DBResultSet results, const char[] error, int userid)
@@ -2498,10 +2493,10 @@ public void SQLCallback_InsertClient(Database db, DBResultSet results, const cha
     g_eClients[client][iDateOfJoin] = GetTime();
     g_eClients[client][iDateOfLastJoin] = g_eClients[client][iDateOfJoin];
     g_eClients[client][iItems] = 0;
-    g_eClients[client][bLoaded] = true;
+    
     Call_OnClientLoaded(client);
+
     g_iDataProtect[client] = GetTime()+90;
-    g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
 
 //////////////////////////////
@@ -3621,7 +3616,7 @@ public Action Timer_OnlineCredit(Handle timer, int client)
     FormatEx(szFrom, 128, "\x10[");
     FormatEx(szReason, 128, "%T[", "online earn credits", client);
 
-    m_iCredits += 2;
+    m_iCredits += g_iCreditsTimerOnline;
     StrCat(szFrom, 128, "\x04Online");
     StrCat(szReason, 128, "Online");
 
@@ -3641,9 +3636,14 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 
 void Call_OnClientLoaded(int client)
 {
+    g_eClients[client][bLoaded] = true;
+
     Call_StartForward(g_hOnClientLoaded);
     Call_PushCell(client);
     Call_Finish();
+
+    tPrintToChat(client, "%T", "Inventory has been loaded", client);
+    g_eClients[client][hTimer] = CreateTimer(g_fCreditsTimerInterval, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
 
 void InterMissionConVars()

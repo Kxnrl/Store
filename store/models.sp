@@ -95,7 +95,7 @@ public int Models_Remove(int client, int id)
     return g_eCustomModel[m_iData][iSlot];
 }
 
-public void OnClientPutInServer(int client)
+void Models_OnClientPutInServer(int client)
 {
     g_iRefPVM[client] = INVALID_ENT_REFERENCE;
     g_bHooked[client] = false;

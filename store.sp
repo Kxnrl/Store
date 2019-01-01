@@ -821,7 +821,10 @@ public void OnClientPutInServer(int client)
         return;
 
     g_iDataProtect[client] = GetTime()+300;
+
     UTIL_LoadClientInventory(client);
+
+    Models_OnClientPutInServer(client);
 }
 
 public void OnClientDisconnect(int client)

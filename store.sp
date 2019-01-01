@@ -2267,7 +2267,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
     GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), true);
     strcopy(g_eClients[client][szAuthId], 32, m_szSteamID[8]);
 
-    if(results.FetchRow())
+    if(results.FetchRow() && results.RowCount > 0)
     {
         g_eClients[client][iId] = results.FetchInt(0);
         g_eClients[client][iCredits] = results.FetchInt(3);
@@ -2330,6 +2330,7 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
         g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
         FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
         SQL_TVoid(g_hDatabase, m_szQuery);
+        return;
     }
 
     char m_szUniqueId[PLATFORM_MAX_PATH];
@@ -2380,8 +2381,8 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
         Call_OnClientLoaded(client);
         tPrintToChat(client, "%T", "Inventory has been loaded", client);
         g_eClients[client][hTimer] = CreateTimer(300.0, Timer_OnlineCredit, client, TIMER_REPEAT);
-        //FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        //SQL_TVoid(g_hDatabase, m_szQuery);
+        FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+        SQL_TVoid(g_hDatabase, m_szQuery);
     }
 }
 

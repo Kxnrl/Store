@@ -824,7 +824,9 @@ public void OnClientPutInServer(int client)
 
     UTIL_LoadClientInventory(client);
 
+#if defined Module_Model
     Models_OnClientPutInServer(client);
+#endif
 }
 
 public void OnClientDisconnect(int client)

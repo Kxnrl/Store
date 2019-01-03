@@ -182,9 +182,9 @@ public void OnPluginStart()
     // Setting default values
     for(int client = 1; client <= MaxClients; ++client)
     {
-        g_eClients[client][iCredits]            = -1;
+        g_eClients[client][iCredits]            = 0;
         g_eClients[client][iOriginalCredits]    = 0;
-        g_eClients[client][iItems]              = -1;
+        g_eClients[client][iItems]              = 0;
     }
 
     // Register Commands
@@ -780,9 +780,9 @@ public void OnClientConnected(int client)
     g_iDataProtect[client] = GetTime()+300;
     
     g_eClients[client][iUserId]          = GetClientUserId(client);
-    g_eClients[client][iCredits]         = -1;
+    g_eClients[client][iCredits]         = 0;
     g_eClients[client][iOriginalCredits] = 0;
-    g_eClients[client][iItems]           = -1;
+    g_eClients[client][iItems]           = 0;
     g_eClients[client][bLoaded]          = false;
 
 #if defined AllowHide
@@ -856,7 +856,7 @@ public Action Command_Store(int client, int args)
     if(!IsClientInGame(client))
         return Plugin_Handled;
     
-    if((g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1) || !g_eClients[client][bLoaded])
+    if(!g_eClients[client][bLoaded])
     {
         tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
         return Plugin_Handled;
@@ -876,7 +876,7 @@ public Action Command_Store(int client, int args)
 
 public Action Command_Inventory(int client, int args)
 {    
-    if((g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1) || !g_eClients[client][bLoaded])
+    if(!g_eClients[client][bLoaded])
     {
         tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
         return Plugin_Handled;
@@ -896,7 +896,7 @@ public Action Command_Inventory(int client, int args)
 
 public Action Command_Credits(int client, int args)
 {    
-    if(g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1)
+    if(!g_eClients[client][bLoaded])
     {
         tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
         return Plugin_Handled;
@@ -2270,7 +2270,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
     char m_szQuery[512], m_szSteamID[32];
     int m_iTime = GetTime();
     g_eClients[client][iUserId] = userid;
-    g_eClients[client][iItems] = -1;
+    g_eClients[client][iItems] = 0;
     GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), true);
     strcopy(g_eClients[client][szAuthId], 32, m_szSteamID[8]);
 
@@ -2285,7 +2285,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
 
         if(g_eClients[client][bBan])
         {
-            g_eClients[client][iItems] = -1;
+            g_eClients[client][iItems] = 0;
             Call_OnClientLoaded(client);
         }
         else
@@ -2363,7 +2363,7 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
             g_eClientItems[client][i][iDateOfPurchase] = results.FetchInt(4);
             g_eClientItems[client][i][iDateOfExpiration] = m_iExpiration;
             g_eClientItems[client][i][iPriceOfPurchase] = results.FetchInt(6);
-            ++i;
+            i++;
         }
     }
     g_eClients[client][iItems] = i;
@@ -2535,7 +2535,7 @@ void UTIL_SaveClientInventory(int client)
     }
     
     // Player disconnected before his inventory was even fetched
-    if(g_eClients[client][iCredits]==-1 && g_eClients[client][iItems]==-1)
+    if(!g_eClients[client][bLoaded])
         return;
 
     char m_szQuery[512];
@@ -2605,9 +2605,9 @@ void UTIL_SaveClientData(int client, bool disconnect)
         return;
     }
     
-    if((g_eClients[client][iCredits]==-1 && g_eClients[client][iItems]==-1) || !g_eClients[client][bLoaded])
+    if(!g_eClients[client][bLoaded])
         return;
-    
+
     if(!disconnect && g_eClients[client][bRefresh])
         return;
     
@@ -2652,9 +2652,9 @@ void UTIL_DisconnectClient(int client, bool pre = false)
 
     if(pre)
     {
-        g_eClients[client][iCredits] = -1;
-        g_eClients[client][iOriginalCredits] = -1;
-        g_eClients[client][iItems] = -1;
+        g_eClients[client][iCredits]         = 0;
+        g_eClients[client][iOriginalCredits] = 0;
+        g_eClients[client][iItems]           = 0;
     }
 
     g_eClients[client][bLoaded] = false;
@@ -2857,10 +2857,8 @@ void UTIL_GiftItem(int client, int receiver, int item)
 {
     int m_iId = g_eClientItems[client][item][iUniqueId];
 
-    if((g_eClients[client][iCredits] == -1 && g_eClients[client][iItems] == -1) || !g_eClients[client][bLoaded]
-        || (g_eClients[receiver][iCredits] == -1 && g_eClients[receiver][iItems] == -1) || !g_eClients[receiver][bLoaded]) {
+    if(!g_eClients[client][bLoaded] || !g_eClients[receiver][bLoaded])
         return;
-    }
 
     if(g_iDataProtect[client] > GetTime())
     {
@@ -2899,15 +2897,15 @@ void UTIL_GiftItem(int client, int receiver, int item)
     g_eClientItems[client][item][bDeleted] = true;
     UTIL_UnequipItem(client, m_iId);
 
-    g_eClientItems[receiver][g_eClients[receiver][iItems]][iId] = -1;
-    g_eClientItems[receiver][g_eClients[receiver][iItems]][iUniqueId] = m_iId;
-    g_eClientItems[receiver][g_eClients[receiver][iItems]][bSynced] = false;
-    g_eClientItems[receiver][g_eClients[receiver][iItems]][bDeleted] = false;
-    g_eClientItems[receiver][g_eClients[receiver][iItems]][iDateOfPurchase] = g_eClientItems[client][item][iDateOfPurchase];
-    g_eClientItems[receiver][g_eClients[receiver][iItems]][iDateOfExpiration] = g_eClientItems[client][item][iDateOfExpiration];
-    g_eClientItems[receiver][g_eClients[receiver][iItems]][iPriceOfPurchase] = g_eClientItems[client][item][iPriceOfPurchase];
+    int id = g_eClients[receiver][iItems]++;
 
-    ++g_eClients[receiver][iItems];
+    g_eClientItems[receiver][id][iId] = -1;
+    g_eClientItems[receiver][id][iUniqueId] = m_iId;
+    g_eClientItems[receiver][id][bSynced] = false;
+    g_eClientItems[receiver][id][bDeleted] = false;
+    g_eClientItems[receiver][id][iDateOfPurchase] = g_eClientItems[client][item][iDateOfPurchase];
+    g_eClientItems[receiver][id][iDateOfExpiration] = g_eClientItems[client][item][iDateOfExpiration];
+    g_eClientItems[receiver][id][iPriceOfPurchase] = g_eClientItems[client][item][iPriceOfPurchase];
 
     tPrintToChat(client, "%T", "Chat Gift Item Sent", client, receiver, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);
     tPrintToChat(receiver, "%T", "Chat Gift Item Received", receiver, client, g_eItems[m_iId][szName], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szType]);

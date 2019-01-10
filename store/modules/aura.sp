@@ -26,17 +26,17 @@ public void Aura_OnMapStart()
 void Aura_OnClientDisconnect(int client)
 {
     Store_RemoveClientAura(client);
-    g_szAuraClient[client] = "";
+    g_szAuraClient[client][0] = '\0';
 }
 
-public bool Aura_Config(Handle kv, int itemid) 
+public bool Aura_Config(KeyValues kv, int itemid) 
 { 
     if(g_iAuras >= MAX_AURA)
         return false;
 
     Store_SetDataIndex(itemid, g_iAuras); 
-    KvGetString(kv, "effect", g_szAuraName[g_iAuras], PLATFORM_MAX_PATH);
-    KvGetString(kv, "model",  g_szAuraFPcf[g_iAuras], PLATFORM_MAX_PATH);
+    kv.GetString("effect", g_szAuraName[g_iAuras], PLATFORM_MAX_PATH);
+    kv.GetString("model",  g_szAuraFPcf[g_iAuras], PLATFORM_MAX_PATH);
 
     if(!FileExists(g_szAuraFPcf[g_iAuras], true))
         return false;
@@ -63,7 +63,7 @@ public int Aura_Equip(int client, int id)
 public int Aura_Remove(int client) 
 {
     Store_RemoveClientAura(client);
-    g_szAuraClient[client] = "";
+    g_szAuraClient[client][0] = '\0';
 
     return 0; 
 }
@@ -88,7 +88,7 @@ void Store_SetClientAura(int client)
 {
     Store_RemoveClientAura(client);
 
-    if(!(strcmp(g_szAuraClient[client], "", false) == 0))
+    if(strlen(g_szAuraClient[client]) > 0)
     {
         float clientOrigin[3];
         GetClientAbsOrigin(client, clientOrigin);

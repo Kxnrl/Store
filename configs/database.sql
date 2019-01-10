@@ -8,7 +8,7 @@ CREATE TABLE `store_players` (
   `ban` int(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `authid` (`authid`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_opencase` (
@@ -20,7 +20,7 @@ CREATE TABLE `store_opencase` (
   `handle` varchar(16) NOT NULL DEFAULT 'ERROR',
   `type` tinyint(3) NOT NULL DEFAULT '1',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_newlogs` (
@@ -31,7 +31,7 @@ CREATE TABLE `store_newlogs` (
   `reason` varchar(256) NOT NULL DEFAULT 'unknown reason',
   `timestamp` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_items` (
@@ -44,7 +44,7 @@ CREATE TABLE `store_items` (
   `price_of_purchase` int(11) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `p` (`player_id`,`type`,`unique_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_item_parent` (
@@ -52,7 +52,7 @@ CREATE TABLE `store_item_parent` (
   `name` varchar(32) DEFAULT NULL,
   `parent` tinyint(3) NOT NULL DEFAULT '-1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_item_child` (
@@ -65,10 +65,10 @@ CREATE TABLE `store_item_child` (
   `auth` varchar(128) NOT NULL DEFAULT 'ITEM_NOT_PERSONAL' COMMENT '!personal!',
   `vip` bit(1) NOT NULL DEFAULT b'0' COMMENT '!vip!',
   `name` varchar(32) NOT NULL DEFAULT 'ITEM_UNNAMED' COMMENT '菜单显示的名字',
-  `lvls` tinyint(2) NOT NULL DEFAULT '0' COMMENT 'playerskin',
-  `desc` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DESC' COMMENT 'playerskin',
-  `case` bit(1) NOT NULL DEFAULT b'0' COMMENT 'playerskin',
-  `compose` bit(1) NOT NULL DEFAULT b'0' COMMENT 'playerskin',
+  `lvls` tinyint(2) NOT NULL DEFAULT '0' COMMENT 'playerskin level',
+  `desc` varchar(32) NOT NULL DEFAULT 'ITEM_NO_DESC' COMMENT 'playerskin desc',
+  `case` tinyint(3) NOT NULL DEFAULT '0' COMMENT 'playerskin open case only',
+  `compose` bit(1) NOT NULL DEFAULT b'0' COMMENT 'playerskin compose only',
   `1d` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'credits/day',
   `1m` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'credits/month',
   `pm` varchar(255) NOT NULL DEFAULT '100000' COMMENT 'credits/perment',
@@ -103,7 +103,7 @@ CREATE TABLE `store_item_child` (
   `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin',
   PRIMARY KEY (`type`,`uid`),
   KEY `p` (`parent`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- if u upgrade from 2.0, exec this in your database
 ALTER TABLE `store_item_child`
@@ -115,6 +115,9 @@ ADD `weart` tinyint(3) NOT NULL DEFAULT '-1' COMMENT 'weaponskin',
 ADD `paint` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'weaponskin',
 ADD `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin';
 
+-- if u upgrade from 2.2
+ALTER TABLE `store_item_child`
+MODIFY `case` TINYINT(2) DEFAULT 0 NOT NULL;
 
 CREATE TABLE `store_equipment` (
   `player_id` int(11) NOT NULL,
@@ -123,4 +126,4 @@ CREATE TABLE `store_equipment` (
   `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`player_id`,`type`,`slot`),
   KEY `key` (`player_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

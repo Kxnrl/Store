@@ -1,5 +1,8 @@
 #define Module_Spray
 
+// options
+#define DEFAULT_SPRAYS "cglogo2"
+
 static char g_szSprays[STORE_MAX_ITEMS][256];
 static int g_iSprayPrecache[STORE_MAX_ITEMS] = {-1,...};
 static int g_iSprayCache[MAXPLAYERS+1] = {-1,...};
@@ -20,15 +23,13 @@ public void Sprays_OnMapStart()
     char m_szDecal[256];
 
     for(int i = 0; i < g_iSprays; ++i)
+    if(FileExists(g_szSprays[i], true))
     {
-        if(FileExists(g_szSprays[i], true))
-        {
-            strcopy(STRING(m_szDecal), g_szSprays[i][10]);
-            m_szDecal[strlen(m_szDecal)-4]=0;
+        strcopy(STRING(m_szDecal), g_szSprays[i][10]);
+        m_szDecal[strlen(m_szDecal)-4]=0;
 
-            g_iSprayPrecache[i] = PrecacheDecal(m_szDecal, true);
-            Downloader_AddFileToDownloadsTable(g_szSprays[i]);
-        }
+        g_iSprayPrecache[i] = PrecacheDecal(m_szDecal, true);
+        Downloader_AddFileToDownloadsTable(g_szSprays[i]);
     }
 }
 
@@ -73,14 +74,14 @@ public int Sprays_Reset()
     g_iCGLOGO = -1;
 }
 
-public bool Sprays_Config(Handle kv, int itemid)
+public bool Sprays_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSprays);
-    KvGetString(kv, "material", g_szSprays[g_iSprays], 256);
+    kv.GetString("material", g_szSprays[g_iSprays], 256);
 
     if(FileExists(g_szSprays[g_iSprays], true))
     {
-        if(StrContains(g_szSprays[g_iSprays], "cglogo2", false) != -1)
+        if(StrContains(g_szSprays[g_iSprays], DEFAULT_SPRAYS, false) != -1)
             g_iCGLOGO = g_iSprays;
 
         ++g_iSprays;

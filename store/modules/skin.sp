@@ -56,7 +56,7 @@ void Skin_OnPluginStart()
 
     mp_round_restart_delay = FindConVar("mp_round_restart_delay");
     HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
-    SetConVarString(mp_round_restart_delay, "12", true);
+    SetConVarString(mp_round_restart_delay, "8", true);
 
     spec_replay_enable = FindConVar("spec_replay_enable");
     HookConVarChange(spec_replay_enable, Skin_OnConVarChanged);
@@ -73,8 +73,8 @@ public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const cha
 
     if(convar == mp_round_restart_delay)
     {
-        if(mp_round_restart_delay.FloatValue < 12.0)
-            SetConVarFloat(mp_round_restart_delay, 12.0, true);
+        if(mp_round_restart_delay.FloatValue < 8.0)
+            SetConVarFloat(mp_round_restart_delay, 8.0, true);
     }
 
     if(convar == spec_replay_enable)
@@ -108,20 +108,20 @@ public Action Command_Arms(int client, int args)
     return Plugin_Handled;
 }
 
-public bool PlayerSkins_Config(Handle kv, int itemid)
+public bool PlayerSkins_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPlayerSkins);
     
-    KvGetString(kv, "model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
-    KvGetString(kv, "arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
-    KvGetString(kv, "sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
+    kv.GetString("model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
+    kv.GetString("arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
+    kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
     
-    g_ePlayerSkins[g_iPlayerSkins][iLevel] = KvGetNum(kv, "lvls", 0)+1;
+    g_ePlayerSkins[g_iPlayerSkins][iLevel] = kv.GetNum("lvls", 0)+1;
 
 #if defined Global_Skin
     g_ePlayerSkins[g_iPlayerSkins][iTeam] = 4;
 #else
-    g_ePlayerSkins[g_iPlayerSkins][iTeam] = KvGetNum(kv, "team");
+    g_ePlayerSkins[g_iPlayerSkins][iTeam] = kv.GetNum("team");
 #endif
 
     if(FileExists(g_ePlayerSkins[g_iPlayerSkins][szModel], true))
@@ -138,12 +138,12 @@ public void PlayerSkins_OnMapStart()
     char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        PrecacheModel2(g_ePlayerSkins[i][szModel], true);
+        PrecacheModel(g_ePlayerSkins[i][szModel], true);
         Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szModel]);
 
         if(g_ePlayerSkins[i][szArms][0] != 0)
         {
-            PrecacheModel2(g_ePlayerSkins[i][szArms], true);
+            PrecacheModel(g_ePlayerSkins[i][szArms], true);
             Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
         }
 
@@ -159,7 +159,7 @@ public void PlayerSkins_OnMapStart()
         }
     }
 
-    PrecacheModel2("models/blackout.mdl", true);
+    PrecacheModel("models/blackout.mdl", true);
 }
 
 public void PlayerSkins_Reset()
@@ -234,9 +234,10 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
         strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+        {
+            Store_RemoveClientGloves(client, 0);
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
-
-        Store_RemoveClientGloves(client, m_iData);
+        }
 
         return Plugin_Changed;
     }
@@ -320,12 +321,13 @@ static void Store_SetClientModel(int client, int m_iData)
     
     if(g_ePlayerSkins[m_iData][szSound][0] != 0)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
-    
-    Store_RemoveClientGloves(client, m_iData);
 
     // Has valve gloves?
     if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+    {
+        Store_RemoveClientGloves(client, 0);
         SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
+    }
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
 
@@ -342,18 +344,26 @@ public Action Timer_SetClientModel(Handle timer, int val)
 
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-    if(sample[0] == 'c' && sample[1] == 'o' && strcmp(sample, "common/null.wav", false) == 0)
+    // null wave fix
+    //if(sample[0] == 'c' && sample[1] == 'o' && strcmp(sample, "common/null.wav", false) == 0)
+    //    return Plugin_Handled;
+
+    // not death sound
+    if(channel != SNDCHAN_VOICE || sample[0] != '~')
         return Plugin_Continue;
 
-    if(channel != SNDCHAN_VOICE || !IsValidClient(client) || sample[0] != '~')
+    // not from local player
+    if(!IsValidClient(client))
         return Plugin_Continue;
 
 #if defined GM_ZE
+    // ignore zombie
     if(g_iClientTeam[client] == 2)
         return Plugin_Continue;
 #endif
 
-    if(g_szDeathVoice[client][0] == '\0')
+    // allow sound
+    if(g_szDeathVoice[client][0] != '*')
         return Plugin_Continue;
 
     if  ( 
@@ -365,20 +375,17 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
             strcmp(sample, "~player/death6.wav", false) == 0 
         )
         {
-            //strcopy(sample, PLATFORM_MAX_PATH, g_szDeathVoice[client]);
-            //volume = 1.0;
-            //PrintToChat(client, "Replace Death Sound to [%s]", g_szDeathVoice[client]);
-            //RequestFrame(Frame_Broadcast, client);
-            //return Plugin_Changed;
+            // Block
             return Plugin_Handled;
         }
 
+    // others
     return Plugin_Continue;
 }
 
 void Broadcast_DeathSound(int client)
 {
-    if(g_szDeathVoice[client][0] == '\0')
+    if(g_szDeathVoice[client][0] != '*')
         return;
 
 #if defined GM_ZE
@@ -554,7 +561,7 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
     
     FadeScreenBlack(client);
 
-    CreateTimer(10.0, Timer_ClearCamera, client);
+    CreateTimer(7.0, Timer_ClearCamera, client);
 
     //SetEntPropEnt(client, Prop_Send, "m_hRagdoll", iEntity);
 
@@ -603,21 +610,21 @@ void AttemptState(int client, bool spec)
 
 static void FadeScreenBlack(int client)
 {
-    Handle pb = StartMessageOne("Fade", client);
-    PbSetInt(pb, "duration", 4096);
-    PbSetInt(pb, "hold_time", 0);
-    PbSetInt(pb, "flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
-    PbSetColor(pb, "clr", {0, 0, 0, 255});
+    Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+    pb.SetInt("duration", 3072);
+    pb.SetInt("hold_time", 0);
+    pb.SetInt("flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
+    pb.SetColor("clr", {0, 0, 0, 255});
     EndMessage();
 }
 
 static void FadeScreenWhite(int client)
 {
-    Handle pb = StartMessageOne("Fade", client);
-    PbSetInt(pb, "duration", 1536);
-    PbSetInt(pb, "hold_time", 1536);
-    PbSetInt(pb, "flags", FFADE_IN|FFADE_PURGE);
-    PbSetColor(pb, "clr", {0, 0, 0, 0});
+    Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+    pb.SetInt("duration", 1536);
+    pb.SetInt("hold_time", 1536);
+    pb.SetInt("flags", FFADE_IN|FFADE_PURGE);
+    pb.SetColor("clr", {0, 0, 0, 0});
     EndMessage();
 }
 

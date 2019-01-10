@@ -6,17 +6,17 @@ enum Trail
     iSlot
 }
 
-Trail g_eTrails[STORE_MAX_ITEMS][Trail];
+static any g_eTrails[STORE_MAX_ITEMS][Trail];
 
-int g_iTrails = 0;
-int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iTrails = 0;
+static int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
 
-public bool Trails_Config(Handle kv, int itemid)
+public bool Trails_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iTrails);
     
-    KvGetString(kv, "material", g_eTrails[g_iTrails][szMaterial], PLATFORM_MAX_PATH);
-    g_eTrails[g_iTrails][iSlot] = KvGetNum(kv, "slot");
+    kv.GetString("material", g_eTrails[g_iTrails][szMaterial], PLATFORM_MAX_PATH);
+    g_eTrails[g_iTrails][iSlot] = kv.GetNum("slot");
 
     if(FileExists(g_eTrails[g_iTrails][szMaterial], true))
     {

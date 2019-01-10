@@ -12,13 +12,13 @@ static any g_eNeons[STORE_MAX_ITEMS][Neon];
 static int g_iNeons = 0;
 static int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 
-public bool Neon_Config(Handle kv, int itemid) 
+public bool Neon_Config(KeyValues kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iNeons); 
     KvGetColor(kv, "color", g_eNeons[g_iNeons][iColor][0], g_eNeons[g_iNeons][iColor][1], g_eNeons[g_iNeons][iColor][2], g_eNeons[g_iNeons][iColor][3]); 
-    g_eNeons[g_iNeons][iBright] = KvGetNum(kv, "brightness");
-    g_eNeons[g_iNeons][iDistance] = KvGetNum(kv, "distance");
-    g_eNeons[g_iNeons][iFade] = KvGetNum(kv, "distancefade");
+    g_eNeons[g_iNeons][iBright] = kv.GetNum("brightness");
+    g_eNeons[g_iNeons][iDistance] = kv.GetNum("distance");
+    g_eNeons[g_iNeons][iFade] = kv.GetNum("distancefade");
     ++g_iNeons;
     return true; 
 }
@@ -60,7 +60,7 @@ public int Neon_Remove(int client)
 #if defined AllowHide
 public Action Hook_SetTransmit_Neon(int entity, int client)
 {
-    SetTransmitFlags(entity);
+    SetNeonFlags(entity);
     return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
 }
 #endif
@@ -102,7 +102,7 @@ void Store_SetClientNeon(int client)
         IntToString(g_eNeons[m_iData][iBright], m_szString, 100);
         DispatchKeyValue(iNeon, "brightness", m_szString);
 
-        Format(m_szString, 100, "%d %d %d %d", g_eNeons[m_iData][iColor][0], g_eNeons[m_iData][iColor][1], g_eNeons[m_iData][iColor][2], g_eNeons[m_iData][iColor][3]);
+        FormatEx(m_szString, 100, "%d %d %d %d", g_eNeons[m_iData][iColor][0], g_eNeons[m_iData][iColor][1], g_eNeons[m_iData][iColor][2], g_eNeons[m_iData][iColor][3]);
         DispatchKeyValue(iNeon, "_light", m_szString);
         
         IntToString(g_eNeons[m_iData][iFade], m_szString, 100);
@@ -122,14 +122,21 @@ void Store_SetClientNeon(int client)
 
         SetVariantString("!activator");
         AcceptEntityInput(iNeon, "SetParent", client, iNeon, 0);
-        
+
         g_iClientNeon[client] = EntIndexToEntRef(iNeon);
 
 #if defined AllowHide        
-        //if(GetEdictFlags(ent) & FL_EDICT_ALWAYS)
-        //    SetEdictFlags(ent, GetEdictFlags(ent) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
+        SetNeonFlags(iNeon);
         SetEdictFlags(iNeon, GetEdictFlags(iNeon)&(~FL_EDICT_ALWAYS));
         SDKHook(iNeon, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
 #endif
     }
 }
+
+#if defined AllowHide
+static void SetNeonFlags(int entity)
+{
+    if(GetEdictFlags(entity) & FL_EDICT_ALWAYS)
+        SetEdictFlags(entity, GetEdictFlags(entity) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
+}
+#endif

@@ -25,12 +25,12 @@ class Store
         $this->dbConnection = new \mysqli($_config['mysql']['host'], $_config['mysql']['user'], $_config['mysql']['pswd'], $_config['mysql']['name'], $_config['mysql']['port']);
 
         if($this->dbConnection->connect_errno) {
-            throw new DatabaseException("Failed to connect to database: " . $this->dbConnectionconnect_error);
+            throw new DatabaseException("Failed to connect to database: " . $this->dbConnection->connect_error);
         }
 
-        if(!$this->dbConnection->query("SET NAMES 'utf8'")) {
+        if(!$this->dbConnection->set_charset("utf8mb4")) {
             $this->Destroy();
-            throw new StoreException("Failed to Set SQL chatset to UTF8: " . $this->dbConnection->error);
+            throw new DatabaseException("Failed to Set SQL chatset to utf8mb4: " . $this->dbConnection->error);
         }
 
         /*
@@ -51,7 +51,7 @@ class Store
 
     public function Destroy() {
 
-        $this->dbConnection->Close();
+        $this->dbConnection->close();
     }
 
     public function getPlayers($sortMode = 0, $desc = false, $limit = 2147483647) {

@@ -72,18 +72,6 @@ static StringMap g_hCustomFiles;
 static char g_szModelExts[][16] = {".phy", ".dx90.vtx", ".vtx", ".vvd", ".ani"};
 static char g_szMaterialKeys[][64] = {"$baseTexture", "$bumpmap", "$lightwarptexture"};
 
-stock int PrecacheModel2(const char[] model, bool preload = false)
-{
-    static int m_unModelPrecache = INVALID_STRING_TABLE;
-
-    if(m_unModelPrecache == INVALID_STRING_TABLE)
-    {
-        m_unModelPrecache = FindStringTable("modelprecache");
-    }
-
-    return PrecacheModel(model, preload);
-}
-
 stock int Downloader_AddFileToDownloadsTable(const char[] filename)
 {
 	if(!FileExists2(filename))
@@ -160,7 +148,7 @@ stock int Downloader_GetModelFiles(const char[] model, const char[] internal, ch
 	char m_szRawPath1[PLATFORM_MAX_PATH];
 	char m_szRawPath2[PLATFORM_MAX_PATH];
 	strcopy(STRING(m_szRawPath1), model);
-	Format(STRING(m_szRawPath2), "models/%s", internal);
+	FormatEx(STRING(m_szRawPath2), "models/%s", internal);
 
 	int m_iDot = FindCharInString(m_szRawPath1, '.', true);
 	if(m_iDot == -1)
@@ -177,12 +165,12 @@ stock int Downloader_GetModelFiles(const char[] model, const char[] internal, ch
 	{
 		if(m_iNum == maxsize)
 			break;
-		Format(files[m_iNum], maxlen, "%s%s", m_szRawPath1, g_szModelExts[i]);
+		FormatEx(files[m_iNum], maxlen, "%s%s", m_szRawPath1, g_szModelExts[i]);
 		if(FileExists2(files[m_iNum]))
 			++m_iNum;
 		else
 		{
-			Format(files[m_iNum], maxlen, "%s%s", m_szRawPath2, g_szModelExts[i]);
+			FormatEx(files[m_iNum], maxlen, "%s%s", m_szRawPath2, g_szModelExts[i]);
 			if(FileExists2(files[m_iNum]))
 				++m_iNum;
 		}
@@ -280,7 +268,7 @@ stock int Downloader_ParseMDL(const char[] model, char[] internal, int maxlen1, 
 		m_hFile.Seek(m_iNameOffset-4, SEEK_CUR);
 		m_hFile.ReadString(STRING(m_szMaterial));
 
-		Format(files[m_iIdx], maxlen2, "materials\\%s%s.vmt", m_szPath, m_szMaterial);
+		FormatEx(files[m_iIdx], maxlen2, "materials\\%s%s.vmt", m_szPath, m_szMaterial);
 	}
 
 	return m_iNum;
@@ -330,7 +318,7 @@ stock void CacheDirectory(const char[] directory)
 	DirectoryListing m_hDir = OpenDirectory(directory);
 	char m_szPath[PLATFORM_MAX_PATH];
 	FileType m_eType;
-	Format(STRING(m_szPath), "%s/", directory);
+	FormatEx(STRING(m_szPath), "%s/", directory);
 	int m_unLen = strlen(m_szPath);
 	int m_unOffset = FindCharInString(m_szPath, '/')+1;
 	m_unOffset += FindCharInString(m_szPath[m_unOffset], '/')+1;
@@ -377,20 +365,32 @@ stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, c
     return (GetMenuItemCount(menu)==position) ? AddMenuItem(menu, info, m_display, style) : InsertMenuItem(menu, position, info, m_display, style);
 }
 
-public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack data)
+stock void LogStoreError(const char[] buffer, any ...)
 {
-    if(results == null || error[0])
-    {
-        char query[2048];
-        ReadPackString(data, STRING(query));
-        LogError("SQL error happened.\nQuery: %s\nError: %s", query, error);
-    }
-    delete data;
+    char path[128];
+    if(!path[0])
+        BuildPath(Path_SM, path, 128, "logs/store.error.log");
+
+    char error[1024];
+    VFormat(error, 1024, buffer, 2);
+    LogToFileEx(path, error);
+}
+
+public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack pack)
+{
+    float time = GetEngineTime() - pack.ReadFloat();
+    char query[1024];
+    pack.ReadString(STRING(query));
+    if(time > 2.0) LogMessage("Store SQL slow query: %f -> %s", time, query);
+    if(results == null || error[0]) LogStoreError("SQL error happened.\nQuery: %s\nError: %s", query, error);
+
+    delete pack;
 }
 
 public void SQL_TVoid(Database db, char[] query)
 {
     DataPack data = new DataPack();
+    data.WriteFloat(GetEngineTime());
     data.WriteString(query);
     data.Reset();
     db.Query(SQLCallback_Void_PrintQuery, query, data);
@@ -505,7 +505,7 @@ stock int GetClientAimTargetPos(int client, float pos[3])
     
     int entity = TR_GetEntityIndex(trace);
     
-    CloseHandle(trace);
+    delete trace;
     
     return entity;
 }
@@ -516,15 +516,6 @@ public bool TraceFilterAllEntities(int entity, int contentsMask, int client)
         return false;
 
     return true;
-}
-
-stock void SetMenuTitleEx(Handle menu, const char[] fmt, any ...)
-{
-    char m_szBuffer[256];
-    VFormat(m_szBuffer, 256, fmt, 3);
-    Format(m_szBuffer, 256, "%s\n　", m_szBuffer);
-
-    SetMenuTitle(menu, m_szBuffer);
 }
 
 stock bool AddMenuItemEx(Handle menu, int style, char[] info, char[] display, any ...)
@@ -539,7 +530,24 @@ stock void tPrintToChat(int client, const char[] szMessage, any ...)
     char szBuffer[256];
     VFormat(szBuffer, 256, szMessage, 3);
     ReplaceColorsCode(szBuffer, 256);
-    PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
+    Format(szBuffer, 256, "[\x04Store\x01]  %s", szBuffer);
+    //PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
+
+    Protobuf SayText2 = view_as<Protobuf>(StartMessageOne("SayText2", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+    if(SayText2 == null)
+    {
+        LogError("StartMessageOne -> SayText2 is null");
+        return;
+    }
+
+    SayText2.SetInt("ent_idx", 0);
+    SayText2.SetBool("chat", true);
+    SayText2.SetString("msg_name", szBuffer);
+    SayText2.AddString("params", "");
+    SayText2.AddString("params", "");
+    SayText2.AddString("params", "");
+    SayText2.AddString("params", "");
+    EndMessage();
 }
 
 stock void tPrintToChatAll(const char[] szMessage, any ...)

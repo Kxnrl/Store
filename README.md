@@ -123,6 +123,95 @@ to
 * website/store.class.php -> Store web-API.
   
   
+### Database Fields
+- store_player
+  * id -> Store Id -> int32
+  * authid -> Steam Id 2 replace with STEAM_X: -> string (32)
+  * name -> Player steam nick name -> string (32)
+  * credits -> Player credits in back -> int32
+  * date_of_join -> Date of player first join server -> int32
+  * date_of_last_join -> Date of player last seen -> int32
+  * ban -> Banning State -> bit 0/1
+- store_opencase
+  * Id -> Case Id -> int32
+  * player_id -> Store Id of player -> uint32
+  * unique -> Item Unique Id of item that player found in case -> string (32)
+  * days -> Article validity period -> int32
+  * date -> Time stamp -> int32
+  * handle -> Player handle after opening case -> 'add' or 'sell' -> string (32)
+  * type -> Type of case -> uint (3)
+- store_newlogs
+  * Id -> Logging Id -> int32
+  * store_id -> Store Id of player -> uint32
+  * credits -> Credits after changing -> int32
+  * difference -> Amount of credits to change -> int32
+  * reason -> Reson of chaning credis -> string (256)
+  * timestamp -> Time stamp -> uint32
+- store_items
+  * id -> Item Id -> int32
+  * player_id -> Item owner Store Id -> int32
+  * type -> Type set of Item -> string (32)
+  * unique_id -> Item Unique Id -> string (32)
+  * date_of_purchase -> Time stamp of player purchased item date -> uint32
+  * date_of_expiration -> Time stamp of expiration -> uint32
+  * price_of_purchase -> Price of purchasing item -> uint32
+- store_equipment
+  * player_id -> Player Store Id -> uint32
+  * type -> Type set of item -> string (32)
+  * unique_id -> Item Unique Id -> string (32)
+  * slot -> slot of Item -> uint (3)
+- store_item_parent
+  * id -> Category Id -> int32
+  * name -> Category name -> string (32)
+  * parent -> Parent category Id -> uint (3)
+- store_item_child
+  * parent -> Item of category Id -> uint (3)
+  * type -> Type set of Item -> string (32)
+  * uid -> Item Unique Id -> string (32)
+  * buyable -> Allow buy this Item -> bit 0/1
+  * giftable -> Allow gift this Item -> bit 0/1
+  * only -> Disallow purchase/open case/compose/selling/Vip -> bit 0/1
+  * auth -> Auth Id of this Item (If not null, item is personal item) -> string (128)
+  * vip -> Vip Item -> bit 0/1
+  * name -> Item name -> string (32)
+  * lvls -> Item level (only for playerskin) -> int (2)
+  * desc -> Item description -> string (32)
+  * case -> Open case -> int (3) -1~2  // -1 == remove from case | 0 = all case+ | 1 = adv case+ | 2 = ult case+
+  * compose -> Disallow purchase, compose acquisition -> bit 0/1
+  * 1d -> Price of 1 day -> uint32 // 0 to disallow
+  * 1m -> Price of 1 month -> uint32 // 0 to disallow
+  * pm -> Price of permanent -> uint32 // 0 to disallow | if 1d/1m/pm = 0 Item is free
+  * model -> Item attribute -> string (192)
+  * arms -> Item attribute -> string (192)
+  * team -> Item attribute -> uint (2)
+  * sound -> Item attribute -> string (192)
+  * position -> Item attribute -> string (64)
+  * angles -> Item attribute -> string (64)
+  * attachment -> Item attribute -> string (32)
+  * slot -> Item attribute -> uint (2)
+  * material -> Item attribute -> string (192)
+  * color -> Item attribute -> string (32)
+  * grenade -> Item attribute -> string (32)
+  * shortname -> Item attribute -> string (32)
+  * volume -> Item attribute -> float (2,1)
+  * cooldown -> Item attribute -> uint (3)
+  * worldmodel -> Item attribute -> string (192)
+  * dropmodel -> Item attribute -> string (192)
+  * weapon -> Item attribute -> string (32)
+  * effect -> Item attribute -> string (32)
+  * brightness -> Item attribute -> uint (2)
+  * distance -> Item attribute -> uint (3)
+  * distancefade -> Item attribute -> uint (3)
+  * tag -> Item attribute -> string (32)
+  * idle -> Item attribute -> string (32)
+  * run -> Item attribute -> string (32)
+  * death -> Item attribute -> string (32)
+  * seed -> Item attribute -> uint (5)
+  * weart -> Item attribute -> uint (3)
+  * paint -> Item attribute -> uint (5)
+  * wearf -> Item attribute -> float (7,6)
+  
+  
 ### License  
 * SourceMod plugins license under GPLv3 License.  
 * Shell, SQL and PHP scripts license under MIT License.  

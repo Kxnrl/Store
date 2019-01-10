@@ -11,7 +11,7 @@ static char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 void Part_OnClientDisconnect(int client)
 {
     Store_RemoveClientPart(client);
-    g_szPartClient[client] = "";
+    g_szPartClient[client][0] = '\0';
 }
 
 public void Part_Reset() 
@@ -19,11 +19,11 @@ public void Part_Reset()
     g_iParts = 0;
 }
 
-public bool Part_Config(Handle kv, int itemid) 
+public bool Part_Config(KeyValues kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iParts); 
-    KvGetString(kv, "effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);
-    KvGetString(kv, "model",  g_szPartFPcf[g_iParts], PLATFORM_MAX_PATH);
+    kv.GetString("effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);
+    kv.GetString("model",  g_szPartFPcf[g_iParts], PLATFORM_MAX_PATH);
     
     if(!FileExists(g_szPartFPcf[g_iParts], true))
         return false;
@@ -45,7 +45,7 @@ public int Part_Equip(int client, int id)
 public int Part_Remove(int client) 
 {
     Store_RemoveClientPart(client);
-    g_szPartClient[client] = "";
+    g_szPartClient[client][0] = '\0';
 
     return 0; 
 }

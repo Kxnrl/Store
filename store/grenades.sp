@@ -19,8 +19,8 @@ enum GrenadeTrail
     iCacheID
 }
 
-static int g_eGrenadeSkins[STORE_MAX_ITEMS][GrenadeSkin];
-static int g_eGrenadeTrails[STORE_MAX_ITEMS][GrenadeTrail];
+static any g_eGrenadeSkins[STORE_MAX_ITEMS][GrenadeSkin];
+static any g_eGrenadeTrails[STORE_MAX_ITEMS][GrenadeTrail];
 static int g_iGrenadeSkins = 0;
 static int g_iSlots = 0;
 static int g_iGrenadeTrails = 0;
@@ -37,7 +37,7 @@ public void GrenadeSkins_OnMapStart()
 {
     for(int i = 0; i< g_iGrenadeSkins; ++i)
     {
-        PrecacheModel2(g_eGrenadeSkins[i][szModel], true);
+        PrecacheModel(g_eGrenadeSkins[i][szModel], true);
         Downloader_AddFileToDownloadsTable(g_eGrenadeSkins[i][szModel]);
     }
 }
@@ -46,7 +46,7 @@ public void GrenadeTrails_OnMapStart()
 {
     for(int i = 0; i < g_iGrenadeTrails; ++i)
     {
-        g_eGrenadeTrails[i][iCacheID] = PrecacheModel2(g_eGrenadeTrails[i][szMaterial], true);
+        g_eGrenadeTrails[i][iCacheID] = PrecacheModel(g_eGrenadeTrails[i][szMaterial], true);
         Downloader_AddFileToDownloadsTable(g_eGrenadeTrails[i][szMaterial]);
     }
 }
@@ -61,11 +61,11 @@ public void GrenadeTrails_Reset()
     g_iGrenadeTrails = 0;
 }
 
-public bool GrenadeSkins_Config(Handle kv, int itemid)
+public bool GrenadeSkins_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iGrenadeSkins);
-    KvGetString(kv, "model", g_eGrenadeSkins[g_iGrenadeSkins][szModel], PLATFORM_MAX_PATH);
-    KvGetString(kv, "grenade", g_eGrenadeSkins[g_iGrenadeSkins][szWeapon], PLATFORM_MAX_PATH);
+    kv.GetString("model", g_eGrenadeSkins[g_iGrenadeSkins][szModel], PLATFORM_MAX_PATH);
+    kv.GetString("grenade", g_eGrenadeSkins[g_iGrenadeSkins][szWeapon], PLATFORM_MAX_PATH);
 
     g_eGrenadeSkins[g_iGrenadeSkins][iSlot] = GrenadeSkins_GetSlot(g_eGrenadeSkins[g_iGrenadeSkins][szWeapon]);
     g_eGrenadeSkins[g_iGrenadeSkins][iLength] = strlen(g_eGrenadeSkins[g_iGrenadeSkins][szWeapon]);
@@ -77,15 +77,15 @@ public bool GrenadeSkins_Config(Handle kv, int itemid)
     return true;
 }
 
-public bool GrenadeTrails_Config(Handle kv, int itemid)
+public bool GrenadeTrails_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iGrenadeTrails);
-    KvGetString(kv, "material", g_eGrenadeTrails[g_iGrenadeTrails][szMaterial], PLATFORM_MAX_PATH, "materials/sprites/laserbeam.vmt");
-    KvGetString(kv, "width", g_eGrenadeTrails[g_iGrenadeTrails][szWidth], 16, "10.0");
-    g_eGrenadeTrails[g_iGrenadeTrails][fWidth] = KvGetFloat(kv, "width", 10.0);
-    KvGetString(kv, "color", g_eGrenadeTrails[g_iGrenadeTrails][szColor], 16, "255 255 255 255");
+    kv.GetString("material", g_eGrenadeTrails[g_iGrenadeTrails][szMaterial], PLATFORM_MAX_PATH, "materials/sprites/laserbeam.vmt");
+    kv.GetString("width", g_eGrenadeTrails[g_iGrenadeTrails][szWidth], 16, "10.0");
+    g_eGrenadeTrails[g_iGrenadeTrails][fWidth] = kv.GetFloat("width", 10.0);
+    kv.GetString("color", g_eGrenadeTrails[g_iGrenadeTrails][szColor], 16, "255 255 255 255");
     KvGetColor(kv, "color", g_eGrenadeTrails[g_iGrenadeTrails][iColor][0], g_eGrenadeTrails[g_iGrenadeTrails][iColor][1], g_eGrenadeTrails[g_iGrenadeTrails][iColor][2], g_eGrenadeTrails[g_iGrenadeTrails][iColor][3]);
-    g_eGrenadeTrails[g_iGrenadeTrails][iSlot] = KvGetNum(kv, "slot");
+    g_eGrenadeTrails[g_iGrenadeTrails][iSlot] = kv.GetNum("slot");
     
     if(FileExists(g_eGrenadeTrails[g_iGrenadeTrails][szMaterial], true))
     {

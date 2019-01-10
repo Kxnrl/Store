@@ -182,7 +182,13 @@
     {
         "#format" "{1:d},{2:d}"
         "en" "Expires in {1}d {2}h"
-        "chi" "使用时间剩余: {1}天{2}小时"
+        "chi" "剩余时间: {1}天{2}小时"
+    }
+    
+    "Title Expiration PM"
+    {
+        "en" "Expires in your life time."
+        "chi" "剩余时间: 你活多久用多久"
     }
 
     "Title Gift"
@@ -573,15 +579,15 @@
     
     "opencase earned day"
     {
-        "#format" "{1:N},{2:s},{3:s},{4:s}"
-        "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}天{normal})"
+        "#format" "{1:N},{2:s},{3:s},{4:d}"
+        "en"  "{purple}{1} {normal}opened a(n) {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}day(s){normal})"
         "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}{4}天{normal})"
     }
     
     "opencase earned perm"
     {
         "#format" "{1:N},{2:s},{3:s}"
-        "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}permanent{normal})"
+        "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}permanent{normal})"
         "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}天{normal})"
     }
     

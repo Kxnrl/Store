@@ -34,6 +34,7 @@ enum Store_Item
     iParent,
     iHandler,
     iPlans,
+    iTeam,
     iLevels,
     iCaseType,
     bool:bIgnore,

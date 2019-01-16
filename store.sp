@@ -1016,20 +1016,31 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                 IntToString(i, STRING(m_szId));
                 if(Store_HasClientItem(client, i))
                 {
+#if defined Global_Skin
                     if(UTIL_IsEquipped(client, i))
                         InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Equipped", client, g_eItems[i][szName]);
                     else
                         InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Bought", client, g_eItems[i][szName]);
+#else
+                    if(UTIL_IsEquipped(client, i))
+                        InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%s%T", (strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0) ? (g_eItems[i][iTeam] == 2 ? "[TE] " : "[CT] ") : "", "Item Equipped", client, g_eItems[i][szName]);
+                    else
+                        InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%s%T", (strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0) ? (g_eItems[i][iTeam] == 2 ? "[TE] " : "[CT] ") : "", "Item Bought", client, g_eItems[i][szName]);
+#endif
                 }
                 else if(!g_bInvMode[client])
-                {                
+                {
                     int m_iStyle = ITEMDRAW_DEFAULT;
                     if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
                         m_iStyle = ITEMDRAW_DISABLED;
 
-                    if(StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
+                    if(strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0)
                     {
+#if defined Global_Skin
                         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Preview Available", client, g_eItems[i][szName]);
+#else
+                        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, "[%s] %T", g_eItems[i][iTeam] == 2 ? "TE" : "CT", "Item Preview Available", client, g_eItems[i][szName]);
+#endif
                         continue;
                     }
 
@@ -3023,7 +3034,12 @@ void UTIL_ReloadConfig()
         g_eItems[parent][iParent] = UTIL_GetParent(parent, g_eItems[parent][iParent]);
     }
 
+#if defined Global_Skin
     DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC");
+#else
+    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC");
+#endif
+
     if(item_child == null)
     {
         SQL_GetError(ItemDB, error, 256);
@@ -3120,6 +3136,9 @@ void UTIL_ReloadConfig()
         int price_1d = item_child.FetchInt(13);
         int price_1m = item_child.FetchInt(14);
         int price_pm = item_child.FetchInt(15);
+
+        // team
+        g_eItems[g_iItems][iTeam] = item_child.FetchInt(18);
         
         if(price_1d != 0 || price_1m != 0)
         {

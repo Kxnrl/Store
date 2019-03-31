@@ -1,4 +1,4 @@
-#if defined GM_ZE || defined GM_KZ || defined GM_BH
+#if defined GM_ZE || defined GM_KZ || defined GM_BH || defined GM_SR
     #define Module_TPMode
 #endif
 

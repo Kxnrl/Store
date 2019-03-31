@@ -153,7 +153,7 @@ public int WeaponSkin_Remove(int client, int id)
     return g_eWeaponSkin[m_iData][iSlot];
 }
 
-public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemView &item, bool &ignoredCEconItemView)
+public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemView &item, bool &ignoredCEconItemView, bool &OriginIsNULL, float Origin[3])
 {
     if(IsFakeClient(client) || !IsPlayerAlive(client))
         return Plugin_Continue;
@@ -173,7 +173,7 @@ public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemVi
     return Plugin_Changed;
 }
 
-public void Event_GiveNamedItemPost(int client, const char[] classname, const CEconItemView item, int entity)
+public void Event_GiveNamedItemPost(int client, const char[] classname, const CEconItemView item, int entity, bool OriginIsNULL, const float Origin[3])
 {
     if(IsFakeClient(client) || !IsPlayerAlive(client) || !IsValidEdict(entity))
         return;

@@ -73,6 +73,8 @@ Database g_hDatabase = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
 Handle g_hOnClientLoaded = null;
+Handle g_hOnClientBuyItem = null;
+Handle g_hOnClientPurchased = null;
 
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
@@ -224,9 +226,11 @@ public void OnPluginEnd()
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-    g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
-    g_hOnStoreInit      = CreateGlobalForward("Store_OnStoreInit",      ET_Ignore, Param_Cell);
-    g_hOnClientLoaded   = CreateGlobalForward("Store_OnClientLoaded",   ET_Ignore, Param_Cell);
+    g_hOnStoreAvailable  = CreateGlobalForward("Store_OnStoreAvailable",  ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnStoreInit       = CreateGlobalForward("Store_OnStoreInit",       ET_Ignore, Param_Cell);
+    g_hOnClientLoaded    = CreateGlobalForward("Store_OnClientLoaded",    ET_Ignore, Param_Cell);
+    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String);
+    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -2735,7 +2739,21 @@ public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] e
         DisplayItemMenu(client, g_iSelectedItem[client]);
         return;
     }
-    
+
+    Action ret = Plugin_Continue;
+    Call_StartForward(g_hOnClientBuyItem);
+    Call_PushCell(client);
+    Call_PushString(g_eItems[itemid][szUniqueId]);
+    Call_PushCell(plan==-1 ? 0 : g_ePlans[itemid][plan][iTime]);
+    Call_PushCell(m_iPrice);
+    Call_Finish(ret);
+
+    if (ret > Plugin_Continue)
+    {
+        // blocked
+        return;
+    }
+
     if(g_eClients[client][iItems] == -1)
         g_eClients[client][iItems] = 0;
 
@@ -2754,6 +2772,13 @@ public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] e
     Store_SaveClientAll(client);
 
     tPrintToChat(client, "%T", "Chat Bought Item", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+
+    Call_StartForward(g_hOnClientPurchased);
+    Call_PushCell(client);
+    Call_PushString(g_eItems[itemid][szUniqueId]);
+    Call_PushCell(plan==-1 ? 0 : g_ePlans[itemid][plan][iTime]);
+    Call_PushCell(m_iPrice);
+    Call_Finish();
 
     DisplayItemMenu(client, g_iSelectedItem[client]);
 }

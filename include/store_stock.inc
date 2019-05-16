@@ -15,6 +15,7 @@ enum Type_Handler
     String:szPlFile[64],
     bool:bEquipable,
     bool:bRaw,
+    bool:bDisposable,
     Handle:hPlugin,
     Function:fnMapStart,
     Function:fnReset,

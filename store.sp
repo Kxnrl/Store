@@ -351,6 +351,7 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
     g_eTypeHandlers[m_iId][fnRemove] = GetNativeCell(6);
     g_eTypeHandlers[m_iId][bEquipable] = GetNativeCell(7);
     g_eTypeHandlers[m_iId][bRaw] = GetNativeCell(8);
+    g_eTypeHandlers[m_iId][bDisposable] = GetNativeCell(9);
     strcopy(g_eTypeHandlers[m_iId][szType], 32, m_szType);
 
     char file[64];
@@ -2757,14 +2758,17 @@ public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] e
     if(g_eClients[client][iItems] == -1)
         g_eClients[client][iItems] = 0;
 
-    int m_iId = g_eClients[client][iItems]++;
-    g_eClientItems[client][m_iId][iId] = -1;
-    g_eClientItems[client][m_iId][iUniqueId] = itemid;
-    g_eClientItems[client][m_iId][iDateOfPurchase] = GetTime();
-    g_eClientItems[client][m_iId][iDateOfExpiration] = (plan==-1?0:(g_ePlans[itemid][plan][iTime]?GetTime()+g_ePlans[itemid][plan][iTime]:0));
-    g_eClientItems[client][m_iId][iPriceOfPurchase] = m_iPrice;
-    g_eClientItems[client][m_iId][bSynced] = false; //true
-    g_eClientItems[client][m_iId][bDeleted] = false;
+    if (!g_eTypeHandlers[g_eItems[itemid][iHandler]][bDisposable])
+    {
+        int m_iId = g_eClients[client][iItems]++;
+        g_eClientItems[client][m_iId][iId] = -1;
+        g_eClientItems[client][m_iId][iUniqueId] = itemid;
+        g_eClientItems[client][m_iId][iDateOfPurchase] = GetTime();
+        g_eClientItems[client][m_iId][iDateOfExpiration] = (plan==-1?0:(g_ePlans[itemid][plan][iTime]?GetTime()+g_ePlans[itemid][plan][iTime]:0));
+        g_eClientItems[client][m_iId][iPriceOfPurchase] = m_iPrice;
+        g_eClientItems[client][m_iId][bSynced] = false; //true
+        g_eClientItems[client][m_iId][bDeleted] = false;
+    }
 
     g_eClients[client][iCredits] -= m_iPrice;
     UTIL_LogMessage(client, -m_iPrice, "Bought %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
@@ -2986,6 +2990,7 @@ void Store_ResetAll()
         g_eTypeHandlers[i][szType][0]   = '\0';
         g_eTypeHandlers[i][bEquipable]  = false;
         g_eTypeHandlers[i][bRaw]        = false;
+        g_eTypeHandlers[i][bDisposable] = false;
         g_eTypeHandlers[i][hPlugin]     = INVALID_HANDLE;
         g_eTypeHandlers[i][bEquipable]  = false;
         g_eTypeHandlers[i][fnMapStart]  = INVALID_FUNCTION;
@@ -3076,9 +3081,9 @@ void UTIL_ReloadConfig()
     }
 
 #if defined Global_Skin
-    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC");
+    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC, a.pm ASC");
 #else
-    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC");
+    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC, a.pm ASC");
 #endif
 
     if(item_child == null)

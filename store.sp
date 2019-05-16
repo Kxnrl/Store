@@ -229,8 +229,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_hOnStoreAvailable  = CreateGlobalForward("Store_OnStoreAvailable",  ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnStoreInit       = CreateGlobalForward("Store_OnStoreInit",       ET_Ignore, Param_Cell);
     g_hOnClientLoaded    = CreateGlobalForward("Store_OnClientLoaded",    ET_Ignore, Param_Cell);
-    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String);
-    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String);
+    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String, Param_Cell, Param_Cell);
+    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_Cell);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);

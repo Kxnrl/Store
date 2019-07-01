@@ -3026,24 +3026,17 @@ void UTIL_ReloadConfig()
         Call_Finish();
     }
 
-    // use new handle
     char error[256];
-    Database ItemDB = SQL_Connect("csgo", false, error, 256);
-    if(ItemDB == null)
-        SetFailState("Connect to Item Database failed: %s", error);
-    
-    if(!ItemDB.SetCharset("utf8mb4"))
-        ItemDB.SetCharset("utf8");
 
-    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;");
+    DBResultSet item_parent = SQL_Query(g_hDatabase, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;");
     if(item_parent == null)
     {
-        SQL_GetError(ItemDB, error, 256);
+        SQL_GetError(g_hDatabase, error, 256);
         SetFailState("Can not retrieve item.parent from database: %s", error);
     }
 
     if(item_parent.RowCount <= 0)
-        SetFailState("Can not retrieve item.child from database: no result row");
+        SetFailState("Can not retrieve item.parent from database: no result row");
 
     g_smParentMap.Clear();
     
@@ -3080,21 +3073,24 @@ void UTIL_ReloadConfig()
         g_eItems[parent][iParent] = UTIL_GetParent(parent, g_eItems[parent][iParent]);
     }
 
+    // must be free before next query?
+    delete item_parent;
+
 #if defined Global_Skin
-    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC, a.pm ASC");
+    DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC, a.pm ASC");
 #else
-    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC, a.pm ASC");
+    DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC, a.pm ASC");
 #endif
 
     if(item_child == null)
     {
-        SQL_GetError(ItemDB, error, 256);
+        SQL_GetError(g_hDatabase, error, 256);
         SetFailState("Can not retrieve item.child from database: %s", error);
     }
 
     if(item_child.RowCount <= 0)
         SetFailState("Can not retrieve item.child from database: no result row");
-    
+
     ArrayList item_array = new ArrayList(ByteCountToCells(256));
 
     while(item_child.FetchRow())
@@ -3298,9 +3294,7 @@ void UTIL_ReloadConfig()
     delete item_idx;
     delete item_lvl;
     delete item_array;
-    delete item_parent;
     delete item_child;
-    delete ItemDB;
 
     //OnMapStart();
     char map[128];

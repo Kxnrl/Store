@@ -48,6 +48,10 @@ static Handle g_hCookieNamed;
 
 public void OnPluginStart()
 {
+    char ptah[32];
+    if(PTaH_Version(ptah, 32) < 110)
+        SetFailState("This plugin requires PTaH 1.1.0.");
+
     g_iOffsetName = FindSendPropInfo("CBaseAttributableItem", "m_szCustomName");
     if(g_iOffsetName == -1)
         SetFailState("Offset 'CBaseAttributableItem' -> 'm_szCustomName' was not found.");
@@ -56,20 +60,9 @@ public void OnPluginStart()
     if(g_iOffsetMyWP == -1)
         SetFailState("Offset 'CBasePlayer' -> 'm_hMyWeapons' was not found.");
 
-    PTaH(PTaH_GiveNamedItemPre, Hook, Event_GiveNamedItemPre);
-    
-    char sVersion[8];
-    int iVersion = PTaH_Version(sVersion, sizeof(sVersion));
-    
-    if (iVersion >= 110)
-    {
-        PTaH(PTaH_GiveNamedItemPost,    Hook, Event_GiveNamedItemPost);
-    }
-    else
-    {
-        PTaH(PTaH_GiveNamedItem,    Hook, Event_GiveNamedItemPost);
-    }
-    
+    PTaH(PTaH_GiveNamedItemPre,  Hook, Event_GiveNamedItemPre);
+    PTaH(PTaH_GiveNamedItemPost, Hook, Event_GiveNamedItemPost);
+
     g_hCookieNamed = RegClientCookie("store_ws_name", "", CookieAccess_Protected);
     
     RegConsoleCmd("ws_name", Command_Named);

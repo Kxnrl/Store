@@ -73,6 +73,8 @@ Database g_hDatabase = null;
 Handle g_hOnStoreAvailable = null;
 Handle g_hOnStoreInit = null;
 Handle g_hOnClientLoaded = null;
+Handle g_hOnClientBuyItem = null;
+Handle g_hOnClientPurchased = null;
 
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
@@ -224,9 +226,11 @@ public void OnPluginEnd()
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-    g_hOnStoreAvailable = CreateGlobalForward("Store_OnStoreAvailable", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
-    g_hOnStoreInit      = CreateGlobalForward("Store_OnStoreInit",      ET_Ignore, Param_Cell);
-    g_hOnClientLoaded   = CreateGlobalForward("Store_OnClientLoaded",   ET_Ignore, Param_Cell);
+    g_hOnStoreAvailable  = CreateGlobalForward("Store_OnStoreAvailable",  ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnStoreInit       = CreateGlobalForward("Store_OnStoreInit",       ET_Ignore, Param_Cell);
+    g_hOnClientLoaded    = CreateGlobalForward("Store_OnClientLoaded",    ET_Ignore, Param_Cell);
+    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String, Param_Cell, Param_Cell);
+    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_Cell);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -287,7 +291,7 @@ public void OnMapStart()
     g_bInterMission = false;
     
     for(int i = 0; i < g_iTypeHandlers; ++i)
-    if(g_eTypeHandlers[i][fnMapStart] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[i][hPlugin]) == Plugin_Running)
+    if(g_eTypeHandlers[i][fnMapStart] != INVALID_FUNCTION && IsPluginRunning(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][szPlFile]))
     {
         Call_StartFunction(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][fnMapStart]);
         Call_Finish();
@@ -338,7 +342,7 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
         return m_iHandler;
 
     ++g_iTypeHandlers;
-    
+
     g_eTypeHandlers[m_iId][hPlugin] = plugin;
     g_eTypeHandlers[m_iId][fnMapStart] = GetNativeCell(2);
     g_eTypeHandlers[m_iId][fnReset] = GetNativeCell(3);
@@ -347,7 +351,12 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
     g_eTypeHandlers[m_iId][fnRemove] = GetNativeCell(6);
     g_eTypeHandlers[m_iId][bEquipable] = GetNativeCell(7);
     g_eTypeHandlers[m_iId][bRaw] = GetNativeCell(8);
+    g_eTypeHandlers[m_iId][bDisposable] = GetNativeCell(9);
     strcopy(g_eTypeHandlers[m_iId][szType], 32, m_szType);
+
+    char file[64];
+    GetPluginFilename(plugin, file, 64);
+    strcopy(g_eTypeHandlers[m_iId][szPlFile], 32, file);
 
     return m_iId;
 }
@@ -371,6 +380,10 @@ public int Native_RegisterMenuHandler(Handle plugin, int numParams)
     g_eMenuHandlers[m_iId][fnMenu] = GetNativeCell(2);
     g_eMenuHandlers[m_iId][fnHandler] = GetNativeCell(3);
     strcopy(g_eMenuHandlers[m_iId][szIdentifier], 64, m_szIdentifier);
+
+    char file[64];
+    GetPluginFilename(plugin, file, 64);
+    strcopy(g_eMenuHandlers[m_iId][szPlFile], 64, file);
 
     return m_iId;
 }
@@ -537,6 +550,11 @@ public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
     DataPack pack = new DataPack();
     pack.WriteCell(plugin);
     pack.WriteFunction(GetNativeFunction(3));
+
+    char file[64];
+    GetPluginFilename(plugin, file, 64);
+    pack.WriteString(file);
+
     pack.Reset();
 
     Menu m_hMenu = new Menu(MenuHandler_Confirm);
@@ -595,7 +613,8 @@ public int Native_RemoveItem(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
-    if(itemid > 0 && g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin]) == Plugin_Running)
+
+    if(itemid > 0 && g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove] != INVALID_FUNCTION && IsPluginRunning(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][szPlFile]))
     {
         Call_StartFunction(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove]);
         Call_PushCell(client);
@@ -972,7 +991,7 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
 
                 for(int i = 0; i < g_iMenuHandlers; ++i)
                 {
-                    if(g_eMenuHandlers[i][hPlugin] == null || GetPluginStatus(g_eMenuHandlers[i][hPlugin]) != Plugin_Running)
+                    if(g_eMenuHandlers[i][hPlugin] == null || !IsPluginRunning(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][szPlFile]))
                         continue;
     
                     Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnMenu]);
@@ -1016,20 +1035,31 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                 IntToString(i, STRING(m_szId));
                 if(Store_HasClientItem(client, i))
                 {
+#if defined Global_Skin
                     if(UTIL_IsEquipped(client, i))
                         InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Equipped", client, g_eItems[i][szName]);
                     else
                         InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Bought", client, g_eItems[i][szName]);
+#else
+                    if(UTIL_IsEquipped(client, i))
+                        InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%s%T", (strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0) ? (g_eItems[i][iTeam] == 2 ? "[TE] " : "[CT] ") : "", "Item Equipped", client, g_eItems[i][szName]);
+                    else
+                        InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%s%T", (strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0) ? (g_eItems[i][iTeam] == 2 ? "[TE] " : "[CT] ") : "", "Item Bought", client, g_eItems[i][szName]);
+#endif
                 }
                 else if(!g_bInvMode[client])
-                {                
+                {
                     int m_iStyle = ITEMDRAW_DEFAULT;
                     if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
                         m_iStyle = ITEMDRAW_DISABLED;
 
-                    if(StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
+                    if(strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0)
                     {
+#if defined Global_Skin
                         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Preview Available", client, g_eItems[i][szName]);
+#else
+                        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, "[%s] %T", g_eItems[i][iTeam] == 2 ? "TE" : "CT", "Item Preview Available", client, g_eItems[i][szName]);
+#endif
                         continue;
                     }
 
@@ -1101,7 +1131,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                 int ret;
                 for(int i = 0; i < g_iMenuHandlers; ++i)
                 {
-                    if(g_eMenuHandlers[i][hPlugin] == null || GetPluginStatus(g_eMenuHandlers[i][hPlugin]) != Plugin_Running)
+                    if(g_eMenuHandlers[i][hPlugin] == null || !IsPluginRunning(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][szPlFile]))
                         continue;
                     
                     Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnHandler]);
@@ -1165,7 +1195,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                     {
                         if(g_eTypeHandlers[g_eItems[m_iId][iHandler]][bRaw])
                         {
-                            if(GetPluginStatus(g_eTypeHandlers[g_eItems[m_iId][iHandler]][hPlugin]) == Plugin_Running)
+                            if(IsPluginRunning(g_eTypeHandlers[g_eItems[m_iId][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[m_iId][iHandler]][szPlFile]))
                             {
                                 Call_StartFunction(g_eTypeHandlers[g_eItems[m_iId][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[m_iId][iHandler]][fnUse]);
                                 Call_PushCell(client);
@@ -1782,7 +1812,7 @@ void DisplayItemMenu(int client, int itemid)
 
     for(int i = 0; i < g_iMenuHandlers; ++i)
     {
-        if(g_eMenuHandlers[i][hPlugin] == null || GetPluginStatus(g_eMenuHandlers[i][hPlugin]) != Plugin_Running)
+        if(g_eMenuHandlers[i][hPlugin] == null || !IsPluginRunning(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][szPlFile]))
             continue;
         Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnMenu]);
         Call_PushCellRef(m_hMenu);
@@ -1996,7 +2026,7 @@ public int MenuHandler_Item(Menu menu, MenuAction action, int client, int param2
                 int ret;
                 for(int i=0;i<g_iMenuHandlers;++i)
                 {
-                    if(g_eMenuHandlers[i][hPlugin] == null || GetPluginStatus(g_eMenuHandlers[i][hPlugin]) != Plugin_Running)
+                    if(g_eMenuHandlers[i][hPlugin] == null || !IsPluginRunning(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][szPlFile]))
                         continue;
                     Call_StartFunction(g_eMenuHandlers[i][hPlugin], g_eMenuHandlers[i][fnHandler]);
                     Call_PushCell(client);
@@ -2163,13 +2193,15 @@ public int MenuHandler_Confirm(Menu menu, MenuAction action, int client, int par
         {
             char m_szCallback[32];
             char m_szData[11];
+            char m_szFile[64];
             menu.GetItem(0, STRING(m_szCallback));
             menu.GetItem(1, STRING(m_szData));
             DataPack pack = view_as<DataPack>(StringToInt(m_szCallback));
             Handle m_hPlugin = pack.ReadCell();
             Function fnMenuCallback = pack.ReadFunction();
+            pack.ReadString(m_szFile, 64);
             delete pack;
-            if(m_hPlugin != null && fnMenuCallback != INVALID_FUNCTION && GetPluginStatus(m_hPlugin) == Plugin_Running)
+            if(m_hPlugin != null && fnMenuCallback != INVALID_FUNCTION && IsPluginRunning(m_hPlugin, m_szFile))
             {
                 Call_StartFunction(m_hPlugin, fnMenuCallback);
                 Call_PushCell(INVALID_HANDLE);
@@ -2708,18 +2740,35 @@ public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] e
         DisplayItemMenu(client, g_iSelectedItem[client]);
         return;
     }
-    
+
+    Action ret = Plugin_Continue;
+    Call_StartForward(g_hOnClientBuyItem);
+    Call_PushCell(client);
+    Call_PushString(g_eItems[itemid][szUniqueId]);
+    Call_PushCell(plan==-1 ? 0 : g_ePlans[itemid][plan][iTime]);
+    Call_PushCell(m_iPrice);
+    Call_Finish(ret);
+
+    if (ret > Plugin_Continue)
+    {
+        // blocked
+        return;
+    }
+
     if(g_eClients[client][iItems] == -1)
         g_eClients[client][iItems] = 0;
 
-    int m_iId = g_eClients[client][iItems]++;
-    g_eClientItems[client][m_iId][iId] = -1;
-    g_eClientItems[client][m_iId][iUniqueId] = itemid;
-    g_eClientItems[client][m_iId][iDateOfPurchase] = GetTime();
-    g_eClientItems[client][m_iId][iDateOfExpiration] = (plan==-1?0:(g_ePlans[itemid][plan][iTime]?GetTime()+g_ePlans[itemid][plan][iTime]:0));
-    g_eClientItems[client][m_iId][iPriceOfPurchase] = m_iPrice;
-    g_eClientItems[client][m_iId][bSynced] = false; //true
-    g_eClientItems[client][m_iId][bDeleted] = false;
+    if (!g_eTypeHandlers[g_eItems[itemid][iHandler]][bDisposable])
+    {
+        int m_iId = g_eClients[client][iItems]++;
+        g_eClientItems[client][m_iId][iId] = -1;
+        g_eClientItems[client][m_iId][iUniqueId] = itemid;
+        g_eClientItems[client][m_iId][iDateOfPurchase] = GetTime();
+        g_eClientItems[client][m_iId][iDateOfExpiration] = (plan==-1?0:(g_ePlans[itemid][plan][iTime]?GetTime()+g_ePlans[itemid][plan][iTime]:0));
+        g_eClientItems[client][m_iId][iPriceOfPurchase] = m_iPrice;
+        g_eClientItems[client][m_iId][bSynced] = false; //true
+        g_eClientItems[client][m_iId][bDeleted] = false;
+    }
 
     g_eClients[client][iCredits] -= m_iPrice;
     UTIL_LogMessage(client, -m_iPrice, "Bought %s %s", g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
@@ -2727,6 +2776,13 @@ public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] e
     Store_SaveClientAll(client);
 
     tPrintToChat(client, "%T", "Chat Bought Item", client, g_eItems[itemid][szName], g_eTypeHandlers[g_eItems[itemid][iHandler]][szType]);
+
+    Call_StartForward(g_hOnClientPurchased);
+    Call_PushCell(client);
+    Call_PushString(g_eItems[itemid][szUniqueId]);
+    Call_PushCell(plan==-1 ? 0 : g_ePlans[itemid][plan][iTime]);
+    Call_PushCell(m_iPrice);
+    Call_Finish();
 
     DisplayItemMenu(client, g_iSelectedItem[client]);
 }
@@ -2934,6 +2990,7 @@ void Store_ResetAll()
         g_eTypeHandlers[i][szType][0]   = '\0';
         g_eTypeHandlers[i][bEquipable]  = false;
         g_eTypeHandlers[i][bRaw]        = false;
+        g_eTypeHandlers[i][bDisposable] = false;
         g_eTypeHandlers[i][hPlugin]     = INVALID_HANDLE;
         g_eTypeHandlers[i][bEquipable]  = false;
         g_eTypeHandlers[i][fnMapStart]  = INVALID_FUNCTION;
@@ -2963,30 +3020,23 @@ void UTIL_ReloadConfig()
     UTIL_CheckModules();
 
     for(int i = 0; i < g_iTypeHandlers; ++i)
-    if(g_eTypeHandlers[i][fnReset] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[i][hPlugin]) == Plugin_Running)
+    if(g_eTypeHandlers[i][fnReset] != INVALID_FUNCTION && IsPluginRunning(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][szPlFile]))
     {
         Call_StartFunction(g_eTypeHandlers[i][hPlugin], g_eTypeHandlers[i][fnReset]);
         Call_Finish();
     }
 
-    // use new handle
     char error[256];
-    Database ItemDB = SQL_Connect("csgo", false, error, 256);
-    if(ItemDB == null)
-        SetFailState("Connect to Item Database failed: %s", error);
-    
-    if(!ItemDB.SetCharset("utf8mb4"))
-        ItemDB.SetCharset("utf8");
 
-    DBResultSet item_parent = SQL_Query(ItemDB, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;");
+    DBResultSet item_parent = SQL_Query(g_hDatabase, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;");
     if(item_parent == null)
     {
-        SQL_GetError(ItemDB, error, 256);
+        SQL_GetError(g_hDatabase, error, 256);
         SetFailState("Can not retrieve item.parent from database: %s", error);
     }
 
     if(item_parent.RowCount <= 0)
-        SetFailState("Can not retrieve item.child from database: no result row");
+        SetFailState("Can not retrieve item.parent from database: no result row");
 
     g_smParentMap.Clear();
     
@@ -3023,16 +3073,24 @@ void UTIL_ReloadConfig()
         g_eItems[parent][iParent] = UTIL_GetParent(parent, g_eItems[parent][iParent]);
     }
 
-    DBResultSet item_child = SQL_Query(ItemDB, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC");
+    // must be free before next query?
+    delete item_parent;
+
+#if defined Global_Skin
+    DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC, a.pm ASC");
+#else
+    DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC, a.pm ASC");
+#endif
+
     if(item_child == null)
     {
-        SQL_GetError(ItemDB, error, 256);
+        SQL_GetError(g_hDatabase, error, 256);
         SetFailState("Can not retrieve item.child from database: %s", error);
     }
 
     if(item_child.RowCount <= 0)
         SetFailState("Can not retrieve item.child from database: no result row");
-    
+
     ArrayList item_array = new ArrayList(ByteCountToCells(256));
 
     while(item_child.FetchRow())
@@ -3120,6 +3178,9 @@ void UTIL_ReloadConfig()
         int price_1d = item_child.FetchInt(13);
         int price_1m = item_child.FetchInt(14);
         int price_pm = item_child.FetchInt(15);
+
+        // team
+        g_eItems[g_iItems][iTeam] = item_child.FetchInt(18);
         
         if(price_1d != 0 || price_1m != 0)
         {
@@ -3167,9 +3228,9 @@ void UTIL_ReloadConfig()
             if(StrContains(values, "ITEM_NO") == -1)
                 kv.SetString(key, values);
         }
-        
+
         bool m_bSuccess = true;
-        if(g_eTypeHandlers[m_iHandler][fnConfig] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[m_iHandler][hPlugin]) == Plugin_Running)
+        if(g_eTypeHandlers[m_iHandler][fnConfig] != INVALID_FUNCTION && IsPluginRunning(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][szPlFile]))
         {
             Call_StartFunction(g_eTypeHandlers[m_iHandler][hPlugin], g_eTypeHandlers[m_iHandler][fnConfig]);
             Call_PushCell(kv);
@@ -3233,9 +3294,7 @@ void UTIL_ReloadConfig()
     delete item_idx;
     delete item_lvl;
     delete item_array;
-    delete item_parent;
     delete item_child;
-    delete ItemDB;
 
     //OnMapStart();
     char map[128];
@@ -3306,7 +3365,7 @@ int UTIL_GetExpiration(int client, int itemid)
 int UTIL_UseItem(int client, int itemid, bool synced = false, int slot = 0)
 {
     int m_iSlot = slot;
-    if(g_eTypeHandlers[g_eItems[itemid][iHandler]][fnUse] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin]) == Plugin_Running)
+    if(g_eTypeHandlers[g_eItems[itemid][iHandler]][fnUse] != INVALID_FUNCTION && IsPluginRunning(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][szPlFile]))
     {
         int m_iReturn = -1;
         Call_StartFunction(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][fnUse]);
@@ -3335,7 +3394,7 @@ int UTIL_UseItem(int client, int itemid, bool synced = false, int slot = 0)
 int UTIL_UnequipItem(int client, int itemid, bool fn = true)
 {
     int m_iSlot = 0;
-    if(fn && itemid > 0 && g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove] != INVALID_FUNCTION && GetPluginStatus(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin]) == Plugin_Running)
+    if(fn && itemid > 0 && g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove] != INVALID_FUNCTION && IsPluginRunning(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][szPlFile]))
     {
         Call_StartFunction(g_eTypeHandlers[g_eItems[itemid][iHandler]][hPlugin], g_eTypeHandlers[g_eItems[itemid][iHandler]][fnRemove]);
         Call_PushCell(client);
@@ -3672,4 +3731,20 @@ void InterMissionConVars()
         // set value to half of mp_match_restart_delay
         mp_win_panel_display_time.SetFloat(delay / 2.0, true, true);
     }
+}
+
+bool IsPluginRunning(Handle plugin, const char[] file)
+{
+    if(plugin == INVALID_HANDLE)
+        return false;
+
+    if(strlen(file) < 4)
+        return false;
+
+    Handle dummy = FindPluginByFile(file);
+
+    if(dummy == INVALID_HANDLE || dummy != plugin)
+        return false;
+
+    return (GetPluginStatus(plugin) == Plugin_Running);
 }

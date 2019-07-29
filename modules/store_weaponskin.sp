@@ -48,6 +48,10 @@ static Handle g_hCookieNamed;
 
 public void OnPluginStart()
 {
+    char ptah[32];
+    if(PTaH_Version(ptah, 32) < 110)
+        SetFailState("This plugin requires PTaH 1.1.0.");
+
     g_iOffsetName = FindSendPropInfo("CBaseAttributableItem", "m_szCustomName");
     if(g_iOffsetName == -1)
         SetFailState("Offset 'CBaseAttributableItem' -> 'm_szCustomName' was not found.");
@@ -56,9 +60,9 @@ public void OnPluginStart()
     if(g_iOffsetMyWP == -1)
         SetFailState("Offset 'CBasePlayer' -> 'm_hMyWeapons' was not found.");
 
-    PTaH(PTaH_GiveNamedItemPre, Hook, Event_GiveNamedItemPre);
-    PTaH(PTaH_GiveNamedItem,    Hook, Event_GiveNamedItemPost);
-    
+    PTaH(PTaH_GiveNamedItemPre,  Hook, Event_GiveNamedItemPre);
+    PTaH(PTaH_GiveNamedItemPost, Hook, Event_GiveNamedItemPost);
+
     g_hCookieNamed = RegClientCookie("store_ws_name", "", CookieAccess_Protected);
     
     RegConsoleCmd("ws_name", Command_Named);
@@ -153,7 +157,7 @@ public int WeaponSkin_Remove(int client, int id)
     return g_eWeaponSkin[m_iData][iSlot];
 }
 
-public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemView &item, bool &ignoredCEconItemView)
+public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemView &item, bool &ignoredCEconItemView, bool &OriginIsNULL, float Origin[3])
 {
     if(IsFakeClient(client) || !IsPlayerAlive(client))
         return Plugin_Continue;
@@ -173,7 +177,7 @@ public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemVi
     return Plugin_Changed;
 }
 
-public void Event_GiveNamedItemPost(int client, const char[] classname, const CEconItemView item, int entity)
+public void Event_GiveNamedItemPost(int client, const char[] classname, const CEconItemView item, int entity, bool OriginIsNULL, const float Origin[3])
 {
     if(IsFakeClient(client) || !IsPlayerAlive(client) || !IsValidEdict(entity))
         return;

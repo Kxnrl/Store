@@ -34,6 +34,7 @@ enum Store_Item
     iParent,
     iHandler,
     iPlans,
+    iTeam,
     iLevels,
     iCaseType,
     bool:bIgnore,
@@ -43,7 +44,7 @@ enum Store_Item
     bool:bVIP
 }
 
-native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false);
+native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false, bool disposable = false);
 native int Store_RegisterMenuHandler(const char[] identifier, Function menu, Function handler);
 native int Store_SetDataIndex(int itemid, int index);
 native int Store_GetDataIndex(int itemid);
@@ -72,6 +73,8 @@ native void Store_SaveClientAll(int client);
 forward void   Store_OnStoreInit(Handle store_plugin);
 forward void   Store_OnStoreAvailable(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level); // ArrayList will be automatically freed.
 forward void   Store_OnClientLoaded(int client);
+forward Action Store_OnClientBuyItem(int client, const char[] uid, int length, int price);
+forward void   Store_OnClientPurchased(int client, const char[] uid, int length, int price);
 forward bool   Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
 forward Action Store_OnFPDeathCamera(int client);
 

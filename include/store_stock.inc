@@ -12,8 +12,10 @@ enum Item_Plan
 enum Type_Handler
 {
     String:szType[64],
+    String:szPlFile[64],
     bool:bEquipable,
     bool:bRaw,
+    bool:bDisposable,
     Handle:hPlugin,
     Function:fnMapStart,
     Function:fnReset,
@@ -54,6 +56,7 @@ enum Client_Data
 enum Menu_Handler
 {
     String:szIdentifier[64],
+    String:szPlFile[64],
     Handle:hPlugin,
     Function:fnMenu,
     Function:fnHandler

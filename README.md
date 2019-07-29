@@ -215,7 +215,7 @@ to
 ### License  
 * SourceMod plugins license under GPLv3 License.  
 * Shell, SQL and PHP scripts license under MIT License.  
-* any other file :  you only can use WITHOUT commercial.  
+* any other file :  Non-commercial use.  
   
   
 ### Special Thanks
@@ -241,4 +241,4 @@ to
 #### Donate
 * [Steam Trade Offer](https://steamcommunity.com/tradeoffer/new/?partner=88166525&token=lszXBJeY)
 * **AliPay**: h673321480[AT]163.com
-* **Paypal**: h673321480[AT]live.com
+* **Paypal**: 673321480[AT]qq.com

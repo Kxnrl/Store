@@ -57,7 +57,18 @@ public void OnPluginStart()
         SetFailState("Offset 'CBasePlayer' -> 'm_hMyWeapons' was not found.");
 
     PTaH(PTaH_GiveNamedItemPre, Hook, Event_GiveNamedItemPre);
-    PTaH(PTaH_GiveNamedItem,    Hook, Event_GiveNamedItemPost);
+    
+    char sVersion[8];
+    int iVersion = PTaH_Version(sVersion, sizeof(sVersion));
+    
+    if (iVersion >= 110)
+    {
+        PTaH(PTaH_GiveNamedItemPost,    Hook, Event_GiveNamedItemPost);
+    }
+    else
+    {
+        PTaH(PTaH_GiveNamedItem,    Hook, Event_GiveNamedItemPost);
+    }
     
     g_hCookieNamed = RegClientCookie("store_ws_name", "", CookieAccess_Protected);
     

@@ -2867,7 +2867,7 @@ void UTIL_BuyItem(int client)
     if(g_iDataProtect[client] > GetTime())
     {
         tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
-        DisplayItemMenu(client, g_iSelectedItem[client]);
+        Store_DisplayPreviousMenu(client);
         return;
     }
     g_iDataProtect[client] = GetTime()+15;
@@ -2882,7 +2882,7 @@ void UTIL_SellItem(int client, int itemid)
     if(g_iDataProtect[client] > GetTime())
     {
         tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
-        DisplayItemMenu(client, itemid);
+        Store_DisplayPreviousMenu(client);
         return;
     }
 
@@ -2919,7 +2919,7 @@ void UTIL_GiftItem(int client, int receiver, int item)
     if(g_iDataProtect[client] > GetTime())
     {
         tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
-        DisplayItemMenu(client, m_iId);
+        Store_DisplayPreviousMenu(client);
         return;
     }
     

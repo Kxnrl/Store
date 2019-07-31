@@ -5,7 +5,7 @@
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "store module pets"
 #define PLUGIN_VERSION      "2.3.<commit_count>"
-#define PLUGIN_URL          "https://kxnrl.com"
+#define PLUGIN_URL          "https://www.kxnrl.com"
 
 public Plugin myinfo = 
 {
@@ -114,8 +114,6 @@ public int Pets_Equip(int client, int id)
 
     if(IsPlayerAlive(client))
         CreatePet(client, id, g_ePets[m_iData][iSlot]);
-    
-    PrintToChat(client, "Equppied %d", id);
 
     return g_ePets[m_iData][iSlot];
 }
@@ -124,7 +122,6 @@ public int Pets_Remove(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
     ResetPet(client, g_ePets[m_iData][iSlot]);
-    PrintToChat(client, "Removed %d", id);
     return g_ePets[m_iData][iSlot];
 }
 

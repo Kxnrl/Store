@@ -48,10 +48,14 @@ public Plugin myinfo =
 // VERIFY CREDITS
 //#define DATA_VERIFY
 
+// [CT] [TE] tag in player skin title -> enabled by default
+#define Skin_TeamTag
+
 // Custom Module
 // skin does not match with team
 #if defined GM_TT || defined GM_ZE || defined GM_KZ || defined GM_BH
 #define Global_Skin
+#undef Skin_TeamTag
 #endif
 //fix arms when client team
 #if defined GM_MG
@@ -1035,17 +1039,7 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                 IntToString(i, STRING(m_szId));
                 if(Store_HasClientItem(client, i))
                 {
-#if defined Global_Skin
-                    if(UTIL_IsEquipped(client, i))
-                        InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Equipped", client, g_eItems[i][szName]);
-                    else
-                        InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Bought", client, g_eItems[i][szName]);
-#else
-                    if(UTIL_IsEquipped(client, i))
-                        InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%s%T", (strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0) ? (g_eItems[i][iTeam] == 2 ? "[TE] " : "[CT] ") : "", "Item Equipped", client, g_eItems[i][szName]);
-                    else
-                        InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, "%s%T", (strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0) ? (g_eItems[i][iTeam] == 2 ? "[TE] " : "[CT] ") : "", "Item Bought", client, g_eItems[i][szName]);
-#endif
+                    InsertMenuItemEx(m_hMenu, m_iPosition, ITEMDRAW_DEFAULT, m_szId, FormatSkinTag(client, i, UTIL_IsEquipped(client, i)));
                 }
                 else if(!g_bInvMode[client])
                 {
@@ -1079,6 +1073,19 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
         m_hMenu.Display(client, 0);
     else
         m_hMenu.DisplayAt(client, (last/m_hMenu.Pagination)*m_hMenu.Pagination, 0);
+}
+
+static char[] FormatSkinTag(int client, int itemid, bool equip)
+{
+    char buffer[128];
+
+#if defined Skin_TeamTag
+    FormatEx(buffer, 128, "%s%T", (strcmp(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "playerskin") == 0) ? (g_eItems[itemid][iTeam] == 2 ? "[TE] " : "[CT] ") : "", equip ? "Item Equipped" : "Item Bought", client, g_eItems[itemid][szName]);
+#else
+    FormatEx(buffer, 128, "%T", equip ? "Item Equipped" : "Item Bought", client, g_eItems[itemid][szName]);
+#endif
+
+    return buffer;
 }
 
 public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param2)

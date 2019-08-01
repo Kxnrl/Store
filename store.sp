@@ -83,13 +83,13 @@ Handle g_hOnClientPurchased = null;
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
 
-int g_eItems[STORE_MAX_ITEMS][Store_Item];
-int g_eClients[MAXPLAYERS+1][Client_Data];
-int g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
-int g_eTypeHandlers[STORE_MAX_HANDLERS][Type_Handler];
-int g_eMenuHandlers[STORE_MAX_HANDLERS][Menu_Handler];
-int g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
-int g_eCompose[MAXPLAYERS+1][Compose_Data];
+any g_eItems[STORE_MAX_ITEMS][Store_Item];
+any g_eClients[MAXPLAYERS+1][Client_Data];
+any g_eClientItems[MAXPLAYERS+1][STORE_MAX_ITEMS][Client_Item];
+any g_eTypeHandlers[STORE_MAX_HANDLERS][Type_Handler];
+any g_eMenuHandlers[STORE_MAX_HANDLERS][Menu_Handler];
+any g_ePlans[STORE_MAX_ITEMS][STORE_MAX_PLANS][Item_Plan];
+any g_eCompose[MAXPLAYERS+1][Compose_Data];
 
 int g_iItems = 0;
 int g_iTypeHandlers = 0;
@@ -250,6 +250,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_DisplayConfirmMenu",    Native_DisplayConfirmMenu);
     CreateNative("Store_GiveItem",              Native_GiveItem);
     CreateNative("Store_GetItemId",             Native_GetItemId);
+    CreateNative("Store_GetItemData",           Native_GetItemData);
     CreateNative("Store_RemoveItem",            Native_RemoveItem);
     CreateNative("Store_HasClientItem",         Native_HasClientItem);
     CreateNative("Store_ExtClientItem",         Native_ExtClientItem);
@@ -312,6 +313,34 @@ public int Native_GetItemId(Handle myself, int numParams)
         return -1;
 
     return UTIL_GetItemId(uid, -1);
+}
+
+public int Native_GetItemData(Handle myself, int numParams)
+{
+    int itemid = GetNativeCell(1);
+    if(itemid < 0 || itemid > STORE_MAX_ITEMS)
+        ThrowNativeError(SP_ERROR_PARAM, "ItemId [%d] is not allowed.", itemid);
+    any data[Store_Item];
+    data[szName] = g_eItems[itemid][szName];
+    data[szUniqueId] = g_eItems[itemid][szUniqueId];
+    data[szDesc] = g_eItems[itemid][szDesc];
+    data[szSteam] = g_eItems[itemid][szSteam];
+    data[iId] = g_eItems[itemid][iId];
+    data[iData] = g_eItems[itemid][iData];
+    data[iPrice] = g_eItems[itemid][iPrice];
+    data[iParent] = g_eItems[itemid][iParent];
+    data[iHandler] = g_eItems[itemid][iHandler];
+    data[iPlans] = g_eItems[itemid][iPlans];
+    data[iTeam] = g_eItems[itemid][iTeam];
+    data[iLevels] = g_eItems[itemid][iLevels];
+    data[iCaseType] = g_eItems[itemid][iCaseType];
+    data[bIgnore] = g_eItems[itemid][bIgnore];
+    data[bBuyable] = g_eItems[itemid][bBuyable];
+    data[bGiftable] = g_eItems[itemid][bGiftable];
+    data[bCompose] = g_eItems[itemid][bCompose];
+    data[bVIP] = g_eItems[itemid][bVIP];
+    SetNativeArray(2, data[0], sizeof(data));
+    return true;
 }
 
 public int Native_SaveClientAll(Handle myself, int numParams)
@@ -738,25 +767,36 @@ public int Native_GetSkinLevel(Handle myself, int numParams)
 #endif
 }
 
-public int Native_GetItemList(Handle myself, int numParams)
+public any Native_GetItemList(Handle myself, int numParams)
 {
-    if(g_iItems <= 0)
-        return false;
+    ArrayList items = new ArrayList(view_as<int>(Store_Item));
 
-    ArrayList item_name = GetNativeCell(1);
-    ArrayList item_uid  = GetNativeCell(2);
-    ArrayList item_idx  = GetNativeCell(3);
-    ArrayList item_lvl  = GetNativeCell(4);
-
-    for(int item = 0; item < g_iItems; ++item)
+    for(int itemid = 0; itemid < g_iItems; ++itemid)
     {
-        item_name.PushString(g_eItems[item][szName]);
-        item_uid.PushString(g_eItems[item][szUniqueId]);
-        item_idx.Push(g_eItems[item][iId]);
-        item_lvl.Push(g_eItems[item][iLevels]);
+        any data[Store_Item];
+        data[szName] = g_eItems[itemid][szName];
+        data[szUniqueId] = g_eItems[itemid][szUniqueId];
+        data[szDesc] = g_eItems[itemid][szDesc];
+        data[szSteam] = g_eItems[itemid][szSteam];
+        data[iId] = g_eItems[itemid][iId];
+        data[iData] = g_eItems[itemid][iData];
+        data[iPrice] = g_eItems[itemid][iPrice];
+        data[iParent] = g_eItems[itemid][iParent];
+        data[iHandler] = g_eItems[itemid][iHandler];
+        data[iPlans] = g_eItems[itemid][iPlans];
+        data[iTeam] = g_eItems[itemid][iTeam];
+        data[iLevels] = g_eItems[itemid][iLevels];
+        data[iCaseType] = g_eItems[itemid][iCaseType];
+        data[bIgnore] = g_eItems[itemid][bIgnore];
+        data[bBuyable] = g_eItems[itemid][bBuyable];
+        data[bGiftable] = g_eItems[itemid][bGiftable];
+        data[bCompose] = g_eItems[itemid][bCompose];
+        data[bVIP] = g_eItems[itemid][bVIP];
+
+        items.PushArray(data[0]);
     }
 
-    return true;
+    return items;
 }
 
 public int Native_HasPlayerSkin(Handle myself, int numParams)
@@ -3275,35 +3315,21 @@ void UTIL_ReloadConfig()
         ++g_iItems;
     }
 
-    // girls frontline -> active
-    ArrayList item_name = new ArrayList(ByteCountToCells(ITEM_NAME_LENGTH));
-    ArrayList item_uid  = new ArrayList(ByteCountToCells(32));
-    ArrayList item_idx  = new ArrayList();
-    ArrayList item_lvl  = new ArrayList();
-    
-    for(int item = 0; item < g_iItems; ++item)
+    ArrayList items = new ArrayList(view_as<int>(Store_Item));
+
+    for(int itemid = 0; itemid < g_iItems; ++itemid)
     {
-        item_name.PushString(g_eItems[item][szName]);
-        item_uid.PushString(g_eItems[item][szUniqueId]);
-        item_idx.Push(g_eItems[item][iId]);
-        item_lvl.Push(g_eItems[item][iLevels]);
+        items.PushArray(g_eItems[itemid][0]);
     }
 
     Call_StartForward(g_hOnStoreAvailable);
-    Call_PushCell(item_name);
-    Call_PushCell(item_uid);
-    Call_PushCell(item_idx);
-    Call_PushCell(item_lvl);
+    Call_PushCell(items);
     Call_Finish();
 
-    delete item_name;
-    delete item_uid;
-    delete item_idx;
-    delete item_lvl;
+    delete items;
     delete item_array;
     delete item_child;
 
-    //OnMapStart();
     char map[128];
     GetCurrentMap(map, 128);
     if(strlen(map) > 3 && IsMapValid(map)) ForceChangeLevel(map, "Reload Map to prevent server crash!");

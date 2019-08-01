@@ -28,7 +28,6 @@ enum Store_Item
     String:szUniqueId[32],
     String:szDesc[128],
     String:szSteam[256],
-    iId,
     iData,
     iPrice,
     iParent,

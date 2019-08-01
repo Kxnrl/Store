@@ -335,7 +335,6 @@ public int Native_GetItemData(Handle myself, int numParams)
     data[szUniqueId] = g_eItems[itemid][szUniqueId];
     data[szDesc] = g_eItems[itemid][szDesc];
     data[szSteam] = g_eItems[itemid][szSteam];
-    data[iId] = g_eItems[itemid][iId];
     data[iData] = g_eItems[itemid][iData];
     data[iPrice] = g_eItems[itemid][iPrice];
     data[iParent] = g_eItems[itemid][iParent];
@@ -792,7 +791,6 @@ public any Native_GetItemList(Handle myself, int numParams)
         data[szUniqueId] = g_eItems[itemid][szUniqueId];
         data[szDesc] = g_eItems[itemid][szDesc];
         data[szSteam] = g_eItems[itemid][szSteam];
-        data[iId] = g_eItems[itemid][iId];
         data[iData] = g_eItems[itemid][iData];
         data[iPrice] = g_eItems[itemid][iPrice];
         data[iParent] = g_eItems[itemid][iParent];

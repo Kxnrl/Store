@@ -250,6 +250,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_DisplayConfirmMenu",    Native_DisplayConfirmMenu);
     CreateNative("Store_GiveItem",              Native_GiveItem);
     CreateNative("Store_GetItemId",             Native_GetItemId);
+    CreateNative("Store_GetTypeId",             Native_GetTypeId);
     CreateNative("Store_GetItemData",           Native_GetItemData);
     CreateNative("Store_RemoveItem",            Native_RemoveItem);
     CreateNative("Store_HasClientItem",         Native_HasClientItem);
@@ -315,6 +316,15 @@ public int Native_GetItemId(Handle myself, int numParams)
     return UTIL_GetItemId(uid, -1);
 }
 
+public int Native_GetTypeId(Handle myself, int numParams)
+{
+    char type[32];
+    if(GetNativeString(1, type, 32) != SP_ERROR_NONE)
+        return -1;
+
+   return UTIL_GetTypeHandler(type);
+}
+
 public int Native_GetItemData(Handle myself, int numParams)
 {
     int itemid = GetNativeCell(1);
@@ -368,7 +378,7 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
 
     char m_szType[32];
     GetNativeString(1, STRING(m_szType));
-    int m_iHandler = UTIL_GetTypeHandler(m_szType);    
+    int m_iHandler = UTIL_GetTypeHandler(m_szType);
     int m_iId = g_iTypeHandlers;
     
     if(m_iHandler != -1)

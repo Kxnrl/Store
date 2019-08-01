@@ -322,7 +322,7 @@ public int Native_GetTypeId(Handle myself, int numParams)
     if(GetNativeString(1, type, 32) != SP_ERROR_NONE)
         return -1;
 
-   return UTIL_GetTypeHandler(type);
+    return UTIL_GetTypeHandler(type);
 }
 
 public int Native_GetItemData(Handle myself, int numParams)

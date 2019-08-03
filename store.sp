@@ -3793,7 +3793,25 @@ bool IsPluginRunning(Handle plugin, const char[] file)
     Handle dummy = FindPluginByFile(file);
 
     if(dummy == INVALID_HANDLE || dummy != plugin)
+    {
+        if (StrEqual(file, "store.smx", false) || 
+            StrEqual(file, "store_bh.smx", false) ||
+            StrEqual(file, "store_hg.smx", false) ||
+            StrEqual(file, "store_hz.smx", false) ||
+            StrEqual(file, "store_jb.smx", false) ||
+            StrEqual(file, "store_kz.smx", false) ||
+            StrEqual(file, "store_mg.smx", false) ||
+            StrEqual(file, "store_pr.smx", false) ||
+            StrEqual(file, "store_sr.smx", false) ||
+            StrEqual(file, "store_tt.smx", false) ||
+            StrEqual(file, "store_ze.smx", false)
+            )
+        {
+            return true;
+        }
+        
         return false;
+    }
 
     return (GetPluginStatus(plugin) == Plugin_Running);
 }

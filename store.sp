@@ -1810,9 +1810,9 @@ void DisplayItemMenu(int client, int itemid)
     char m_szTitle[256];
     int idx = 0;
     if(m_bEquipped)
-        idx = FormatEx(STRING(m_szTitle), "%T\n%T", "Item Equipped", client, g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
+        idx = FormatEx(STRING(m_szTitle), "%T\n%T ", "Item Equipped", client, g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
     else
-        idx = FormatEx(STRING(m_szTitle), "%s\n%T", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
+        idx = FormatEx(STRING(m_szTitle), "%s\n%T ", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
 
     int m_iExpiration = UTIL_GetExpiration(client, itemid);
     if(m_iExpiration > 0)

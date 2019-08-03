@@ -62,7 +62,7 @@ void Store_RemoveClientTrail(int client, int slot)
     if(g_iClientTrails[client][slot] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientTrails[client][slot]);
-        if(IsValidEdict(entity))
+        if(entity > 0 && IsValidEdict(entity))
         {
 #if defined AllowHide
             SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Trail);

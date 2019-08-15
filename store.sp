@@ -3016,6 +3016,9 @@ void UTIL_GiftItem(int client, int receiver, int item)
     g_eClientItems[client][item][bDeleted] = true;
     UTIL_UnequipItem(client, m_iId);
 
+    if(g_eClients[receiver][iItems] == -1)
+        g_eClients[receiver][iItems] = 0;
+
     int id = g_eClients[receiver][iItems]++;
 
     g_eClientItems[receiver][id][iId] = -1;
@@ -3031,7 +3034,7 @@ void UTIL_GiftItem(int client, int receiver, int item)
 
     UTIL_LogMessage(client  , 0, "Giftd %s to %N[%s]", g_eItems[m_iId][szName], receiver, g_eClients[receiver][szAuthId]);
     UTIL_LogMessage(receiver, 0, "Received %s from %N[%s]", g_eItems[m_iId][szName], client, g_eClients[client][szAuthId]);
-    
+
     Store_SaveClientAll(client);
     Store_SaveClientAll(receiver);
 }

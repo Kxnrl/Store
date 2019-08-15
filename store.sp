@@ -3793,7 +3793,14 @@ bool IsPluginRunning(Handle plugin, const char[] file)
     Handle dummy = FindPluginByFile(file);
 
     if(dummy == INVALID_HANDLE || dummy != plugin)
+    {
+        if (StrContains(file, "store.smx", false) != -1)
+        {
+            return true;
+        }
+        
         return false;
+    }
 
     return (GetPluginStatus(plugin) == Plugin_Running);
 }

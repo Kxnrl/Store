@@ -2588,7 +2588,7 @@ public void SQLCallback_InsertClient(Database db, DBResultSet results, const cha
     }
 
     g_eClients[client][iId] = results.InsertId;
-    g_eClients[client][iCredits] = 0;
+    g_eClients[client][iCredits] = 300;
     g_eClients[client][iOriginalCredits] = 0;
     g_eClients[client][iDateOfJoin] = GetTime();
     g_eClients[client][iDateOfLastJoin] = g_eClients[client][iDateOfJoin];

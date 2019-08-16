@@ -38,7 +38,7 @@ CREATE TABLE `store_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `player_id` int(11) NOT NULL,
   `type` varchar(16) NOT NULL,
-  `unique_id` varchar(192) NOT NULL DEFAULT '',
+  `unique_id` varchar(32) NOT NULL DEFAULT '',
   `date_of_purchase` int(11) unsigned NOT NULL DEFAULT '0',
   `date_of_expiration` int(11) unsigned NOT NULL DEFAULT '0',
   `price_of_purchase` int(11) unsigned NOT NULL DEFAULT '1',
@@ -53,6 +53,16 @@ CREATE TABLE `store_item_parent` (
   `parent` tinyint(3) NOT NULL DEFAULT '-1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE `store_equipment` (
+  `player_id` int(11) NOT NULL,
+  `type` varchar(16) NOT NULL,
+  `unique_id` varchar(128) NOT NULL DEFAULT '',
+  `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`player_id`,`type`,`slot`),
+  KEY `key` (`player_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `store_item_child` (
@@ -118,12 +128,3 @@ ADD `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin';
 -- if u upgrade from 2.2
 ALTER TABLE `store_item_child`
 MODIFY `case` TINYINT(2) DEFAULT 0 NOT NULL;
-
-CREATE TABLE `store_equipment` (
-  `player_id` int(11) NOT NULL,
-  `type` varchar(16) NOT NULL,
-  `unique_id` varchar(128) NOT NULL DEFAULT '',
-  `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`player_id`,`type`,`slot`),
-  KEY `key` (`player_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

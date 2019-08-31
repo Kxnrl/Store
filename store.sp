@@ -3093,11 +3093,16 @@ void UTIL_ReloadConfig()
     }
 
     char error[256];
-
-    DBResultSet item_parent = SQL_Query(g_hDatabase, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;");
+    Database db = SQL_Connect("csgo", false, error, 256);
+    if (db == null)
+    {
+        SetFailState("Can not connect to database: %s", error);
+    }
+    db.SetCharset("utf8mb4");
+    DBResultSet item_parent = SQL_Query(db, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;");
     if(item_parent == null)
     {
-        SQL_GetError(g_hDatabase, error, 256);
+        SQL_GetError(db, error, 256);
         SetFailState("Can not retrieve item.parent from database: %s", error);
     }
 
@@ -3141,16 +3146,24 @@ void UTIL_ReloadConfig()
 
     // must be free before next query?
     delete item_parent;
+    delete db;
+
+    db = SQL_Connect("csgo", false, error, 256);
+    if (db == null)
+    {
+        SetFailState("Can not connect to database: %s", error);
+    }
+    db.SetCharset("utf8mb4");
 
 #if defined Global_Skin
-    DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC, a.pm ASC");
+    DBResultSet item_child = SQL_Query(db, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC, a.pm ASC");
 #else
-    DBResultSet item_child = SQL_Query(g_hDatabase, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC, a.pm ASC");
+    DBResultSet item_child = SQL_Query(db, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC, a.pm ASC");
 #endif
 
     if(item_child == null)
     {
-        SQL_GetError(g_hDatabase, error, 256);
+        SQL_GetError(db, error, 256);
         SetFailState("Can not retrieve item.child from database: %s", error);
     }
 
@@ -3345,6 +3358,7 @@ void UTIL_ReloadConfig()
     Call_PushCell(items);
     Call_Finish();
 
+    delete db;
     delete items;
     delete item_array;
     delete item_child;

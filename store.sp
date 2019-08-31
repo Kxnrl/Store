@@ -119,7 +119,7 @@ bool g_bInterMission;
 // Case Options
 static int   g_inCase[4] = {0, 8888, 23333, 68888};
 static char  g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
-static float g_fCreditsTimerInterval = 300.0;
+static float g_fCreditsTimerInterval = 0.0;
 static int   g_iCreditsTimerOnline = 2;
 
 
@@ -3757,6 +3757,8 @@ void Call_OnClientLoaded(int client)
     Call_Finish();
 
     tPrintToChat(client, "%T", "Inventory has been loaded", client);
+    
+    if (g_fCreditsTimerInterval > 1.0)
     g_eClients[client][hTimer] = CreateTimer(g_fCreditsTimerInterval, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
 

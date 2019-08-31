@@ -82,3 +82,4 @@ forward Action Store_OnFPDeathCamera(int client);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);
+forward void   CP_OnChatMessagePost(int client, ArrayList recipients, const char[] flags, const char[] name, const char[] message, bool processColors, bool removeColors);

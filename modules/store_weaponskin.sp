@@ -388,6 +388,10 @@ int GetWeaponClassname(int weapon, int index = -1, char[] classname, int maxLen)
         case 512: return strcopy(classname, maxLen, "weapon_knife_falchion");
         case 516: return strcopy(classname, maxLen, "weapon_knife_push");
         case 514: return strcopy(classname, maxLen, "weapon_knife_survival_bowie");
+        case 519: return strcopy(classname, maxLen, "weapon_knife_ursus");
+        case 520: return strcopy(classname, maxLen, "weapon_knife_jackknife");
+        case 522: return strcopy(classname, maxLen, "weapon_knife_stiletto");
+        case 523: return strcopy(classname, maxLen, "weapon_knife_windowmaker");
     }
 
     return strlen(classname);
@@ -407,7 +411,11 @@ bool IsWeaponKnife(const char[] classname)
         strcmp(classname, "weapon_knife_butterfly") == 0 ||
         strcmp(classname, "weapon_knife_falchion") == 0 ||
         strcmp(classname, "weapon_knife_push") == 0 ||
-        strcmp(classname, "weapon_knife_survival_bowie") == 0
+        strcmp(classname, "weapon_knife_survival_bowie") == 0 ||
+        strcmp(classname, "weapon_knife_ursus") == 0 ||
+        strcmp(classname, "weapon_knife_windowmaker") == 0 ||
+        strcmp(classname, "weapon_knife_stiletto") == 0 ||
+        strcmp(classname, "weapon_knife_jackknife") == 0
       )
     return true;
 

@@ -136,7 +136,7 @@ Action CPA_Forward(int &client, char[] flagstring, char[] name, char[] message, 
     {
         char buffer[128];
         String_Rainbow(name, buffer, 128);
-        Format(name, 128, "%s%s", m_szNameTag, buffer);
+        Format(name, 128, "%s %s", m_szNameTag, buffer);
     }
     else Format(name, 128, "%s%s %s", m_szNameTag, m_szNameColor, name);
 

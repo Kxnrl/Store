@@ -81,12 +81,14 @@ do
   sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_tt.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_tt.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_tt.smx" ]; then
     echo "Compile store core [ttt] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_tt.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => ZE
@@ -97,12 +99,14 @@ do
   sed -i "s%<Compile_Environment>%GM_ZE%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ze.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ze.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_ze.smx" ]; then
     echo "Compile store core [ze] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_ze.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => MG
@@ -113,12 +117,14 @@ do
   sed -i "s%<Compile_Environment>%GM_MG%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_mg.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_mg.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_mg.smx" ]; then
     echo "Compile store core [mg] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_mg.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => JB
@@ -129,12 +135,14 @@ do
   sed -i "s%<Compile_Environment>%GM_JB%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_jb.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_jb.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_jb.smx" ]; then
     echo "Compile store core [jb] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_jb.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => KZ
@@ -145,12 +153,14 @@ do
   sed -i "s%<Compile_Environment>%GM_KZ%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_kz.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_kz.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_kz.smx" ]; then
     echo "Compile store core [kz] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_kz.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => Pure
@@ -161,12 +171,14 @@ do
   sed -i "s%<Compile_Environment>%GM_PR%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_pr.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_pr.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_pr.smx" ]; then
     echo "Compile store core [pure] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_pr.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => HG
@@ -177,12 +189,14 @@ do
   sed -i "s%<Compile_Environment>%GM_HG%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_hg.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_hg.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_hg.smx" ]; then
     echo "Compile store core [hg] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_hg.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => Surf
@@ -193,12 +207,14 @@ do
   sed -i "s%<Compile_Environment>%GM_SR%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_sr.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_sr.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_sr.smx" ]; then
     echo "Compile store core [surf] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_sr.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => HZ
@@ -209,12 +225,14 @@ do
   sed -i "s%<Compile_Environment>%GM_HZ%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_hz.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_hz.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_hz.smx" ]; then
     echo "Compile store core [hz] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_hz.sp
+echo ""
+echo ""
 
 
 #编译Store主程序 => BHOP
@@ -225,13 +243,15 @@ do
   sed -i "s%<Compile_Environment>%GM_BH%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_bh.smx" >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_bh.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_bh.smx" ]; then
     echo "Compile store core [bhop] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
 mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_bh.sp
+echo ""
+echo ""
 
 
 #编译Store模组Pets
@@ -242,13 +262,15 @@ do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp
 if [ ! -f "store_pet.smx" ]; then
     echo "Compile store module [pet] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modules
 mv store_pet.smx build/addons/sourcemod/plugins/modules
+echo ""
+echo ""
 
 
 #编译Store模组WeaponSkin
@@ -259,13 +281,15 @@ do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_weaponskin.sp >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_weaponskin.sp
 if [ ! -f "store_weaponskin.smx" ]; then
     echo "Compile store module [weapon skin] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store_weaponskin.sp build/addons/sourcemod/scripting/modules
 mv store_weaponskin.smx build/addons/sourcemod/plugins/modules
+echo ""
+echo ""
 
 
 #编译Store模组DefaultSkin
@@ -276,13 +300,34 @@ do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_defaultskin.sp >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_defaultskin.sp
 if [ ! -f "store_defaultskin.smx" ]; then
     echo "Compile store module [default skin] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store_defaultskin.sp build/addons/sourcemod/scripting/modules
 mv store_defaultskin.smx build/addons/sourcemod/plugins/modules
+echo ""
+echo ""
+
+
+#编译Store模组MusicKit
+echo "Compiling store module [music kit] ..."
+cp -f modules/store_musickit.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_musickit.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_musickit.sp
+if [ ! -f "store_musickit.smx" ]; then
+    echo "Compile store module [music kit] failed!"
+    exit 1;
+fi
+mv addons/sourcemod/scripting/store_musickit.sp build/addons/sourcemod/scripting/modules
+mv store_musickit.smx build/addons/sourcemod/plugins/modules
+echo ""
+echo ""
 
 
 #编译Store模组GiveCreditsCommand
@@ -293,13 +338,15 @@ do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
   rm output.txt
 done
-addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_givecreditscommand.sp >nul
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_givecreditscommand.sp
 if [ ! -f "store_givecreditscommand.smx" ]; then
     echo "Compile store module [give credits command] failed!"
     exit 1;
 fi
 mv addons/sourcemod/scripting/store_givecreditscommand.sp build/addons/sourcemod/scripting/modules
 mv store_givecreditscommand.smx build/addons/sourcemod/plugins/modules
+echo ""
+echo ""
 
 
 #解压素材文件

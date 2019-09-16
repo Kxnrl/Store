@@ -28,7 +28,6 @@ enum Store_Item
     String:szUniqueId[32],
     String:szDesc[128],
     String:szSteam[256],
-    iId,
     iData,
     iPrice,
     iParent,
@@ -54,7 +53,9 @@ native int Store_SetClientMenu(int client, int num);
 native int Store_GetClientCredits(int client);
 native int Store_SetClientCredits(int client, int credits, const char[] log = "未知");
 native int Store_DisplayConfirmMenu(int client, const char[] title, Function callback, any data);
+native int Store_GetTypeId(const char[] type);
 native int Store_GetItemId(const char[] uid);
+native int Store_GetItemData(int itemid, const any[] local);
 native int Store_GiveItem(int client, int itemid, int purchase = 0, int expiration = 0, int price = 0);
 native int Store_RemoveItem(int client, int itemid);
 native int Store_GetClientID(int client);
@@ -67,11 +68,12 @@ native bool Store_ExtClientItem(int client, int itemid, int expiration);
 native bool Store_IsItemInBoughtPackage(int client, int itemid, int uid = -1);
 native bool Store_HasPlayerSkin(int client);
 native bool Store_GetPlayerSkin(int client, char[] skin, int maxLen);
-native bool Store_GetItemList(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level);
 native void Store_SaveClientAll(int client);
 
+native ArrayList Store_GetItemList(); // List<Store_Item>
+
 forward void   Store_OnStoreInit(Handle store_plugin);
-forward void   Store_OnStoreAvailable(ArrayList item_name, ArrayList item_uid, ArrayList item_index, ArrayList item_level); // ArrayList will be automatically freed.
+forward void   Store_OnStoreAvailable(ArrayList items); // ArrayList will be automatically freed.  List<Store_Item>
 forward void   Store_OnClientLoaded(int client);
 forward Action Store_OnClientBuyItem(int client, const char[] uid, int length, int price);
 forward void   Store_OnClientPurchased(int client, const char[] uid, int length, int price);
@@ -80,3 +82,4 @@ forward Action Store_OnFPDeathCamera(int client);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);
+forward void   CP_OnChatMessagePost(int client, ArrayList recipients, const char[] flags, const char[] name, const char[] message, bool processColors, bool removeColors);

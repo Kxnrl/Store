@@ -896,7 +896,7 @@ public void OnClientConnected(int client)
 
 public void OnClientPutInServer(int client)
 {
-    if(IsFakeClient(client))
+    if(IsFakeClient(client) || g_bInterMission)
         return;
 
     g_iDataProtect[client] = GetTime()+300;
@@ -2359,7 +2359,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
     }
 
     int client = GetClientOfUserId(userid);
-    if(!client)
+    if(!client || g_bInterMission)
         return;
 
     char m_szQuery[512], m_szSteamID[32];
@@ -2411,7 +2411,7 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
     }
 
     int client = GetClientOfUserId(userid);
-    if(!client)
+    if(!client || g_bInterMission)
         return;
 
     char m_szQuery[512];
@@ -2495,7 +2495,7 @@ public void SQLCallback_LoadClientInventory_DATAVERIFY(Database db, DBResultSet 
     if(results.FetchRow())
     {
         int client = GetClientOfUserId(userid);
-        if(!client)
+        if(!client || g_bInterMission)
             return;
         
         int credits = results.FetchInt(0);
@@ -2537,7 +2537,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Database db, DBResultSet r
     }
 
     int client = GetClientOfUserId(userid);
-    if(!client)
+    if(!client || g_bInterMission)
         return;
 
     char m_szUniqueId[PLATFORM_MAX_PATH];
@@ -2577,7 +2577,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Database db, DBResultSet r
 public void SQLCallback_InsertClient(Database db, DBResultSet results, const char[] error, int userid)
 {
     int client = GetClientOfUserId(userid);
-    if(!client)
+    if(!client || g_bInterMission)
         return;
 
     if(results == null || error[0])
@@ -2614,7 +2614,7 @@ void UTIL_LoadClientInventory(int client)
     char m_szAuthId[32];
 
     GetClientAuthId(client, AuthId_Steam2, STRING(m_szAuthId), true);
-    if(m_szAuthId[0] == 0)
+    if(m_szAuthId[0] == 0 || g_bInterMission)
         return;
 
     FormatEx(STRING(m_szQuery), "SELECT * FROM store_players WHERE `authid`=\"%s\"", m_szAuthId[8]);
@@ -3698,13 +3698,13 @@ public void OnGameOver(Event e, const char[] name, bool dB)
 {
     g_bInterMission = true;
 
-    InterMissionConVars();
+    //InterMissionConVars();
 
     for(int client = 1; client <= MaxClients; ++client)
         if(IsClientInGame(client))
             g_iDataProtect[client] = GetTime() + 99999999;
 
-    CreateTimer(2.5, Timer_InterMission, _, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(3.0, Timer_InterMission, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_InterMission(Handle timer)
@@ -3776,6 +3776,7 @@ void Call_OnClientLoaded(int client)
     g_eClients[client][hTimer] = CreateTimer(g_fCreditsTimerInterval, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
 
+/*
 void InterMissionConVars()
 {
     int players = GetClientCount(true);
@@ -3800,6 +3801,7 @@ void InterMissionConVars()
         mp_win_panel_display_time.SetFloat(delay / 2.0, true, true);
     }
 }
+*/
 
 bool IsPluginRunning(Handle plugin, const char[] file)
 {

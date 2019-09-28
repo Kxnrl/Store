@@ -790,7 +790,7 @@ public int Native_GetItemList(Handle myself, int numParams)
 public any Native_GetItemList(Handle myself, int numParams)
 #endif
 {
-    ArrayList items = new ArrayList(view_as<int>(Store_Item));
+    ArrayList items = new ArrayList(sizeof(Store_Item));
 
     for(int itemid = 0; itemid < g_iItems; ++itemid)
     {
@@ -813,7 +813,7 @@ public any Native_GetItemList(Handle myself, int numParams)
         data[bCompose] = g_eItems[itemid][bCompose];
         data[bVIP] = g_eItems[itemid][bVIP];
 
-        items.PushArray(data[0]);
+        items.PushArray(data[0], sizeof(Store_Item));
     }
 
 #if SOURCEMOD_V_MINOR != 10

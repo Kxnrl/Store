@@ -218,6 +218,14 @@ public void OnPluginStart()
     Database.Connect(SQLCallback_Connection, "csgo", 0);
 
     for(int x = 0; x < 3; ++x) g_aCaseSkins[x] = new ArrayList(ByteCountToCells(256));
+
+    ConVar mp_match_restart_delay = FindConVar("mp_match_restart_delay");
+    if(mp_match_restart_delay != null)
+    {
+        // 30 sec to exec sql command.
+        mp_match_restart_delay.SetFloat(20.0, true, true);
+        mp_match_restart_delay.AddChangeHook(InterMissionLock);
+    }
 }
 
 public void OnPluginEnd()
@@ -3774,6 +3782,12 @@ void Call_OnClientLoaded(int client)
     
     if (g_fCreditsTimerInterval > 1.0)
     g_eClients[client][hTimer] = CreateTimer(g_fCreditsTimerInterval, Timer_OnlineCredit, client, TIMER_REPEAT);
+}
+
+public void InterMissionLock(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+    convar.SetFloat(20.0, true, true);
+    LogMessage("Lock Convar [mp_match_restart_delay] to 20.0, from [%s] to [%s].", oldValue, newValue);
 }
 
 /*

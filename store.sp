@@ -790,30 +790,11 @@ public int Native_GetItemList(Handle myself, int numParams)
 public any Native_GetItemList(Handle myself, int numParams)
 #endif
 {
-    ArrayList items = new ArrayList(sizeof(Store_Item));
+    ArrayList items = new ArrayList(view_as<int>(Store_Item));
 
     for(int itemid = 0; itemid < g_iItems; ++itemid)
     {
-        any data[Store_Item];
-        data[szName] = g_eItems[itemid][szName];
-        data[szUniqueId] = g_eItems[itemid][szUniqueId];
-        data[szDesc] = g_eItems[itemid][szDesc];
-        data[szSteam] = g_eItems[itemid][szSteam];
-        data[iData] = g_eItems[itemid][iData];
-        data[iPrice] = g_eItems[itemid][iPrice];
-        data[iParent] = g_eItems[itemid][iParent];
-        data[iHandler] = g_eItems[itemid][iHandler];
-        data[iPlans] = g_eItems[itemid][iPlans];
-        data[iTeam] = g_eItems[itemid][iTeam];
-        data[iLevels] = g_eItems[itemid][iLevels];
-        data[iCaseType] = g_eItems[itemid][iCaseType];
-        data[bIgnore] = g_eItems[itemid][bIgnore];
-        data[bBuyable] = g_eItems[itemid][bBuyable];
-        data[bGiftable] = g_eItems[itemid][bGiftable];
-        data[bCompose] = g_eItems[itemid][bCompose];
-        data[bVIP] = g_eItems[itemid][bVIP];
-
-        items.PushArray(data[0], sizeof(Store_Item));
+        items.PushArray(g_eItems[itemid][0]);
     }
 
 #if SOURCEMOD_V_MINOR != 10

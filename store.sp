@@ -207,7 +207,7 @@ public void OnPluginStart()
 
     HookEvent("round_start",        OnRoundStart,   EventHookMode_Post);
     HookEvent("player_death",       OnPlayerDeath,  EventHookMode_Post);
-    
+
     // Prevent Server freezing by SQL databsae?
     HookEventEx("cs_win_panel_match", OnGameOver, EventHookMode_Post);
 
@@ -3081,25 +3081,19 @@ void UTIL_ReloadConfig()
         Call_Finish();
     }
 
-    char error[256];
-    Database db = SQL_Connect("csgo", false, error, 256);
-    if (db == null)
-    {
-        SetFailState("Can not connect to database: %s", error);
-    }
-    db.SetCharset("utf8mb4");
-    DBResultSet item_parent = SQL_Query(db, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;");
+    g_hDatabase.Query(SQL_LoadParents, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;", 0, DBPrio_High);
+}
+
+public void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] error, any data)
+{
     if(item_parent == null)
-    {
-        SQL_GetError(db, error, 256);
         SetFailState("Can not retrieve item.parent from database: %s", error);
-    }
 
     if(item_parent.RowCount <= 0)
         SetFailState("Can not retrieve item.parent from database: no result row");
 
     g_smParentMap.Clear();
-    
+
     char parent_str[12];
 
     while(item_parent.FetchRow())
@@ -3114,8 +3108,6 @@ void UTIL_ReloadConfig()
 
         // name
         item_parent.FetchString(1, g_eItems[g_iItems][szName], 64);
-
-        //LogMessage("Bind itemId[%d] to parentId[%s] -> %s", g_iItems, parent_str, g_eItems[g_iItems][szName]);
 
         // parent
         g_eItems[g_iItems][iParent] = item_parent.FetchInt(2);
@@ -3133,33 +3125,22 @@ void UTIL_ReloadConfig()
         g_eItems[parent][iParent] = UTIL_GetParent(parent, g_eItems[parent][iParent]);
     }
 
-    // must be free before next query?
-    delete item_parent;
-    delete db;
-
-    db = SQL_Connect("csgo", false, error, 256);
-    if (db == null)
-    {
-        SetFailState("Can not connect to database: %s", error);
-    }
-    db.SetCharset("utf8mb4");
-
 #if defined Global_Skin
-    DBResultSet item_child = SQL_Query(db, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC, a.pm ASC");
+    g_hDatabase.Query(SQL_LoadChildren, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.parent ASC, a.pm ASC", 0, DBPrio_High);
 #else
-    DBResultSet item_child = SQL_Query(db, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC, a.pm ASC");
+    g_hDatabase.Query(SQL_LoadChildren, "SELECT a.*,b.name as title FROM store_item_child a LEFT JOIN store_item_parent b ON b.id = a.parent ORDER BY b.id ASC, a.team ASC, a.parent ASC, a.pm ASC", 0, DBPrio_High);
 #endif
+}
 
+public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] error, any data)
+{
     if(item_child == null)
-    {
-        SQL_GetError(db, error, 256);
         SetFailState("Can not retrieve item.child from database: %s", error);
-    }
 
     if(item_child.RowCount <= 0)
         SetFailState("Can not retrieve item.child from database: no result row");
 
-    ArrayList item_array = new ArrayList(ByteCountToCells(256));
+    ArrayList item_array = new ArrayList(ByteCountToCells(32));
 
     while(item_child.FetchRow())
     {
@@ -3347,14 +3328,16 @@ void UTIL_ReloadConfig()
     Call_PushCell(items);
     Call_Finish();
 
-    delete db;
     delete items;
     delete item_array;
-    delete item_child;
 
     char map[128];
     GetCurrentMap(map, 128);
-    if(strlen(map) > 3 && IsMapValid(map)) ForceChangeLevel(map, "Reload Map to prevent server crash!");
+    if(strlen(map) > 3 && IsMapValid(map))
+    {
+        LogMessage("Force reload map to prevent server crash!"); //late precache will crash server.
+        ForceChangeLevel(map, "Reload Map to prevent server crash!");
+    }
 }
 
 int UTIL_GetParent(int itemId, int parentId)
@@ -3370,12 +3353,9 @@ int UTIL_GetParent(int itemId, int parentId)
             LogStoreError("Id [%s] not found in parent_map -> %s", parent_str, g_eItems[itemId][szName]);
             return -1;
         }
-        
-        //LogMessage("Loaded %s -> parent is [%s]", g_eItems[itemId][szName], g_eItems[index][szName]);
 
         return index;
     }
-    //else LogMessage("%s -> parent is [TopMenu]", g_eItems[itemId][szName]);
 
     return -1;
 }

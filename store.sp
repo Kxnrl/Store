@@ -648,6 +648,7 @@ public int Native_GiveItem(Handle myself, int numParams)
         g_eClientItems[client][m_iId][iPriceOfPurchase] = price;
         g_eClientItems[client][m_iId][bSynced] = false;
         g_eClientItems[client][m_iId][bDeleted] = false;
+        UTIL_LogMessage(client, 0, "Give item [%s][%s] via native, p[%d], e[%d]", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], m_iDateOfPurchase, expiration);
         return;
     }
 
@@ -768,6 +769,7 @@ public int Native_ExtClientItem(Handle myself, int numParams)
         char m_szQuery[256];
         FormatEx(STRING(m_szQuery), "UPDATE `store_items` SET `date_of_expiration` = '%d' WHERE `id`=%d AND `player_id`=%d", g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iId], g_eClients[client][iId]);
         SQL_TVoid(g_hDatabase, m_szQuery);
+        UTIL_LogMessage(client, 0, "Ext item [%s][%s][%d] via native, e[%d]", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName],  g_eClientItems[client][i][iId], extime);
 
         return true;
     }

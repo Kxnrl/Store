@@ -655,7 +655,7 @@ public int Native_GiveItem(Handle plugin, int numParams)
         return;
     }
 
-    UTIL_LogMessage(client, 0, "Give and Ext item [%s][%s] via native, p[%d], e[%d] from %s", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], m_iDateOfPurchase, expiration, pFile);
+    UTIL_LogMessage(client, 0, "Give and Ext item [%s][%s] via native, e[%d] from %s", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], expiration, pFile);
 
     int exp = Store_GetItemExpiration(client, itemid);
     if(exp > 0 && exp < expiration)

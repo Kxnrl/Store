@@ -885,7 +885,7 @@ public void OnClientConnected(int client)
 
 public void OnClientPutInServer(int client)
 {
-    if(IsFakeClient(client) || g_bInterMission)
+    if(IsFakeClient(client))
         return;
 
     g_iDataProtect[client] = GetTime()+300;

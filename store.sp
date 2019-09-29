@@ -3653,7 +3653,6 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 stock bool IsPlayerTP(int client)
 {
-#if defined Module_TPMode
     if(g_bThirdperson[client])
         return true;
 

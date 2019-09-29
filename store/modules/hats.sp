@@ -48,21 +48,18 @@ public void Hats_OnMapStart()
         Downloader_AddFileToDownloadsTable(g_eHats[i][szModel]);
     }
 
-    CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_Hats_Adjust(Handle timer)
 {
     for(int client = 1; client <= MaxClients; ++client)
-        if(IsClientInGame(client))
+        if(IsClientInGame(client) && !IsFakeClient(client))
         {
-            if(!IsPlayerAlive(client))
-            {
-                int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
-                int m_hObserverTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
-                g_iSpecTarget[client] = (m_iObserverMode == 4 && m_hObserverTarget > 0) ? m_hObserverTarget : -1;
-            }
-            else g_iSpecTarget[client] = client;
+            if(IsClientObserver(client))
+                g_iSpecTarget[client] = (GetEntProp(client, Prop_Send, "m_iObserverMode") == 4) ? GetEntPropEnt(client, Prop_Send, "m_hObserverTarget") : -1;
+            else
+                g_iSpecTarget[client] = client;
         }
 
     return Plugin_Continue;
@@ -188,11 +185,11 @@ void Store_RemoveClientHats(int client, int slot)
 
 public Action Hook_SetTransmit_Hat(int ent, int client)
 {
-    if(g_iSpecTarget[client] == g_iHatsOwners[ent])
-        return Plugin_Handled;
-
     if(client == g_iHatsOwners[ent])
         return IsPlayerTP(client) ? Plugin_Continue : Plugin_Handled;
+
+    if(g_iSpecTarget[client] == g_iHatsOwners[ent])
+        return Plugin_Handled;
 
 #if defined AllowHide
     if(g_bHideMode[client])

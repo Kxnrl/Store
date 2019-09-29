@@ -3659,7 +3659,7 @@ stock bool IsPlayerTP(int client)
 
     if(g_bMirror[client])
         return true;
-#endif
+
     return false;
 }
 

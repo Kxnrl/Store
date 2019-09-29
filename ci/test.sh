@@ -29,6 +29,11 @@ echo "Download armsfix.inc ..."
 wget "https://github.com/Kxnrl/CSGO-ArmsFix/raw/master/include/armsfix.inc" -q -O include/armsfix.inc
 
 
+#Opts
+echo "Download fys.opts.inc ..."
+wget "https://github.com/fys-csgo/public-include/raw/master/fys.opts.inc" -q -O include/fys.opts.inc
+
+
 #设置文件为可执行
 echo "Set compiler env ..."
 chmod +x addons/sourcemod/scripting/spcomp

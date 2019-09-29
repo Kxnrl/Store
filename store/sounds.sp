@@ -3,6 +3,7 @@
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
 #include <clientprefs>
+#include <fys.opts>
 #define REQUIRE_EXTENSIONS
 #define REQUIRE_PLUGIN
 
@@ -204,20 +205,31 @@ public void OnClientCookiesCached(int client)
         g_bClientDisable[client] = (StringToInt(buff) == 1 ? true : false);
 }
 
+public void Opts_OnClientLoad(int client)
+{
+    g_bClientDisable[client] = Opts_GetOptBool(client, "Store.Sounds.Disabled", false);
+}
+
 public Action Command_Silence(int client, int args)
 {
-    if(g_bClientDisable[client])
-    {
-        g_bClientDisable[client] = false;
-        if(g_bClientPrefs) SetClientCookie(client, g_hCookieSounds, "0");
-        tPrintToChat(client, "%T", "sound setting", client, "off");
-    }
-    else
-    {
-        g_bClientDisable[client] = true;
-        if(g_bClientPrefs) SetClientCookie(client, g_hCookieSounds, "1");
-        tPrintToChat(client, "%T", "sound setting", client, "on");
-    }
-    
+    if (!client)
+        return Plugin_Handled;
+
+    g_bClientDisable[client] = !g_bClientDisable[client];
+    SetClientState(client, g_bClientDisable[client]);
+    tPrintToChat(client, "%T", "sound setting", client, g_bClientDisable[client] ? "on" : "off");
+
     return Plugin_Handled;
+}
+
+static void SetClientState(int client, bool state)
+{
+    if(LibraryExists("fys-Opts"))
+    {
+        Opts_SetOptBool(client, "Store.Sounds.Disabled", state);
+    }
+    else if(g_bClientPrefs)
+    {
+        SetClientCookie(client, g_hCookieSounds, state ? "1" : "0");
+    }
 }

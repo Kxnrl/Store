@@ -621,7 +621,7 @@ public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
     m_hMenu.Display(client, 0);
 }
 
-public int Native_GiveItem(Handle myself, int numParams)
+public int Native_GiveItem(Handle plugin, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
@@ -634,6 +634,9 @@ public int Native_GiveItem(Handle myself, int numParams)
         LogStoreError("Native_GiveItem -> %N itemid %d purchase %d expiration %d price %d", client, itemid, purchase, expiration, price);
         return;
     }
+
+    char pFile[32];
+    GetPluginFilename(plugin, pFile, 32);
 
     if(!Store_HasClientItem(client, itemid))
     {
@@ -648,9 +651,11 @@ public int Native_GiveItem(Handle myself, int numParams)
         g_eClientItems[client][m_iId][iPriceOfPurchase] = price;
         g_eClientItems[client][m_iId][bSynced] = false;
         g_eClientItems[client][m_iId][bDeleted] = false;
-        UTIL_LogMessage(client, 0, "Give item [%s][%s] via native, p[%d], e[%d]", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], m_iDateOfPurchase, expiration);
+        UTIL_LogMessage(client, 0, "Give item [%s][%s] via native, p[%d], e[%d] from %s", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], m_iDateOfPurchase, expiration, pFile);
         return;
     }
+
+    UTIL_LogMessage(client, 0, "Give and Ext item [%s][%s] via native, p[%d], e[%d] from %s", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], m_iDateOfPurchase, expiration, pFile);
 
     int exp = Store_GetItemExpiration(client, itemid);
     if(exp > 0 && exp < expiration)

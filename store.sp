@@ -1005,13 +1005,13 @@ public void Opts_OnClientLoad(int client)
 #if defined AllowHide
     LoadHideState(client);
 #endif
+}
 
 public void Opts_OnClientXSet(int client, const char[] key)
 {
 #if defined AllowHide
     LoadHideState(client);
 #endif
-}
 }
 
 //////////////////////////////

@@ -242,6 +242,16 @@ public void OnPluginStart()
     RegConsoleCmd("sm_hide", Command_Hide);
     CheckHideCookie();
 #endif
+
+    if(g_pClientprefs)
+    {
+        LogMessage("Optional library 'clientprefs' is already loaded.");
+    }
+
+    if(g_pfysOptions)
+    {
+        LogMessage("Optional library 'fys-Opts' is already loaded.");
+    }
 }
 
 public void OnPluginEnd()

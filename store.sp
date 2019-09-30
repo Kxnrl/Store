@@ -60,7 +60,7 @@ public Plugin myinfo =
 
 // Custom Module
 // skin does not match with team
-#if defined GM_TT || defined GM_ZE || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_ZE || defined GM_KZ || defined GM_BH || defined GM_JB
 #define Global_Skin
 #undef Skin_TeamTag
 #endif

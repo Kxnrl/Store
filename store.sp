@@ -340,25 +340,7 @@ public int Native_GetItemData(Handle myself, int numParams)
     int itemid = GetNativeCell(1);
     if(itemid < 0 || itemid > STORE_MAX_ITEMS)
         ThrowNativeError(SP_ERROR_PARAM, "ItemId [%d] is not allowed.", itemid);
-    any data[Store_Item];
-    data[szName] = g_eItems[itemid][szName];
-    data[szUniqueId] = g_eItems[itemid][szUniqueId];
-    data[szDesc] = g_eItems[itemid][szDesc];
-    data[szSteam] = g_eItems[itemid][szSteam];
-    data[iData] = g_eItems[itemid][iData];
-    data[iPrice] = g_eItems[itemid][iPrice];
-    data[iParent] = g_eItems[itemid][iParent];
-    data[iHandler] = g_eItems[itemid][iHandler];
-    data[iPlans] = g_eItems[itemid][iPlans];
-    data[iTeam] = g_eItems[itemid][iTeam];
-    data[iLevels] = g_eItems[itemid][iLevels];
-    data[iCaseType] = g_eItems[itemid][iCaseType];
-    data[bIgnore] = g_eItems[itemid][bIgnore];
-    data[bBuyable] = g_eItems[itemid][bBuyable];
-    data[bGiftable] = g_eItems[itemid][bGiftable];
-    data[bCompose] = g_eItems[itemid][bCompose];
-    data[bVIP] = g_eItems[itemid][bVIP];
-    SetNativeArray(2, data[0], sizeof(data));
+    SetNativeArray(2, g_eItems[itemid][0], view_as<int>(Store_Item));
     return true;
 }
 

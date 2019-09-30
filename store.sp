@@ -28,6 +28,13 @@ public Plugin myinfo =
 #include <store>
 #include <store_stock>
 
+#undef REQUIRE_EXTENSIONS
+#undef REQUIRE_PLUGIN
+#include <clientprefs>
+#include <fys.opts>
+#define REQUIRE_EXTENSIONS
+#define REQUIRE_PLUGIN
+
 //////////////////////////////
 //        DEFINITIONS       //
 //////////////////////////////
@@ -108,6 +115,7 @@ int g_iClientTeam[MAXPLAYERS+1];
 
 #if defined AllowHide
 bool g_bHideMode[MAXPLAYERS+1];
+Handle g_cCookieHide;
 #endif
 
 bool g_bInvMode[MAXPLAYERS+1];
@@ -115,6 +123,10 @@ bool g_bInvMode[MAXPLAYERS+1];
 bool g_bLateLoad;
 
 bool g_bInterMission;
+
+// library
+bool g_pClientprefs;
+bool g_pfysOptions;
 
 // Case Options
 static int   g_inCase[4] = {0, 8888, 23333, 68888};
@@ -201,10 +213,6 @@ public void OnPluginStart()
     RegConsoleCmd("sm_inventory",   Command_Inventory);
     RegConsoleCmd("sm_credits",     Command_Credits);
 
-#if defined AllowHide
-    RegConsoleCmd("sm_hide",        Command_Hide);
-#endif
-
     HookEvent("round_start",        OnRoundStart,   EventHookMode_Post);
     HookEvent("player_death",       OnPlayerDeath,  EventHookMode_Post);
 
@@ -226,6 +234,14 @@ public void OnPluginStart()
         mp_match_restart_delay.SetFloat(20.0, true, true);
         mp_match_restart_delay.AddChangeHook(InterMissionLock);
     }
+
+    g_pClientprefs = LibraryExists("clientprefs");
+    g_pfysOptions = LibraryExists("fys-Opts");
+
+#if defined AllowHide
+    RegConsoleCmd("sm_hide", Command_Hide);
+    CheckHideCookie();
+#endif
 }
 
 public void OnPluginEnd()
@@ -234,6 +250,44 @@ public void OnPluginEnd()
     if(IsClientInGame(client))
     if(g_eClients[client][bLoaded])
         OnClientDisconnect(client);
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+    if(strcmp(name, "clientprefs") == 0)
+    {
+        g_pClientprefs = true;
+
+#if defined Module_Sound
+        Sounds_OnClientprefs();
+#endif
+
+#if defined AllowHide
+        CheckHideCookie();
+#endif
+    }
+
+    if(strcmp(name, "fys-Opts") == 0)
+        g_pfysOptions = true;
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+    if(strcmp(name, "clientprefs") == 0)
+    {
+        g_pClientprefs = false;
+
+#if defined Module_Sound
+        Sounds_OnClientprefs();
+#endif
+
+#if defined AllowHide
+        CheckHideCookie();
+#endif
+    }
+
+    if(strcmp(name, "fys-Opts") == 0)
+        g_pfysOptions = false;
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -921,6 +975,28 @@ public void OnClientDisconnect(int client)
     UTIL_DisconnectClient(client);
 }
 
+public void OnClientCookiesCached(int client)
+{
+#if defined Module_Sound
+    Sounds_OnLoadOptions(client);
+#endif
+
+#if defined AllowHide
+    LoadHideState(client);
+#endif
+}
+
+public void Opts_OnClientLoad(int client)
+{
+#if defined Module_Sound
+    Sounds_OnLoadOptions(client);
+#endif
+
+#if defined AllowHide
+    LoadHideState(client);
+#endif
+}
+
 //////////////////////////////
 //         COMMAND          //
 //////////////////////////////
@@ -997,9 +1073,53 @@ public Action Command_Hide(int client, int args)
         return Plugin_Handled;
 
     g_bHideMode[client] = !g_bHideMode[client];
+    SetHideState(client, g_bHideMode[client]);
     tPrintToChat(client, "%T", "hide setting", client, g_bHideMode[client] ? "on" : "off");
 
     return Plugin_Handled;
+}
+
+void CheckHideCookie()
+{
+    if(g_pClientprefs)
+    {
+        // reg cookie
+        g_cCookieHide = RegClientCookie("store_hide", "", CookieAccess_Protected);
+    }
+    else
+    {
+        g_cCookieHide = null;
+    }
+}
+
+void SetHideState(int client, bool state)
+{
+    if(g_pfysOptions)
+    {
+        Opts_SetOptBool(client, "Global.Hide.Enabled", state);
+    }
+    else if(g_pClientprefs)
+    {
+        SetClientCookie(client, g_cCookieHide, state ? "1" : "0");
+    }
+}
+
+void LoadHideState(int client)
+{
+    if(g_pfysOptions)
+    {
+        g_bHideMode[client] = Opts_GetOptBool(client, "Store.Sounds.Disabled", false);
+        return;
+    }
+
+    if(g_pClientprefs)
+    {
+        char buff[4];
+        GetClientCookie(client, g_cCookieHide, buff, 4);
+
+        if(buff[0] != 0)
+            g_bHideMode[client] = (StringToInt(buff) == 1 ? true : false);
+    }
 }
 #endif
 

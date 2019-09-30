@@ -1,12 +1,5 @@
 #define Module_Sound
 
-#undef REQUIRE_EXTENSIONS
-#undef REQUIRE_PLUGIN
-#include <clientprefs>
-#include <fys.opts>
-#define REQUIRE_EXTENSIONS
-#define REQUIRE_PLUGIN
-
 enum Sound
 {
     String:szName[128],
@@ -19,7 +12,6 @@ static int g_iSounds = 0;
 static int g_iSoundClient[MAXPLAYERS+1];
 static int g_iSoundSpam[MAXPLAYERS+1];
 static bool g_bClientDisable[MAXPLAYERS+1];
-static bool g_bClientPrefs;
 
 static any g_eSounds[STORE_MAX_ITEMS][Sound];
 
@@ -32,11 +24,19 @@ public void Sounds_OnPluginStart()
     RegConsoleCmd("cheer", Command_Cheer);
     RegConsoleCmd("sm_cheer", Command_Cheer);
     RegConsoleCmd("sm_crpb", Command_Silence);
-    
-    if(GetFeatureStatus(FeatureType_Native, "RegClientCookie") == FeatureStatus_Available)
+
+    Sounds_OnClientprefs();
+}
+
+void Sounds_OnClientprefs()
+{
+    if(g_pClientprefs)
     {
-        g_bClientPrefs = true;
         g_hCookieSounds = RegClientCookie("store_sounds", "", CookieAccess_Protected);
+    }
+    else
+    {
+        g_hCookieSounds = null;
     }
 }
 
@@ -193,21 +193,22 @@ void StartSoundToAll(int client)
     tPrintToChatAll("%t", "sound to all", client, g_eSounds[g_iSoundClient[client]][szName]);
 }
 
-public void OnClientCookiesCached(int client)
+public void Sounds_OnLoadOptions(int client)
 {
-    if(!g_bClientPrefs)
+    if(g_pfysOptions)
+    {
+        g_bClientDisable[client] = Opts_GetOptBool(client, "Store.Sounds.Disabled", false);
         return;
+    }
 
-    char buff[4];
-    GetClientCookie(client, g_hCookieSounds, buff, 4);
-    
-    if(buff[0] != 0)
-        g_bClientDisable[client] = (StringToInt(buff) == 1 ? true : false);
-}
-
-public void Opts_OnClientLoad(int client)
-{
-    g_bClientDisable[client] = Opts_GetOptBool(client, "Store.Sounds.Disabled", false);
+    if(g_pClientprefs)
+    {
+        char buff[4];
+        GetClientCookie(client, g_hCookieSounds, buff, 4);
+        
+        if(buff[0] != 0)
+            g_bClientDisable[client] = (StringToInt(buff) == 1 ? true : false);
+    }
 }
 
 public Action Command_Silence(int client, int args)
@@ -216,19 +217,19 @@ public Action Command_Silence(int client, int args)
         return Plugin_Handled;
 
     g_bClientDisable[client] = !g_bClientDisable[client];
-    SetClientState(client, g_bClientDisable[client]);
+    SetSoundState(client, g_bClientDisable[client]);
     tPrintToChat(client, "%T", "sound setting", client, g_bClientDisable[client] ? "on" : "off");
 
     return Plugin_Handled;
 }
 
-static void SetClientState(int client, bool state)
+static void SetSoundState(int client, bool state)
 {
-    if(LibraryExists("fys-Opts"))
+    if(g_pfysOptions)
     {
         Opts_SetOptBool(client, "Store.Sounds.Disabled", state);
     }
-    else if(g_bClientPrefs)
+    else if(g_pClientprefs)
     {
         SetClientCookie(client, g_hCookieSounds, state ? "1" : "0");
     }

@@ -1005,6 +1005,13 @@ public void Opts_OnClientLoad(int client)
 #if defined AllowHide
     LoadHideState(client);
 #endif
+
+public void Opts_OnClientXSet(int client, const char[] key)
+{
+#if defined AllowHide
+    LoadHideState(client);
+#endif
+}
 }
 
 //////////////////////////////
@@ -1118,7 +1125,7 @@ void LoadHideState(int client)
 {
     if(g_pfysOptions)
     {
-        g_bHideMode[client] = Opts_GetOptBool(client, "Store.Sounds.Disabled", false);
+        g_bHideMode[client] = Opts_GetOptBool(client, "Global.Hide.Enabled", false);
         return;
     }
 

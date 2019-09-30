@@ -239,7 +239,7 @@ public void OnPluginStart()
     g_pfysOptions = LibraryExists("fys-Opts");
 
 #if defined AllowHide
-    RegConsoleCmd("sm_hide", Command_Hide);
+    RegConsoleCmd("sm_shide", Command_Hide);
     CheckHideCookie();
 #endif
 

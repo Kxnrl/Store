@@ -271,6 +271,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_GetPlayerSkin",         Native_GetPlayerSkin);
     CreateNative("Store_GetSkinLevel",          Native_GetSkinLevel);
     CreateNative("Store_GetItemList",           Native_GetItemList);
+    CreateNative("Store_IsPlayerTP",            Native_IsPlayerTP);
+    CreateNative("Store_IsPlayerHide",          Native_IsPlayerHide);
 
 #if defined Module_Model
     MarkNativeAsOptional("FPVMI_SetClientModel");
@@ -840,6 +842,19 @@ public int Native_GetPlayerSkin(Handle myself, int numParams)
 
     if(SetNativeString(2, model[1], GetNativeCell(3)) == SP_ERROR_NONE)
         return true;
+#endif
+    return false;
+}
+
+public int Native_IsPlayerTP(Handle plugin, int numParams)
+{
+    return IsPlayerTP(GetNativeCell(1));
+}
+
+public int Native_IsPlayerHide(Handle plugin, int numParams)
+{
+#if defined AllowHide
+    return g_bHideMode[client];
 #endif
     return false;
 }

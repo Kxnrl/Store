@@ -20,7 +20,6 @@ public Plugin myinfo =
 #include <sdkhooks>
 #include <store>
 #include <store_stock>
-#include <clientprefs>
 
 enum Pet
 {
@@ -37,15 +36,9 @@ static any g_ePets[STORE_MAX_ITEMS][Pet];
 static int g_iPets = 0;
 static int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
 static int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
-static bool g_bHide[MAXPLAYERS+1];
-static Handle g_cCookie;
 
 public void OnPluginStart()
 {
-    RegConsoleCmd("sm_hidepets", Command_Hide);
-
-    g_cCookie = RegClientCookie("store_pets_hide", "Allow client hide pets", CookieAccess_Protected);
-
     HookEvent("player_spawn", Pets_PlayerSpawn, EventHookMode_Post);
     HookEvent("player_death", Pets_PlayerDeath, EventHookMode_Post);
     HookEvent("player_team", Pets_PlayerTeam, EventHookMode_Post);
@@ -54,18 +47,6 @@ public void OnPluginStart()
 public void Store_OnStoreInit(Handle store_plugin)
 {
     Store_RegisterHandler("pet", Pets_OnMapStart, Pets_Reset, Pets_Config, Pets_Equip, Pets_Remove, true);
-}
-
-public Action Command_Hide(int client, int args)
-{
-    if(!client)
-        return Plugin_Handled;
-    
-    g_bHide[client] = !g_bHide[client];
-    SetClientCookie(client, g_cCookie, g_bHide[client] ? "1" : "0");
-    PrintToChat(client, "[\x0EPets\x01]  Now you %s see pets", g_bHide[client] ? "\x07can`t" : "\x04can");
-    
-    return Plugin_Handled;
 }
 
 public void Pets_OnMapStart()
@@ -148,18 +129,8 @@ void Store_RemovePet(int client)
 
 public void OnClientConnected(int client)
 {
-    g_bHide[client] = false;
     for(int i = 0; i < STORE_MAX_SLOTS; ++i)
         g_iPetRef[client][i] = INVALID_ENT_REFERENCE;
-}
-
-public void OnClientCookiesCached(int client)
-{
-    char buff[4];
-    GetClientCookie(client, g_cCookie, buff, 4);
-
-    if(buff[0] != 0)
-        g_bHide[client] = (StringToInt(buff) == 1);
 }
 
 public void OnClientDisconnect(int client)
@@ -344,7 +315,7 @@ void DeathPet(int client, int slot)
 
 public Action Hook_SetTransmit_Pet(int ent, int client)
 {
-    return g_bHide[client] ? Plugin_Handled : Plugin_Continue;
+    return Store_IsPlayerHide(client) ? Plugin_Handled : Plugin_Continue;
 }
 
 public void Hook_OnAnimationDone(const char[] output, int caller, int activator, float delay)
@@ -353,7 +324,7 @@ public void Hook_OnAnimationDone(const char[] output, int caller, int activator,
         return;
 
     int owner = GetEntPropEnt(caller, Prop_Send, "m_hOwnerEntity");
-    
+
     if(1 <= owner <= MaxClients && IsClientInGame(owner))
     {
         int iRef = EntIndexToEntRef(caller);

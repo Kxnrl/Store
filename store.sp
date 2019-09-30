@@ -855,8 +855,9 @@ public int Native_IsPlayerHide(Handle plugin, int numParams)
 {
 #if defined AllowHide
     return g_bHideMode[GetNativeCell(1)];
-#endif
+#else
     return false;
+#endif
 }
 
 //////////////////////////////

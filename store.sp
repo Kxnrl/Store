@@ -2135,7 +2135,7 @@ public int MenuHandler_Compose(Menu menu, MenuAction action, int client, int par
             char m_szId[64];
             menu.GetItem(param2, STRING(m_szId));
             int itemid = StringToInt(m_szId);
-            g_iMenuNum[client] = 6;
+            g_iMenuNum[client] = 1;
             if(g_eCompose[client][item1]==-1)
             {
                 g_eCompose[client][item1]=itemid;
@@ -2181,7 +2181,7 @@ public int MenuHandler_Plan(Menu menu, MenuAction action, int client, int param2
     else if(action == MenuAction_Select)
     {
         g_iSelectedPlan[client]=param2;
-        g_iMenuNum[client]=5;
+        g_iMenuNum[client]=4;
 
         char m_szTitle[128];
         FormatEx(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_eItems[g_iSelectedItem[client]][szName], g_eTypeHandlers[g_eItems[g_iSelectedItem[client]][iHandler]][szType]);

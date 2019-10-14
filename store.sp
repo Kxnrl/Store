@@ -1125,7 +1125,7 @@ void LoadHideState(int client)
 {
     if(g_pfysOptions)
     {
-        g_bHideMode[client] = Opts_GetOptBool(client, "Global.Hide.Enabled", false);
+        g_bHideMode[client] = Opts_GetOptBool(client, "Global.Hide.Enabled", false) && Opts_GetOptFloat(client, "Global.Hide.Distance", 300.0) > 99999.0;
         return;
     }
 

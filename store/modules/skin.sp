@@ -342,7 +342,7 @@ public Action Timer_SetClientModel(Handle timer, int val)
     return Plugin_Stop;
 }
 
-public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
+public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
     // not death sound
     if(channel != SNDCHAN_VOICE || sample[0] != '~')

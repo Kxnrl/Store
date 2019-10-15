@@ -12,9 +12,9 @@ echo "*** Trigger build ***"
 #下载SM
 echo "Download sourcemod ..."
 if [ "$1" = "1.9" ]; then
-    wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
+  wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
 else
-    wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
+  wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
 fi
 tar -xzf sourcemod.tar.gz
 
@@ -86,8 +86,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_tt.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_tt.smx" ]; then
-    echo "Compile store core [ttt] failed!"
-    exit 1;
+  echo "Compile store core [ttt] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_tt.sp
 
@@ -102,8 +102,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ze.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_ze.smx" ]; then
-    echo "Compile store core [ze] failed!"
-    exit 1;
+  echo "Compile store core [ze] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_ze.sp
 
@@ -118,8 +118,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_mg.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_mg.smx" ]; then
-    echo "Compile store core [mg] failed!"
-    exit 1;
+  echo "Compile store core [mg] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_mg.sp
 
@@ -134,8 +134,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_jb.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_jb.smx" ]; then
-    echo "Compile store core [jb] failed!"
-    exit 1;
+  echo "Compile store core [jb] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_jb.sp
 
@@ -150,8 +150,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_kz.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_kz.smx" ]; then
-    echo "Compile store core [kz] failed!"
-    exit 1;
+  echo "Compile store core [kz] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_kz.sp
 
@@ -166,8 +166,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_pr.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_pr.smx" ]; then
-    echo "Compile store core [pure] failed!"
-    exit 1;
+  echo "Compile store core [pure] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_pr.sp
 
@@ -182,8 +182,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_hg.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_hg.smx" ]; then
-    echo "Compile store core [hg] failed!"
-    exit 1;
+  echo "Compile store core [hg] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_hg.sp
 
@@ -198,8 +198,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_sr.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_sr.smx" ]; then
-    echo "Compile store core [surf] failed!"
-    exit 1;
+  echo "Compile store core [surf] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_sr.sp
 
@@ -214,8 +214,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_hz.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_hz.smx" ]; then
-    echo "Compile store core [hz] failed!"
-    exit 1;
+  echo "Compile store core [hz] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_hz.sp
 
@@ -230,8 +230,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_bh.smx" >nul
 if [ ! -f "build/addons/sourcemod/plugins/store_bh.smx" ]; then
-    echo "Compile store core [bhop] failed!"
-    exit 1;
+  echo "Compile store core [bhop] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
 mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_bh.sp
@@ -247,8 +247,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp >nul
 if [ ! -f "store_pet.smx" ]; then
-    echo "Compile store module [pet] failed!"
-    exit 1;
+  echo "Compile store module [pet] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modules
 mv store_pet.smx build/addons/sourcemod/plugins/modules
@@ -264,8 +264,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_weaponskin.sp >nul
 if [ ! -f "store_weaponskin.smx" ]; then
-    echo "Compile store module [weapon skin] failed!"
-    exit 1;
+  echo "Compile store module [weapon skin] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_weaponskin.sp build/addons/sourcemod/scripting/modules
 mv store_weaponskin.smx build/addons/sourcemod/plugins/modules
@@ -281,8 +281,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_defaultskin.sp >nul
 if [ ! -f "store_defaultskin.smx" ]; then
-    echo "Compile store module [default skin] failed!"
-    exit 1;
+  echo "Compile store module [default skin] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_defaultskin.sp build/addons/sourcemod/scripting/modules
 mv store_defaultskin.smx build/addons/sourcemod/plugins/modules
@@ -298,8 +298,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_givecreditscommand.sp >nul
 if [ ! -f "store_givecreditscommand.smx" ]; then
-    echo "Compile store module [give credits command] failed!"
-    exit 1;
+  echo "Compile store module [give credits command] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_givecreditscommand.sp build/addons/sourcemod/scripting/modules
 mv store_givecreditscommand.smx build/addons/sourcemod/plugins/modules

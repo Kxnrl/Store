@@ -69,6 +69,8 @@ native bool Store_IsItemInBoughtPackage(int client, int itemid, int uid = -1);
 native bool Store_HasPlayerSkin(int client);
 native bool Store_GetPlayerSkin(int client, char[] skin, int maxLen);
 native void Store_SaveClientAll(int client);
+native bool Store_IsPlayerTP(int client);
+native bool Store_IsPlayerHide(int client);
 
 native ArrayList Store_GetItemList(); // List<Store_Item>
 

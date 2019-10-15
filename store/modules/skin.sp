@@ -342,12 +342,8 @@ public Action Timer_SetClientModel(Handle timer, int val)
     return Plugin_Stop;
 }
 
-public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags)
+public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
-    // null wave fix
-    //if(sample[0] == 'c' && sample[1] == 'o' && strcmp(sample, "common/null.wav", false) == 0)
-    //    return Plugin_Handled;
-
     // not death sound
     if(channel != SNDCHAN_VOICE || sample[0] != '~')
         return Plugin_Continue;
@@ -366,18 +362,11 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
     if(g_szDeathVoice[client][0] != '*')
         return Plugin_Continue;
 
-    if  ( 
-            strcmp(sample, "~player/death1.wav", false) == 0 ||
-            strcmp(sample, "~player/death2.wav", false) == 0 ||
-            strcmp(sample, "~player/death3.wav", false) == 0 ||
-            strcmp(sample, "~player/death4.wav", false) == 0 ||
-            strcmp(sample, "~player/death5.wav", false) == 0 ||
-            strcmp(sample, "~player/death6.wav", false) == 0 
-        )
-        {
-            // Block
-            return Plugin_Handled;
-        }
+    if (strcmp(soundEntry, "Player.Death") == 0)
+    {
+        // Block
+        return Plugin_Handled;
+    }
 
     // others
     return Plugin_Continue;
@@ -393,15 +382,15 @@ void Broadcast_DeathSound(int client)
         return;
 #endif
 
-    float fPos[3];
+    float fPos[3], fAgl[3];
     GetClientEyePosition(client, fPos);
-    
-    float fAgl[3];
-    GetClientEyeAngles(client, fAgl);
+    GetClientEyeAngles  (client, fAgl);
 
     fPos[2] -= 3.0;
 
-    EmitSoundToAll(g_szDeathVoice[client], client, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.5, SNDPITCH_NORMAL, client, fPos, fAgl, true);
+    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 3.0);
+
+    EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
 }
 
 void Store_PreviewSkin(int client, int itemid)

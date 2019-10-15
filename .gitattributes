@@ -1,0 +1,13 @@
+* text=auto
+* eol=lf
+
+*.kv  eol=lf
+*.sh  eol=lf
+*.md  eol=lf
+*.yml eol=lf
+*.sql eol=lf
+*.txt eol=lf
+*.php eol=lf
+*.inc eol=lf
+*.sp  eol=lf
+

@@ -5,7 +5,7 @@ COUNT=$(git rev-list --count HEAD)
 FILE=$COUNT-$2-$3.7z
 LATEST=Store-SM$1-latest.7z
 STABLE=Store-SM$1-stable.7z
-
+OTHERS=Store-SM$1-$2.7Z
 
 #INFO
 echo "*** Trigger build ***"
@@ -14,9 +14,9 @@ echo "*** Trigger build ***"
 #下载SM
 echo "Download sourcemod ..."
 if [ "$1" = "1.9" ]; then
-    wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
+  wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
 else
-    wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
+  wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
 fi
 tar -xzf sourcemod.tar.gz
 
@@ -29,6 +29,11 @@ wget "https://github.com/komashchenko/PTaH/raw/master/PTaH.inc" -q -O include/PT
 #ArmsFix
 echo "Download armsfix.inc ..."
 wget "https://github.com/Kxnrl/CSGO-ArmsFix/raw/master/include/armsfix.inc" -q -O include/armsfix.inc
+
+
+#Opts
+echo "Download fys.opts.inc ..."
+wget "https://github.com/fys-csgo/public-include/raw/master/fys.opts.inc" -q -O include/fys.opts.inc
 
 
 #设置文件为可执行
@@ -83,8 +88,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_tt.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_tt.smx" ]; then
-    echo "Compile store core [ttt] failed!"
-    exit 1;
+  echo "Compile store core [ttt] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_tt.sp
 echo ""
@@ -101,8 +106,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ze.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_ze.smx" ]; then
-    echo "Compile store core [ze] failed!"
-    exit 1;
+  echo "Compile store core [ze] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_ze.sp
 echo ""
@@ -119,8 +124,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_mg.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_mg.smx" ]; then
-    echo "Compile store core [mg] failed!"
-    exit 1;
+  echo "Compile store core [mg] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_mg.sp
 echo ""
@@ -137,8 +142,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_jb.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_jb.smx" ]; then
-    echo "Compile store core [jb] failed!"
-    exit 1;
+  echo "Compile store core [jb] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_jb.sp
 echo ""
@@ -155,8 +160,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_kz.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_kz.smx" ]; then
-    echo "Compile store core [kz] failed!"
-    exit 1;
+  echo "Compile store core [kz] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_kz.sp
 echo ""
@@ -173,8 +178,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_pr.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_pr.smx" ]; then
-    echo "Compile store core [pure] failed!"
-    exit 1;
+  echo "Compile store core [pure] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_pr.sp
 echo ""
@@ -191,8 +196,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_hg.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_hg.smx" ]; then
-    echo "Compile store core [hg] failed!"
-    exit 1;
+  echo "Compile store core [hg] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_hg.sp
 echo ""
@@ -209,8 +214,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_sr.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_sr.smx" ]; then
-    echo "Compile store core [surf] failed!"
-    exit 1;
+  echo "Compile store core [surf] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_sr.sp
 echo ""
@@ -227,8 +232,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_hz.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_hz.smx" ]; then
-    echo "Compile store core [hz] failed!"
-    exit 1;
+  echo "Compile store core [hz] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_hz.sp
 echo ""
@@ -245,8 +250,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_bh.smx"
 if [ ! -f "build/addons/sourcemod/plugins/store_bh.smx" ]; then
-    echo "Compile store core [bhop] failed!"
-    exit 1;
+  echo "Compile store core [bhop] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
 mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_bh.sp
@@ -264,8 +269,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_pet.sp
 if [ ! -f "store_pet.smx" ]; then
-    echo "Compile store module [pet] failed!"
-    exit 1;
+  echo "Compile store module [pet] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_pet.sp build/addons/sourcemod/scripting/modules
 mv store_pet.smx build/addons/sourcemod/plugins/modules
@@ -283,8 +288,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_weaponskin.sp
 if [ ! -f "store_weaponskin.smx" ]; then
-    echo "Compile store module [weapon skin] failed!"
-    exit 1;
+  echo "Compile store module [weapon skin] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_weaponskin.sp build/addons/sourcemod/scripting/modules
 mv store_weaponskin.smx build/addons/sourcemod/plugins/modules
@@ -302,8 +307,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_defaultskin.sp
 if [ ! -f "store_defaultskin.smx" ]; then
-    echo "Compile store module [default skin] failed!"
-    exit 1;
+  echo "Compile store module [default skin] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_defaultskin.sp build/addons/sourcemod/scripting/modules
 mv store_defaultskin.smx build/addons/sourcemod/plugins/modules
@@ -321,8 +326,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_musickit.sp
 if [ ! -f "store_musickit.smx" ]; then
-    echo "Compile store module [music kit] failed!"
-    exit 1;
+  echo "Compile store module [music kit] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_musickit.sp build/addons/sourcemod/scripting/modules
 mv store_musickit.smx build/addons/sourcemod/plugins/modules
@@ -340,8 +345,8 @@ do
 done
 addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_givecreditscommand.sp
 if [ ! -f "store_givecreditscommand.smx" ]; then
-    echo "Compile store module [give credits command] failed!"
-    exit 1;
+  echo "Compile store module [give credits command] failed!"
+  exit 1;
 fi
 mv addons/sourcemod/scripting/store_givecreditscommand.sp build/addons/sourcemod/scripting/modules
 mv store_givecreditscommand.smx build/addons/sourcemod/plugins/modules
@@ -350,19 +355,19 @@ echo ""
 
 
 #解压素材文件
-echo "Extract resource file ..."
-echo "Processing archive: resources/materials/materials.7z"
-7z x "resources/materials/materials.7z" -o"build/materials" >nul
-mv resources/materials/materials.txt build/materials
-echo "Processing archive: resources/materials/models.7z"
-7z x "resources/models/models.7z" -o"build/models" >nul
-mv resources/models/models.txt build/models
-echo "Processing archive: resources/materials/particles.7z"
-7z x "resources/particles/particles.7z" -o"build/particles" >nul
-mv resources/particles/particles.txt build/particles
-echo "Processing archive: resources/materials/sound.7z"
-7z x "resources/sound/sound.7z" -o"build/sound" >nul
-mv resources/sound/sound.txt build/sound
+#echo "Extract resource file ..."
+#echo "Processing archive: resources/materials/materials.7z"
+#7z x "resources/materials/materials.7z" -o"build/materials" >nul
+#mv resources/materials/materials.txt build/materials
+#echo "Processing archive: resources/materials/models.7z"
+#7z x "resources/models/models.7z" -o"build/models" >nul
+#mv resources/models/models.txt build/models
+#echo "Processing archive: resources/materials/particles.7z"
+#7z x "resources/particles/particles.7z" -o"build/particles" >nul
+#mv resources/particles/particles.txt build/particles
+#echo "Processing archive: resources/materials/sound.7z"
+#7z x "resources/sound/sound.7z" -o"build/sound" >nul
+#mv resources/sound/sound.txt build/sound
 
 
 #移动配置和翻译文件
@@ -382,31 +387,38 @@ mv -f include build/addons/sourcemod/scripting
 #打包
 echo "Compress file ..."
 cd build
+7z a $FILE   -t7z -mx9 README.md addons utils >nul
 if [ "$2" = "master" ]; then
 #    7z a $FILE -t7z -mx9 README.md addons utils materials models particles sound >nul
 # disallow package resouorce.
-    7z a $FILE   -t7z -mx9 README.md addons utils >nul
-    7z a $LATEST -t7z -mx9 README.md addons utils >nul
-    7z a $STABLE -t7z -mx9 README.md addons utils >nul
+  7z a $LATEST -t7z -mx9 README.md addons utils >nul
+elif [ "$2" = "stable" ]; then
+  7z a $STABLE -t7z -mx9 README.md addons utils >nul
 else
-    7z a $FILE -t7z -mx9 README.md addons utils >nul
+  7z a $OTHERS -t7z -mx9 README.md addons utils >nul
 fi
 
 
 #上传
 echo "Upload file RSYNC ..."
-if [ "$2" = "stable" ]; then
-    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$STABLE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
+RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$1/
+
+#上传通用版本
+if [ "$2" = "master" ]; then
+#    7z a $FILE -t7z -mx9 README.md addons utils materials models particles sound >nul
+# disallow package resouorce.
+  RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$LATEST $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
+elif [ "$2" = "stable" ]; then
+  RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$STABLE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
 else
-    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$FILE $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/$1/
-    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$LATEST $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
+  RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./$OTHERS $RSYNC_USER@$RSYNC_HOST::TravisCI/Store/
 fi
 
 
 #RAW
 if [ "$1" = "1.9" ] && [ "$2" = "master" ]; then
-    echo "Upload RAW [core] RSYNC ..."
-    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
-    echo "Upload RAW [modules] RSYNC ..."
-    RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/modules/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
+  echo "Upload RAW [core] RSYNC ..."
+  RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
+  echo "Upload RAW [modules] RSYNC ..."
+  RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/modules/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
 fi

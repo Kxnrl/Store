@@ -338,18 +338,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_IsPlayerTP",            Native_IsPlayerTP);
     CreateNative("Store_IsPlayerHide",          Native_IsPlayerHide);
 
-#if defined Module_Model
-    MarkNativeAsOptional("FPVMI_SetClientModel");
-    MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
-    MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
-    MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
-#endif
-
-#if defined Module_Sound
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
     MarkNativeAsOptional("SetClientCookie");
-#endif
+
+    MarkNativeAsOptional("Opts_GetOptBool");
+    MarkNativeAsOptional("Opts_SetOptBool");
+    MarkNativeAsOptional("Opts_GetOptFloat");
 
 #if defined Module_Skin
     MarkNativeAsOptional("ArmsFix_ModelSafe");

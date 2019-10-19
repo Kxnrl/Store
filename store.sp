@@ -23,6 +23,7 @@ public Plugin myinfo =
 //////////////////////////////
 //          INCLUDES        //
 //////////////////////////////
+#include <sourcemod>
 #include <sdkhooks>
 #include <cstrike>
 #include <store>
@@ -947,7 +948,7 @@ public void OnClientConnected(int client)
     TPMode_OnClientConnected(client);
 }
 
-public void OnClientPutInServer(int client)
+public void OnClientPostAdminCheck(int client)
 {
     if(IsFakeClient(client))
         return;
@@ -2467,11 +2468,15 @@ public void SQLCallback_Connection(Database db, const char[] error, int retry)
     {
         for(int client = 1; client <= MaxClients; ++client)
         {
-            if(!IsClientInGame(client))
+            if(!IsClientConnected(client))
                 continue;
 
             OnClientConnected(client);
-            OnClientPutInServer(client);
+
+            if(!IsClientInGame(client) || !IsClientAuthorized(client))
+                continue;
+
+            OnClientPostAdminCheck(client);
         }
     }
 }

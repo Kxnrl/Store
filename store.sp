@@ -1431,7 +1431,7 @@ void DisplayPreviewMenu(int client, int itemid)
 
     m_hMenu.SetTitle("%s\n%T\n ", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
 
-    AddMenuItemEx(m_hMenu, (g_eItems[g_iItems][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
+    AddMenuItemEx(m_hMenu, (g_eItems[itemid][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
 
     char leveltype[32];
     UTIL_GetLevelType(itemid, leveltype, 32);

@@ -8,7 +8,7 @@
     
     "Inventory has been loaded"
     {
-        "en" "Your inventory has been loaded. Type {green}!store {default} to open store menu."
+        "en" "Inventory loaded. Type {green}!store {default} to open store menu."
         "chi" "你的库存已加载,输入{green}!store{default}即可打开商店!"
     }
     
@@ -21,13 +21,13 @@
     
     "Item not in case"
     {
-        "en" "This skin is not in case"
+        "en" "Skin not contain in case"
         "chi" "皮肤箱中不包含当前浏览的皮肤"
     }
     
     "Open case successful"
     {
-        "en" "Open case successful"
+        "en" "Case successfully opened"
         "chi" "开箱成功"
     }
     
@@ -40,7 +40,7 @@
     
     "credits"
     {
-        "en" "credits"
+        "en" "Credits"
         "chi" "积分"
     }
 
@@ -54,7 +54,7 @@
     "Item Preview Available"
     {
         "#format" "{1:s}"
-        "en" "{1} (view details)"
+        "en" "{1} (View details)"
         "chi" "{1} (查看详细)"
     }
     
@@ -67,7 +67,7 @@
     "Item Compose Available"
     {
         "#format" "{1:s}"
-        "en" "{1} (Skin compose Required)"
+        "en" "{1} (Compose required for this skin)"
         "chi" "{1} (需要合成)"
     }
     
@@ -92,7 +92,7 @@
     
     "Open Case not available"
     {
-        "en"  "you can`t open skin case now..."
+        "en"  "Skin case unavailable"
         "chi" "现在还不能开箱..."
     }
 
@@ -105,7 +105,7 @@
     
     "Preview Plan Available"
     {
-        "en" "Choose Purchase Plan"
+        "en" "Choose purchase plan"
         "chi" "购买这个皮肤 (选择购买期限)"
     }
 
@@ -123,7 +123,7 @@
     
     "Chat Preview Cooldown"
     {
-        "en" "Preview is cooling down..."
+        "en" "Preview on cooldown..."
         "chi" "预览功能正在冷却中..."
     }
 
@@ -232,7 +232,7 @@
     "Compose successfully"
     {
         "#format" "{1:s}"
-        "en" "{green}Compose successfully! you get new skin {orange}{1}"
+        "en" "{green}Compose success! you get new skin {orange}{1}"
         "chi" "{green}合成成功! 你获得了新皮肤{orange}{1}"
     }
 
@@ -359,31 +359,31 @@
     
     "hat"
     {
-        "en" "hat"
+        "en" "Hat"
         "chi" "人物装饰品"
     }
     
     "playerskin"
     {
-        "en" "player skin"
+        "en" "Player skin"
         "chi" "人物皮肤"
     }
     
     "trail"
     {
-        "en" "trail"
+        "en" "Trail"
         "chi" "足迹"
     }
 
     "nadeskin"
     {
-        "en" "grenade skin"
+        "en" "Grenade skin"
         "chi" "手雷模型"
     }
     
     "nadetrail"
     {
-        "en" "grenade trail"
+        "en" "Grenade trail"
         "chi" "手雷轨迹"
     }
 
@@ -395,25 +395,25 @@
 
     "namecolor"
     {
-        "en" "name color"
+        "en" "Name color"
         "chi" "名字颜色"
     }
 
     "msgcolor"
     {
-        "en" "message color"
+        "en" "Message color"
         "chi" "聊天消息颜色"
     }
     
     "sound"
     {
-        "en" "sound"
+        "en" "Sound"
         "chi" "音效"
     }
     
     "neon"
     {
-        "en" "neon"
+        "en" "Neon"
         "chi" "霓虹"
     }
 
@@ -431,13 +431,13 @@
 
     "spray"
     {
-        "en" "spray"
+        "en" "Spray"
         "chi" "喷漆"
     }
     
     "vwmodel"
     {
-        "en" "weapon model"
+        "en" "Weapon model"
         "chi" "武器模型"
     }
     
@@ -536,19 +536,19 @@
     
     "tp not allow"
     {
-        "en" "This Game Mode, TP mode is not allowed"
+        "en" "Third person unavaliable in current mode"
         "chi" "当前模式不允许使用TP"
     }
     
     "tp dead"
     {
-        "en" "You are a dead man now, TP mode is not allowed"
+        "en" "Third person unavaliable when you were deceased"
         "chi" "你已经嗝屁了,还想开TP?"
     }
     
     "tp seeme"
     {
-        "en" "You are in SeeMe mode, TP mode is unavailable"
+        "en" "Third person unavaliable"
         "chi" "你已经开了SeeMe,还想开TP?"
     }
     
@@ -567,13 +567,13 @@
     
     "unknown error"
     {
-        "en" "unknown error, please contact to admin..."
+        "en" "Unknown error occurred, please contact admin..."
         "chi" "发生未知错误,请联系管理员..."
     }
     
     "time limit"
     {
-        "en" "Time Remaning"
+        "en" "Time remaining"
         "chi" "时限"
     }
     
@@ -599,7 +599,7 @@
     
     "quickly sell"
     {
-        "en" "Sell"
+        "en" "Instant Sell"
         "chi" "快速卖出该皮肤"
     }
     

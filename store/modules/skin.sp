@@ -374,6 +374,9 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
 
 void Broadcast_DeathSound(int client)
 {
+    if(!IsClientInGame(client))
+        return;
+
     if(g_szDeathVoice[client][0] != '*')
         return;
 
@@ -390,7 +393,11 @@ void Broadcast_DeathSound(int client)
 
     int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 3.0);
 
+#if defined GM_ZE
+    EmitSoundToClient(client, g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
+#else
     EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
+#endif
 }
 
 void Store_PreviewSkin(int client, int itemid)

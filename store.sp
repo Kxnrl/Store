@@ -338,6 +338,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_GetItemList",           Native_GetItemList);
     CreateNative("Store_IsPlayerTP",            Native_IsPlayerTP);
     CreateNative("Store_IsPlayerHide",          Native_IsPlayerHide);
+    CreateNative("Store_IsStoreSpray",          Native_IsStoreSpray);
 
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
@@ -897,6 +898,15 @@ public int Native_IsPlayerHide(Handle plugin, int numParams)
 {
 #if defined AllowHide
     return g_bHideMode[GetNativeCell(1)];
+#else
+    return false;
+#endif
+}
+
+public int Native_IsStoreSpray(Handle plugin, int numParams)
+{
+#if defined Module_Spray
+    return Spray_IsSpray(GetNativeCell(1));
 #else
     return false;
 #endif

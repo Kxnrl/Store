@@ -1,19 +1,16 @@
 #define Module_Spray
 
 // options
-#define DEFAULT_SPRAYS "cglogo2"
-
 static char g_szSprays[STORE_MAX_ITEMS][256];
 static int g_iSprayPrecache[STORE_MAX_ITEMS] = {-1,...};
 static int g_iSprayCache[MAXPLAYERS+1] = {-1,...};
 static int g_iSprayLimit[MAXPLAYERS+1] = {0,...};
 static int g_iSprays = 0;
-static int g_iCGLOGO = -1;
 
 public void Sprays_OnPluginStart()
 {
     Store_RegisterHandler("spray", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
-    
+
     RegConsoleCmd("spray", Command_Spray);
     RegConsoleCmd("sprays", Command_Spray);
 }
@@ -47,22 +44,16 @@ public Action Command_Spray(int client, int args)
 {
     if(g_iSprayCache[client] == -1)
     {
-        if(g_iCGLOGO != -1)
-            tPrintToChat(client, "%T", "spray auto equip", client);
-        else
-            tPrintToChat(client, "%T", "spray no equip", client);
-        
-        g_iSprayCache[client] = g_iCGLOGO;
-        
+        tPrintToChat(client, "%T", "spray no equip", client);
         return Plugin_Handled;
     }
-    
+
     if(g_iSprayLimit[client] > GetTime())
     {
         tPrintToChat(client, "%T", "spray cooldown", client);
         return Plugin_Handled;
     }
-    
+
     Sprays_Create(client);
     
     return Plugin_Handled;
@@ -71,7 +62,6 @@ public Action Command_Spray(int client, int args)
 public int Sprays_Reset()
 {
     g_iSprays = 0;
-    g_iCGLOGO = -1;
 }
 
 public bool Sprays_Config(KeyValues kv, int itemid)
@@ -81,9 +71,6 @@ public bool Sprays_Config(KeyValues kv, int itemid)
 
     if(FileExists(g_szSprays[g_iSprays], true))
     {
-        if(StrContains(g_szSprays[g_iSprays], DEFAULT_SPRAYS, false) != -1)
-            g_iCGLOGO = g_iSprays;
-
         ++g_iSprays;
         return true;
     }
@@ -141,4 +128,14 @@ void GetPlayerEyeViewPoint(int client, float m_fPosition[3])
 
     TR_TraceRayFilter(m_flPosition, m_flRotation, MASK_ALL, RayType_Infinite, TraceRayDontHitSelf, client);
     TR_GetEndPosition(m_fPosition);
+}
+
+// use for TE hook World decals
+bool Spray_IsSpray(int index)
+{
+    for(int i = 0; i < g_iSprays; ++i)
+    if (g_iSprayPrecache[i] == index)
+        return true;
+
+    return false;
 }

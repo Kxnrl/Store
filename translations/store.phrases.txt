@@ -187,7 +187,7 @@
     
     "Title Expiration PM"
     {
-        "en" "Expires in your life time."
+        "en" "No expiration limit."
         "chi" "剩余时间: 你活多久用多久"
     }
 
@@ -225,14 +225,14 @@
     
     "Compose Failed"
     {
-        "en" "{red}compose failed! you lost your material and credits..."
+        "en" "{red}Compose failed! You lost your material and credits..."
         "chi" "{red}合成失败,你损失了合成材料!"
     }
     
     "Compose successfully"
     {
         "#format" "{1:s}"
-        "en" "{green}Compose success! you get new skin {orange}{1}"
+        "en" "{green}Compose success! You get new skin {orange}{1}"
         "chi" "{green}合成成功! 你获得了新皮肤{orange}{1}"
     }
 
@@ -485,7 +485,7 @@
     
     "spray distance"
     {
-        "en" "too far away"
+        "en" "Invalid spray distance"
         "chi" "喷漆距离太远"
     }
     
@@ -504,7 +504,7 @@
     "sound to all"
     {
         "#format" "{1:N},{2:s}"
-        "en" "{green}{1}{normal} used [{blue}{2}{normal}] (!crpb block it)"
+        "en" "{green}{1}{normal} used [{blue}{2}{normal}] (!crpb to mute)"
         "chi" "{green}{1}{normal}使用音效[{blue}{2}{normal}] (!crpb开关屏蔽)"
     }
     

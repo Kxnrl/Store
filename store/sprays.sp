@@ -2,6 +2,7 @@
 
 // options
 static char g_szSprays[STORE_MAX_ITEMS][256];
+static int g_iSprayCooldown[STORE_MAX_ITEMS] = {30,...};
 static int g_iSprayPrecache[STORE_MAX_ITEMS] = {-1,...};
 static int g_iSprayCache[MAXPLAYERS+1] = {-1,...};
 static int g_iSprayLimit[MAXPLAYERS+1] = {0,...};
@@ -68,6 +69,7 @@ public bool Sprays_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSprays);
     kv.GetString("material", g_szSprays[g_iSprays], 256);
+    g_iSprayCooldown[g_iSprays] = kv.GetNum("cooldown", 30);
 
     if(FileExists(g_szSprays[g_iSprays], true))
     {
@@ -110,7 +112,7 @@ void Sprays_Create(int client)
         return;    
     }
 
-    g_iSprayLimit[client] = GetTime()+30;
+    g_iSprayLimit[client] = GetTime() + g_iSprayCooldown[g_iSprayCache[client]];
 
     TE_Start("World Decal");
     TE_WriteVector("m_vecOrigin",m_flView);

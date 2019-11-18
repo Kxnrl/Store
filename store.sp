@@ -23,6 +23,7 @@ public Plugin myinfo =
 //////////////////////////////
 //          INCLUDES        //
 //////////////////////////////
+#include <sourcemod>
 #include <sdkhooks>
 #include <cstrike>
 #include <store>
@@ -337,19 +338,15 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_GetItemList",           Native_GetItemList);
     CreateNative("Store_IsPlayerTP",            Native_IsPlayerTP);
     CreateNative("Store_IsPlayerHide",          Native_IsPlayerHide);
+    CreateNative("Store_IsStoreSpray",          Native_IsStoreSpray);
 
-#if defined Module_Model
-    MarkNativeAsOptional("FPVMI_SetClientModel");
-    MarkNativeAsOptional("FPVMI_RemoveViewModelToClient");
-    MarkNativeAsOptional("FPVMI_RemoveWorldModelToClient");
-    MarkNativeAsOptional("FPVMI_RemoveDropModelToClient");
-#endif
-
-#if defined Module_Sound
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
     MarkNativeAsOptional("SetClientCookie");
-#endif
+
+    MarkNativeAsOptional("Opts_GetOptBool");
+    MarkNativeAsOptional("Opts_SetOptBool");
+    MarkNativeAsOptional("Opts_GetOptFloat");
 
 #if defined Module_Skin
     MarkNativeAsOptional("ArmsFix_ModelSafe");
@@ -906,6 +903,15 @@ public int Native_IsPlayerHide(Handle plugin, int numParams)
 #endif
 }
 
+public int Native_IsStoreSpray(Handle plugin, int numParams)
+{
+#if defined Module_Spray
+    return Spray_IsSpray(GetNativeCell(1));
+#else
+    return false;
+#endif
+}
+
 //////////////////////////////
 //      CLIENT FORWARD      //
 //////////////////////////////
@@ -952,7 +958,7 @@ public void OnClientConnected(int client)
     TPMode_OnClientConnected(client);
 }
 
-public void OnClientPutInServer(int client)
+public void OnClientPostAdminCheck(int client)
 {
     if(IsFakeClient(client))
         return;
@@ -1436,7 +1442,7 @@ void DisplayPreviewMenu(int client, int itemid)
 
     m_hMenu.SetTitle("%s\n%T\n ", g_eItems[itemid][szName], "Title Credits", client, g_eClients[client][iCredits]);
 
-    AddMenuItemEx(m_hMenu, (g_eItems[g_iItems][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
+    AddMenuItemEx(m_hMenu, (g_eItems[itemid][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
 
     char leveltype[32];
     UTIL_GetLevelType(itemid, leveltype, 32);
@@ -2472,11 +2478,15 @@ public void SQLCallback_Connection(Database db, const char[] error, int retry)
     {
         for(int client = 1; client <= MaxClients; ++client)
         {
-            if(!IsClientInGame(client))
+            if(!IsClientConnected(client))
                 continue;
 
             OnClientConnected(client);
-            OnClientPutInServer(client);
+
+            if(!IsClientInGame(client) || !IsClientAuthorized(client))
+                continue;
+
+            OnClientPostAdminCheck(client);
         }
     }
 }

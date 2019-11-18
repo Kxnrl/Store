@@ -115,7 +115,7 @@ public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBro
 
 #if defined Module_Skin
     AttemptState(client, false); 
-    Broadcast_DeathSound(client);
+    RequestFrame(Broadcast_DeathSound, client);
     RequestFrame(FirstPersonDeathCamera, client);
 #endif
 
@@ -152,6 +152,10 @@ public void ZR_OnClientInfected(int client, int attacker, bool motherInfect, boo
 #if defined Module_Hats
     for(int i = 0; i < STORE_MAX_SLOTS; ++i)
         Store_RemoveClientHats(client, i);
+#endif
+
+#if defined Module_Skin
+    Store_ResetPlayerSkin(client);
 #endif
 }
 

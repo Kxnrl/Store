@@ -20,7 +20,7 @@ void TPMode_OnClientConnected(int client)
 
 public Action Command_TP(int client, int args)
 {
-    if(!client)
+    if(!client || !IsClientInGame(client))
         return Plugin_Handled;
     
 #if !defined Module_TPMode
@@ -51,7 +51,7 @@ public Action Command_TP(int client, int args)
 
 public Action Command_Mirror(int client, int args)
 {
-    if(!client)
+    if(!client || !IsClientInGame(client))
         return Plugin_Handled;
 
     if(!IsPlayerAlive(client))

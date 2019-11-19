@@ -235,7 +235,8 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
         {
-            Store_RemoveClientGloves(client, 0);
+            //temp disable remove gloves for operation
+            //Store_RemoveClientGloves(client, 0);
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
         }
 
@@ -260,7 +261,8 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         strcopy( arms,  armsLen, arms_t);
         strcopy(model, modelLen, skin_t);
 
-        if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
+        //temp disable remove gloves for operation
+        //if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
 
         return Plugin_Changed;
     }
@@ -325,8 +327,9 @@ static void Store_SetClientModel(int client, int m_iData)
     // Has valve gloves?
     if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
     {
-        Store_RemoveClientGloves(client, 0);
-        SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
+        //temp disable remove gloves for operation
+        //Store_RemoveClientGloves(client, 0);
+        //SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
     }
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
@@ -669,6 +672,7 @@ public void ZR_OnClientHumanPost(int client, bool respawn, bool protect)
 }
 #endif
 
+/*
 void Store_RemoveClientGloves(int client, int m_iData = -1)
 {
     if(m_iData == -1 && GetEquippedSkin(client) <= 0)
@@ -678,6 +682,7 @@ void Store_RemoveClientGloves(int client, int m_iData = -1)
     if(gloves != -1)
         AcceptEntityInput(gloves, "KillHierarchy");
 }
+*/
 
 void Store_ResetPlayerSkin(int client)
 {
@@ -723,8 +728,9 @@ void Store_CallDefaultSkin(int client)
 
         if(IsModelPrecached(arms_t))
         {
-            Store_RemoveClientGloves(client, 0);
-            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+            // temp disable remove gloves for operation
+            //Store_RemoveClientGloves(client, 0);
+            //SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
         }
     }
 }

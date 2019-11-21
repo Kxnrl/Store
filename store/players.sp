@@ -66,7 +66,7 @@ public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBro
     RequestFrame(OnClientSpawnPost, client);
 
 #if defined Module_Skin
-    //Store_RemoveClientGloves(client, -1);
+    Store_RemoveClientGloves(client, -1);
     Store_ResetPlayerSkin(client);
     Store_PreSetClientModel(client);
     CreateTimer(0.1, Timer_ClearCamera, client);
@@ -82,7 +82,7 @@ public void OnClientSpawnPost(int client)
         return;
     
 #if defined Module_Skin
-    //Store_RemoveClientGloves(client, -1);
+    Store_RemoveClientGloves(client, -1);
 #endif
 
 #if defined Module_Trail

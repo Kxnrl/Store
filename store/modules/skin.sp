@@ -32,12 +32,14 @@ bool   g_bSpecJoinPending[MAXPLAYERS+1];
 Handle g_tKillPreview[MAXPLAYERS+1];
 
 Handle g_hOnPlayerSkinDefault = null;
+Handle g_hOnPlayerSetModel = null;
 Handle g_hOnFPDeathCamera = null;
 
 void Skin_OnPluginStart()
 {
     g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
     g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
+    g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String);
 
     AddNormalSoundHook(Hook_NormalSound);
 
@@ -235,8 +237,7 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
         {
-            //temp disable remove gloves for operation
-            //Store_RemoveClientGloves(client, 0);
+            Store_RemoveClientGloves(client, 0);
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
         }
 
@@ -261,8 +262,7 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         strcopy( arms,  armsLen, arms_t);
         strcopy(model, modelLen, skin_t);
 
-        //temp disable remove gloves for operation
-        //if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
+        if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
 
         return Plugin_Changed;
     }
@@ -318,18 +318,24 @@ static void Store_SetClientModel(int client, int m_iData)
     }
 #endif
 
-    SetEntityModel(client, g_ePlayerSkins[m_iData][szModel]);
-    strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
+    char skin_t[128], arms_t[128];
+    strcopy(skin_t, 128, g_ePlayerSkins[m_iData][szModel]);
+    strcopy(arms_t, 128, g_ePlayerSkins[m_iData][szArms]);
+
+    if (Store_CallPreSetModel(client, skin_t, arms_t))
+        return;
+
+    SetEntityModel(client, skin_t);
+    strcopy(g_szSkinModel[client], 256, skin_t);
     
     if(g_ePlayerSkins[m_iData][szSound][0] != 0)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
 
     // Has valve gloves?
-    if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+    if(!StrEqual(arms_t, "null"))
     {
-        //temp disable remove gloves for operation
-        //Store_RemoveClientGloves(client, 0);
-        //SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
+        Store_RemoveClientGloves(client, 0);
+        SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
     }
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
@@ -672,7 +678,6 @@ public void ZR_OnClientHumanPost(int client, bool respawn, bool protect)
 }
 #endif
 
-/*
 void Store_RemoveClientGloves(int client, int m_iData = -1)
 {
     if(m_iData == -1 && GetEquippedSkin(client) <= 0)
@@ -682,7 +687,6 @@ void Store_RemoveClientGloves(int client, int m_iData = -1)
     if(gloves != -1)
         AcceptEntityInput(gloves, "KillHierarchy");
 }
-*/
 
 void Store_ResetPlayerSkin(int client)
 {
@@ -723,14 +727,29 @@ void Store_CallDefaultSkin(int client)
 
     if(ret)
     {
+        //if (Store_CallPreSetModel(client, skin_t, arms_t))
+        //    return;
+
         if(IsModelPrecached(skin_t))
             SetEntityModel(client, skin_t);
 
         if(IsModelPrecached(arms_t))
         {
-            // temp disable remove gloves for operation
-            //Store_RemoveClientGloves(client, 0);
-            //SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+            Store_RemoveClientGloves(client, 0);
+            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
         }
     }
+}
+
+bool Store_CallPreSetModel(int client, char skin[128], char arms[128])
+{
+    bool block = false;
+
+    Call_StartForward(g_hOnPlayerSetModel);
+    Call_PushCell(client);
+    Call_PushStringEx(skin, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(arms,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_Finish(block);
+
+    return block;
 }

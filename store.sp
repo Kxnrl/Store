@@ -2804,6 +2804,16 @@ void UTIL_SaveClientInventory(int client)
 
 void UTIL_SaveClientEquipment(int client)
 {
+    if(g_hDatabase == null)
+    {
+        LogStoreError("Database connection is lost or not yet initialized.");
+        return;
+    }
+
+    // Player disconnected before his inventory was even fetched
+    if(!g_eClients[client][bLoaded])
+        return;
+
     char m_szQuery[512];
     int m_iId;
     for(int i = 0; i < STORE_MAX_HANDLERS; ++i)

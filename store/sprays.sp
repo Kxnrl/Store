@@ -141,3 +141,24 @@ bool Spray_IsSpray(int index)
 
     return false;
 }
+
+void Spray_OnRunCmd(int client, int &buttons)
+{
+    if(g_iSprayCache[client] == -1 || !IsPlayerAlive(client))
+        return;
+
+    static int lastUse[MAXPLAYERS+1];
+    int time = GetTime();
+    if (time == lastUse[client])
+        return;
+
+    lastUse[client] = time;
+
+    if ((buttons & IN_SPEED) && (buttons & IN_USE))
+    {
+        buttons &= ~IN_SPEED;
+        buttons &= ~IN_USE;
+
+        Command_Spray(client, 0);
+    }
+}

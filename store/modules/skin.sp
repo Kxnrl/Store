@@ -633,25 +633,21 @@ static void FadeScreenWhite(int client)
     EndMessage();
 }
 
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+void Skin_OnRunCmd(int client, int &buttons)
 {
     if(IsPlayerAlive(client))
-        return Plugin_Continue;
+        return;
     
     if(g_iCameraRef[client] == INVALID_ENT_REFERENCE)
-        return Plugin_Continue;
-    
+        return;
+
     buttons = 0;
-    mouse[0] = 0;
-    mouse[1] = 0;
 
     int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
     if(m_iObserverMode <= 4)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 6);
 
     //AttemptState(client, false);
-
-    return Plugin_Continue;
 }
 
 static int GetEquippedSkin(int client)

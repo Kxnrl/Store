@@ -3961,3 +3961,16 @@ bool IsPluginRunning(Handle plugin, const char[] file)
 
     return (GetPluginStatus(plugin) == Plugin_Running);
 }
+
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+{
+#if defined Module_Spray
+    Spray_OnRunCmd(client, buttons);
+#endif
+
+#if defined Module_Skin
+    Skin_OnRunCmd(client, buttons);
+#endif
+
+    return Plugin_Continue;
+}

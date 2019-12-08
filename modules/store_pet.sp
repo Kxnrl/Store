@@ -263,9 +263,6 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
     SetVariantString("!activator");
     AcceptEntityInput(entity, "SetParent", client, entity, 0);
 
-    SetVariantString("letthehungergamesbegin");
-    AcceptEntityInput(entity, "SetParentAttachmentMaintainOffset", entity, entity, 0);
-
     g_iPetRef[client][slot] = EntIndexToEntRef(entity);
     g_iLastAnimation[client][slot] = -1;
     

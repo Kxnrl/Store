@@ -5,11 +5,35 @@
 bool g_bMirror[MAXPLAYERS+1];
 bool g_bThirdperson[MAXPLAYERS+1];
 
+static ConVar store_thirdperson_enabled = null;
+
 void TPMode_OnPluginStart()
 {
-    SetConVarInt(FindConVar("sv_allow_thirdperson"), 1);
+    store_thirdperson_enabled = CreateConVar("store_thirdperson_enabled", "1", "Enable or not third person.", _, true, 0.0, true, 1.0);
+    store_thirdperson_enabled.AddChangeHook(ConVar_store_thirdperson_enabled);
+
+
+    ConVar sv_allow_thirdperson = FindConVar("sv_allow_thirdperson");
+    sv_allow_thirdperson.IntValue = 1;
+    sv_allow_thirdperson.AddChangeHook(ConVar_sv_allow_thirdperson);
+
     RegConsoleCmd("sm_tp", Command_TP, "Toggle TP Mode");
     RegConsoleCmd("sm_seeme", Command_Mirror, "Toggle Mirror Mode");
+}
+
+public void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+    if (!convar.BoolValue)
+    {
+        for (int client = 1; client <= MaxClients; client++)
+        if (IsClientInGame(client) && !IsFakeClient(client))
+        CheckClientTP(client);
+    }
+}
+
+public void ConVar_sv_allow_thirdperson(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+    convar.IntValue = 1;
 }
 
 void TPMode_OnClientConnected(int client)
@@ -30,6 +54,12 @@ public Action Command_TP(int client, int args)
         return Plugin_Handled;
     }
 #endif
+
+    if (!store_thirdperson_enabled.BoolValue)
+    {
+        tPrintToChat(client, "%T", "tp not allow", client);
+        return Plugin_Handled;
+    }
 
     if(!IsPlayerAlive(client))
     {
@@ -104,9 +134,21 @@ void CheckClientTP(int client)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
         SetEntProp(client, Prop_Send, "m_iFOV", 90);
-        char valor[6];
-        GetConVarString(FindConVar("mp_forcecamera"), valor, 6);
-        SendConVarValue(client, FindConVar("mp_forcecamera"), valor);
+        char value[6];
+        GetConVarString(FindConVar("mp_forcecamera"), value, 6);
+        SendConVarValue(client, FindConVar("mp_forcecamera"), value);
         g_bMirror[client] = false;
     }
+}
+
+void TP_OnClientPutInServer(int client)
+{
+    ClientCommand(client, "firstperson");
+    SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", -1);
+    SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
+    SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
+    SetEntProp(client, Prop_Send, "m_iFOV", 90);
+    char value[6];
+    GetConVarString(FindConVar("mp_forcecamera"), value, 6);
+    SendConVarValue(client, FindConVar("mp_forcecamera"), value);
 }

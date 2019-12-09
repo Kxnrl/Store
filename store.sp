@@ -169,7 +169,7 @@ static int   g_iCreditsTimerOnline = 2;
 #include "store/players.sp"
 #endif
 // Module Grenade
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR
 #include "store/grenades.sp"
 #endif
 // Module Spray
@@ -970,6 +970,9 @@ public void OnClientPostAdminCheck(int client)
 #if defined Module_Model
     Models_OnClientPutInServer(client);
 #endif
+
+    // force exit if player in tp
+    TP_OnClientPutInServer(client);
 }
 
 public void OnClientDisconnect(int client)

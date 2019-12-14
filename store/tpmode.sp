@@ -6,12 +6,14 @@ bool g_bMirror[MAXPLAYERS+1];
 bool g_bThirdperson[MAXPLAYERS+1];
 
 static ConVar store_thirdperson_enabled = null;
+static ConVar mp_forcecamera = null;
 
 void TPMode_OnPluginStart()
 {
     store_thirdperson_enabled = CreateConVar("store_thirdperson_enabled", "1", "Enable or not third person.", _, true, 0.0, true, 1.0);
     store_thirdperson_enabled.AddChangeHook(ConVar_store_thirdperson_enabled);
 
+    mp_forcecamera = FindConVar("mp_forcecamera");
 
     ConVar sv_allow_thirdperson = FindConVar("sv_allow_thirdperson");
     sv_allow_thirdperson.IntValue = 1;
@@ -48,14 +50,14 @@ public Action Command_TP(int client, int args)
         return Plugin_Handled;
     
 #if !defined Module_TPMode
-    if(!(GetUserFlagBits(client) & ADMFLAG_ROOT))
+    if(!IsImmunityClient(client))
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
     }
 #endif
 
-    if (!store_thirdperson_enabled.BoolValue)
+    if (!store_thirdperson_enabled.BoolValue && !IsImmunityClient(client))
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
@@ -102,7 +104,7 @@ public Action Command_Mirror(int client, int args)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 1);
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 0);
         SetEntProp(client, Prop_Send, "m_iFOV", 120);
-        SendConVarValue(client, FindConVar("mp_forcecamera"), "1");
+        mp_forcecamera.ReplicateToClient(client, "1");
         g_bMirror[client] = true;
     }
     else
@@ -111,9 +113,9 @@ public Action Command_Mirror(int client, int args)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
         SetEntProp(client, Prop_Send, "m_iFOV", 90);
-        char valor[6];
-        GetConVarString(FindConVar("mp_forcecamera"), valor, 6);
-        SendConVarValue(client, FindConVar("mp_forcecamera"), valor);
+        char value[6];
+        mp_forcecamera.GetString(value, 6);
+        mp_forcecamera.ReplicateToClient(client, value);
         g_bMirror[client] = false;
     }
 
@@ -135,20 +137,37 @@ void CheckClientTP(int client)
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
         SetEntProp(client, Prop_Send, "m_iFOV", 90);
         char value[6];
-        GetConVarString(FindConVar("mp_forcecamera"), value, 6);
-        SendConVarValue(client, FindConVar("mp_forcecamera"), value);
+        mp_forcecamera.GetString(value, 6);
+        mp_forcecamera.ReplicateToClient(client, value);
         g_bMirror[client] = false;
     }
 }
 
 void TP_OnClientPutInServer(int client)
 {
-    ClientCommand(client, "firstperson");
-    SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", -1);
-    SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
-    SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
-    SetEntProp(client, Prop_Send, "m_iFOV", 90);
-    char value[6];
-    GetConVarString(FindConVar("mp_forcecamera"), value, 6);
-    SendConVarValue(client, FindConVar("mp_forcecamera"), value);
+    CreateTimer(0.1, Timer_RepeatCheckTP, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_RepeatCheckTP(Handle timer, int userid)
+{
+    int client = GetClientOfUserId(userid);
+    if (!client || !IsClientInGame(client))
+        return Plugin_Stop;
+
+    if (IsPlayerAlive(client))
+    {
+        g_bThirdperson[client] = true;
+        g_bMirror[client] = true;
+        CheckClientTP(client);
+        return Plugin_Stop;
+    }
+
+    return Plugin_Continue;
+}
+
+bool IsImmunityClient(int client)
+{
+    if (GetUserFlagBits(client) & ADMFLAG_ROOT)
+        return true;
+    return false;
 }

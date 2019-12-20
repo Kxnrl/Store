@@ -36,12 +36,19 @@ static any g_ePets[STORE_MAX_ITEMS][Pet];
 static int g_iPets = 0;
 static int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
 static int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iOwner[2048];
 
 public void OnPluginStart()
 {
     HookEvent("player_spawn", Pets_PlayerSpawn, EventHookMode_Post);
     HookEvent("player_death", Pets_PlayerDeath, EventHookMode_Post);
     HookEvent("player_team", Pets_PlayerTeam, EventHookMode_Post);
+}
+
+public void OnEntityDestroyed(int entity)
+{
+    if (MaxClients < entity < 2048)
+        g_iOwner[entity] = -1;
 }
 
 public void Store_OnStoreInit(Handle store_plugin)
@@ -267,6 +274,8 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
     g_iLastAnimation[client][slot] = -1;
     
     SDKHook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
+
+    g_iOwner[entity] = client;
 }
 
 void ResetPet(int client, int slot)
@@ -284,6 +293,8 @@ void ResetPet(int client, int slot)
     SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
 
     AcceptEntityInput(entity, "Kill");
+
+    g_iOwner[entity] = -1;
 }
 
 void DeathPet(int client, int slot)
@@ -312,6 +323,9 @@ void DeathPet(int client, int slot)
 
 public Action Hook_SetTransmit_Pet(int ent, int client)
 {
+    if (g_iOwner[entity] == client)
+        return Plugin_Continue;
+
     return Store_IsPlayerHide(client) ? Plugin_Handled : Plugin_Continue;
 }
 

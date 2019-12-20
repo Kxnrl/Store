@@ -321,7 +321,7 @@ void DeathPet(int client, int slot)
     HookSingleEntityOutput(entity, "OnAnimationDone", Hook_OnAnimationDone, true);
 }
 
-public Action Hook_SetTransmit_Pet(int ent, int client)
+public Action Hook_SetTransmit_Pet(int entity, int client)
 {
     if (g_iOwner[entity] == client)
         return Plugin_Continue;

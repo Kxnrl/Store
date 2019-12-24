@@ -384,7 +384,7 @@ public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const 
     float time = GetEngineTime() - pack.ReadFloat();
     char query[1024];
     pack.ReadString(STRING(query));
-    if(time > 2.0) LogMessage("Store SQL slow query: %f -> %s", time, query);
+    if(time > 20.0) LogMessage("Store SQL slow query: %f -> %s", time, query);
     if(results == null || error[0]) LogStoreError("SQL error happened.\nQuery: %s\nError: %s", query, error);
 
     delete pack;

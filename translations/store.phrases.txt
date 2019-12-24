@@ -585,16 +585,16 @@
     
     "opencase earned day"
     {
-        "#format" "{1:N},{2:s},{3:s},{4:d}"
+        "#format" "{1:N},{2:t},{3:s},{4:d}"
         "en"  "{purple}{1} {normal}opened a(n) {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}{4}day(s){normal})"
         "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}{4}天{normal})"
     }
     
     "opencase earned perm"
     {
-        "#format" "{1:N},{2:s},{3:s}"
+        "#format" "{1:N},{2:t},{3:s}"
         "en"  "{purple}{1} {normal}opened an {blue}{2}{normal}, earned [{green}{3}{normal}]({yellow}permanent{normal})"
-        "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}天{normal})"
+        "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}永久{normal})"
     }
     
     "quickly sell"
@@ -614,33 +614,26 @@
         "en" "Opened case and sell it"
         "chi" "开启皮肤箱后快速卖出皮肤"
     }
-    
+
     "open and sell day chat"
     {
         "#format" "{1:s},{2:d},{3:d}"
         "en" "You sold [{green}{1}{normal}]({yellow}{2}days{normal}) , earn {green}{3}{normal} credits"
         "chi" "你出售了[{green}{1}{normal}]({yellow}{2}天{normal})获得了{green}{3}{normal}积分"
     }
-    
+
+    "open and add day chat"
+    {
+        "#format" "{1:t},{2:s},{3:d}"
+        "en" "You open {blue}{1}{normal} and receive [{green}{2}{normal}]({yellow}{3}days{normal})"
+        "chi" "你打开{blue}{1}{normal}获得了[{green}{2}{normal}]({yellow}{3}天{normal})"
+    }
+
     "open and sell permanent chat"
     {
         "#format" "{1:s},{2:d}"
         "en" "You sold [{green}{1}{normal}]({yellow}permanent{normal}) , earn {green}{2}{normal} credits"
         "chi" "你出售了[{green}{1}{normal}]({yellow}永久{normal})获得了{green}{2}{normal}积分"
-    }
-    
-    "open and add day chat"
-    {
-        "#format" "{1:s},{2:s},{3:d}"
-        "en" "You open {blue}{1}{normal} and receive [{green}{2}{normal}]({yellow}{3}days{normal})"
-        "chi" "你打开{blue}{1}{normal}获得了[{green}{2}{normal}]({yellow}{3}天{normal})"
-    }
-    
-    "open and sell permanent chat"
-    {
-        "#format" "{1:s},{2:d}"
-        "en" "You open {blue}{1}{normal} and receive [{green}{2}{normal}]({yellow}permanent{normal})"
-        "chi" "你打开{blue}{1}{normal}获得了[{green}{2}{normal}]({yellow}永久{normal})"
     }
     
     "open and cancel"
@@ -692,5 +685,23 @@
         "#format" "{1:N},{2:d}"
         "en" "{blue}{1}{normal} gifted {green} {2} credits {normal} to you."
         "chi" "{blue}{1}{normal} 赠送了 {green} {2} 积分 {normal} 给你."
+    }
+
+    "Normal Case"
+    {
+        "en" "Normal Case"
+        "chi" "普通箱子"
+    }
+
+    "Advanced Case"
+    {
+        "en" "Advanced Case"
+        "chi" "高级箱子"
+    }
+
+    "Ultima Case"
+    {
+        "en" "Ultima Case"
+        "chi" "终极箱子"
     }
 }

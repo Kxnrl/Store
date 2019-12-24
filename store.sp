@@ -1668,9 +1668,9 @@ public Action Timer_OpeningCase(Handle timer, int client)
                 type = 0;
         }
     }
-    else if(radm > 850)
+    else if(radm > 800)
     {
-        // 13% SRare
+        // 18% SRare
         if(g_iClientCase[client] > 1 && g_aCaseSkins[1].Length > 0)
             type = 1;
         else
@@ -1678,7 +1678,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
     }
     else
     {
-        // 85% Rare
+        // 80% Rare
         type = 0;
     }
 
@@ -1720,14 +1720,12 @@ public Action Timer_OpeningCase(Handle timer, int client)
     {
         if(rdm >= 995)
             days = 0;
-        else if(rdm >= 950)
+        else if(rdm >= 935)
             days = UTIL_GetRandomInt(91, 365);
-        else if(rdm >= 875)
+        else if(rdm >= 800)
             days = UTIL_GetRandomInt(31, 90);
-        else if(rdm >= 775)
-            days = UTIL_GetRandomInt(8, 30);
         else
-            days = UTIL_GetRandomInt(1, 7);
+            days = UTIL_GetRandomInt(7, 30);
 
         if(g_iClientCase[client] == 3)
             days = 0;

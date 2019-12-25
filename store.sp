@@ -1811,6 +1811,21 @@ int UTIL_GetSkinSellPrice(int client, int itemid, int days)
     return RoundToCeil(float(g_eItems[itemid][iPrice]) / 180.0 * days * 0.85);
 }
 
+public Action Timer_ReEndingCase(Handle timer, DataPack pack)
+{
+    int client = GetClientOfUserId(pack.ReadCell());
+    int itemid = pack.ReadCell();
+    int length = pack.ReadCell();
+    delete pack;
+    if (!client)
+        return Plugin_Stop;
+
+    LogMessage("Redraw EndingCaseMenu to %L with %d and %d", client, g_eItems[itemid][szUniqueId], length);
+    EndingCaseMenu(client, length, itemid);
+
+    return Plugin_Stop;
+}
+
 void EndingCaseMenu(int client, int days, int itemid)
 {
     switch(g_iClientCase[client])
@@ -1913,7 +1928,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
         }
         case MenuAction_Cancel:
         {
-            if(IsClientInGame(client) && param2 != MenuCancel_Disconnected && param2 != MenuCancel_NoDisplay)
+            if(IsClientInGame(client)
             {
                 char info[32];
                 menu.GetItem(5, STRING(info));
@@ -1923,39 +1938,51 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 
                 int itemid = StringToInt(data[1]);
                 int days = StringToInt(data[2]);
-                
-                char name[128];
-                strcopy(name, 128, g_eItems[itemid][szName]);
-                
-                char m_szQuery[256];
-                
-                if(Store_HasClientItem(client, itemid))
-                {
-                    int crd = UTIL_GetSkinSellPrice(client, itemid, days);
-                    char reason[128];
-                    FormatEx(STRING(reason), "%T[%s]", "open and cancel", client, name);
-                    Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, reason);
-                    if(days) tPrintToChat(client, "%t", "open and sell day chat", name, days, crd);
-                    else tPrintToChat(client, "%t", "open and sell permanent chat", name, crd);
-                    if(g_iClientCase[client] > 1)
-                    {
-                        g_iDataProtect[client] = GetTime()+3;
-                        Store_SaveClientAll(client);
-                    }
-                    FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
-                }
-                else
-                {
-                    Store_GiveItem(client, itemid, GetTime(), (days == 0) ? 0 : GetTime()+days*86400, 233);
-                    if(days) tPrintToChat(client, "%t", "open and add day chat", g_szCase[g_iClientCase[client]], name, days);
-                    else tPrintToChat(client, "%t", "open and sell permanent chat", g_szCase[g_iClientCase[client]], name);
-                    Store_SaveClientAll(client);
-                    g_iDataProtect[client] = GetTime()+3;
-                    g_iSelectedItem[client] = itemid;
-                    FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
-                }
 
-                SQL_TVoid(g_hDatabase, m_szQuery);
+                if(param2 == MenuCancel_Interrupted)
+                {
+                    DataPack pack = new DataPack();
+                    pack.WriteCell(GetClientUserId(client));
+                    pack.WriteCell(itemid);
+                    pack.WriteCell(days);
+                    pack.Reset();
+                    CreateTimer(0.1, Timer_ReEndingCase, pack);
+                }
+                else if(param2 != MenuCancel_Disconnected && param2 != MenuCancel_NoDisplay)
+                {
+                    char name[128];
+                    strcopy(name, 128, g_eItems[itemid][szName]);
+                    
+                    char m_szQuery[256];
+                    
+                    if(Store_HasClientItem(client, itemid))
+                    {
+                        int crd = UTIL_GetSkinSellPrice(client, itemid, days);
+                        char reason[128];
+                        FormatEx(STRING(reason), "%T[%s]", "open and cancel", client, name);
+                        Store_SetClientCredits(client, Store_GetClientCredits(client)+crd, reason);
+                        if(days) tPrintToChat(client, "%t", "open and sell day chat", name, days, crd);
+                        else tPrintToChat(client, "%t", "open and sell permanent chat", name, crd);
+                        if(g_iClientCase[client] > 1)
+                        {
+                            g_iDataProtect[client] = GetTime()+3;
+                            Store_SaveClientAll(client);
+                        }
+                        FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
+                    }
+                    else
+                    {
+                        Store_GiveItem(client, itemid, GetTime(), (days == 0) ? 0 : GetTime()+days*86400, 233);
+                        if(days) tPrintToChat(client, "%t", "open and add day chat", g_szCase[g_iClientCase[client]], name, days);
+                        else tPrintToChat(client, "%t", "open and sell permanent chat", g_szCase[g_iClientCase[client]], name);
+                        Store_SaveClientAll(client);
+                        g_iDataProtect[client] = GetTime()+3;
+                        g_iSelectedItem[client] = itemid;
+                        FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
+                    }
+
+                    SQL_TVoid(g_hDatabase, m_szQuery);
+                }
             }
         }
     }

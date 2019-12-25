@@ -780,7 +780,7 @@ public int Native_HasClientItem(Handle myself, int numParams)
         return AllowItemForVIP(client, g_eItems[itemid][bVIP]);
 
     // Is the item free (available for everyone)?
-    if(!g_eItems[itemid][bIgnore] && g_eItems[itemid][iCaseType] <= 0 && !g_eItems[itemid][bCompose] && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+    if(!g_eItems[itemid][bIgnore] && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
         return true;
 
     // Check if the client actually has the item
@@ -1458,8 +1458,6 @@ void DisplayPreviewMenu(int client, int itemid)
     else if(g_eItems[itemid][szSteam][0] != 0) //专个人属
         AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
     else if(g_eItems[itemid][bIgnore]) //组专属或活动限定
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
-    else if(g_eItems[itemid][iCaseType] > 0) //开箱专属
         AddMenuItemEx(m_hMenu, ITEMDRAW_DISABLED, "1", "%T", "Item not Buyable", client);
     else
     {

@@ -1587,11 +1587,11 @@ void UTIL_OpenSkinCase(int client)
     menu.SetTitle("%T\n%T: %d\n ", "select case", client, "credits", client, g_eClients[client][iCredits]);
     menu.ExitBackButton = true;
 
-    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[1] && g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%T(%d%T)\nSkin Level: 2|3(1day~%T)", g_szCase[1], client, g_inCase[1], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[1] && g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%T(%d%T)\nSkin Level: 1|2|3(7day~%T)", g_szCase[1], client, g_inCase[1], "credits", client, "permanent", client);
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
-    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[2] && g_aCaseSkins[1].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "2", "%T(%d%T)\nSkin Level: 2|3|4(1day~%T)", g_szCase[2], client, g_inCase[2], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[2] && g_aCaseSkins[1].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "2", "%T(%d%T)\nSkin Level: 1|2|3|4(15day~%T)", g_szCase[2], client, g_inCase[2], "credits", client, "permanent", client);
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
-    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[3] && g_aCaseSkins[1].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%T(%d%T)\nSkin Level: 2|3|4(#%T#)", g_szCase[3], client, g_inCase[3], "credits", client, "permanent", client);
+    AddMenuItemEx(menu, (g_eClients[client][iCredits] >= g_inCase[3] && g_aCaseSkins[2].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "3", "%T(%d%T)\nSkin Level: 2|3|4(#%T#)", g_szCase[3], client, g_inCase[3], "credits", client, "permanent", client);
 
     menu.Display(client, 0);
 }
@@ -1648,43 +1648,47 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
     static int times[MAXPLAYERS+1];
 
-    if((g_iClientCase[client] == 1 && g_aCaseSkins[0].Length == 0) || (g_iClientCase[client] == 2 && g_aCaseSkins[1].Length == 0) || (g_iClientCase[client] == 3 && g_aCaseSkins[0].Length == 0))
+    if((g_iClientCase[client] == 1 && g_aCaseSkins[0].Length == 0) || (g_iClientCase[client] == 2 && g_aCaseSkins[1].Length == 0) || (g_iClientCase[client] == 3 && g_aCaseSkins[2].Length == 0))
         return Plugin_Stop;
 
     int type = 0;
     int radm = UTIL_GetRandomInt(1, 999);
-    if(radm > 980)
+
+    // Ultima
+    if(g_iClientCase[client] == 3)
     {
-        // 2% SSRare
-        if(g_iClientCase[client] > 1)
-        {
-            if(g_aCaseSkins[2].Length > 0)
-                type = 2;
-            else if(g_aCaseSkins[1].Length > 0)
-                type = 1;  
-            else
-                type = 0;
-        }
-        else 
-        {
-            if(g_aCaseSkins[1].Length > 0)
-                type = 1;
-            else
-                type = 0;
-        }
+        // 2.5% SSR | 97.5% SR
+        type = (radm >= 975) ? 2 : ((g_aCaseSkins[1].Length > 0) ? 1 : 0);
     }
-    else if(radm > 800)
+    // advance
+    else if(g_iClientCase[client] == 2)
     {
-        // 18% SRare
-        if(g_iClientCase[client] > 1 && g_aCaseSkins[1].Length > 0)
+        if(radm >= 900)
+        {
+            // 10% SSR
+            type = ((g_aCaseSkins[2].Length > 0) ? 2 : 1);
+        }
+        else if(radm >= 500)
+        {
+            // 40% SR
             type = 1;
+        }
         else
+        {
             type = 0;
+        }
     }
     else
     {
-        // 80% Rare
-        type = 0;
+        if(radm >= 850)
+        {
+            // 15% SR
+            type = ((g_aCaseSkins[1].Length > 0) ? 1 : 0);
+        }
+        else
+        {
+            type = 0;
+        }
     }
 
     if(g_aCaseSkins[type].Length <= 0)
@@ -1707,33 +1711,57 @@ public Action Timer_OpeningCase(Handle timer, int client)
         return Plugin_Stop;
     }
 
-    int days;
+    int days = 7;
 
     int rdm = UTIL_GetRandomInt(1, 1000);
 
-    if(++times[client] < 28)
+    if(++times[client] < 35)
     {
         if(rdm >= 800)
             days = 0;
         else
-            days = UTIL_GetRandomInt(1, 365);
+            days = UTIL_GetRandomInt(7, 365);
 
         if(g_iClientCase[client] == 3)
             days = 0;
     }
     else
     {
-        if(rdm >= 995)
-            days = 0;
-        else if(rdm >= 935)
-            days = UTIL_GetRandomInt(91, 365);
-        else if(rdm >= 800)
-            days = UTIL_GetRandomInt(31, 90);
-        else
-            days = UTIL_GetRandomInt(7, 30);
-
         if(g_iClientCase[client] == 3)
+        {
+            // always
             days = 0;
+        }
+        else if(g_iClientCase[client] == 2)
+        {
+            if(type == 2)
+            {
+                // ult case?
+                days = (rdm >= 995) ? 0 : UTIL_GetRandomInt(15, 30);
+            }
+            else
+            {
+                if(rdm >= 995)
+                    days = 0;
+                else if(rdm >= 935)
+                    days = UTIL_GetRandomInt(91, 365);
+                else if(rdm >= 800)
+                    days = UTIL_GetRandomInt(31, 90);
+                else
+                    days = UTIL_GetRandomInt((g_iClientCase[client] == 2 ? 15 : 7), 30);
+            }
+        }
+        else
+        {
+            if(rdm >= 995)
+                days = 0;
+            else if(rdm >= 935)
+                days = UTIL_GetRandomInt(91, 365);
+            else if(rdm >= 800)
+                days = UTIL_GetRandomInt(31, 90);
+            else
+                days = UTIL_GetRandomInt((g_iClientCase[client] == 2 ? 15 : 7), 30);
+        }
 
         times[client] = 0;
         EndingCaseMenu(client, days, itemid);
@@ -1742,15 +1770,14 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
     OpeningCaseMenu(client, days, g_eItems[itemid][szName]);
 
-    if(5 >= times[client])      CreateTimer(0.2, Timer_OpeningCase, client);
-    else if(times[client] > 5)  CreateTimer(0.3, Timer_OpeningCase, client);
-    else if(times[client] > 10) CreateTimer(0.4, Timer_OpeningCase, client);
-    else if(times[client] > 15) CreateTimer(0.5, Timer_OpeningCase, client);
-    else if(times[client] > 20) CreateTimer(0.7, Timer_OpeningCase, client);
-    else if(times[client] > 23) CreateTimer(1.0, Timer_OpeningCase, client);
-    else if(times[client] > 25) CreateTimer(1.5, Timer_OpeningCase, client);
-    else if(times[client] > 26) CreateTimer(2.2, Timer_OpeningCase, client);
-    else CreateTimer(2.5, Timer_OpeningCase, client);
+    if(12 >= times[client])     CreateTimer(0.2, Timer_OpeningCase, client);
+    else if(times[client] > 12) CreateTimer(0.3, Timer_OpeningCase, client);
+    else if(times[client] > 20) CreateTimer(0.5, Timer_OpeningCase, client);
+    else if(times[client] > 26) CreateTimer(0.8, Timer_OpeningCase, client);
+    else if(times[client] > 30) CreateTimer(1.2, Timer_OpeningCase, client);
+    else if(times[client] > 32) CreateTimer(1.8, Timer_OpeningCase, client);
+    else if(times[client] > 33) CreateTimer(2.6, Timer_OpeningCase, client);
+    else CreateTimer(3.0, Timer_OpeningCase, client);
 
     return Plugin_Stop;
 }
@@ -1803,7 +1830,7 @@ public int MenuHandler_OpeningCase(Menu menu, MenuAction action, int client, int
 int UTIL_GetSkinSellPrice(int client, int itemid, int days)
 {
     if(days == 0)
-        return RoundToCeil(g_inCase[g_iClientCase[client]] * 0.85);
+        return RoundToCeil(g_inCase[g_iClientCase[client]] * 0.8);
 
     if(g_eItems[itemid][iPlans] > 0)
     {
@@ -1827,13 +1854,13 @@ public Action Timer_ReEndingCase(Handle timer, DataPack pack)
     if (!client)
         return Plugin_Stop;
 
-    LogMessage("Redraw EndingCaseMenu to %L with %d and %d", client, g_eItems[itemid][szUniqueId], length);
-    EndingCaseMenu(client, length, itemid);
+    //LogMessage("Redraw EndingCaseMenu to %L with %d and %d", client, g_eItems[itemid][szUniqueId], length);
+    EndingCaseMenu(client, length, itemid, false);
 
     return Plugin_Stop;
 }
 
-void EndingCaseMenu(int client, int days, int itemid)
+void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
 {
     if(g_bInterMission)
     {
@@ -1867,13 +1894,11 @@ void EndingCaseMenu(int client, int days, int itemid)
     {
         AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "%T: %d day%s", "time limit", client, days, days > 1 ? "s" : "");
         PrintCenterText(client, "%s (%d day%s)", name, days, days > 1 ? "s" : "");
-        tPrintToChatAll("%t", "opencase earned day", client, g_szCase[g_iClientCase[client]], name, days);
     }
     else
     {
         AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "%T: %T", "time limit", client, "permanent", client);
         PrintCenterText(client, "%s (%T)", name, "permanent", client);
-        tPrintToChatAll("%t", "opencase earned perm", client, g_szCase[g_iClientCase[client]], name);
     }
 
     AddMenuItemEx(menu, ITEMDRAW_SPACER, "", "");
@@ -1888,6 +1913,7 @@ void EndingCaseMenu(int client, int days, int itemid)
     
     menu.Display(client, 0);
 
+    if (sound)
     ClientCommand(client, "playgamesound ui/item_drop3_rare.wav");
 }
 
@@ -1931,6 +1957,15 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
             char name[128];
             strcopy(name, 128, g_eItems[itemid][szName]);
 
+            if(days)
+            {
+                tPrintToChatAll("%t", "opencase earned day", client, g_szCase[g_iClientCase[client]], name, days);
+            }
+            else
+            {
+                tPrintToChatAll("%t", "opencase earned perm", client, g_szCase[g_iClientCase[client]], name);
+            }
+
             char m_szQuery[256];
 
             if(StrEqual(data[0], "sell"))
@@ -1946,7 +1981,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 UTIL_OpenSkinCase(client);
                 if(g_iClientCase[client] > 1)
                 {
-                    g_iDataProtect[client] = GetTime()+10;
+                    g_iDataProtect[client] = GetTime()+5;
                     Store_SaveClientAll(client);
                 }
             }
@@ -1961,7 +1996,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 Store_SaveClientAll(client);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);
-                g_iDataProtect[client] = GetTime()+10;
+                g_iDataProtect[client] = GetTime()+5;
                 g_iSelectedItem[client] = itemid;
                 DisplayItemMenu(client, itemid);
             }
@@ -3441,7 +3476,8 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
             strcopy(g_eItems[g_iItems][szDesc], 128, m_szDesc);
 
         // Field 11 -> case
-        g_eItems[g_iItems][iCaseType] = item_child.FetchInt(11);
+        int caseType = item_child.FetchInt(11);
+        g_eItems[g_iItems][iCaseType] = caseType;
 
         // Field 12 -> Compose
         char m_bitCompose[2];
@@ -3525,18 +3561,9 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         if(g_eItems[g_iItems][iParent] == -1)
             continue;
 
-        if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && g_eItems[g_iItems][iCaseType] > -1)
+        if(!g_eItems[g_iItems][bIgnore] && strcmp(m_szType, "playerskin", false) == 0 && caseType >= 0 && caseType <= 2)
         {
-            g_aCaseSkins[0].PushString(m_szUniqueId);
-
-            if(g_eItems[g_iItems][iCaseType] > 0)
-            {
-                g_aCaseSkins[1].PushString(m_szUniqueId);
-                if(g_eItems[g_iItems][iCaseType] > 1)
-                {
-                    g_aCaseSkins[2].PushString(m_szUniqueId);
-                }
-            }
+            g_aCaseSkins[caseType].PushString(m_szUniqueId);
         }
 
         ++g_iItems;

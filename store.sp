@@ -1843,13 +1843,13 @@ void EndingCaseMenu(int client, int days, int itemid)
     if(!g_eClients[client][bLoaded])
     {
         tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
-        return Plugin_Handled;
+        return;
     }
 
     if(g_eClients[client][bBan])
     {
         tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
-        return Plugin_Handled;
+        return;
     }
 
     switch(g_iClientCase[client])

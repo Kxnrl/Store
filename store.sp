@@ -1928,7 +1928,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
         }
         case MenuAction_Cancel:
         {
-            if(IsClientInGame(client)
+            if(IsClientInGame(client))
             {
                 char info[32];
                 menu.GetItem(5, STRING(info));

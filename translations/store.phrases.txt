@@ -622,18 +622,25 @@
         "chi" "你出售了[{green}{1}{normal}]({yellow}{2}天{normal})获得了{green}{3}{normal}积分"
     }
 
-    "open and add day chat"
-    {
-        "#format" "{1:t},{2:s},{3:d}"
-        "en" "You open {blue}{1}{normal} and receive [{green}{2}{normal}]({yellow}{3}days{normal})"
-        "chi" "你打开{blue}{1}{normal}获得了[{green}{2}{normal}]({yellow}{3}天{normal})"
-    }
-
     "open and sell permanent chat"
     {
         "#format" "{1:s},{2:d}"
         "en" "You sold [{green}{1}{normal}]({yellow}permanent{normal}) , earn {green}{2}{normal} credits"
         "chi" "你出售了[{green}{1}{normal}]({yellow}永久{normal})获得了{green}{2}{normal}积分"
+    }
+
+    "open and add day chat"
+    {
+        "#format" "{1:t},{2:s},{3:d}"
+        "en" "You opened {blue}{1}{normal} and receive [{green}{2}{normal}]({yellow}{3}days{normal})"
+        "chi" "你打开{blue}{1}{normal}获得了[{green}{2}{normal}]({yellow}{3}天{normal})"
+    }
+
+    "open and add permanent chat"
+    {
+        "#format" "{1:t},{2:d}"
+        "en" "You opened {blue}{1}{normal} and receive [{green}{2}{normal}]({yellow}permanent{normal})"
+        "chi" "你打开[{green}{1}{normal}]获得了[{green}{2}{normal}]({yellow}永久{normal})"
     }
     
     "open and cancel"

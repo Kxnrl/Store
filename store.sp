@@ -1901,7 +1901,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
             {
                 Store_GiveItem(client, itemid, GetTime(), (days == 0) ? 0 : GetTime()+days*86400, 233);
                 if(days) tPrintToChat(client, "%t", "open and add day chat", g_szCase[g_iClientCase[client]], name, days);
-                else tPrintToChat(client, "%t", "open and sell permanent chat", g_szCase[g_iClientCase[client]], name);
+                else tPrintToChat(client, "%t", "open and add permanent chat", g_szCase[g_iClientCase[client]], name);
                 Store_SaveClientAll(client);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);

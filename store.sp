@@ -675,7 +675,13 @@ public int Native_GiveItem(Handle plugin, int numParams)
     int purchase = GetNativeCell(3);
     int expiration = GetNativeCell(4);
     int price = GetNativeCell(5);
-    
+
+    if(IsFakeClient(client) || !g_eClients[client][bLoaded] || g_eClients[client][bBan])
+    {
+        LogStoreError("Native_GiveItem -> %N itemid %d purchase %d expiration %d price %d -> ban? loaded? fakeclient?", client, itemid, purchase, expiration, price);
+        return;
+    }
+
     if(itemid < 0)
     {
         LogStoreError("Native_GiveItem -> %N itemid %d purchase %d expiration %d price %d", client, itemid, purchase, expiration, price);
@@ -801,7 +807,7 @@ public int Native_ExtClientItem(Handle myself, int numParams)
     int itemid = GetNativeCell(2);
     int extime = GetNativeCell(3);
     
-    if(!g_eClients[client][bLoaded])
+    if(!g_eClients[client][bLoaded] || g_eClients[client][bBan])
         return false;
 
     for(int i = 0; i < g_eClients[client][iItems]; ++i)
@@ -1828,6 +1834,24 @@ public Action Timer_ReEndingCase(Handle timer, DataPack pack)
 
 void EndingCaseMenu(int client, int days, int itemid)
 {
+    if(g_bInterMission)
+    {
+        LogMessage("Stop EndingCaseMenu in g_bInterMission");
+        return;
+    }
+
+    if(!g_eClients[client][bLoaded])
+    {
+        tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
+        return Plugin_Handled;
+    }
+
+    if(g_eClients[client][bBan])
+    {
+        tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
+        return Plugin_Handled;
+    }
+
     switch(g_iClientCase[client])
     {
         case 1: Store_SetClientCredits(client, Store_GetClientCredits(client)-g_inCase[1], "Normal Case");
@@ -1908,7 +1932,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 UTIL_OpenSkinCase(client);
                 if(g_iClientCase[client] > 1)
                 {
-                    g_iDataProtect[client] = GetTime()+3;
+                    g_iDataProtect[client] = GetTime()+10;
                     Store_SaveClientAll(client);
                 }
             }
@@ -1920,7 +1944,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 Store_SaveClientAll(client);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                 SQL_TVoid(g_hDatabase, m_szQuery);
-                g_iDataProtect[client] = GetTime()+3;
+                g_iDataProtect[client] = GetTime()+10;
                 g_iSelectedItem[client] = itemid;
                 DisplayItemMenu(client, itemid);
             }
@@ -1965,7 +1989,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                         else tPrintToChat(client, "%t", "open and sell permanent chat", name, crd);
                         if(g_iClientCase[client] > 1)
                         {
-                            g_iDataProtect[client] = GetTime()+3;
+                            g_iDataProtect[client] = GetTime()+10;
                             Store_SaveClientAll(client);
                         }
                         FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
@@ -1976,7 +2000,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                         if(days) tPrintToChat(client, "%t", "open and add day chat", g_szCase[g_iClientCase[client]], name, days);
                         else tPrintToChat(client, "%t", "open and sell permanent chat", g_szCase[g_iClientCase[client]], name);
                         Store_SaveClientAll(client);
-                        g_iDataProtect[client] = GetTime()+3;
+                        g_iDataProtect[client] = GetTime()+10;
                         g_iSelectedItem[client] = itemid;
                         FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
                     }

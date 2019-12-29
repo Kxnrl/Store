@@ -13,10 +13,10 @@ echo "*** Trigger build ***"
 
 #下载SM
 echo "Download sourcemod ..."
-if [ "$1" = "1.9" ]; then
-  wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
-else
+if [ "$1" = "1.10" ]; then
   wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
+else
+  wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
 fi
 tar -xzf sourcemod.tar.gz
 
@@ -416,7 +416,7 @@ fi
 
 
 #RAW
-if [ "$1" = "1.9" ] && [ "$2" = "master" ]; then
+if [ "$1" = "1.10" ] && [ "$2" = "master" ]; then
   echo "Upload RAW [core] RSYNC ..."
   RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
   echo "Upload RAW [modules] RSYNC ..."

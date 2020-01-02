@@ -1715,7 +1715,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
     int rdm = UTIL_GetRandomInt(1, 1000);
 
-    if(++times[client] < 35)
+    if(++times[client] < 28)
     {
         if(rdm >= 800)
             days = 0;
@@ -1743,7 +1743,7 @@ public Action Timer_OpeningCase(Handle timer, int client)
             {
                 if(rdm >= 995)
                     days = 0;
-                else if(rdm >= 935)
+                else if(rdm >= 955)
                     days = UTIL_GetRandomInt(91, 365);
                 else if(rdm >= 800)
                     days = UTIL_GetRandomInt(31, 90);
@@ -1773,10 +1773,10 @@ public Action Timer_OpeningCase(Handle timer, int client)
     if(12 >= times[client])     CreateTimer(0.2, Timer_OpeningCase, client);
     else if(times[client] > 12) CreateTimer(0.3, Timer_OpeningCase, client);
     else if(times[client] > 20) CreateTimer(0.5, Timer_OpeningCase, client);
-    else if(times[client] > 26) CreateTimer(0.8, Timer_OpeningCase, client);
-    else if(times[client] > 30) CreateTimer(1.2, Timer_OpeningCase, client);
-    else if(times[client] > 32) CreateTimer(1.8, Timer_OpeningCase, client);
-    else if(times[client] > 33) CreateTimer(2.6, Timer_OpeningCase, client);
+    else if(times[client] > 23) CreateTimer(0.8, Timer_OpeningCase, client);
+    else if(times[client] > 25) CreateTimer(1.2, Timer_OpeningCase, client);
+    else if(times[client] > 27) CreateTimer(1.8, Timer_OpeningCase, client);
+    else if(times[client] > 28) CreateTimer(2.6, Timer_OpeningCase, client);
     else CreateTimer(3.0, Timer_OpeningCase, client);
 
     return Plugin_Stop;
@@ -1880,6 +1880,8 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
         return;
     }
 
+    g_iDataProtect[client] = GetTime()+10;
+
     Menu menu = new Menu(MenuHandler_OpenSuccessful);
     menu.SetTitle("%T\n%T\n ", "Open case successful", client, g_szCase[g_iClientCase[client]], client);
     menu.ExitButton = false;
@@ -1911,7 +1913,7 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
     FormatEx(fmt, 32, "add_%d_%d", itemid, days);
     AddMenuItemEx(menu, Store_HasClientItem(client, itemid) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT, fmt, "%T", "income", client);
     
-    menu.Display(client, 0);
+    menu.Display(client, 10);
 
     if (sound)
     ClientCommand(client, "playgamesound ui/item_drop3_rare.wav");

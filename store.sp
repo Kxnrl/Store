@@ -1912,8 +1912,8 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, fmt, "%T(%d)", "quickly sell", client, crd);
     FormatEx(fmt, 32, "add_%d_%d", itemid, days);
     AddMenuItemEx(menu, Store_HasClientItem(client, itemid) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT, fmt, "%T", "income", client);
-    
-    menu.Display(client, 10);
+
+    menu.Display(client, 0);
 
     if (sound)
     ClientCommand(client, "playgamesound ui/item_drop3_rare.wav");

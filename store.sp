@@ -33,6 +33,7 @@ public Plugin myinfo =
 #undef REQUIRE_PLUGIN
 #include <clientprefs>
 #include <fys.opts>
+#include <fys.pupd>
 #define REQUIRE_EXTENSIONS
 #define REQUIRE_PLUGIN
 
@@ -185,6 +186,52 @@ static int   g_iCreditsTimerOnline = 2;
 #include "store/sounds.sp"
 #endif
 
+
+//////////////////////////////
+//     PLUGIN UPDATER       //
+//////////////////////////////
+public void Pupd_OnCheckAllPlugins()
+{
+#if defined GM_TT
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/TT/");
+#endif
+
+#if defined GM_ZE
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/ZE/");
+#endif
+
+#if defined GM_MG
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/MG/");
+#endif
+
+#if defined GM_JB
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/JB/");
+#endif
+
+#if defined GM_KZ
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/KZ/");
+#endif
+
+#if defined GM_HZ
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/HZ/");
+#endif
+
+#if defined GM_PR
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/PR/");
+#endif
+
+#if defined GM_HG
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/HG/");
+#endif
+
+#if defined GM_SR
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/SR/");
+#endif
+
+#if defined GM_BH
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/BH/");
+#endif
+}
 
 //////////////////////////////
 //     PLUGIN FORWARDS      //

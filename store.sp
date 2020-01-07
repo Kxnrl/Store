@@ -397,6 +397,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     MarkNativeAsOptional("Opts_SetOptBool");
     MarkNativeAsOptional("Opts_GetOptFloat");
 
+    MarkNativeAsOptional("Pupd_CheckPlugin");
+
 #if defined Module_Skin
     MarkNativeAsOptional("ArmsFix_ModelSafe");
 #endif

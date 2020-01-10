@@ -641,10 +641,10 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
         delete pack;
         char m_szQuery[512], eReason[256];
         FormatEx(STRING(m_szQuery), "UPDATE store_players SET credits=credits+%d WHERE id=%d", difference, m_iStoreId);
-        SQL_TVoid(g_hDatabase, m_szQuery);
+        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_High);
         g_hDatabase.Escape(logMsg, eReason, 256);
         FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", m_iStoreId, g_eClients[client][iCredits] + difference, difference, eReason, iTimeStamp);
-        SQL_TVoid(g_hDatabase, m_szQuery);
+        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
         return Plugin_Stop;
     }
 
@@ -876,7 +876,7 @@ public int Native_ExtClientItem(Handle myself, int numParams)
 
         char m_szQuery[256];
         FormatEx(STRING(m_szQuery), "UPDATE `store_items` SET `date_of_expiration` = '%d' WHERE `id`=%d AND `player_id`=%d", g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iId], g_eClients[client][iId]);
-        SQL_TVoid(g_hDatabase, m_szQuery);
+        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_High);
         UTIL_LogMessage(client, 0, "Ext item [%s][%s][%d] via native, e[%d]", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName],  g_eClientItems[client][i][iId], extime);
 
         return true;
@@ -1672,7 +1672,12 @@ public int MenuHandler_SelectCase(Menu menu, MenuAction action, int client, int 
                     tPrintToChat(client, "%T", "Item not in case", client);
             }
 
-            CreateTimer(0.1, Timer_OpeningCase, client);
+            g_iDataProtect[client] = GetTime()+300;
+
+            char m_szQuery[255];
+            FormatEx(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[client][iId]);
+            g_hDatabase.Query(SQLCallback_OpenCase, m_szQuery, g_eClients[client][iUserId], DBPrio_High);
+            g_eClients[client][bRefresh] = true;
         }
         case MenuAction_Cancel:
         {
@@ -1682,11 +1687,56 @@ public int MenuHandler_SelectCase(Menu menu, MenuAction action, int client, int 
     }
 }
 
-public Action Timer_OpeningCase(Handle timer, int client)
+public void SQLCallback_OpenCase(Database db, DBResultSet results, const char[] error, int userid)
 {
-    if(!IsClientInGame(client))
+    int client = GetClientOfUserId(userid);
+    if(!client)
+        return;
+
+    if(results == null || error[0])
+    {
+        LogStoreError("Error happened. Error: %s", error);
+        return;
+    }
+
+    g_eClients[client][bRefresh] = false;
+
+    if(!results.FetchRow())
+        return;
+
+    int dbCredits = results.FetchInt(0);
+
+    if(dbCredits != g_eClients[client][iOriginalCredits])
+    {
+        int diff = dbCredits - g_eClients[client][iOriginalCredits];
+        g_eClients[client][iOriginalCredits] = dbCredits;
+        g_eClients[client][iCredits] += diff;
+        UTIL_LogMessage(client, diff, "Credits changed in database (sync credits from database)");
+        Store_SaveClientAll(client);
+    }
+
+    switch(g_iClientCase[client])
+    {
+        case 1 : if(g_eClients[client][iCredits] < g_inCase[1]) return;
+        case 2 : if(g_eClients[client][iCredits] < g_inCase[2]) return;
+        case 3 : if(g_eClients[client][iCredits] < g_inCase[3]) return;
+        default: return;
+    }
+
+    g_iDataProtect[client] = GetTime() + 10;
+
+    CreateTimer(0.1, Timer_OpeningCase, userid);
+}
+
+public Action Timer_OpeningCase(Handle timer, int userid)
+{
+    int client = GetClientOfUserId(userid);
+
+    if(!client || !IsClientInGame(client))
         return Plugin_Stop;
-    
+
+    g_iDataProtect[client] = GetTime() + 10;
+
     switch(g_iClientCase[client])
     {
         case 1 : if(g_eClients[client][iCredits] < g_inCase[1]) return Plugin_Stop;
@@ -1819,14 +1869,14 @@ public Action Timer_OpeningCase(Handle timer, int client)
 
     OpeningCaseMenu(client, days, g_eItems[itemid][szName]);
 
-    if(12 >= times[client])     CreateTimer(0.2, Timer_OpeningCase, client);
-    else if(times[client] > 12) CreateTimer(0.3, Timer_OpeningCase, client);
-    else if(times[client] > 20) CreateTimer(0.5, Timer_OpeningCase, client);
-    else if(times[client] > 23) CreateTimer(0.8, Timer_OpeningCase, client);
-    else if(times[client] > 25) CreateTimer(1.2, Timer_OpeningCase, client);
-    else if(times[client] > 27) CreateTimer(1.8, Timer_OpeningCase, client);
-    else if(times[client] > 28) CreateTimer(2.6, Timer_OpeningCase, client);
-    else CreateTimer(3.0, Timer_OpeningCase, client);
+    if(12 >= times[client])     CreateTimer(0.2, Timer_OpeningCase, userid);
+    else if(times[client] > 12) CreateTimer(0.3, Timer_OpeningCase, userid);
+    else if(times[client] > 20) CreateTimer(0.5, Timer_OpeningCase, userid);
+    else if(times[client] > 23) CreateTimer(0.8, Timer_OpeningCase, userid);
+    else if(times[client] > 25) CreateTimer(1.2, Timer_OpeningCase, userid);
+    else if(times[client] > 27) CreateTimer(1.8, Timer_OpeningCase, userid);
+    else if(times[client] > 28) CreateTimer(2.6, Timer_OpeningCase, userid);
+    else CreateTimer(3.0, Timer_OpeningCase, userid);
 
     return Plugin_Stop;
 }
@@ -2028,11 +2078,11 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 if(days) tPrintToChat(client, "%t", "open and sell day chat", name, days, crd);
                 else tPrintToChat(client, "%t", "open and sell permanent chat", name, crd);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
-                SQL_TVoid(g_hDatabase, m_szQuery);
+                SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
                 UTIL_OpenSkinCase(client);
                 if(g_iClientCase[client] > 1)
                 {
-                    g_iDataProtect[client] = GetTime()+5;
+                    g_iDataProtect[client] = GetTime()+15;
                     Store_SaveClientAll(client);
                 }
             }
@@ -2046,8 +2096,8 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 else tPrintToChat(client, "%t", "open and add permanent chat", g_szCase[g_iClientCase[client]], name);
                 Store_SaveClientAll(client);
                 FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, %d, 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
-                SQL_TVoid(g_hDatabase, m_szQuery);
-                g_iDataProtect[client] = GetTime()+5;
+                SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+                g_iDataProtect[client] = GetTime()+15;
                 g_iSelectedItem[client] = itemid;
                 DisplayItemMenu(client, itemid);
             }
@@ -2617,7 +2667,7 @@ public void SQLCallback_Connection(Database db, const char[] error, int retry)
 
     char m_szQuery[256];
     FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `date_of_expiration` <> 0 AND `date_of_expiration` < %d", GetTime());
-    SQL_TVoid(g_hDatabase, m_szQuery);
+    SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 
     // Load configs
     UTIL_ReloadConfig();
@@ -2676,7 +2726,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
         else
         {
             FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
-            g_hDatabase.Query(SQLCallback_LoadClientInventory_Items, m_szQuery, userid);
+            g_hDatabase.Query(SQLCallback_LoadClientInventory_Items, m_szQuery, userid, DBPrio_Normal);
         }
 
         UTIL_LogMessage(client, 0, "Joined");
@@ -2688,7 +2738,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
         GetClientName(client, m_szName, 64);
         g_hDatabase.Escape(m_szName, m_szEName, 128);
         FormatEx(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', 300, %d, %d, '0')", g_eClients[client][szAuthId], m_szEName, m_iTime, m_iTime);
-        g_hDatabase.Query(SQLCallback_InsertClient, m_szQuery, userid);
+        g_hDatabase.Query(SQLCallback_InsertClient, m_szQuery, userid, DBPrio_High);
     }
 }
 
@@ -2711,13 +2761,13 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
         if(UTIL_GetTotalInventoryItems(client) > 0)
         {
             FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-            g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
+            g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid, DBPrio_High);
             return;
         }
 
         Call_OnClientLoaded(client);
         FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        SQL_TVoid(g_hDatabase, m_szQuery);
+        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 
         return;
     }
@@ -2756,18 +2806,18 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
 
 #if defined DATA_VERIFY
     FormatEx(STRING(m_szQuery), "SELECT * FROM `store_newlogs` WHERE `store_id` = '%d' AND (`reason` = 'Disconnect' OR `reason` = 'Add Funds')  ORDER BY `timestamp` DESC LIMIT 1", g_eClients[client][iId]);
-    g_hDatabase.Query(SQLCallback_LoadClientInventory_DATAVERIFY, m_szQuery, userid);
+    g_hDatabase.Query(SQLCallback_LoadClientInventory_DATAVERIFY, m_szQuery, userid, DBPrio_Low);
 #endif
 
     if(i > 0)
     {
         FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid);
+        g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid, DBPrio_Low);
     }
     else
     {
         FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        SQL_TVoid(g_hDatabase, m_szQuery);
+        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
         
         Call_OnClientLoaded(client);
     }
@@ -2796,7 +2846,7 @@ public void SQLCallback_LoadClientInventory_DATAVERIFY(Database db, DBResultSet 
         {
             char m_szQuery[256];
             FormatEx(STRING(m_szQuery), "UPDATE `store_players` SET `ban` = 1, `credits` = -1 WHERE `id` = '%d';", g_eClients[client][iId]);
-            SQL_TVoid(g_hDatabase, m_szQuery);
+            SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_High);
 
             LogMessage("[CAT]  Store Inject detected :  \"%L\" -> credits[%d] -> loaded[%d] -> diff[%d]", client, credits, g_eClients[client][iCredits], diff);
             ServerCommand("sm_ban #%d 0 \"[CAT] Store Inject detected.\"", GetClientUserId(client));
@@ -2908,7 +2958,7 @@ void UTIL_LoadClientInventory(int client)
         return;
 
     FormatEx(STRING(m_szQuery), "SELECT * FROM store_players WHERE `authid`=\"%s\"", m_szAuthId[8]);
-    g_hDatabase.Query(SQLCallback_LoadClientInventory_Credits, m_szQuery, g_eClients[client][iUserId]);
+    g_hDatabase.Query(SQLCallback_LoadClientInventory_Credits, m_szQuery, g_eClients[client][iUserId], DBPrio_Normal);
 }
 
 void UTIL_SaveClientInventory(int client)
@@ -2936,7 +2986,7 @@ void UTIL_SaveClientInventory(int client)
         {
             g_eClientItems[client][i][bSynced] = true;
             FormatEx(STRING(m_szQuery), "INSERT INTO store_items (`player_id`, `type`, `unique_id`, `date_of_purchase`, `date_of_expiration`, `price_of_purchase`) VALUES(%d, \"%s\", \"%s\", %d, %d, %d)", g_eClients[client][iId], m_szType, m_szUniqueId, g_eClientItems[client][i][iDateOfPurchase], g_eClientItems[client][i][iDateOfExpiration], g_eClientItems[client][i][iPriceOfPurchase]);
-            SQL_TVoid(g_hDatabase, m_szQuery);
+            SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_High);
         }
         else if(g_eClientItems[client][i][bSynced] && g_eClientItems[client][i][bDeleted])
         {
@@ -2945,7 +2995,7 @@ void UTIL_SaveClientInventory(int client)
                 FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `player_id`=%d AND `type`=\"%s\" AND `unique_id`=\"%s\"", g_eClients[client][iId], m_szType, m_szUniqueId);
             else
                 FormatEx(STRING(m_szQuery), "DELETE FROM store_items WHERE `id`=%d", g_eClientItems[client][i][iId]);
-            SQL_TVoid(g_hDatabase, m_szQuery);
+            SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_High);
             g_eClientItems[client][i][bSynced] = false;
         }
     }
@@ -2986,7 +3036,7 @@ void UTIL_SaveClientEquipment(int client)
             
             //FormatEx(STRING(m_szQuery), "INSERT INTO store_equipment (`player_id`, `type`, `unique_id`, `slot`) VALUES(%d, \"%s\", \"%s\", %d)", g_eClients[client][iId], g_eTypeHandlers[i][szType], g_eItems[g_eClients[client][aEquipment][m_iId]][szUniqueId], a);
 
-            SQL_TVoid(g_hDatabase, m_szQuery);
+            SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
             g_eClients[client][aEquipmentSynced][m_iId] = g_eClients[client][aEquipment][m_iId];
         }
     }
@@ -3014,13 +3064,13 @@ void UTIL_SaveClientData(int client, bool disconnect)
     if(disconnect)
     {
         g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
-        SQL_TVoid(g_hDatabase, m_szQuery);
+        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
         UTIL_LogMessage(client, 0, "Disconnect");
     }
     else
     {
         g_eClients[client][bRefresh] = true;
-        g_hDatabase.Query(SQLCallback_RefreshCredits, m_szQuery, GetClientUserId(client));
+        g_hDatabase.Query(SQLCallback_RefreshCredits, m_szQuery, GetClientUserId(client), DBPrio_High);
     }
 }
 
@@ -3236,7 +3286,7 @@ void UTIL_BuyItem(int client)
     g_iDataProtect[client] = GetTime()+15;
     char m_szQuery[255];
     FormatEx(STRING(m_szQuery), "SELECT credits FROM store_players WHERE `id`=%d", g_eClients[client][iId]);
-    g_hDatabase.Query(SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId]);
+    g_hDatabase.Query(SQLCallback_BuyItem, m_szQuery, g_eClients[client][iUserId], DBPrio_High);
     g_eClients[client][bRefresh] = true;
 }
 
@@ -3800,7 +3850,7 @@ void UTIL_LogMessage(int client, int diff, const char[] message, any ...)
     char m_szQuery[512], EszReason[513];
     g_hDatabase.Escape(m_szReason, EszReason, 513);
     FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", %d)", g_eClients[client][iId], g_eClients[client][iCredits], diff, EszReason, GetTime());
-    SQL_TVoid(g_hDatabase, m_szQuery);
+    SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 }
 
 int UTIL_GetLowestPrice(int itemid)

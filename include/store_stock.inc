@@ -390,13 +390,13 @@ public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const 
     delete pack;
 }
 
-public void SQL_TVoid(Database db, char[] query)
+public void SQL_TVoid(Database db, char[] query, DBPriority dbp = DBPrio_Normal)
 {
     DataPack data = new DataPack();
     data.WriteFloat(GetEngineTime());
     data.WriteString(query);
     data.Reset();
-    db.Query(SQLCallback_Void_PrintQuery, query, data);
+    db.Query(SQLCallback_Void_PrintQuery, query, data, dbp);
 }
 
 stock bool AllowItemForAuth(int client, const char[] authid)

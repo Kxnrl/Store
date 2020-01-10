@@ -390,7 +390,7 @@ public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const 
     delete pack;
 }
 
-public void SQL_TVoid(Database db, char[] query, DBPriority dbp = DBPrio_Normal)
+stock void SQL_TVoid(Database db, char[] query, DBPriority dbp = DBPrio_Normal)
 {
     DataPack data = new DataPack();
     data.WriteFloat(GetEngineTime());

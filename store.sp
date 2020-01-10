@@ -1756,20 +1756,20 @@ public Action Timer_OpeningCase(Handle timer, int userid)
     // Ultima
     if(g_iClientCase[client] == 3)
     {
-        // 2.5% SSR | 97.5% SR
-        type = (radm >= 975) ? 2 : ((g_aCaseSkins[1].Length > 0) ? 1 : 0);
+        // 3.5% SSR | 96.5% SR
+        type = (radm >= 965) ? 2 : ((g_aCaseSkins[1].Length > 0) ? 1 : 0);
     }
     // advance
     else if(g_iClientCase[client] == 2)
     {
-        if(radm >= 900)
+        if(radm >= 850)
         {
-            // 10% SSR
+            // 15% SSR
             type = ((g_aCaseSkins[2].Length > 0) ? 2 : 1);
         }
         else if(radm >= 500)
         {
-            // 40% SR
+            // 35% SR
             type = 1;
         }
         else
@@ -1779,9 +1779,9 @@ public Action Timer_OpeningCase(Handle timer, int userid)
     }
     else
     {
-        if(radm >= 850)
+        if(radm >= 800)
         {
-            // 15% SR
+            // 20% SR
             type = ((g_aCaseSkins[1].Length > 0) ? 1 : 0);
         }
         else
@@ -1819,7 +1819,7 @@ public Action Timer_OpeningCase(Handle timer, int userid)
         if(rdm >= 800)
             days = 0;
         else
-            days = UTIL_GetRandomInt(7, 365);
+            days = UTIL_GetRandomInt(14, 365);
 
         if(g_iClientCase[client] == 3)
             days = 0;
@@ -1836,15 +1836,15 @@ public Action Timer_OpeningCase(Handle timer, int userid)
             if(type == 2)
             {
                 // ult case?
-                days = (rdm >= 995) ? 0 : UTIL_GetRandomInt(15, 30);
+                days = (rdm >= 990) ? 0 : UTIL_GetRandomInt(15, 30);
             }
             else
             {
-                if(rdm >= 995)
+                if(rdm >= 990)
                     days = 0;
-                else if(rdm >= 955)
+                else if(rdm >= 950)
                     days = UTIL_GetRandomInt(91, 365);
-                else if(rdm >= 800)
+                else if(rdm >= 750)
                     days = UTIL_GetRandomInt(31, 90);
                 else
                     days = UTIL_GetRandomInt((g_iClientCase[client] == 2 ? 15 : 7), 30);
@@ -1852,11 +1852,11 @@ public Action Timer_OpeningCase(Handle timer, int userid)
         }
         else
         {
-            if(rdm >= 995)
+            if(rdm >= 990)
                 days = 0;
-            else if(rdm >= 935)
+            else if(rdm >= 920)
                 days = UTIL_GetRandomInt(91, 365);
-            else if(rdm >= 800)
+            else if(rdm >= 700)
                 days = UTIL_GetRandomInt(31, 90);
             else
                 days = UTIL_GetRandomInt((g_iClientCase[client] == 2 ? 15 : 7), 30);
@@ -1876,7 +1876,6 @@ public Action Timer_OpeningCase(Handle timer, int userid)
     else if(times[client] > 25) CreateTimer(1.2, Timer_OpeningCase, userid);
     else if(times[client] > 27) CreateTimer(1.8, Timer_OpeningCase, userid);
     else if(times[client] > 28) CreateTimer(2.6, Timer_OpeningCase, userid);
-    else CreateTimer(3.0, Timer_OpeningCase, userid);
 
     return Plugin_Stop;
 }

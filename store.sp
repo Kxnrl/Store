@@ -3572,7 +3572,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         char m_szDesc[128];
         item_child.FetchString(10, m_szDesc, 128);
         g_eItems[g_iItems][szDesc][0] = '\0';
-        if(StrContains(values, "ITEM_NO") == -1)
+        if(StrContains(m_szDesc, "ITEM_NO") == -1)
             strcopy(g_eItems[g_iItems][szDesc], 128, m_szDesc);
 
         // Field 11 -> case

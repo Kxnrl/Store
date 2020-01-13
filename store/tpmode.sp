@@ -167,7 +167,9 @@ public Action Timer_RepeatCheckTP(Handle timer, int userid)
 
 bool IsImmunityClient(int client)
 {
-    if (GetUserFlagBits(client) & ADMFLAG_ROOT)
-        return true;
-    return false;
+    AdminId admin = GetUserAdmin(client);
+    if (admin == INVALID_ADMIN_ID || admin.ImmunityLevel <= 80)
+        return false;
+
+    return true;
 }

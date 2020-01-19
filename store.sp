@@ -806,9 +806,9 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
 
     if(g_eItems[itemid][bVIP])
         return (AllowItemForVIP(client, g_eItems[itemid][bVIP])) ? 0 : -1;
-    
+
     // Is the item free (available for everyone)?
-    if(g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+    if((!g_eItems[itemid][bIgnore] || g_eItems[itemid][bBuyable]) && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
         return -1;
 
     for(int i = 0; i < g_eClients[client][iItems]; ++i)
@@ -836,7 +836,7 @@ public int Native_HasClientItem(Handle myself, int numParams)
         return AllowItemForVIP(client, g_eItems[itemid][bVIP]);
 
     // Is the item free (available for everyone)?
-    if(!g_eItems[itemid][bIgnore] && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+    if((!g_eItems[itemid][bIgnore] || g_eItems[itemid][bBuyable]) && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
         return true;
 
     // Check if the client actually has the item

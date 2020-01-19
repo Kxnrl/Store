@@ -980,6 +980,7 @@ public void OnClientConnected(int client)
     g_iClientCase[client]  = 1;
     g_iDataProtect[client] = GetTime()+300;
     
+    g_eClients[client][iId]              = -1;
     g_eClients[client][iUserId]          = GetClientUserId(client);
     g_eClients[client][iCredits]         = 0;
     g_eClients[client][iOriginalCredits] = 0;
@@ -2121,6 +2122,13 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 pack.WriteCell(days);
                 pack.Reset();
                 CreateTimer(0.1, Timer_ReEndingCase, pack);
+            }
+            else if (param2 == MenuCancel_Disconnected)
+            {
+                char m_szQuery[128];
+                FormatEx(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`-%d WHERE `id`=%d", g_inCase[g_iClientCase[client]], g_eClients[client][iId]);
+                SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+                LogStoreError("EndingCaseMenu -> %d disconnected -> %d", g_eClients[client][iId], g_inCase[g_iClientCase[client]]);
             }
         }
     }

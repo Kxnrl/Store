@@ -370,7 +370,7 @@ stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, c
 
 stock void LogStoreError(const char[] buffer, any ...)
 {
-    char path[128];
+    static char path[128];
     if(!path[0])
         BuildPath(Path_SM, path, 128, "logs/store.error.log");
 

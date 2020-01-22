@@ -285,23 +285,19 @@ public void OnPluginStart()
         mp_match_restart_delay.AddChangeHook(InterMissionLock);
     }
 
+#if defined AllowHide
+    RegConsoleCmd("sm_shide", Command_Hide);
+#endif
+}
+
+public void OnAllPluginsLoaded()
+{
     g_pClientprefs = LibraryExists("clientprefs");
     g_pfysOptions = LibraryExists("fys-Opts");
 
 #if defined AllowHide
-    RegConsoleCmd("sm_shide", Command_Hide);
     CheckHideCookie();
 #endif
-
-    if(g_pClientprefs)
-    {
-        LogMessage("Optional library 'clientprefs' is already loaded.");
-    }
-
-    if(g_pfysOptions)
-    {
-        LogMessage("Optional library 'fys-Opts' is already loaded.");
-    }
 }
 
 public void OnPluginEnd()

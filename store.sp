@@ -298,6 +298,16 @@ public void OnAllPluginsLoaded()
 #if defined AllowHide
     CheckHideCookie();
 #endif
+
+    if(g_pClientprefs)
+    {
+        // 
+    }
+
+    if(g_pfysOptions)
+    {
+
+    }
 }
 
 public void OnPluginEnd()

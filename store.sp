@@ -732,6 +732,9 @@ public int Native_GiveItem(Handle plugin, int numParams)
     int expiration = GetNativeCell(4);
     int price = GetNativeCell(5);
 
+    if (expiration < GetTime())
+        return;
+
     if(IsFakeClient(client) || !g_eClients[client][bLoaded] || g_eClients[client][bBan])
     {
         LogStoreError("Native_GiveItem -> %N itemid %d purchase %d expiration %d price %d -> ban? loaded? fakeclient?", client, itemid, purchase, expiration, price);
@@ -766,11 +769,15 @@ public int Native_GiveItem(Handle plugin, int numParams)
 
     UTIL_LogMessage(client, 0, "Give and Ext item [%s][%s] via native, e[%d] from %s", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], expiration, pFile);
 
-    int exp = Store_GetItemExpiration(client, itemid);
-    if(exp > 0 && exp < expiration)
+    int ext = Store_GetItemExpiration(client, itemid);
+    if (ext > 0)
     {
-        if(!Store_ExtClientItem(client, itemid, expiration-exp))
+        if(!Store_ExtClientItem(client, itemid, expiration == 0 ? expiration : expiration - GetTime()))
             LogStoreError("Ext \"%L\" %s failed. purchase %d expiration %d price %d", client, g_eItems[itemid][szName] , purchase, expiration, price);
+    }
+    else
+    {
+        LogMessage("Try to extend item at %L but have ext %d", client, ext);
     }
 }
 

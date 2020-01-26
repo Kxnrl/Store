@@ -2223,7 +2223,7 @@ void DisplayItemMenu(int client, int itemid)
                 m_iCredits = RoundToCeil(m_iCredits*float(m_iLeft)/float(m_iLength));
             }
 
-            AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "%T", "Item Sell", client, m_iCredits);
+            AddMenuItemEx(m_hMenu, m_iCredits > 0 ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED, "1", "%T", "Item Sell", client, m_iCredits);
             if(g_eItems[itemid][bGiftable])
                 AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "%T", "Item Gift", client);
         }
@@ -3321,6 +3321,8 @@ void UTIL_SellItem(int client, int itemid)
 
     g_iDataProtect[client] = GetTime()+15;
     int m_iCredits = RoundToFloor(UTIL_GetClientItemPrice(client, itemid)*0.6);
+    if (m_iCredits <= 0)
+        return;
     int uid = UTIL_GetClientItemId(client, itemid);
     if(g_eClientItems[client][uid][iDateOfExpiration] != 0)
     {
@@ -3905,8 +3907,8 @@ int UTIL_GetClientItemPrice(int client, int itemid)
     if(uid<0)
         return 0;
         
-    if(g_eClientItems[client][uid][iPriceOfPurchase] == 0)
-        return g_eItems[itemid][iPrice];
+    if(g_eClientItems[client][uid][iPriceOfPurchase] < 0)
+        return 0; //g_eItems[itemid][iPrice];
 
     return g_eClientItems[client][uid][iPriceOfPurchase];
 }

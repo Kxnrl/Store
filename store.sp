@@ -732,7 +732,7 @@ public int Native_GiveItem(Handle plugin, int numParams)
     int expiration = GetNativeCell(4);
     int price = GetNativeCell(5);
 
-    if (expiration < GetTime())
+    if (expiration < GetTime() && expiration > 0)
         return;
 
     if(IsFakeClient(client) || !g_eClients[client][bLoaded] || g_eClients[client][bBan])

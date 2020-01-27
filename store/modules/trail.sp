@@ -167,11 +167,11 @@ void AttachTrail(int ent, int client, int current, int num)
 
 stock void Call_OnTrailsCreated(int client, int entity, int slot)
 {
-    static GlobalForward gf = null;
+    static Handle gf = null;
     if (gf == null)
     {
         // create
-        gf = new GlobalForward("Store_OnTrailsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+        gf = CreateGlobalForward("Store_OnTrailsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);

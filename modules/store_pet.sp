@@ -354,11 +354,11 @@ public void Hook_OnAnimationDone(const char[] output, int caller, int activator,
 
 stock void Call_OnPetsCreated(int client, int entity)
 {
-    static GlobalForward gf = null;
+    static Handle gf = null;
     if (gf == null)
     {
         // create
-        gf = new GlobalForward("Store_OnPetsCreated", ET_Ignore, Param_Cell, Param_Cell);
+        gf = CreateGlobalForward("Store_OnPetsCreated", ET_Ignore, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);

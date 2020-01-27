@@ -120,11 +120,11 @@ void Store_SetClientNeon(int client)
 
 stock void Call_OnNeonCreated(int client, int entity)
 {
-    static GlobalForward gf = null;
+    static Handle gf = null;
     if (gf == null)
     {
         // create
-        gf = new GlobalForward("Store_OnNeonCreated", ET_Ignore, Param_Cell, Param_Cell);
+        gf = CreateGlobalForward("Store_OnNeonCreated", ET_Ignore, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);

@@ -114,7 +114,7 @@ void Store_SetClientNeon(int client)
 
         g_iClientNeon[client] = EntIndexToEntRef(iNeon);
 
-        Call_OnNeonCreated(client, entity);
+        Call_OnNeonCreated(client, iNeon);
     }
 }
 

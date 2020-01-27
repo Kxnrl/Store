@@ -108,6 +108,6 @@ void Store_SetClientPart(int client)
         
         g_iClientPart[client] = EntIndexToEntRef(iEnt);
 
-        Call_OnParticlesCreated(client, entity);
+        Call_OnParticlesCreated(client, iEnt);
     }
 }

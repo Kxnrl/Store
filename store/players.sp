@@ -253,3 +253,18 @@ void OnClientTeamPost(int client)
     Store_PreSetClientModel(client);
 }
 #endif
+
+stock void Call_OnParticlesCreated(int client, int entity)
+{
+    static GlobalForward gf = null;
+    if (gf == null)
+    {
+        // create
+        gf = new GlobalForward("Store_OnParticlesCreated", ET_Ignore, Param_Cell, Param_Cell);
+    }
+
+    Call_StartForward(gf);
+    Call_PushCell(client);
+    Call_PushCell(entity);
+    Call_Finish();
+}

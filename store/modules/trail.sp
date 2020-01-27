@@ -64,9 +64,6 @@ void Store_RemoveClientTrail(int client, int slot)
         int entity = EntRefToEntIndex(g_iClientTrails[client][slot]);
         if(entity > 0 && IsValidEdict(entity))
         {
-#if defined AllowHide
-            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Trail);
-#endif
             AcceptEntityInput(entity, "Kill");
         }
     }
@@ -138,11 +135,10 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
     SetEntPropFloat(entity, Prop_Send, "m_flTextureRes", 0.05);
     DispatchSpawn(entity);
     AttachTrail(entity, client, m_iCurrent, m_iNumEquipped);    
-#if defined AllowHide
-    SDKHook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Trail);
-#endif
 
     g_iClientTrails[client][slot] = EntIndexToEntRef(entity);
+
+    Call_OnTrailsCreated(client, entity, slot);
 }
 
 void AttachTrail(int ent, int client, int current, int num)
@@ -169,9 +165,18 @@ void AttachTrail(int ent, int client, int current, int num)
     AcceptEntityInput(ent, "FireUser1");
 }
 
-#if defined AllowHide
-public Action Hook_SetTransmit_Trail(int ent, int client)
+stock void Call_OnTrailsCreated(int client, int entity, int slot)
 {
-    return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
+    static GlobalForward gf = null;
+    if (gf == null)
+    {
+        // create
+        gf = new GlobalForward("Store_OnTrailsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+    }
+
+    Call_StartForward(gf);
+    Call_PushCell(client);
+    Call_PushCell(entity);
+    Call_PushCell(slot);
+    Call_Finish();
 }
-#endif

@@ -83,6 +83,11 @@ forward void   Store_OnClientPurchased(int client, const char[] uid, int length,
 forward bool   Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
 forward Action Store_OnFPDeathCamera(int client);
 forward bool   Store_OnSetPlayerSkin(int client, char skin[128], char arms[128]);
+forward void   Store_OnHatsCreated(int client, int entity, int slot);
+forward void   Store_OnTrailsCreated(int client, int entity);
+forward void   Store_OnParticlesCreated(int client, int entity);
+forward void   Store_OnNeonCreated(int client, int entity);
+forward void   Store_OnPetsCreated(int client, int entity);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

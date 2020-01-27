@@ -70,10 +70,6 @@ public Plugin myinfo =
 #if defined GM_MG
 #define TeamArms
 #endif
-// hide mode
-#if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_BH
-#define AllowHide
-#endif
 // death chat
 #if defined GM_ZE || defined GM_JB || defined GM_MG || defined GM_KZ || defined GM_SR || defined GM_BH
 #define DeathChat
@@ -114,11 +110,6 @@ int g_iMenuNum[MAXPLAYERS+1];
 int g_iSpam[MAXPLAYERS+1];
 int g_iDataProtect[MAXPLAYERS+1];
 int g_iClientTeam[MAXPLAYERS+1];
-
-#if defined AllowHide
-bool g_bHideMode[MAXPLAYERS+1];
-Handle g_cCookieHide;
-#endif
 
 bool g_bInvMode[MAXPLAYERS+1];
 
@@ -284,20 +275,12 @@ public void OnPluginStart()
         mp_match_restart_delay.SetFloat(20.0, true, true);
         mp_match_restart_delay.AddChangeHook(InterMissionLock);
     }
-
-#if defined AllowHide
-    RegConsoleCmd("sm_shide", Command_Hide);
-#endif
 }
 
 public void OnAllPluginsLoaded()
 {
     g_pClientprefs = LibraryExists("clientprefs");
     g_pfysOptions = LibraryExists("fys-Opts");
-
-#if defined AllowHide
-    CheckHideCookie();
-#endif
 
     if(g_pClientprefs)
     {
@@ -327,10 +310,6 @@ public void OnLibraryAdded(const char[] name)
 #if defined Module_Sound
         Sounds_OnClientprefs();
 #endif
-
-#if defined AllowHide
-        CheckHideCookie();
-#endif
     }
 
     if(strcmp(name, "fys-Opts") == 0)
@@ -345,10 +324,6 @@ public void OnLibraryRemoved(const char[] name)
 
 #if defined Module_Sound
         Sounds_OnClientprefs();
-#endif
-
-#if defined AllowHide
-        CheckHideCookie();
 #endif
     }
 
@@ -967,11 +942,7 @@ public int Native_IsPlayerTP(Handle plugin, int numParams)
 
 public int Native_IsPlayerHide(Handle plugin, int numParams)
 {
-#if defined AllowHide
-    return g_bHideMode[GetNativeCell(1)];
-#else
     return false;
-#endif
 }
 
 public int Native_IsStoreSpray(Handle plugin, int numParams)
@@ -999,10 +970,6 @@ public void OnClientConnected(int client)
     g_eClients[client][iOriginalCredits] = 0;
     g_eClients[client][iItems]           = 0;
     g_eClients[client][bLoaded]          = false;
-
-#if defined AllowHide
-    g_bHideMode[client] = false;
-#endif
 
     g_eCompose[client][item1] = -1;
     g_eCompose[client][item2] = -1;
@@ -1071,27 +1038,12 @@ public void OnClientCookiesCached(int client)
 #if defined Module_Sound
     Sounds_OnLoadOptions(client);
 #endif
-
-#if defined AllowHide
-    LoadHideState(client);
-#endif
 }
 
 public void Opts_OnClientLoad(int client)
 {
 #if defined Module_Sound
     Sounds_OnLoadOptions(client);
-#endif
-
-#if defined AllowHide
-    LoadHideState(client);
-#endif
-}
-
-public void Opts_OnClientXSet(int client, const char[] key)
-{
-#if defined AllowHide
-    LoadHideState(client);
 #endif
 }
 
@@ -1163,61 +1115,6 @@ public Action Command_Credits(int client, int args)
     
     return Plugin_Handled;
 }
-
-#if defined AllowHide
-public Action Command_Hide(int client, int args)
-{
-    if(!IsClientInGame(client))
-        return Plugin_Handled;
-
-    g_bHideMode[client] = !g_bHideMode[client];
-    SetHideState(client, g_bHideMode[client]);
-    tPrintToChat(client, "%T", "hide setting", client, g_bHideMode[client] ? "on" : "off");
-
-    return Plugin_Handled;
-}
-
-void CheckHideCookie()
-{
-    if(g_pClientprefs)
-    {
-        // reg cookie
-        g_cCookieHide = RegClientCookie("store_hide", "", CookieAccess_Protected);
-    }
-    else
-    {
-        g_cCookieHide = null;
-    }
-}
-
-void SetHideState(int client, bool state)
-{
-    if(g_pfysOptions)
-    {
-        Opts_SetOptBool(client, "Global.Hide.Enabled", state);
-    }
-    else if(g_pClientprefs)
-    {
-        SetClientCookie(client, g_cCookieHide, state ? "1" : "0");
-    }
-}
-
-void LoadHideState(int client)
-{
-    if(g_pfysOptions)
-    {
-        g_bHideMode[client] = Opts_GetOptBool(client, "Global.Hide.Enabled", false);
-    }
-    else if(g_pClientprefs)
-    {
-        char buff[4];
-        GetClientCookie(client, g_cCookieHide, buff, 4);
-
-        if(buff[0] != 0)
-            g_bHideMode[client] = (StringToInt(buff) == 1 ? true : false);
-    }
-}
-#endif
 
 //////////////////////////////
 //           MENU           //

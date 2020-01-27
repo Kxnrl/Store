@@ -57,14 +57,6 @@ public int Neon_Remove(int client)
     return 0; 
 }
 
-#if defined AllowHide
-public Action Hook_SetTransmit_Neon(int entity, int client)
-{
-    SetNeonFlags(entity);
-    return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
-}
-#endif
-
 void Store_RemoveClientNeon(int client)
 {
     if(g_iClientNeon[client] != INVALID_ENT_REFERENCE)
@@ -72,9 +64,6 @@ void Store_RemoveClientNeon(int client)
         int entity = EntRefToEntIndex(g_iClientNeon[client]);
         if(IsValidEdict(entity))
         {
-#if defined AllowHide
-            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
-#endif
             AcceptEntityInput(entity, "Kill");
         }
         g_iClientNeon[client] = INVALID_ENT_REFERENCE;
@@ -125,18 +114,21 @@ void Store_SetClientNeon(int client)
 
         g_iClientNeon[client] = EntIndexToEntRef(iNeon);
 
-#if defined AllowHide        
-        SetNeonFlags(iNeon);
-        SetEdictFlags(iNeon, GetEdictFlags(iNeon)&(~FL_EDICT_ALWAYS));
-        SDKHook(iNeon, SDKHook_SetTransmit, Hook_SetTransmit_Neon);
-#endif
+        Call_OnNeonCreated(client, entity);
     }
 }
 
-#if defined AllowHide
-static void SetNeonFlags(int entity)
+stock void Call_OnNeonCreated(int client, int entity)
 {
-    if(GetEdictFlags(entity) & FL_EDICT_ALWAYS)
-        SetEdictFlags(entity, GetEdictFlags(entity) ^ FL_EDICT_ALWAYS & FL_EDICT_DONTSEND);
+    static GlobalForward gf = null;
+    if (gf == null)
+    {
+        // create
+        gf = new GlobalForward("Store_OnNeonCreated", ET_Ignore, Param_Cell, Param_Cell);
+    }
+
+    Call_StartForward(gf);
+    Call_PushCell(client);
+    Call_PushCell(entity);
+    Call_Finish();
 }
-#endif

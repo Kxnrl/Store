@@ -13,9 +13,6 @@ use \SteamID;
 
 class Store
 {
-    /**
-     * @var mysqli
-     */
     protected $dbConnection;
 
     public $parents;

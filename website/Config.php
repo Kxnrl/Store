@@ -3,7 +3,7 @@
 //Set encoding
 ini_set('default_charset', 'utf-8');
 
-$_config = array();
+$_config = [];
 
 // MySQL settings
 $_config['mysql']['host'] = '';

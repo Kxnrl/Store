@@ -1,4 +1,10 @@
-import vdf #pip3 install vdf
+# Help
+# import vdf by running pip3 install vdf in console.
+# place your items.txt file into the dir with this scirpt.
+# edit INPUT_FILE_NAME & OUTPUT_FILE_NAME
+# python3 create_update.py
+
+import vdf
 import os
 
 CURRECT_DIR = os.path.dirname(os.path.realpath(__file__))

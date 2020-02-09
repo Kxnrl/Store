@@ -792,8 +792,8 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
     if(g_eItems[itemid][szSteam][0] != 0)
         return (AllowItemForAuth(client, g_eItems[itemid][szSteam])) ? 0 : -1;
 
-    if(g_eItems[itemid][bVIP])
-        return (AllowItemForVIP(client, g_eItems[itemid][bVIP])) ? 0 : -1;
+    if(g_eItems[itemid][bVIP] && AllowItemForVIP(client, true) && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+        return 0;
 
     // Is the item free (available for everyone)?
     if((!g_eItems[itemid][bIgnore] || g_eItems[itemid][bBuyable]) && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
@@ -820,8 +820,8 @@ public int Native_HasClientItem(Handle myself, int numParams)
         return AllowItemForAuth(client, g_eItems[itemid][szSteam]);
 
     // VIP item?
-    if(g_eItems[itemid][bVIP])
-        return AllowItemForVIP(client, g_eItems[itemid][bVIP]);
+    if(g_eItems[itemid][bVIP] && !AllowItemForVIP(client, true) && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
+        return false;
 
     // Is the item free (available for everyone)?
     if((!g_eItems[itemid][bIgnore] || g_eItems[itemid][bBuyable]) && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
@@ -3658,9 +3658,10 @@ bool UTIL_IsEquipped(int client, int itemid)
 
 int UTIL_GetExpiration(int client, int itemid)
 {
-    if(g_eItems[itemid][bVIP] && AllowItemForVIP(client, true))
+    //if(g_eItems[itemid][bVIP] && AllowItemForVIP(client, true))
+    if(g_eItems[itemid][bVIP] && AllowItemForVIP(client, true) && g_eItems[itemid][iPrice] <= 0 && g_eItems[itemid][iPlans]==0)
         return 0;
-    
+
     if(g_eItems[itemid][bIgnore] && strlen(g_eItems[itemid][szAuthId]) > 3 && AllowItemForAuth(client, g_eItems[itemid][szAuthId]))
         return 0;
 

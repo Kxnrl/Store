@@ -88,6 +88,7 @@ forward void   Store_OnTrailsCreated(int client, int entity);
 forward void   Store_OnParticlesCreated(int client, int entity);
 forward void   Store_OnNeonCreated(int client, int entity);
 forward void   Store_OnPetsCreated(int client, int entity);
+forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

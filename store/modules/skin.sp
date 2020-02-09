@@ -237,7 +237,6 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
         strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
         if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
         {
-            Store_RemoveClientGloves(client, 0);
             strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
         }
 
@@ -261,8 +260,6 @@ public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[
     {
         strcopy( arms,  armsLen, arms_t);
         strcopy(model, modelLen, skin_t);
-
-        if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
 
         return Plugin_Changed;
     }
@@ -331,11 +328,14 @@ static void Store_SetClientModel(int client, int m_iData)
     if(g_ePlayerSkins[m_iData][szSound][0] != 0)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
 
-    // Has valve gloves?
     if(!StrEqual(arms_t, "null"))
     {
-        Store_RemoveClientGloves(client, 0);
-        SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+        if (Store_CallSetPlayerSkinArms(client, arms_t, 128))
+        {
+            // Has valve gloves?
+            Store_RemoveClientGloves(client, 0);
+            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+        }
     }
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
@@ -729,10 +729,13 @@ void Store_CallDefaultSkin(int client)
         if(IsModelPrecached(skin_t))
             SetEntityModel(client, skin_t);
 
-        if(IsModelPrecached(arms_t))
+        if (Store_CallSetPlayerSkinArms(client, arms_t, 128))
         {
-            Store_RemoveClientGloves(client, 0);
-            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+            if(IsModelPrecached(arms_t))
+            {
+                Store_RemoveClientGloves(client, 0);
+                SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+            }
         }
     }
 }
@@ -748,4 +751,35 @@ bool Store_CallPreSetModel(int client, char skin[128], char arms[128])
     Call_Finish(block);
 
     return block;
+}
+
+bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
+{
+    static Handle gf = null;
+    if (gf == null)
+    {
+        gf = CreateGlobalForward("Store_OnSetPlayerSkinArms", ET_Hook, Param_Cell, Param_String, Param_Cell);
+    }
+
+    char buff[128];
+    strcopy(buff, 128, arms);
+
+    Action res = Plugin_Continue;
+    Call_StartForward(gf);
+    Call_PushCell(client);
+    Call_PushString(buff);
+    Call_PushCell(len);
+    Call_Finish(res);
+
+    if (res == Plugin_Continue)
+    {
+        return true;
+    }
+    else if (res == Plugin_Changed)
+    {
+        strcopy(arms, len, buff);
+        return true;
+    }
+
+    return false;
 }

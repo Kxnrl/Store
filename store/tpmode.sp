@@ -86,12 +86,26 @@ public Action Command_Mirror(int client, int args)
     if(!client || !IsClientInGame(client))
         return Plugin_Handled;
 
+#if !defined Module_TPMode
+    if(!IsImmunityClient(client))
+    {
+        tPrintToChat(client, "%T", "tp not allow", client);
+        return Plugin_Handled;
+    }
+#endif
+
+    if (!store_thirdperson_enabled.BoolValue && !IsImmunityClient(client))
+    {
+        tPrintToChat(client, "%T", "tp not allow", client);
+        return Plugin_Handled;
+    }
+
     if(!IsPlayerAlive(client))
     {
         tPrintToChat(client, "%T", "tp dead", client);
         return Plugin_Handled;
     }
-    
+
     if(g_bThirdperson[client])
     {
         tPrintToChat(client, "%T", "seeme tp", client);

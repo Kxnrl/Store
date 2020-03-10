@@ -882,11 +882,7 @@ public int Native_GetSkinLevel(Handle myself, int numParams)
 #endif
 }
 
-#if SOURCEMOD_V_MINOR != 10
-public int Native_GetItemList(Handle myself, int numParams)
-#else
 public any Native_GetItemList(Handle myself, int numParams)
-#endif
 {
     ArrayList items = new ArrayList(view_as<int>(Store_Item));
 
@@ -895,11 +891,9 @@ public any Native_GetItemList(Handle myself, int numParams)
         items.PushArray(g_eItems[itemid][0]);
     }
 
-#if SOURCEMOD_V_MINOR != 10
-    return view_as<int>(items);
-#else
-    return items;
-#endif
+    ArrayList result = view_as<ArrayList>(CloneHandle(items, myself));
+    delete items;
+    return result;
 }
 
 public int Native_HasPlayerSkin(Handle myself, int numParams)

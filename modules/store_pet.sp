@@ -187,7 +187,11 @@ public void Pets_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
     if(!client || !IsClientInGame(client))
         return;
 
-    Store_RemovePet(client);
+    if (GetEventInt(event, "team") <= 1)
+    {
+        // spec only
+        Store_RemovePet(client);
+    }
 }
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])

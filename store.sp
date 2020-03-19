@@ -582,9 +582,24 @@ public int Native_SetClientCredits(Handle myself, int numParams)
         return false;
     }
 
+    if (numParams < 3)
+    {
+        ThrowNativeError(SP_ERROR_NATIVE, "Reason is not nullable.");
+        return false;
+    }
+
     char logMsg[128];
     if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
-        strcopy(STRING(logMsg), "unknown SP_ERROR");
+    {
+        ThrowNativeError(SP_ERROR_NATIVE, "Failed to get reason in native call.");
+        return false;
+    }
+
+    if (strcmp(logMsg, "未知") == 0)
+    {
+        ThrowNativeError(SP_ERROR_NATIVE, "Reason is not nullable.");
+        return false;
+    }
 
     if(g_eClients[client][bRefresh])
     {

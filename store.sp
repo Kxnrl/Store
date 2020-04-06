@@ -3612,6 +3612,12 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
     delete items;
     delete item_array;
 
+    if (FindPluginByFile("sm_downloader.smx") != INVALID_HANDLE)
+    {
+        LogMessage("Force reload downloader plugin.");
+        ServerCommand("sm plugins reload sm_downloader.smx");
+    }
+
     char map[128];
     GetCurrentMap(map, 128);
     if(strlen(map) > 3 && IsMapValid(map))

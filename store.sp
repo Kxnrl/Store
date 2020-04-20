@@ -365,6 +365,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_HasPlayerSkin",         Native_HasPlayerSkin);
     CreateNative("Store_GetPlayerSkin",         Native_GetPlayerSkin);
     CreateNative("Store_GetClientPlayerSkins",  Native_GetClientPlayerSkins);
+    CreateNative("Store_GetAllPlayerSkins",     Native_GetAllPlayerSkins);
     CreateNative("Store_GetSkinLevel",          Native_GetSkinLevel);
     CreateNative("Store_GetItemList",           Native_GetItemList);
     CreateNative("Store_IsPlayerTP",            Native_IsPlayerTP);
@@ -963,6 +964,39 @@ public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
     {
         char m[128], a[128];
         if (g_eItems[i][iHandler] == handler && Store_HasClientItem(client, i) && GetSkinData(i, m, a))
+        {
+            any s[SkinData_t];
+            strcopy(s[m_Name],  64, g_eItems[i][szName]);
+            strcopy(s[m_UId],   32, g_eItems[i][szUniqueId]);
+            strcopy(s[m_Skin], 128, m);
+            strcopy(s[m_Arms], 128, a);
+            array.PushArray(s[0]);
+        }
+    }
+
+    return array.Length > 0;
+#else
+    return false;
+#endif
+}
+
+public any Native_GetAllPlayerSkins(Handle myself, int numParams)
+{
+#if defined Module_Skin
+    ArrayList array = view_as<ArrayList>(GetNativeCell(1));
+    if (array == null)
+        return false;
+
+    array.Clear();
+
+    int handler = UTIL_GetTypeHandler("playerskin");
+    if (handler == -1)
+        return false;
+
+    for (int i = 0; i < g_iItems; i++)
+    {
+        char m[128], a[128];
+        if (g_eItems[i][iHandler] == handler && GetSkinData(i, m, a))
         {
             any s[SkinData_t];
             strcopy(s[m_Name],  64, g_eItems[i][szName]);

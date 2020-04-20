@@ -947,6 +947,7 @@ public int Native_GetPlayerSkin(Handle myself, int numParams)
 
 public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
 {
+#if defined Module_Skin
     int client = GetNativeCell(1);
     ArrayList array = view_as<ArrayList>(GetNativeCell(2));
     if (array == null)
@@ -973,6 +974,9 @@ public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
     }
 
     return array.Length > 0;
+#else
+    return false;
+#endif
 }
 
 public int Native_IsPlayerTP(Handle plugin, int numParams)

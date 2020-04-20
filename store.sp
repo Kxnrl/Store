@@ -960,12 +960,12 @@ public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
 
     for (int i = 0; i < g_iItems; i++)
     {
-        SkinData_t s;
-        if (g_iItems[i][iHandler] == handler && GetSkinData(i, s.m_Skin, s.m_Arms))
+        any s[SkinData_t];
+        if (g_iItems[i][iHandler] == handler && Store_HasClientItem(client, i) && GetSkinData(i, s[m_Skin], s[m_Arms]))
         {
-            strcopy(s.m_Name, 64, g_iItems[i][szName]);
-            strcopy(s.m_uid,  32, g_iItems[i][szUniqueId]);
-            array.PushArray(s, sizeof(SkinData_t));
+            strcopy(s[m_Name], 64, g_iItems[i][szName]);
+            strcopy(s[m_uid],  32, g_iItems[i][szUniqueId]);
+            array.PushArray(s[0]);
         }
     }
 

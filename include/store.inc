@@ -43,12 +43,12 @@ enum Store_Item
     bool:bVIP
 }
 
-enum struct SkinData_t
+enum SkinData_t
 {
-    char m_Name[ITEM_NAME_LENGTH];
-    char m_UId[32];
-    char m_Skin[128];
-    char m_Arms[128];
+    String:m_Name[ITEM_NAME_LENGTH],
+    String:m_UId[32],
+    String:m_Skin[128],
+    String:m_Arms[128]
 }
 
 native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false, bool disposable = false);

@@ -626,9 +626,6 @@ void Store_CallDefaultSkin(int client)
 
     if(ret)
     {
-        //if (Store_CallPreSetModel(client, skin_t, arms_t))
-        //    return;
-
         if(IsModelPrecached(skin_t))
             SetEntityModel(client, skin_t);
 
@@ -659,7 +656,7 @@ bool Store_CallPreSetModel(int client, char skin[128], char arms[128])
 
     if (res >= Plugin_Handled)
     {
-        return false;
+        return true;
     }
     else if (res == Plugin_Changed)
     {
@@ -667,7 +664,7 @@ bool Store_CallPreSetModel(int client, char skin[128], char arms[128])
         strcopy(arms, 128, a);
     }
 
-    return true;
+    return false;
 }
 
 bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)

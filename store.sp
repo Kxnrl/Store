@@ -965,7 +965,7 @@ public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
         {
             any s[SkinData_t];
             strcopy(s[m_Name],  64, g_eItems[i][szName]);
-            strcopy(s[m_Uid],   32, g_eItems[i][szUniqueId]);
+            strcopy(s[m_UId],   32, g_eItems[i][szUniqueId]);
             strcopy(s[m_Skin], 128, m);
             strcopy(s[m_Arms], 128, a);
             array.PushArray(s[0]);

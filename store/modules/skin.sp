@@ -645,15 +645,29 @@ void Store_CallDefaultSkin(int client)
 
 bool Store_CallPreSetModel(int client, char skin[128], char arms[128])
 {
-    bool block = false;
+    char s[128], a[128];
+    strcopy(s, 128, skin);
+    strcopy(a, 128, arms);
+
+    Action res = Plugin_Continue;
 
     Call_StartForward(g_hOnPlayerSetModel);
     Call_PushCell(client);
-    Call_PushStringEx(skin, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushStringEx(arms,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_Finish(block);
+    Call_PushStringEx(s, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(a,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_Finish(res);
 
-    return block;
+    if (res >= Plugin_Handled)
+    {
+        return false;
+    }
+    else if (res == Plugin_Changed)
+    {
+        strcopy(skin, 128, s);
+        strcopy(arms, 128, a);
+    }
+
+    return true;
 }
 
 bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)

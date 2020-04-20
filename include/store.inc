@@ -82,7 +82,7 @@ forward Action Store_OnClientBuyItem(int client, const char[] uid, int length, i
 forward void   Store_OnClientPurchased(int client, const char[] uid, int length, int price);
 forward bool   Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
 forward Action Store_OnFPDeathCamera(int client);
-forward bool   Store_OnSetPlayerSkin(int client, char skin[128], char arms[128]);
+forward Action Store_OnSetPlayerSkin(int client, char skin[128], char arms[128]);
 forward void   Store_OnHatsCreated(int client, int entity, int slot);
 forward void   Store_OnTrailsCreated(int client, int entity);
 forward void   Store_OnParticlesCreated(int client, int entity);

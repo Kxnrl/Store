@@ -700,3 +700,14 @@ bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
 
     return false;
 }
+
+bool GetSkinData(int itemid, char skin[128], char arms[128])
+{
+    int m_iData = Store_GetDataIndex(itemid);
+    if (m_iData == -1)
+        return false;
+
+    strcopy(skin, 128, g_ePlayerSkins[m_iData][szModel]);
+    strcopy(arms, 128, g_ePlayerSkins[m_iData][szArms]);
+    return true;
+}

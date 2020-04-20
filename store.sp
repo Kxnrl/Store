@@ -364,6 +364,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_IsClientBanned",        Native_IsClientBanned);
     CreateNative("Store_HasPlayerSkin",         Native_HasPlayerSkin);
     CreateNative("Store_GetPlayerSkin",         Native_GetPlayerSkin);
+    CreateNative("Store_GetClientPlayerSkins",  Native_GetClientPlayerSkins);
     CreateNative("Store_GetSkinLevel",          Native_GetSkinLevel);
     CreateNative("Store_GetItemList",           Native_GetItemList);
     CreateNative("Store_IsPlayerTP",            Native_IsPlayerTP);
@@ -942,6 +943,33 @@ public int Native_GetPlayerSkin(Handle myself, int numParams)
         return true;
 #endif
     return false;
+}
+
+public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
+{
+    int client = GetNativeCell(1);
+    ArrayList array = view_as<ArrayList>(GetNativeCell(2));
+    if (array == null)
+        return false;
+
+    array.Clear();
+
+    int handler = UTIL_GetTypeHandler("playerskin");
+    if (handler == -1)
+        return false;
+
+    for (int i = 0; i < g_iItems; i++)
+    {
+        SkinData_t s;
+        if (g_iItems[i][iHandler] == handler && GetSkinData(i, s.m_Skin, s.m_Arms))
+        {
+            strcopy(s.m_Name, 64, g_iItems[i][szName]);
+            strcopy(s.m_uid,  32, g_iItems[i][szUniqueId]);
+            array.PushArray(s, sizeof(SkinData_t));
+        }
+    }
+
+    return array.Length > 0;
 }
 
 public int Native_IsPlayerTP(Handle plugin, int numParams)

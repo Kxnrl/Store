@@ -43,6 +43,14 @@ enum Store_Item
     bool:bVIP
 }
 
+enum struct SkinData_t
+{
+    char m_Name[ITEM_NAME_LENGTH];
+    char m_UId[32];
+    char m_Skin[128];
+    char m_Arms[128];
+}
+
 native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false, bool disposable = false);
 native int Store_RegisterMenuHandler(const char[] identifier, Function menu, Function handler);
 native int Store_SetDataIndex(int itemid, int index);
@@ -72,6 +80,7 @@ native void Store_SaveClientAll(int client);
 native bool Store_IsPlayerTP(int client);
 native bool Store_IsPlayerHide(int client);
 native bool Store_IsStoreSpray(int client);
+native bool Store_GetClientPlayerSkins(int client, ArrayList array);
 
 native ArrayList Store_GetItemList(); // List<Store_Item>
 

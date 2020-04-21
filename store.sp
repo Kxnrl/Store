@@ -223,7 +223,7 @@ public void Pupd_OnCheckAllPlugins()
     Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/BH/");
 #endif
 
-    Pupd_CheckTranslation("store.phrases.txt", "https://build.kxnrl.com/updater/Store/translation/")
+    Pupd_CheckTranslation("store.phrases.txt", "https://build.kxnrl.com/updater/Store/translation/");
 }
 
 //////////////////////////////

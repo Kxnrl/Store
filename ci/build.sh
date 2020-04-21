@@ -445,4 +445,6 @@ if [ "$1" = "1.10" ] && [ "$2" = "master" ]; then
   RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
   echo "Upload RAW [modules] RSYNC ..."
   RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/modules/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
+  echo "Upload RAW [translation] RSYNC ..."
+  RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/translations/*.txt $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/translations
 fi

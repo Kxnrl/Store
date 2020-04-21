@@ -45,12 +45,19 @@ public void OnPluginStart()
 
     RegConsoleCmd("sm_rs", Command_RandomSkin);
     RegConsoleCmd("sm_randomskin", Command_RandomSkin);
+
+    // Load the translations file
+    LoadTranslations("store.phrases");
 }
 
 public void OnAllPluginsLoaded()
 {
-    g_pCookies = LibraryExists("clientprefs");
     g_pOptions = LibraryExists("fys-Opts");
+
+    if (LibraryExists("clientprefs") && (g_hCookies[0] == null || g_hCookies[1] == null))
+    {
+        OnLibraryAdded("clientprefs");
+    }
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -276,10 +283,13 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     ArrayList list = new ArrayList(ByteCountToCells(32));
     for(int i = 0; i < skip; i++)
     {
-        int itemid = Store_GetItemId(skin[i]);
-        if (itemid >= 0 && Store_HasClientItem(client, itemid))
+        if (strlen(skin[i]) >= 3) 
         {
-            list.PushString(skin[i]);
+            int itemid = Store_GetItemId(skin[i]);
+            if (itemid >= 0 && Store_HasClientItem(client, itemid))
+            {
+                list.PushString(skin[i]);
+            }
         }
     }
     if (list.Length == 0)

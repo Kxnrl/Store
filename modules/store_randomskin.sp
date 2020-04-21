@@ -22,6 +22,7 @@ public Plugin myinfo =
 
 #undef REQUIRE_PLUGIN
 #include <fys.opts>
+#include <fys.pupd>
 #define REQUIRE_PLUGIN
 
 #undef REQUIRE_EXTENSIONS
@@ -44,8 +45,12 @@ bool g_bLateLoad;
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     g_bLateLoad = late;
+
+    MarkNativeAsOptional("Pupd_CheckPlugin");
+
     return APLRes_Success;
 }
+
 public void OnPluginStart()
 {
     g_aSkins = new ArrayList(view_as<int>(SkinData_t));
@@ -100,6 +105,11 @@ public void OnLibraryRemoved(const char[] name)
     {
         g_pOptions = false;
     }
+}
+
+public void Pupd_OnCheckAllPlugins()
+{
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/Modules/");
 }
 
 public void Store_OnStoreAvailable(ArrayList items)

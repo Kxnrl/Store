@@ -23,7 +23,7 @@ public Plugin myinfo =
 
 #undef REQUIRE_PLUGIN
 #include <fys.pupd>
-#define REQUIRE_EXTENSIONS
+#define REQUIRE_PLUGIN
 
 enum Pet
 {

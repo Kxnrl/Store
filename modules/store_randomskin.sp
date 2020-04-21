@@ -38,7 +38,14 @@ bool g_pCookies;
 Handle g_hCookies[2];
 
 ArrayList g_aSkins;
+bool g_bLateLoad;
 
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+    g_bLateLoad = late;
+    return APLRes_Success;
+}
 public void OnPluginStart()
 {
     g_aSkins = new ArrayList(view_as<int>(SkinData_t));
@@ -57,6 +64,11 @@ public void OnAllPluginsLoaded()
     if (LibraryExists("clientprefs") && (g_hCookies[0] == null || g_hCookies[1] == null))
     {
         OnLibraryAdded("clientprefs");
+    }
+
+    if (g_bLateLoad)
+    {
+        Store_GetAllPlayerSkins(g_aSkins);
     }
 }
 

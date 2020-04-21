@@ -263,6 +263,7 @@ public int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
             }
             case 3:
             {
+                SetPlayerEquips(client, "");
                 DisplayMainMenu(client);
             }
         }
@@ -294,7 +295,7 @@ void DisplaySkinMenu(int client, int position = -1)
         array.GetArray(i, skin[0]);
 
         FormatEx(xkey,   33, "%s;", skin[m_UId]);
-        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "+" : "-", skin[m_Name]);
+        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "+" : "x", skin[m_Name]);
         menu.AddItem(xkey, buffer);
     }
 

@@ -705,7 +705,7 @@ stock void SetTransmitFlags(int entity)
 }
 
 #define SIZE_OF_INT 2147483647
-int UTIL_GetRandomInt(int min, int max)
+stock int UTIL_GetRandomInt(int min, int max)
 {
     int random = GetURandomInt();
     

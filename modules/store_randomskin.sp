@@ -32,15 +32,17 @@ public Plugin myinfo =
 #define MAX_SKINS   32
 #define TYPE_NAME_E "Store.RS.Enable"
 #define TYPE_NAME_S "Store.RS.Equips"
+#define TYPE_NAME_R "Store.RS.PrevAL"
 
 bool g_pOptions;
 bool g_pCookies;
 
-Handle g_hCookies[2];
+Handle g_hCookies[3];
 
 ArrayList g_aSkins;
 bool g_bLateLoad;
 
+char g_sPrevious[MAXPLAYERS+1][32];
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -66,7 +68,7 @@ public void OnAllPluginsLoaded()
 {
     g_pOptions = LibraryExists("fys-Opts");
 
-    if (LibraryExists("clientprefs") && (g_hCookies[0] == null || g_hCookies[1] == null))
+    if (LibraryExists("clientprefs") && (g_hCookies[0] == null || g_hCookies[1] == null || g_hCookies[2] == null))
     {
         OnLibraryAdded("clientprefs");
     }
@@ -82,8 +84,9 @@ public void OnLibraryAdded(const char[] name)
     if (strcmp(name, "clientprefs") == 0)
     {
         g_pCookies    = true;
-        g_hCookies[0] = RegClientCookie(TYPE_NAME_E, "Random skin feature stats", CookieAccess_Protected);
-        g_hCookies[1] = RegClientCookie(TYPE_NAME_S, "Random skin equipments",    CookieAccess_Protected);
+        g_hCookies[0] = RegClientCookie(TYPE_NAME_E, "Random skin feature stats",  CookieAccess_Protected);
+        g_hCookies[1] = RegClientCookie(TYPE_NAME_S, "Random skin equipments",     CookieAccess_Protected);
+        g_hCookies[2] = RegClientCookie(TYPE_NAME_R, "Random skin allow previous", CookieAccess_Protected);
     }
 
     if (strcmp(name, "fys-Opts") == 0)
@@ -99,6 +102,7 @@ public void OnLibraryRemoved(const char[] name)
         g_pCookies    = false;
         g_hCookies[0] = null;
         g_hCookies[1] = null;
+        g_hCookies[2] = null;
     }
 
     if (strcmp(name, "fys-Opts") == 0)
@@ -146,6 +150,23 @@ bool GetPlayerStatus(int client)
     return false;
 }
 
+bool GetPlayerPrevious(int client)
+{
+    if (g_pOptions)
+    {
+        return Opts_GetOptBool(client, TYPE_NAME_R, false);
+    }
+    else if (g_pCookies)
+    {
+        char buffer[8];
+        GetClientCookie(client, g_hCookies[2], buffer, 8);
+        return strcmp(buffer, "true") == 0;
+    }
+
+    SetFailState("Options or clientprefs not found.");
+    return false;
+}
+
 void SetPlayerEquips(int client, const char[] options)
 {
     if (g_pOptions)
@@ -170,6 +191,18 @@ void SetPlayerStatus(int client, bool status)
     }
 }
 
+void SetPlayerPrevious(int client, bool allowPrevious)
+{
+    if (g_pOptions)
+    {
+        Opts_SetOptBool(client, TYPE_NAME_R, allowPrevious);
+    }
+    else if (g_pCookies)
+    {
+        SetClientCookie(client, g_hCookies[2], allowPrevious ? "true" : "false");
+    }
+}
+
 public Action Command_RandomSkin(int client, int args)
 {
     if (!client)
@@ -191,6 +224,9 @@ void DisplayMainMenu(int client)
     menu.SetTitle("[Store]  %T\nE: %d ", "random skin", client, skip);
 
     FormatEx(buffer, 64, "%T: %T", "feature status", client, GetPlayerStatus(client) ? "On" : "Off", client);
+    menu.AddItem("Lilia",  buffer);
+
+    FormatEx(buffer, 64, "%T: %T", "allow previous", client, GetPlayerPrevious(client) ? "On" : "Off", client);
     menu.AddItem("Lilia",  buffer);
 
     FormatEx(buffer, 64, "%T", "select skin", client);
@@ -218,9 +254,14 @@ public int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
             }
             case 1:
             {
-                DisplaySkinMenu(client);
+                SetPlayerPrevious(client, !GetPlayerPrevious(client));
+                DisplayMainMenu(client);
             }
             case 2:
+            {
+                DisplaySkinMenu(client);
+            }
+            case 3:
             {
                 DisplayMainMenu(client);
             }
@@ -293,6 +334,11 @@ public int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
     }
 }
 
+public void OnClientConnected(int client)
+{
+    g_sPrevious[client][0] = '\0';
+}
+
 public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128])
 {
     if (!GetPlayerStatus(client))
@@ -301,10 +347,17 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     char options[512], skin[MAX_SKINS][32], item[32];
     GetPlayerEquips(client, options);
     int skip = ExplodeString(options, ";", skin, MAX_SKINS, 32, false);
+    bool prev = GetPlayerPrevious(client);
 
     ArrayList list = new ArrayList(ByteCountToCells(32));
     for(int i = 0; i < skip; i++)
     {
+        if (prev && skip > 1 && strcmp(skin[i], g_sPrevious[client]) == 0)
+        {
+            // ignore previous
+            continue;
+        }
+
         if (strlen(skin[i]) >= 3) 
         {
             int itemid = Store_GetItemId(skin[i]);
@@ -328,6 +381,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         g_aSkins.GetArray(i, s[0]);
         if (strcmp(item, s[m_UId]) == 0)
         {
+            strcopy(g_sPrevious[client], 32, item);
             strcopy(_skin, 128, s[m_Skin]);
             strcopy(_arms, 129, s[m_Arms]);
             tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s[m_Name]);

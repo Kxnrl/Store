@@ -759,4 +759,10 @@
         "en" "Override your player skin to"
         "chi" "你的皮肤被随机为"
     }
+
+    "allow previous"
+    {
+        "en" "Allow previous"
+        "chi" "允许重复"
+    }
 }

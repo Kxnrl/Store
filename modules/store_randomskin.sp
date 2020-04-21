@@ -154,7 +154,7 @@ public Action Command_RandomSkin(int client, int args)
 void DisplayMainMenu(int client)
 {
     char options[512], buffer[64], skin[MAX_SKINS][32];
-    LoadPlayerOptions(client, options);
+    GetPlayerEquips(client, options);
     int skip = ExplodeString(options, ";", skin, MAX_SKINS, 32, false);
 
     Menu menu = new Menu(MenuHandler_Main);
@@ -225,7 +225,7 @@ void DisplaySkinMenu(int client, int position = -1)
 
         FormatEx(xkey,   33, "%s;", skin[m_UId]);
         FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "+" : "-", skin[m_Name]);
-        menu.Additem(xkey, buffer);
+        menu.AddItem(xkey, buffer);
     }
 
     menu.ExitBackButton = true;
@@ -277,7 +277,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     for(int i = 0; i < skip; i++)
     {
         int itemid = Store_GetItemId(skin[i]);
-        if (itemid >= 0 && Store_HasClientItem(client, item))
+        if (itemid >= 0 && Store_HasClientItem(client, itemid))
         {
             list.PushString(skin[i]);
         }
@@ -285,7 +285,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     if (list.Length == 0)
     {
         delete list;
-        return;
+        return Plugin_Continue;
     }
     list.GetString(UTIL_GetRandomInt(0, list.Length - 1), item, 32);
     delete list;

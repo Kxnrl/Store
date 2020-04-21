@@ -703,3 +703,14 @@ stock void SetTransmitFlags(int entity)
 {
     SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
 }
+
+#define SIZE_OF_INT 2147483647
+int UTIL_GetRandomInt(int min, int max)
+{
+    int random = GetURandomInt();
+    
+    if(random == 0)
+        random++;
+
+    return RoundToCeil(float(random) / (float(SIZE_OF_INT) / float(max - min + 1))) + min - 1;
+}

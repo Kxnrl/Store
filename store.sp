@@ -4045,17 +4045,6 @@ public Action Timer_InterMission(Handle timer)
     return Plugin_Stop;
 }
 
-#define SIZE_OF_INT 2147483647
-int UTIL_GetRandomInt(int min, int max)
-{
-    int random = GetURandomInt();
-    
-    if(random == 0)
-        random++;
-
-    return RoundToCeil(float(random) / (float(SIZE_OF_INT) / float(max - min + 1))) + min - 1;
-}
-
 public Action Timer_OnlineCredit(Handle timer, int client)
 {
     if(!IsClientInGame(client))

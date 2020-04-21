@@ -711,4 +711,52 @@
         "en" "Ultima Case"
         "chi" "终极箱子"
     }
+
+    "random skin"
+    {
+        "en" "RandomSkin"
+        "chi" "随机皮肤"
+    }
+
+    "select skin"
+    {
+        "en" "Select skin"
+        "chi" "选择皮肤"
+    }
+
+    "clear all"
+    {
+        "en" "Clear all selected"
+        "chi" "清除所有"
+    }
+
+    "feature status"
+    {
+        "en" "Feature Status"
+        "chi" "功能开关"
+    }
+
+    "On"
+    {
+        "en" "On"
+        "chi" "开"
+    }
+
+    "Off"
+    {
+        "en" "Off"
+        "chi" "关"
+    }
+
+    "No skins"
+    {
+        "en" "You have not any skin."
+        "chi" "你没有皮肤, 瞎凑什么热闹."
+    }
+
+    "rs override skin"
+    {
+        "en" "Override your player skin to"
+        "chi" "你的皮肤被随机为"
+    }
 }

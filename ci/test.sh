@@ -24,11 +24,6 @@ echo "Download PTaH.inc ..."
 wget "https://github.com/komashchenko/PTaH/raw/master/PTaH.inc" -q -O include/PTaH.inc
 
 
-#ArmsFix
-echo "Download armsfix.inc ..."
-wget "https://github.com/Kxnrl/CSGO-ArmsFix/raw/master/include/armsfix.inc" -q -O include/armsfix.inc
-
-
 #Opts
 echo "Download fys.opts.inc ..."
 wget "https://github.com/fys-csgo/public-include/raw/master/fys.opts.inc" -q -O include/fys.opts.inc

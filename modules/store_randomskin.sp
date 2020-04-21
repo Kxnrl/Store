@@ -24,9 +24,9 @@ public Plugin myinfo =
 #include <fys.opts>
 #define REQUIRE_PLUGIN
 
-#undef REQUIRE_EXTENSION
+#undef REQUIRE_EXTENSIONS
 #include <clientprefs>
-#define REQUIRE_EXTENSION
+#define REQUIRE_EXTENSIONS
 
 #define MAX_SKINS   32
 #define TYPE_NAME_E "Store.RandomSkin.Enable"
@@ -47,7 +47,7 @@ public void OnPluginStart()
     RegConsoleCmd("sm_randomskin", Command_RandomSkin);
 }
 
-public OnAllPluginsLoaded()
+public void OnAllPluginsLoaded()
 {
     g_pCookies = LibraryExists("clientprefs");
     g_pOptions = LibraryExists("fys-Opts");
@@ -112,6 +112,9 @@ bool GetPlayerStatus(int client)
         GetClientCookie(client, g_hCookies[0], buffer, 8);
         return strcmp(buffer, "true") == 0;
     }
+
+    SetFailState("Options or clientprefs not found.");
+    return false;
 }
 
 void SetPlayerEquips(int client, const char[] options)
@@ -204,7 +207,7 @@ void DisplaySkinMenu(int client, int position = -1)
     if (array.Length == 0)
     {
         delete array;
-        Chat(client, "%T", "No skins", client);
+        tPrintToChat(client, "%T", "No skins", client);
         return;
     }
 
@@ -220,8 +223,8 @@ void DisplaySkinMenu(int client, int position = -1)
         any skin[SkinData_t];
         array.GetArray(i, skin[0]);
 
-        FormatEx(xkey,   33, "%s;", skin[m_szUId]);
-        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "+", "-", skin[m_Name]);
+        FormatEx(xkey,   33, "%s;", skin[m_UId]);
+        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "+" : "-", skin[m_Name]);
         menu.Additem(xkey, buffer);
     }
 
@@ -295,7 +298,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         {
             strcopy(_skin, 128, s[m_Skin]);
             strcopy(_arms, 129, s[m_Arms]);
-            Chat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s[m_Name]);
+            tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s[m_Name]);
             return Plugin_Changed;
         }
     }

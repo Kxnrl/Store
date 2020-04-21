@@ -222,6 +222,8 @@ public void Pupd_OnCheckAllPlugins()
 #if defined GM_BH
     Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/BH/");
 #endif
+
+    Pupd_CheckTranslation("store.phrases.txt", "https://build.kxnrl.com/updater/Store/translation/")
 }
 
 //////////////////////////////
@@ -381,10 +383,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     MarkNativeAsOptional("Opts_GetOptFloat");
 
     MarkNativeAsOptional("Pupd_CheckPlugin");
-
-#if defined Module_Skin
-    MarkNativeAsOptional("ArmsFix_ModelSafe");
-#endif
+    MarkNativeAsOptional("Pupd_CheckTranslation");
 
     g_bLateLoad = late;
 

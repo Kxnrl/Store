@@ -190,7 +190,7 @@ void DisplayMainMenu(int client)
 
     menu.SetTitle("[Store]  %T\nE: %d ", "random skin", client, skip);
 
-    FormatEx(buffer, 64, "%T: %T", "feature status", client, GetPlayerStatus(client) ? "Off" : "On", client);
+    FormatEx(buffer, 64, "%T: %T", "feature status", client, GetPlayerStatus(client) ? "On" : "Off", client);
     menu.AddItem("Lilia",  buffer);
 
     FormatEx(buffer, 64, "%T", "select skin", client);
@@ -247,7 +247,7 @@ void DisplaySkinMenu(int client, int position = -1)
 
     menu.SetTitle("[Store]  %T", "select skin", client);
 
-    for (int i = 0; i < array.Length; i++)
+    for (int i = array.Length - 1; i >= 0; i++)
     {
         any skin[SkinData_t];
         array.GetArray(i, skin[0]);

@@ -288,7 +288,7 @@ void DisplaySkinMenu(int client, int position = -1)
 
     menu.SetTitle("[Store]  %T", "select skin", client);
 
-    for (int i = array.Length - 1; i >= 0; i++)
+    for (int i = array.Length - 1; i >= 0; i--)
     {
         any skin[SkinData_t];
         array.GetArray(i, skin[0]);

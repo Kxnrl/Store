@@ -30,8 +30,8 @@ public Plugin myinfo =
 #define REQUIRE_EXTENSIONS
 
 #define MAX_SKINS   32
-#define TYPE_NAME_E "Store.RandomSkin.Enable"
-#define TYPE_NAME_S "Store.RandomSkin.Equips"
+#define TYPE_NAME_E "Store.RS.Enable"
+#define TYPE_NAME_S "Store.RS.Equips"
 
 bool g_pOptions;
 bool g_pCookies;
@@ -121,7 +121,7 @@ void GetPlayerEquips(int client, char options[512])
 {
     if (g_pOptions)
     {
-        Opts_GetOptString(client, TYPE_NAME_S, options, 512, NULL_STRING);
+        Opts_GetOptString(client, TYPE_NAME_E, options, 512, NULL_STRING);
     }
     else if (g_pCookies)
     {
@@ -150,7 +150,7 @@ void SetPlayerEquips(int client, const char[] options)
 {
     if (g_pOptions)
     {
-        Opts_SetOptString(client, TYPE_NAME_S, options);
+        Opts_SetOptString(client, TYPE_NAME_E, options);
     }
     else if (g_pCookies)
     {

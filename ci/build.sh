@@ -362,7 +362,7 @@ echo ""
 #编译Store模组随机皮肤
 echo "Compiling store module [random skin] ..."
 cp -f modules/store_randomskin.sp addons/sourcemod/scripting
-for file in addons/sourcemod/scripting/store_randomskin.sp.sp
+for file in addons/sourcemod/scripting/store_randomskin.sp
 do
   sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
   rm output.txt

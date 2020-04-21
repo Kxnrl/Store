@@ -30,9 +30,9 @@ public Plugin myinfo =
 #define REQUIRE_EXTENSIONS
 
 #define MAX_SKINS   32
-#define TYPE_NAME_E "Store.RS.Enable"
-#define TYPE_NAME_S "Store.RS.Equips"
-#define TYPE_NAME_R "Store.RS.PrevAL"
+#define TYPE_NAME_S "Store.RandomSkins.Status"
+#define TYPE_NAME_E "Store.RandomSkins.Equips"
+#define TYPE_NAME_R "Store.RandomSkins.PrevAL"
 
 bool g_pOptions;
 bool g_pCookies;
@@ -84,8 +84,8 @@ public void OnLibraryAdded(const char[] name)
     if (strcmp(name, "clientprefs") == 0)
     {
         g_pCookies    = true;
-        g_hCookies[0] = RegClientCookie(TYPE_NAME_E, "Random skin feature stats",  CookieAccess_Protected);
-        g_hCookies[1] = RegClientCookie(TYPE_NAME_S, "Random skin equipments",     CookieAccess_Protected);
+        g_hCookies[0] = RegClientCookie(TYPE_NAME_S, "Random skin feature stats",  CookieAccess_Protected);
+        g_hCookies[1] = RegClientCookie(TYPE_NAME_E, "Random skin equipments",     CookieAccess_Protected);
         g_hCookies[2] = RegClientCookie(TYPE_NAME_R, "Random skin allow previous", CookieAccess_Protected);
     }
 
@@ -217,11 +217,37 @@ void DisplayMainMenu(int client)
 {
     char options[512], buffer[64], skin[MAX_SKINS][32];
     GetPlayerEquips(client, options);
-    int skip = ExplodeString(options, ";", skin, MAX_SKINS, 32, false);
+    ExplodeString(options, ";", skin, MAX_SKINS, 32, false);
+    bool changed = false;
+    int nums = 0;
+    for (int i = 0; i < MAX_SKINS; i++)
+    {
+        if (strlen(skin[i]) > 0)
+        {
+            int itemid = Store_GetItemId(skin[i]);
+            if (itemid > -1)
+            {
+                if (!Store_HasClientItem(client, itemid))
+                {
+                    Format(skin[i], 32, "%s;", skin[i]);
+                    ReplaceString(options, 512, skin[i], "");
+                    changed = true;
+                }
+                else
+                {
+                    nums++;
+                }
+            }
+        }
+    }
+    if (changed)
+    {
+        SetPlayerEquips(client, options);
+    }
 
     Menu menu = new Menu(MenuHandler_Main);
 
-    menu.SetTitle("[Store]  %T\nE: %d ", "random skin", client, skip);
+    menu.SetTitle("[Store]  %T\nE: %d ", "random skin", client, nums);
 
     FormatEx(buffer, 64, "%T: %T", "feature status", client, GetPlayerStatus(client) ? "On" : "Off", client);
     menu.AddItem("Lilia",  buffer);
@@ -295,7 +321,7 @@ void DisplaySkinMenu(int client, int position = -1)
         array.GetArray(i, skin[0]);
 
         FormatEx(xkey,   33, "%s;", skin[m_UId]);
-        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "+" : "x", skin[m_Name]);
+        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "*" : "x", skin[m_Name]);
         menu.AddItem(xkey, buffer);
     }
 
@@ -348,29 +374,45 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     char options[512], skin[MAX_SKINS][32], item[32];
     GetPlayerEquips(client, options);
     int skip = ExplodeString(options, ";", skin, MAX_SKINS, 32, false);
-    bool prev = GetPlayerPrevious(client);
+    bool prev = GetPlayerPrevious(client), changed;
 
     ArrayList list = new ArrayList(ByteCountToCells(32));
     for(int i = 0; i < skip; i++)
     {
-        if (prev && skip > 1 && strcmp(skin[i], g_sPrevious[client]) == 0)
-        {
-            // ignore previous
-            continue;
-        }
-
-        if (strlen(skin[i]) >= 3) 
+        if (strlen(skin[i]) > 0) 
         {
             int itemid = Store_GetItemId(skin[i]);
-            if (itemid >= 0 && Store_HasClientItem(client, itemid))
+            if (itemid >= 0)
             {
-                list.PushString(skin[i]);
+                if (Store_HasClientItem(client, itemid))
+                {
+                    list.PushString(skin[i]);
+                }
+                else
+                {
+                    Format(skin[i], 32, "%s;", skin[i]);
+                    ReplaceString(options, 512, skin[i], "");
+                    changed = true;
+                }
             }
+        }
+    }
+    if (changed)
+    {
+        SetPlayerEquips(client, options);
+    }
+    if (prev && list.Length >= 2)
+    {
+        int find = list.FindString(g_sPrevious[client]);
+        if (find > -1)
+        {
+            list.Erase(find);
         }
     }
     if (list.Length == 0)
     {
         delete list;
+        g_sPrevious[client][0] = '\0';
         return Plugin_Continue;
     }
     list.GetString(UTIL_GetRandomInt(0, list.Length - 1), item, 32);
@@ -390,5 +432,6 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         }
     }
 
+    g_sPrevious[client][0] = '\0';
     return Plugin_Continue;
 }

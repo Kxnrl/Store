@@ -222,12 +222,20 @@ static void Store_SetClientModel(int client, int m_iData)
     strcopy(skin_t, 128, g_ePlayerSkins[m_iData][szModel]);
     strcopy(arms_t, 128, g_ePlayerSkins[m_iData][szArms]);
 
-    if (Store_CallPreSetModel(client, skin_t, arms_t))
+    Action res = Store_CallPreSetModel(client, skin_t, arms_t);
+    if (res >= Plugin_Handled)
         return;
+    else if (res == Plugin_Changed)
+    {
+        // verify data index;
+        m_iData = FindDataIndexByModel(skin_t);
+        if (m_iData == -1)
+            return;
+    }
 
     SetEntityModel(client, skin_t);
     strcopy(g_szSkinModel[client], 256, skin_t);
-    
+
     if(g_ePlayerSkins[m_iData][szSound][0] != 0)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
 
@@ -640,7 +648,7 @@ void Store_CallDefaultSkin(int client)
     }
 }
 
-bool Store_CallPreSetModel(int client, char skin[128], char arms[128])
+Action Store_CallPreSetModel(int client, char skin[128], char arms[128])
 {
     char s[128], a[128];
     strcopy(s, 128, skin);
@@ -654,17 +662,13 @@ bool Store_CallPreSetModel(int client, char skin[128], char arms[128])
     Call_PushStringEx(a,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_Finish(res);
 
-    if (res >= Plugin_Handled)
-    {
-        return true;
-    }
-    else if (res == Plugin_Changed)
+    if (res == Plugin_Changed)
     {
         strcopy(skin, 128, s);
         strcopy(arms, 128, a);
     }
 
-    return false;
+    return res;
 }
 
 bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
@@ -707,4 +711,14 @@ bool GetSkinData(int itemid, char skin[128], char arms[128])
     strcopy(skin, 128, g_ePlayerSkins[m_iData][szModel]);
     strcopy(arms, 128, g_ePlayerSkins[m_iData][szArms]);
     return true;
+}
+
+int FindDataIndexByModel(const char[] skin)
+{
+    for(int i = 0; i < g_iPlayerSkins; ++i)
+    {
+        if (strcmp(g_ePlayerSkins[i][szModel], skin) == 0)
+            return i;
+    }
+    return -1;
 }

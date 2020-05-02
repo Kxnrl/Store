@@ -401,7 +401,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     {
         SetPlayerEquips(client, options);
     }
-    if (prev && list.Length >= 2)
+    if (!prev && list.Length >= 2)
     {
         int find = list.FindString(g_sPrevious[client]);
         if (find > -1)

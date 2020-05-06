@@ -1470,8 +1470,8 @@ void UTIL_GetLevelType(int itemid, char[] buffer, int maxLen)
         case  2: strcopy(buffer, maxLen, "保密"); //合成
         case  3: strcopy(buffer, maxLen, "隐秘"); //开箱
         case  4: strcopy(buffer, maxLen, "违禁"); //活动
-        case  5: strcopy(buffer, maxLen, "专属"); //专属
-        case  6: strcopy(buffer, maxLen, "隐藏"); //专属
+        case  5: strcopy(buffer, maxLen, "史诗"); //专属
+        case  6: strcopy(buffer, maxLen, "神话"); //专属
         default: strcopy(buffer, maxLen, "受限"); //普通
     }
 }
@@ -2176,6 +2176,11 @@ void DisplayItemMenu(int client, int itemid)
             AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Item Equip", client);
         else
             AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%T", "Item Unequip", client);
+
+        if(StrEqual(g_eTypeHandlers[g_eItems[itemid][iHandler]][szType], "playerskin") && LibraryExists("store-randomskin"))
+        {
+            AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "%T", "random skin", client);
+        }
     }
     else
     {
@@ -2480,6 +2485,11 @@ public int MenuHandler_Item(Menu menu, MenuAction action, int client, int param2
 #else
                 tPrintToChat(client, "%T", "Open Case not available", client);
 #endif
+            }
+            // call random skin plugin.
+            else if(m_iId == 5)
+            {
+                FakeClientCommandEx(client, "sm_rs");
             }
         }
     }

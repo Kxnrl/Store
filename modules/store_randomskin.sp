@@ -50,6 +50,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
     MarkNativeAsOptional("Pupd_CheckPlugin");
 
+    RegPluginLibrary("store-randomskin");
+
     return APLRes_Success;
 }
 

@@ -322,3 +322,22 @@ mv addons/sourcemod/scripting/store_randomskin.sp build/addons/sourcemod/scripti
 mv store_randomskin.smx build/addons/sourcemod/plugins/modules
 echo ""
 echo ""
+
+
+#编译Store模组屏蔽
+echo "Compiling store module [simple hide] ..."
+cp -f modules/store_simplehide.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_simplehide.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_simplehide.sp
+if [ ! -f "store_simplehide.smx" ]; then
+  echo "Compile store module [simple hide] failed!"
+  exit 1;
+fi
+mv addons/sourcemod/scripting/store_simplehide.sp build/addons/sourcemod/scripting/modules
+mv store_simplehide.smx build/addons/sourcemod/plugins/modules
+echo ""
+echo ""

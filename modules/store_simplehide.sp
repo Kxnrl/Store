@@ -26,6 +26,7 @@ bool g_bHide[MAXPLAYERS+1];
 public void OnPluginStart()
 {
     RegConsoleCmd("sm_shide", Command_Hide);
+    LoadTranslations("store.phrases");
 }
 
 public Action Command_Hide(int client, int args)

@@ -20,7 +20,7 @@ public Plugin myinfo =
     url         = PLUGIN_URL
 };
 
-int  g_Edict[MAXPLAYERS+1];
+int  g_Edict[2048];
 bool g_bHide[MAXPLAYERS+1];
 
 public void OnPluginStart()

@@ -75,9 +75,6 @@ void Store_RemoveClientAura(int client)
         int entity = EntRefToEntIndex(g_iClientAura[client]);
         if(IsValidEdict(entity))
         {
-#if defined AllowHide
-            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
-#endif
             AcceptEntityInput(entity, "Kill");
         }
         g_iClientAura[client] = INVALID_ENT_REFERENCE;
@@ -108,18 +105,6 @@ void Store_SetClientAura(int client)
 
         g_iClientAura[client] = EntIndexToEntRef(iEnt);
 
-#if defined AllowHide
-        //https://github.com/neko-pm/auramenu/blob/master/scripting/dominoaura-menu.sp
-        SetEdictFlags(iEnt, GetEdictFlags(iEnt)&(~FL_EDICT_ALWAYS)); //to allow settransmit hooks
-        SDKHookEx(iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Aura);
-#endif
+        Call_OnParticlesCreated(client, iEnt);
     }
 }
-
-#if defined AllowHide
-public Action Hook_SetTransmit_Aura(int entity, int client)
-{
-    SetTransmitFlags(entity);
-    return g_bHideMode[client] ? Plugin_Handled : Plugin_Continue;
-}
-#endif

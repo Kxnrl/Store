@@ -105,25 +105,22 @@ void Models_OnClientPutInServer(int client)
 
 void Models_OnClientDisconnect(int client)
 {
-    if(!IsClientInGame(client))
-        return;
-    
     if(g_bHooked[client])
     {
         SDKUnhook(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
         g_bHooked[client] = false;
     }
 
-    if(g_smClientWeapon[client].Size > 0)
-    {
-        SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
-        SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
-        SDKUnhook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
-        SDKUnhook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
-    }
-
     if(g_smClientWeapon[client] != null)
     {
+        if(g_smClientWeapon[client].Size > 0)
+        {
+            SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
+            SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
+            SDKUnhook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
+            SDKUnhook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
+        }
+
         delete g_smClientWeapon[client];
         g_smClientWeapon[client] = null;
     }

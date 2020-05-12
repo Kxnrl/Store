@@ -1,9 +1,5 @@
 #define Module_Skin
 
-#undef REQUIRE_PLUGIN
-#include <armsfix>
-#define REQUIRE_PLUGIN
-
 enum PlayerSkin
 {
     String:szModel[PLATFORM_MAX_PATH],
@@ -20,7 +16,6 @@ static int    g_iSkinLevel[MAXPLAYERS+1];
 static int    g_iPreviewTimes[MAXPLAYERS+1];
 static int    g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 static int    g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-static bool   g_pArmsFix;
 static char   g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 static char   g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 static ConVar spec_freeze_time;
@@ -32,12 +27,14 @@ bool   g_bSpecJoinPending[MAXPLAYERS+1];
 Handle g_tKillPreview[MAXPLAYERS+1];
 
 Handle g_hOnPlayerSkinDefault = null;
+Handle g_hOnPlayerSetModel = null;
 Handle g_hOnFPDeathCamera = null;
 
 void Skin_OnPluginStart()
 {
     g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
     g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
+    g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String);
 
     AddNormalSoundHook(Hook_NormalSound);
 
@@ -193,9 +190,6 @@ public int PlayerSkins_Remove(int client, int id)
 
 void Store_PreSetClientModel(int client)
 {
-    if(g_pArmsFix && !ArmsFix_ModelSafe(client))
-        return;
-
     int m_iEquipped = GetEquippedSkin(client);
 
     if(m_iEquipped >= 0)
@@ -205,98 +199,6 @@ void Store_PreSetClientModel(int client)
     }
 
     Store_CallDefaultSkin(client);
-
-#if defined Module_Hats
-    Store_SetClientHat(client);
-#endif
-}
-
-public Action ArmsFix_OnSpawnModel(int client, char[] model, int modelLen, char[] arms, int armsLen)
-{
-#if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
-    {
-        strcopy(g_szSkinModel[client], 256, "#zombie");
-        return Plugin_Continue;
-    }
-#endif
-
-    int m_iEquipped = GetEquippedSkin(client);
-
-    if(m_iEquipped >= 0)
-    {
-        int m_iData = Store_GetDataIndex(m_iEquipped);
-
-        if(g_ePlayerSkins[m_iData][szSound][0] != 0)
-            FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
-
-        g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
-        strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
-        strcopy(model, modelLen, g_ePlayerSkins[m_iData][szModel]);
-        if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
-        {
-            Store_RemoveClientGloves(client, 0);
-            strcopy(arms, armsLen, g_ePlayerSkins[m_iData][szArms]);
-        }
-
-        return Plugin_Changed;
-    }
-
-    char skin_t[128], arms_t[128];
-
-    bool ret = false;
-    
-    Call_StartForward(g_hOnPlayerSkinDefault);
-    Call_PushCell(client);
-    Call_PushCell(g_iClientTeam[client]-2);
-    Call_PushStringEx(skin_t, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushCell(128);
-    Call_PushStringEx(arms_t,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushCell(128);
-    Call_Finish(ret);
-
-    if(ret)
-    {
-        strcopy( arms,  armsLen, arms_t);
-        strcopy(model, modelLen, skin_t);
-
-        if(strlen(arms) > 3) Store_RemoveClientGloves(client, 0);
-
-        return Plugin_Changed;
-    }
-
-    return Plugin_Continue;
-}
-
-public void ArmsFix_OnArmsFixed(int client)
-{
-#if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
-    {
-        strcopy(g_szSkinModel[client], 256, "#zombie");
-        return;
-    }
-#endif
-
-    char model[192];
-    GetEntPropString(client, Prop_Data, "m_ModelName", model, 192);
-    if(StrContains(model, "models/player/custom_player/legacy/", false) == 0)
-    {
-#if defined Global_Skin
-        int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
-#else
-        int m_iEquipped = Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
-#endif
-        if(m_iEquipped >= 0)
-        {
-            LogError("Failed to set playerskin on %L in forward ArmsFix_OnSpawnModel", client);
-            int m_iData = Store_GetDataIndex(m_iEquipped);
-            Store_SetClientModel(client, m_iData);
-            return;
-        }
-        
-        Store_CallDefaultSkin(client);
-    }
 
 #if defined Module_Hats
     Store_SetClientHat(client);
@@ -316,17 +218,35 @@ static void Store_SetClientModel(int client, int m_iData)
     }
 #endif
 
-    SetEntityModel(client, g_ePlayerSkins[m_iData][szModel]);
-    strcopy(g_szSkinModel[client], 256, g_ePlayerSkins[m_iData][szModel]);
-    
+    char skin_t[128], arms_t[128];
+    strcopy(skin_t, 128, g_ePlayerSkins[m_iData][szModel]);
+    strcopy(arms_t, 128, g_ePlayerSkins[m_iData][szArms]);
+
+    Action res = Store_CallPreSetModel(client, skin_t, arms_t);
+    if (res >= Plugin_Handled)
+        return;
+    else if (res == Plugin_Changed)
+    {
+        // verify data index;
+        m_iData = FindDataIndexByModel(skin_t);
+        if (m_iData == -1)
+            return;
+    }
+
+    SetEntityModel(client, skin_t);
+    strcopy(g_szSkinModel[client], 256, skin_t);
+
     if(g_ePlayerSkins[m_iData][szSound][0] != 0)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
 
-    // Has valve gloves?
-    if(!StrEqual(g_ePlayerSkins[m_iData][szArms], "null"))
+    if(!StrEqual(arms_t, "null"))
     {
-        Store_RemoveClientGloves(client, 0);
-        SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
+        if (Store_CallSetPlayerSkinArms(client, arms_t, 128))
+        {
+            // Has valve gloves?
+            Store_RemoveClientGloves(client, 0);
+            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+        }
     }
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
@@ -624,25 +544,21 @@ static void FadeScreenWhite(int client)
     EndMessage();
 }
 
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+void Skin_OnRunCmd(int client, int &buttons)
 {
     if(IsPlayerAlive(client))
-        return Plugin_Continue;
+        return;
     
     if(g_iCameraRef[client] == INVALID_ENT_REFERENCE)
-        return Plugin_Continue;
-    
+        return;
+
     buttons = 0;
-    mouse[0] = 0;
-    mouse[1] = 0;
 
     int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
     if(m_iObserverMode <= 4)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 6);
 
     //AttemptState(client, false);
-
-    return Plugin_Continue;
 }
 
 static int GetEquippedSkin(int client)
@@ -721,10 +637,88 @@ void Store_CallDefaultSkin(int client)
         if(IsModelPrecached(skin_t))
             SetEntityModel(client, skin_t);
 
-        if(IsModelPrecached(arms_t))
+        if (Store_CallSetPlayerSkinArms(client, arms_t, 128))
         {
-            Store_RemoveClientGloves(client, 0);
-            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+            if(IsModelPrecached(arms_t))
+            {
+                Store_RemoveClientGloves(client, 0);
+                SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+            }
         }
     }
+}
+
+Action Store_CallPreSetModel(int client, char skin[128], char arms[128])
+{
+    char s[128], a[128];
+    strcopy(s, 128, skin);
+    strcopy(a, 128, arms);
+
+    Action res = Plugin_Continue;
+
+    Call_StartForward(g_hOnPlayerSetModel);
+    Call_PushCell(client);
+    Call_PushStringEx(s, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(a,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_Finish(res);
+
+    if (res == Plugin_Changed)
+    {
+        strcopy(skin, 128, s);
+        strcopy(arms, 128, a);
+    }
+
+    return res;
+}
+
+bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
+{
+    static Handle gf = null;
+    if (gf == null)
+    {
+        gf = CreateGlobalForward("Store_OnSetPlayerSkinArms", ET_Hook, Param_Cell, Param_String, Param_Cell);
+    }
+
+    char buff[128];
+    strcopy(buff, 128, arms);
+
+    Action res = Plugin_Continue;
+    Call_StartForward(gf);
+    Call_PushCell(client);
+    Call_PushString(buff);
+    Call_PushCell(len);
+    Call_Finish(res);
+
+    if (res == Plugin_Continue)
+    {
+        return true;
+    }
+    else if (res == Plugin_Changed)
+    {
+        strcopy(arms, len, buff);
+        return true;
+    }
+
+    return false;
+}
+
+bool GetSkinData(int itemid, char skin[128], char arms[128])
+{
+    int m_iData = Store_GetDataIndex(itemid);
+    if (m_iData == -1)
+        return false;
+
+    strcopy(skin, 128, g_ePlayerSkins[m_iData][szModel]);
+    strcopy(arms, 128, g_ePlayerSkins[m_iData][szArms]);
+    return true;
+}
+
+int FindDataIndexByModel(const char[] skin)
+{
+    for(int i = 0; i < g_iPlayerSkins; ++i)
+    {
+        if (strcmp(g_ePlayerSkins[i][szModel], skin) == 0)
+            return i;
+    }
+    return -1;
 }

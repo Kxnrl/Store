@@ -21,6 +21,10 @@ public Plugin myinfo =
 #include <store>
 #include <store_stock>
 
+#undef REQUIRE_PLUGIN
+#include <fys.pupd>
+#define REQUIRE_PLUGIN
+
 enum Pet
 {
     String:model[192],
@@ -36,12 +40,30 @@ static any g_ePets[STORE_MAX_ITEMS][Pet];
 static int g_iPets = 0;
 static int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
 static int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iOwner[2048];
 
 public void OnPluginStart()
 {
     HookEvent("player_spawn", Pets_PlayerSpawn, EventHookMode_Post);
     HookEvent("player_death", Pets_PlayerDeath, EventHookMode_Post);
     HookEvent("player_team", Pets_PlayerTeam, EventHookMode_Post);
+}
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+    MarkNativeAsOptional("Pupd_CheckPlugin");
+    return APLRes_Success;
+}
+
+public void Pupd_OnCheckAllPlugins()
+{
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/Modules/");
+}
+
+public void OnEntityDestroyed(int entity)
+{
+    if (MaxClients < entity < 2048)
+        g_iOwner[entity] = -1;
 }
 
 public void Store_OnStoreInit(Handle store_plugin)
@@ -165,7 +187,11 @@ public void Pets_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
     if(!client || !IsClientInGame(client))
         return;
 
-    Store_RemovePet(client);
+    if (GetEventInt(event, "team") <= 1)
+    {
+        // spec only
+        Store_RemovePet(client);
+    }
 }
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
@@ -263,13 +289,12 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
     SetVariantString("!activator");
     AcceptEntityInput(entity, "SetParent", client, entity, 0);
 
-    SetVariantString("letthehungergamesbegin");
-    AcceptEntityInput(entity, "SetParentAttachmentMaintainOffset", entity, entity, 0);
-
     g_iPetRef[client][slot] = EntIndexToEntRef(entity);
     g_iLastAnimation[client][slot] = -1;
-    
-    SDKHook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
+
+    g_iOwner[entity] = client;
+
+    Call_OnPetsCreated(client, entity);
 }
 
 void ResetPet(int client, int slot)
@@ -283,10 +308,10 @@ void ResetPet(int client, int slot)
 
     if(entity == -1 || !IsValidEdict(client))
         return;
-    
-    SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
 
     AcceptEntityInput(entity, "Kill");
+
+    g_iOwner[entity] = -1;
 }
 
 void DeathPet(int client, int slot)
@@ -313,11 +338,6 @@ void DeathPet(int client, int slot)
     HookSingleEntityOutput(entity, "OnAnimationDone", Hook_OnAnimationDone, true);
 }
 
-public Action Hook_SetTransmit_Pet(int ent, int client)
-{
-    return Store_IsPlayerHide(client) ? Plugin_Handled : Plugin_Continue;
-}
-
 public void Hook_OnAnimationDone(const char[] output, int caller, int activator, float delay)
 {
     if(!IsValidEdict(caller))
@@ -333,6 +353,20 @@ public void Hook_OnAnimationDone(const char[] output, int caller, int activator,
                 g_iPetRef[owner][slot] = INVALID_ENT_REFERENCE;
     }
 
-    SDKUnhook(caller, SDKHook_SetTransmit, Hook_SetTransmit_Pet);
     AcceptEntityInput(caller, "Kill");
+}
+
+stock void Call_OnPetsCreated(int client, int entity)
+{
+    static Handle gf = null;
+    if (gf == null)
+    {
+        // create
+        gf = CreateGlobalForward("Store_OnPetsCreated", ET_Ignore, Param_Cell, Param_Cell);
+    }
+
+    Call_StartForward(gf);
+    Call_PushCell(client);
+    Call_PushCell(entity);
+    Call_Finish();
 }

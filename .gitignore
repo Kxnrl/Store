@@ -80,10 +80,15 @@ include/version_auto.inc
 include/PTaH.inc
 include/armsfix.inc
 include/fys.opts.inc
+include/fys.pupd.inc
 
 # VSCode
 # =========================
 .vscode/*
+
+# PHPStorm
+# =========================
+.idea/*
 
 # OSX
 # =========================

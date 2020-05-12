@@ -43,6 +43,14 @@ enum Store_Item
     bool:bVIP
 }
 
+enum SkinData_t
+{
+    String:m_Name[ITEM_NAME_LENGTH],
+    String:m_UId[32],
+    String:m_Skin[128],
+    String:m_Arms[128]
+}
+
 native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false, bool disposable = false);
 native int Store_RegisterMenuHandler(const char[] identifier, Function menu, Function handler);
 native int Store_SetDataIndex(int itemid, int index);
@@ -72,6 +80,8 @@ native void Store_SaveClientAll(int client);
 native bool Store_IsPlayerTP(int client);
 native bool Store_IsPlayerHide(int client);
 native bool Store_IsStoreSpray(int client);
+native bool Store_GetClientPlayerSkins(int client, ArrayList array);
+native bool Store_GetAllPlayerSkins(ArrayList array);
 
 native ArrayList Store_GetItemList(); // List<Store_Item>
 
@@ -82,6 +92,13 @@ forward Action Store_OnClientBuyItem(int client, const char[] uid, int length, i
 forward void   Store_OnClientPurchased(int client, const char[] uid, int length, int price);
 forward bool   Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
 forward Action Store_OnFPDeathCamera(int client);
+forward Action Store_OnSetPlayerSkin(int client, char skin[128], char arms[128]);
+forward void   Store_OnHatsCreated(int client, int entity, int slot);
+forward void   Store_OnTrailsCreated(int client, int entity);
+forward void   Store_OnParticlesCreated(int client, int entity);
+forward void   Store_OnNeonCreated(int client, int entity);
+forward void   Store_OnPetsCreated(int client, int entity);
+forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

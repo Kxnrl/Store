@@ -2,7 +2,7 @@
 
 |Build Status|Download|
 |---|---
-|[![Build Status](https://img.shields.io/travis/Kxnrl/Store/master.svg?style=flat-square)](https://travis-ci.org/Kxnrl/Store?branch=master) |[![Download](https://static.kxnrl.com/images/web/buttons/download.png)](https://build.kxnrl.com/Store/)  
+|[![Build Status](https://travis-ci.com/Kxnrl/Store.svg?branch=master)](https://travis-ci.com/Kxnrl/Store) |[![Download](https://static.kxnrl.com/images/web/buttons/download.png)](https://build.kxnrl.com/Store/)  
   
   
 A sourcemod in-game Store system. 

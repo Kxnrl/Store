@@ -11,10 +11,10 @@ echo "*** Trigger build ***"
 
 #下载SM
 echo "Download sourcemod ..."
-if [ "$1" = "1.9" ]; then
-  wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
-else
+if [ "$1" = "1.10" ]; then
   wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
+else
+  wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
 fi
 tar -xzf sourcemod.tar.gz
 
@@ -24,14 +24,14 @@ echo "Download PTaH.inc ..."
 wget "https://github.com/komashchenko/PTaH/raw/master/PTaH.inc" -q -O include/PTaH.inc
 
 
-#ArmsFix
-echo "Download armsfix.inc ..."
-wget "https://github.com/Kxnrl/CSGO-ArmsFix/raw/master/include/armsfix.inc" -q -O include/armsfix.inc
-
-
 #Opts
 echo "Download fys.opts.inc ..."
 wget "https://github.com/fys-csgo/public-include/raw/master/fys.opts.inc" -q -O include/fys.opts.inc
+
+
+#Pupd
+echo "Download fys.pupd.inc ..."
+wget "https://github.com/fys-csgo/public-include/raw/master/fys.pupd.inc" -q -O include/fys.pupd.inc
 
 
 #设置文件为可执行
@@ -303,3 +303,41 @@ if [ ! -f "store_givecreditscommand.smx" ]; then
 fi
 mv addons/sourcemod/scripting/store_givecreditscommand.sp build/addons/sourcemod/scripting/modules
 mv store_givecreditscommand.smx build/addons/sourcemod/plugins/modules
+
+
+#编译Store模组随机皮肤
+echo "Compiling store module [random skin] ..."
+cp -f modules/store_randomskin.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_randomskin.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_randomskin.sp
+if [ ! -f "store_randomskin.smx" ]; then
+  echo "Compile store module [randoms kin] failed!"
+  exit 1;
+fi
+mv addons/sourcemod/scripting/store_randomskin.sp build/addons/sourcemod/scripting/modules
+mv store_randomskin.smx build/addons/sourcemod/plugins/modules
+echo ""
+echo ""
+
+
+#编译Store模组屏蔽
+echo "Compiling store module [simple hide] ..."
+cp -f modules/store_simplehide.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store_simplehide.sp
+do
+  sed -i "s%<commit_count>%$COUNT%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store_simplehide.sp
+if [ ! -f "store_simplehide.smx" ]; then
+  echo "Compile store module [simple hide] failed!"
+  exit 1;
+fi
+mv addons/sourcemod/scripting/store_simplehide.sp build/addons/sourcemod/scripting/modules
+mv store_simplehide.smx build/addons/sourcemod/plugins/modules
+echo ""
+echo ""

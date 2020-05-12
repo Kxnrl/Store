@@ -158,6 +158,7 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         g_iClientHats[client][g_eHats[m_iData][iSlot]] = EntIndexToEntRef(m_iEnt);
         
         SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
+        Call_OnHatsCreated(client, m_iEnt);
         
         TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR); 
         
@@ -191,11 +192,6 @@ public Action Hook_SetTransmit_Hat(int ent, int client)
     if(g_iSpecTarget[client] == g_iHatsOwners[ent])
         return Plugin_Handled;
 
-#if defined AllowHide
-    if(g_bHideMode[client])
-        return Plugin_Handled;
-#endif
-
     return Plugin_Continue;
 }
 
@@ -206,4 +202,19 @@ static void Bonemerge(int ent)
     m_iEntEffects |= 1;
     m_iEntEffects |= 128;
     SetEntProp(ent, Prop_Send, "m_fEffects", m_iEntEffects); 
+}
+
+stock void Call_OnHatsCreated(int client, int entity)
+{
+    static Handle gf = null;
+    if (gf == null)
+    {
+        // create
+        gf = CreateGlobalForward("Store_OnHatsCreated", ET_Ignore, Param_Cell, Param_Cell);
+    }
+
+    Call_StartForward(gf);
+    Call_PushCell(client);
+    Call_PushCell(entity);
+    Call_Finish();
 }

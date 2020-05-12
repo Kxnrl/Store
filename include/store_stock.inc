@@ -370,7 +370,7 @@ stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, c
 
 stock void LogStoreError(const char[] buffer, any ...)
 {
-    char path[128];
+    static char path[128];
     if(!path[0])
         BuildPath(Path_SM, path, 128, "logs/store.error.log");
 
@@ -384,19 +384,19 @@ public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const 
     float time = GetEngineTime() - pack.ReadFloat();
     char query[1024];
     pack.ReadString(STRING(query));
-    if(time > 2.0) LogMessage("Store SQL slow query: %f -> %s", time, query);
+    if(time > 20.0) LogMessage("Store SQL slow query: %f -> %s", time, query);
     if(results == null || error[0]) LogStoreError("SQL error happened.\nQuery: %s\nError: %s", query, error);
 
     delete pack;
 }
 
-public void SQL_TVoid(Database db, char[] query)
+stock void SQL_TVoid(Database db, char[] query, DBPriority dbp = DBPrio_Normal)
 {
     DataPack data = new DataPack();
     data.WriteFloat(GetEngineTime());
     data.WriteString(query);
     data.Reset();
-    db.Query(SQLCallback_Void_PrintQuery, query, data);
+    db.Query(SQLCallback_Void_PrintQuery, query, data, dbp);
 }
 
 stock bool AllowItemForAuth(int client, const char[] authid)
@@ -702,4 +702,15 @@ stock void PrecacheEffect(const char[] name)
 stock void SetTransmitFlags(int entity)
 {
     SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
+}
+
+#define SIZE_OF_INT 2147483647
+stock int UTIL_GetRandomInt(int min, int max)
+{
+    int random = GetURandomInt();
+    
+    if(random == 0)
+        random++;
+
+    return RoundToCeil(float(random) / (float(SIZE_OF_INT) / float(max - min + 1))) + min - 1;
 }

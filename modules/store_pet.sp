@@ -29,10 +29,13 @@ enum Pet
 {
     String:model[192],
     String:idle[32],
+    String:idle2[32],
     String:run[32],
+    String:spawn[32],
     String:death[32],
     Float:fPosition[3],
     Float:fAngles[3],
+    Float:fScale,
     iSlot
 }
 
@@ -40,6 +43,8 @@ static any g_ePets[STORE_MAX_ITEMS][Pet];
 static int g_iPets = 0;
 static int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
 static int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iLastIdleTimes[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iLastSpawnTime[MAXPLAYERS+1][STORE_MAX_SLOTS];
 static int g_iOwner[2048];
 
 public void OnPluginStart()
@@ -92,13 +97,16 @@ public bool Pets_Config(Handle kv, int itemid)
     float m_fTemp[3];
     KvGetString(kv, "model", g_ePets[g_iPets][model], 256);
     KvGetString(kv, "idle", g_ePets[g_iPets][idle], 32);
+    KvGetString(kv, "idle2", g_ePets[g_iPets][idle2], 32);
     KvGetString(kv, "run", g_ePets[g_iPets][run], 32);
+    KvGetString(kv, "spawn", g_ePets[g_iPets][spawn], 32);
     KvGetString(kv, "death", g_ePets[g_iPets][death], 32);
     KvGetVector(kv, "position", m_fTemp);
     g_ePets[g_iPets][fPosition] = m_fTemp;
     KvGetVector(kv, "angles", m_fTemp);
     g_ePets[g_iPets][fAngles] = m_fTemp;
     g_ePets[g_iPets][iSlot] = KvGetNum(kv, "slot");
+    g_ePets[g_iPets][fScale] = KvGetFloat(kv, "scale", 1.0);
     
     if(FileExists(g_ePets[g_iPets][model], true))
     {
@@ -218,16 +226,31 @@ void AdjustPet(int client, int slot, const float fDist)
 
     if(!IsValidEdict(entity))
         return;
-    
-    if(g_iLastAnimation[client][slot] != 1 && fDist > 0.0)
+
+    int time = GetTime();
+    if (time < g_iLastSpawnTime[client][slot])
+        return;
+
+    int m_iData = Store_GetDataIndex(Store_GetEquippedItem(client, "pet", slot));
+
+    if(g_iLastAnimation[client][slot] != 1 && fDist > 0.0 && g_ePets[m_iData][run][0])
     {
-        SetVariantString(g_ePets[Store_GetDataIndex(Store_GetEquippedItem(client, "pet", slot))][run]);
+        SetVariantString(g_ePets[m_iData][run]);
         AcceptEntityInput(EntRefToEntIndex(g_iPetRef[client][slot]), "SetAnimation");
         g_iLastAnimation[client][slot] = 1;
     }
-    else if(g_iLastAnimation[client][slot] != 2 && fDist == 0.0)
+    else if(g_iLastAnimation[client][slot] != 2 && fDist == 0.0 && g_ePets[m_iData][idle][0])
     {
-        SetVariantString(g_ePets[Store_GetDataIndex(Store_GetEquippedItem(client, "pet", slot))][idle]);
+        if (g_iLastIdleTimes[client][slot] < time && g_ePets[m_iData][idle2][0])
+        {
+            g_iLastSpawnTime[client][slot] = time + 2;
+            g_iLastIdleTimes[client][slot] = time + 15;
+            SetVariantString(g_ePets[m_iData][idle2]);
+        }
+        else
+        {
+            SetVariantString(g_ePets[m_iData][idle]);
+        }
         AcceptEntityInput(EntRefToEntIndex(g_iPetRef[client][slot]), "SetAnimation");
         g_iLastAnimation[client][slot] = 2;
     }
@@ -281,6 +304,9 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
     DispatchKeyValue(entity, "solid", "0");
     SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", client);
 
+    // scale
+    SetEntPropFloat(entity, Prop_Send, "m_flModelScale", g_ePets[m_iData][fScale]); 
+
     DispatchSpawn(entity);    
     AcceptEntityInput(entity, "TurnOn", entity, entity, 0);
     
@@ -291,10 +317,17 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
 
     g_iPetRef[client][slot] = EntIndexToEntRef(entity);
     g_iLastAnimation[client][slot] = -1;
+    g_iLastSpawnTime[client][slot] = GetTime() + 2;
 
     g_iOwner[entity] = client;
 
     Call_OnPetsCreated(client, entity);
+
+    if (g_ePets[m_iData][spawn][0])
+    {
+        SetVariantString(g_ePets[m_iData][spawn]);
+        AcceptEntityInput(entity, "SetAnimation");
+    }
 }
 
 void ResetPet(int client, int slot)

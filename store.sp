@@ -2303,7 +2303,7 @@ void DisplayComposeMenu(int client, bool last)
 
             int uid = UTIL_GetClientItemId(client, i);
             
-            if(uid < 0 || g_eClientItems[client][uid][iDateOfExpiration] != 0 || g_eClientItems[client][uid][iPriceOfPurchase] < 1)
+            if(uid < 0 || g_eClientItems[client][uid][iDateOfExpiration] != 0)
                 continue;
 
             IntToString(i, m_szId, 8);

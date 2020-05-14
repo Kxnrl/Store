@@ -229,10 +229,10 @@
         "chi" "{red}合成失败,你损失了合成材料!"
     }
 
-    "Compose lost"
+    "Compose cost"
     {
-        "en" "{red}You lost{silver}:{red}"
-        "chi" "{red}你失去了{silver}:{red}"
+        "en" "{red}You cost{silver}:{red}"
+        "chi" "{red}你花费了{silver}:{red}"
     }
 
     "Compose successfully"

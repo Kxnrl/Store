@@ -85,6 +85,7 @@ Handle g_hOnClientLoaded = null;
 Handle g_hOnClientBuyItem = null;
 Handle g_hOnClientPurchased = null;
 Handle g_hOnClientComposed = null;
+Handle g_hOnClientComposing = null;
 
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
@@ -340,9 +341,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_hOnStoreAvailable  = CreateGlobalForward("Store_OnStoreAvailable",  ET_Ignore, Param_Cell);
     g_hOnStoreInit       = CreateGlobalForward("Store_OnStoreInit",       ET_Ignore, Param_Cell);
     g_hOnClientLoaded    = CreateGlobalForward("Store_OnClientLoaded",    ET_Ignore, Param_Cell);
-    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String, Param_Cell,   Param_Cell);
-    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String, Param_Cell,   Param_Cell);
-    g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,   Param_Cell,   Param_String, Param_String);
+    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String,    Param_Cell, Param_Cell);
+    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String,    Param_Cell, Param_Cell);
+    g_hOnClientComposing = CreateGlobalForward("Store_OnClientComposing", ET_Hook,   Param_Cell, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String)
+    g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,      Param_Cell, Param_String, Param_String);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -3248,7 +3250,34 @@ void UTIL_ComposeItem(int client)
 
     int successful = UTIL_GetRandomInt(0, 1000000);
 
-    LogMessage("%L -> compose -> %s -> %s -> [%s:%s] -> [%s:%s] -> %d -> %d -> %d", 
+    LogMessage("PreCompose -> %L -> compose -> %s -> %s -> [%s:%s] -> [%s:%s] -> %d -> %d -> %d", 
+        client, 
+        g_eItems[g_iSelectedItem[client]][szUniqueId], 
+        g_eItems[g_iSelectedItem[client]][szName],
+        g_eItems[g_eCompose[client][item1]][szUniqueId],
+        g_eItems[g_eCompose[client][item2]][szUniqueId],
+        g_eItems[g_eCompose[client][item1]][szName],
+        g_eItems[g_eCompose[client][item2]][szName],
+        m_iFees,
+        probability,
+        successful);
+
+    Action res = Plugin_Continue;
+    Call_StartForward(g_hOnClientComposing);
+    Call_PushCell(client);
+    Call_PushCellRef(successful);
+    Call_PushCell(g_iSelectedItem[client]);
+    Call_PushCell(g_eItems[g_iSelectedItem[client]][szUniqueId]);
+    Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
+    Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iParent]][szName]);
+    Call_Finish(res);
+    if (res >= Plugin_Handled)
+    {
+        // block outside
+        return;
+    }
+
+    LogMessage("PostCompose -> %L -> compose -> %s -> %s -> [%s:%s] -> [%s:%s] -> %d -> %d -> %d", 
         client, 
         g_eItems[g_iSelectedItem[client]][szUniqueId], 
         g_eItems[g_iSelectedItem[client]][szName],
@@ -3266,7 +3295,7 @@ void UTIL_ComposeItem(int client)
         Store_RemoveItem(client, rd > 500000 ? g_eCompose[client][item2] : g_eCompose[client][item1]);
         tPrintToChat(client, "%t", "Compose Failed");
         //tPrintToChat(client, "%t {green} %s", "Compose lost", rd > 500000 ? g_eItems[g_eCompose[client][item2]][szName] : g_eItems[g_eCompose[client][item1]][szName]);
-        tPrintToChat(client, "%t {orange}%d%t", "Compose lost", m_iFees, "credits");
+        tPrintToChat(client, "%t {orange}%d%t", "Compose cost", m_iFees, "credits");
         Store_SaveClientAll(client);
         g_iDataProtect[client] = GetTime()+30;
         Call_StartForward(g_hOnClientComposed);

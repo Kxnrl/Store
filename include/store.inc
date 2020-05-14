@@ -99,6 +99,7 @@ forward void   Store_OnParticlesCreated(int client, int entity);
 forward void   Store_OnNeonCreated(int client, int entity);
 forward void   Store_OnPetsCreated(int client, int entity);
 forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
+forward Action Store_OnClientComposing(int client, int &probability, int itemid, const char[] uid, const char[] itemName, const char[] itemParentName);
 forward void   Store_OnClientComposed(int client, bool success, int itemid, const char[] itemName, const char[] itemParentName);
 
 // CP Support

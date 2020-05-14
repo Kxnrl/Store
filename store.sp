@@ -127,7 +127,7 @@ static int   g_inCase[4] = {999999, 3888, 8888, 23888};
 static char  g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
 static float g_fCreditsTimerInterval = 0.0;
 static int   g_iCreditsTimerOnline = 2;
-static char  g_szComposeFee[][] = {"5000", "8888", "12888", "16888", "23888", "38888"};
+static char  g_szComposeFee[][] = {"5888", "9888", "15888", "21888", "29888", "38888"};
 
 
 //////////////////////////////
@@ -342,7 +342,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_hOnClientLoaded    = CreateGlobalForward("Store_OnClientLoaded",    ET_Ignore, Param_Cell);
     g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String, Param_Cell,   Param_Cell);
     g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String, Param_Cell,   Param_Cell);
-    g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,   Param_String, Param_String);
+    g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,   Param_Cell,   Param_String, Param_String);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -2313,12 +2313,12 @@ void DisplayComposeMenu(int client, bool last)
     // 选择合成器
     else
     {
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "[38%%] Iron furnace (%s%t)",     g_szComposeFee[0], "credits");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "[50%%] Bronze furnace (%s%t)",   g_szComposeFee[1], "credits");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "[62%%] Silver furnace (%s%t)",   g_szComposeFee[2], "credits");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "[75%%] Gold furnace (%s%t)",     g_szComposeFee[3], "credits");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "[88%%] Platinum furnace (%s%t)", g_szComposeFee[4], "credits");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "[99%%] Diamond furnace (%s%t)",  g_szComposeFee[5], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "[30%%] Iron furnace (%s%t)",     g_szComposeFee[0], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "[40%%] Bronze furnace (%s%t)",   g_szComposeFee[1], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "[50%%] Silver furnace (%s%t)",   g_szComposeFee[2], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "[60%%] Gold furnace (%s%t)",     g_szComposeFee[3], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "[70%%] Platinum furnace (%s%t)", g_szComposeFee[4], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "[80%%] Diamond furnace (%s%t)",  g_szComposeFee[5], "credits");
     }
 
     if(m_hMenu.ItemCount > 0)
@@ -3237,12 +3237,12 @@ void UTIL_ComposeItem(int client)
     int probability = 0;
     switch(g_eCompose[client][types])
     {
-        case 0 : probability = 380000;
-        case 1 : probability = 500000;
-        case 2 : probability = 620000;
-        case 3 : probability = 750000;
-        case 4 : probability = 880000;
-        case 5 : probability = 990000;
+        case 0 : probability = 300000;
+        case 1 : probability = 400000;
+        case 2 : probability = 500000;
+        case 3 : probability = 600000;
+        case 4 : probability = 700000;
+        case 5 : probability = 800000;
         default: probability = 0;
     } 
 
@@ -3252,6 +3252,13 @@ void UTIL_ComposeItem(int client)
         Store_RemoveItem(client, UTIL_GetRandomInt(0, 1000000) > 500000 ? g_eCompose[client][item2] : g_eCompose[client][item1]);
         Store_SaveClientAll(client);
         g_iDataProtect[client] = GetTime()+30;
+        Call_StartForward(g_hOnClientComposed);
+        Call_PushCell(client);
+        Call_PushCell(false);
+        Call_PushCell(g_iSelectedItem[client]);
+        Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
+        Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iHandler]][szName]);
+        Call_Finish();
         return;
     }
 
@@ -3269,6 +3276,7 @@ void UTIL_ComposeItem(int client)
 
     Call_StartForward(g_hOnClientComposed);
     Call_PushCell(client);
+    Call_PushCell(true);
     Call_PushCell(g_iSelectedItem[client]);
     Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
     Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iHandler]][szName]);

@@ -2295,10 +2295,10 @@ void DisplayComposeMenu(int client, bool last)
             if(!StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
                 continue;
 
-            if (g_eItems[i][iLevels] < level)
+            if (g_eItems[i][iLevels] != level)
                 continue;
             
-            if(!g_eItems[i][bGiftable] || g_eItems[i][bCompose])
+            if(g_eItems[i][bIgnore] || g_eItems[i][bCompose])
                 continue;
 
             int uid = UTIL_GetClientItemId(client, i);

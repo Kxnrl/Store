@@ -99,6 +99,7 @@ forward void   Store_OnParticlesCreated(int client, int entity);
 forward void   Store_OnNeonCreated(int client, int entity);
 forward void   Store_OnPetsCreated(int client, int entity);
 forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
+forward void   Store_OnClientComposed(int client, int itemid, const char[] itemName, const char[] itemParentName);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

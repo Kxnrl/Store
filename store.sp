@@ -84,6 +84,7 @@ Handle g_hOnStoreInit = null;
 Handle g_hOnClientLoaded = null;
 Handle g_hOnClientBuyItem = null;
 Handle g_hOnClientPurchased = null;
+Handle g_hOnClientComposed = null;
 
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
@@ -126,6 +127,7 @@ static int   g_inCase[4] = {999999, 3888, 8888, 23888};
 static char  g_szCase[4][32] = {"", "Normal Case", "Advanced Case", "Ultima Case"};
 static float g_fCreditsTimerInterval = 0.0;
 static int   g_iCreditsTimerOnline = 2;
+static char  g_szComposeFee[][] = {"5000", "8888", "12888", "16888", "23888", "38888"};
 
 
 //////////////////////////////
@@ -338,8 +340,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_hOnStoreAvailable  = CreateGlobalForward("Store_OnStoreAvailable",  ET_Ignore, Param_Cell);
     g_hOnStoreInit       = CreateGlobalForward("Store_OnStoreInit",       ET_Ignore, Param_Cell);
     g_hOnClientLoaded    = CreateGlobalForward("Store_OnClientLoaded",    ET_Ignore, Param_Cell);
-    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String, Param_Cell, Param_Cell);
-    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_Cell);
+    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String, Param_Cell,   Param_Cell);
+    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String, Param_Cell,   Param_Cell);
+    g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,   Param_String, Param_String);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -1408,7 +1411,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
 
                     if(g_eItems[m_iId][bCompose])
                     {
-                        if(g_eClients[client][iCredits] >= 10000)
+                        if(g_eClients[client][iCredits] >= 5000)
                         {
                             g_eCompose[client][item1]=-1;
                             g_eCompose[client][item2]=-1;
@@ -1416,7 +1419,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                             DisplayComposeMenu(client, false);
                         }
                         else
-                            tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 10000);
+                            tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 5000);
                         return;
                     }
                     else
@@ -1538,7 +1541,7 @@ public int MenuHandler_Preview(Menu menu, MenuAction action, int client, int par
 
         if(selected == 0)
         {
-            if(g_eClients[client][iCredits] >= 10000)
+            if(g_eClients[client][iCredits] >= 5000)
             {
                 g_eCompose[client][item1]=-1;
                 g_eCompose[client][item2]=-1;
@@ -1546,7 +1549,7 @@ public int MenuHandler_Preview(Menu menu, MenuAction action, int client, int par
                 DisplayComposeMenu(client, false);
             }
             else
-                tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 10000);
+                tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 5000);
         }
         else if(selected == 1)
         {
@@ -2239,8 +2242,10 @@ void DisplayPlanMenu(int client, int itemid)
     m_hMenu.Display(client, 0);
 }
 
+// 合成菜单
 void DisplayComposeMenu(int client, bool last)
 {
+    // data protection
     if(g_iDataProtect[client] > GetTime())
     {
         tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
@@ -2248,16 +2253,19 @@ void DisplayComposeMenu(int client, bool last)
         return;
     }
     
+    // 当前菜单层级
     g_iMenuNum[client] = 1;
     Menu m_hMenu = new Menu(MenuHandler_Compose);
     m_hMenu.ExitBackButton = true;
     
+    // 合成道具1
     char sitem1[64];
     if(g_eCompose[client][item1] >= 0)
         strcopy(sitem1, 64, g_eItems[g_eCompose[client][item1]][szName]);
     else
         FormatEx(sitem1, 64, "%T", "unselect", client);
     
+    // 合成道具2
     char sitem2[64];
     if(g_eCompose[client][item2] >= 0)
         strcopy(sitem2, 64, g_eItems[g_eCompose[client][item2]][szName]);
@@ -2266,8 +2274,10 @@ void DisplayComposeMenu(int client, bool last)
 
     m_hMenu.SetTitle("%T\n ", "Title Compose", client, g_eItems[g_iSelectedItem[client]][szName], sitem1, sitem2);
 
-    int num=0;
+    // 只能使用等级-1的物品, 比如5级皮肤只能用2个4级的合成
+    int level = g_eItems[g_iSelectedItem[client]][iLevels] - 1;
 
+    // 已选择全部道具
     if(!last)
     {
         char m_szId[8];
@@ -2284,6 +2294,9 @@ void DisplayComposeMenu(int client, bool last)
 
             if(!StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
                 continue;
+
+            if (g_eItems[i][iLevels] < level)
+                continue;
             
             if(!g_eItems[i][bGiftable] || g_eItems[i][bCompose])
                 continue;
@@ -2293,20 +2306,19 @@ void DisplayComposeMenu(int client, bool last)
             if(uid < 0 || g_eClientItems[client][uid][iDateOfExpiration] != 0 || g_eClientItems[client][uid][iPriceOfPurchase] < 1)
                 continue;
 
-            num++;
             IntToString(i, m_szId, 8);
             AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, g_eItems[i][szName]);
         }
     }
+    // 选择合成器
     else
     {
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "Mode ① [60%%]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "Mode ② [65%%]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "Mode ③ [70%%]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "Mode ④ [75%%]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "Mode ⑤ [80%%]");
-        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "Mode ⑥ [99%%]");
-        num=6;
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "[38%%] Iron furnace (%s%t)",     g_szComposeFee[0], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "1", "[50%%] Bronze furnace (%s%t)",   g_szComposeFee[1], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "2", "[62%%] Silver furnace (%s%t)",   g_szComposeFee[2], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "[75%%] Gold furnace (%s%t)",     g_szComposeFee[3], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "4", "[88%%] Platinum furnace (%s%t)", g_szComposeFee[4], "credits");
+        AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "[99%%] Diamond furnace (%s%t)",  g_szComposeFee[5], "credits");
     }
 
     if(m_hMenu.ItemCount > 0)
@@ -2353,17 +2365,8 @@ public int MenuHandler_Compose(Menu menu, MenuAction action, int client, int par
             else if(0 <= itemid <= 5 && g_eCompose[client][item1] >= 0 && g_eCompose[client][item2] >= 0 && Store_HasClientItem(client, g_eCompose[client][item1]) && Store_HasClientItem(client, g_eCompose[client][item2]))
             {
                 g_eCompose[client][types]=itemid;
-                char m_szTitle[256], m_szTypes[32];
-                switch(itemid)
-                {
-                    case 0: strcopy(m_szTypes, 32,  "5000");
-                    case 1: strcopy(m_szTypes, 32, "10000");
-                    case 2: strcopy(m_szTypes, 32, "15000");
-                    case 3: strcopy(m_szTypes, 32, "20000");
-                    case 4: strcopy(m_szTypes, 32, "25000");
-                    case 5: strcopy(m_szTypes, 32, "88888");
-                }
-                FormatEx(m_szTitle, 256, "%T", "Confirm_Compose", client, g_eItems[g_iSelectedItem[client]][szName], g_eItems[g_eCompose[client][item1]][szName], g_eItems[g_eCompose[client][item2]][szName], m_szTypes);
+                char m_szTitle[256];
+                FormatEx(m_szTitle, 256, "%T", "Confirm_Compose", client, g_eItems[g_iSelectedItem[client]][szName], g_eItems[g_eCompose[client][item1]][szName], g_eItems[g_eCompose[client][item2]][szName], g_szComposeFee[itemid]);
                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Compose, 0);
             }
         }
@@ -3212,27 +3215,21 @@ void UTIL_ComposeItem(int client)
     if(!Store_HasClientItem(client, g_eCompose[client][item2]) || !Store_HasClientItem(client, g_eCompose[client][item1]) || Store_HasClientItem(client, g_iSelectedItem[client]))
         return;
     
-    int m_iFees;
-    switch(g_eCompose[client][types])
-    {
-        case 0 : m_iFees =  5000;
-        case 1 : m_iFees = 10000;
-        case 2 : m_iFees = 15000;
-        case 3 : m_iFees = 20000;
-        case 4 : m_iFees = 25000;
-        case 5 : m_iFees = 88888;
-        default: m_iFees = 999999;
-    }
+    int m_iFees = StringToInt(g_szComposeFee[g_eCompose[client][types]]);
 
-    if(Store_GetClientCredits(client) < m_iFees || m_iFees < 0)
+    if(Store_GetClientCredits(client) < m_iFees || m_iFees < 5000)
     {
         tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, m_iFees);
         return;
     }
 
-    Store_RemoveItem(client, g_eCompose[client][item2]);
-    Store_RemoveItem(client, g_eCompose[client][item1]);
-    
+    int level = g_eItems[g_iSelectedItem[client]][iLevels] - 1;
+    if (g_eItems[g_eCompose[client][item2]][iLevels] < level || g_eItems[g_eCompose[client][item1]][iLevels] < level)
+    {
+        tPrintToChat(client, "%T", "Compose no material", client);
+        return;
+    }
+
     char reason[128];
     FormatEx(STRING(reason), "Compose Fee[%s]", g_eItems[g_iSelectedItem[client]][szName]);
     Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
@@ -3240,21 +3237,26 @@ void UTIL_ComposeItem(int client)
     int probability = 0;
     switch(g_eCompose[client][types])
     {
-        case 0 : probability = 600000;
-        case 1 : probability = 650000;
-        case 2 : probability = 700000;
+        case 0 : probability = 380000;
+        case 1 : probability = 500000;
+        case 2 : probability = 620000;
         case 3 : probability = 750000;
-        case 4 : probability = 800000;
-        case 5 : probability = 999999;
+        case 4 : probability = 880000;
+        case 5 : probability = 990000;
         default: probability = 0;
-    }
+    } 
 
-    if(UTIL_GetRandomInt(0, 1000000) > probability)
+    if(UTIL_GetRandomInt(0, 1000000) >= probability)
     {
         tPrintToChat(client, "Compose Failed", client);
+        Store_RemoveItem(client, UTIL_GetRandomInt(0, 1000000) > 500000 ? g_eCompose[client][item2] : g_eCompose[client][item1]);
+        Store_SaveClientAll(client);
+        g_iDataProtect[client] = GetTime()+30;
         return;
     }
 
+    Store_RemoveItem(client, g_eCompose[client][item1]);
+    Store_RemoveItem(client, g_eCompose[client][item2]);
     Store_GiveItem(client, g_iSelectedItem[client], GetTime(), 0, 99999);
     
     Store_SaveClientAll(client);
@@ -3262,8 +3264,15 @@ void UTIL_ComposeItem(int client)
     g_iDataProtect[client] = GetTime()+30;
 
     tPrintToChat(client, "Compose successfully", client, g_eItems[g_iSelectedItem[client]][szName]);
-    
+
     tPrintToChatAll("%t", "Compose successfully broadcast", client, g_eItems[g_iSelectedItem[client]][szName]);
+
+    Call_StartForward(g_hOnClientComposed);
+    Call_PushCell(client);
+    Call_PushCell(g_iSelectedItem[client]);
+    Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
+    Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iHandler]][szName]);
+    Call_Finish();
 }
 
 void UTIL_BuyItem(int client)

@@ -225,8 +225,9 @@
     
     "Compose Failed"
     {
-        "en" "{red}Compose failed! You lost your material and credits..."
-        "chi" "{red}合成失败,你损失了合成材料!"
+        "#format" "{1:s},{2:d}"
+        "en" "{red}Compose failed! You lost your {1} and {2} credits..."
+        "chi" "{red}合成失败,你损失了{green}{1}{red}和{orange}{2}积分{red}!"
     }
     
     "Compose successfully"

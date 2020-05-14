@@ -3248,8 +3248,9 @@ void UTIL_ComposeItem(int client)
 
     if(UTIL_GetRandomInt(0, 1000000) >= probability)
     {
-        tPrintToChat(client, "Compose Failed", client);
-        Store_RemoveItem(client, UTIL_GetRandomInt(0, 1000000) > 500000 ? g_eCompose[client][item2] : g_eCompose[client][item1]);
+        int rd = UTIL_GetRandomInt(0, 1000000);
+        tPrintToChat(client, "%T", "Compose Failed", client, rd > 500000 ? g_eItems[g_eCompose[client][item2]][szName] : g_eItems[g_eCompose[client][item1]][szName], m_iFees);
+        Store_RemoveItem(client, rd > 500000 ? g_eCompose[client][item2] : g_eCompose[client][item1]);
         Store_SaveClientAll(client);
         g_iDataProtect[client] = GetTime()+30;
         Call_StartForward(g_hOnClientComposed);

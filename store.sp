@@ -3246,11 +3246,21 @@ void UTIL_ComposeItem(int client)
         default: probability = 0;
     } 
 
+    LogMessage("%L -> compose -> %s -> [%s:%s] -> %d -> %d", 
+    client, 
+        g_eItems[g_iSelectedItem[client]][szUniqueId], 
+        g_eItems[g_eCompose[client][item1]][szUniqueId],
+        g_eItems[g_eCompose[client][item2]][szUniqueId],
+        m_iFees,
+        probability);
+
     if(UTIL_GetRandomInt(0, 1000000) >= probability)
     {
         int rd = UTIL_GetRandomInt(0, 1000000);
-        tPrintToChat(client, "%T", "Compose Failed", client, rd > 500000 ? g_eItems[g_eCompose[client][item2]][szName] : g_eItems[g_eCompose[client][item1]][szName], m_iFees);
         Store_RemoveItem(client, rd > 500000 ? g_eCompose[client][item2] : g_eCompose[client][item1]);
+        tPrintToChat(client, "%t", "Compose Failed");
+        tPrintToChat(client, "%t {green}%s", "Compose lost", rd > 500000 ? g_eItems[g_eCompose[client][item2]][szName] : g_eItems[g_eCompose[client][item1]][szName]);
+        tPrintToChat(client, "%t {orange}%d%t", "Compose lost", m_iFees, "credits");
         Store_SaveClientAll(client);
         g_iDataProtect[client] = GetTime()+30;
         Call_StartForward(g_hOnClientComposed);
@@ -3258,7 +3268,7 @@ void UTIL_ComposeItem(int client)
         Call_PushCell(false);
         Call_PushCell(g_iSelectedItem[client]);
         Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
-        Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iHandler]][szName]);
+        Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iParent]][szName]);
         Call_Finish();
         return;
     }
@@ -3280,7 +3290,7 @@ void UTIL_ComposeItem(int client)
     Call_PushCell(true);
     Call_PushCell(g_iSelectedItem[client]);
     Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
-    Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iHandler]][szName]);
+    Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iParent]][szName]);
     Call_Finish();
 }
 

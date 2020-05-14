@@ -3289,7 +3289,7 @@ void UTIL_ComposeItem(int client)
     FormatEx(STRING(reason), "Compose Fee[%s]", g_eItems[g_iSelectedItem[client]][szName]);
     Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
 
-    if(successful < probability)
+    if(successful >= probability)
     {
         int rd = UTIL_GetRandomInt(0, 1000000);
         Store_RemoveItem(client, rd > 500000 ? g_eCompose[client][item2] : g_eCompose[client][item1]);

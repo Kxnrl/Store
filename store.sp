@@ -3263,7 +3263,7 @@ void UTIL_ComposeItem(int client)
     Call_PushCell(client);
     Call_PushCellRef(successful);
     Call_PushCell(g_iSelectedItem[client]);
-    Call_PushCell(g_eItems[g_iSelectedItem[client]][szUniqueId]);
+    Call_PushString(g_eItems[g_iSelectedItem[client]][szUniqueId]);
     Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
     Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iParent]][szName]);
     Call_Finish(res);

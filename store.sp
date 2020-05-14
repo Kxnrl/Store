@@ -3209,7 +3209,7 @@ public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] e
 
 void UTIL_ComposeItem(int client)
 {
-    if(g_eCompose[client][item2] < 0 || g_eCompose[client][item1] < 0 || g_eCompose[client][types] < 0 || g_iSelectedItem[client] < 0)
+    if(g_eCompose[client][item2] < 0 || g_eCompose[client][item1] < 0 || g_eCompose[client][types] < 0 || g_iSelectedItem[client] < 0 || g_bInterMission)
         return;
     
     if(!Store_HasClientItem(client, g_eCompose[client][item2]) || !Store_HasClientItem(client, g_eCompose[client][item1]) || Store_HasClientItem(client, g_iSelectedItem[client]))
@@ -3243,23 +3243,29 @@ void UTIL_ComposeItem(int client)
         case 3 : probability = 600000;
         case 4 : probability = 700000;
         case 5 : probability = 800000;
-        default: probability = 0;
-    } 
+        default: probability =      1;
+    }
 
-    LogMessage("%L -> compose -> %s -> [%s:%s] -> %d -> %d", 
-    client, 
+    int successful = UTIL_GetRandomInt(0, 1000000);
+
+    LogMessage("%L -> compose -> %s -> %s -> [%s:%s] -> [%s:%s] -> %d -> %d -> %d", 
+        client, 
         g_eItems[g_iSelectedItem[client]][szUniqueId], 
+        g_eItems[g_iSelectedItem[client]][szName],
         g_eItems[g_eCompose[client][item1]][szUniqueId],
         g_eItems[g_eCompose[client][item2]][szUniqueId],
+        g_eItems[g_eCompose[client][item1]][szName],
+        g_eItems[g_eCompose[client][item2]][szName],
         m_iFees,
-        probability);
+        probability,
+        successful);
 
-    if(UTIL_GetRandomInt(0, 1000000) >= probability)
+    if(successful < probability)
     {
         int rd = UTIL_GetRandomInt(0, 1000000);
         Store_RemoveItem(client, rd > 500000 ? g_eCompose[client][item2] : g_eCompose[client][item1]);
         tPrintToChat(client, "%t", "Compose Failed");
-        tPrintToChat(client, "%t {green}%s", "Compose lost", rd > 500000 ? g_eItems[g_eCompose[client][item2]][szName] : g_eItems[g_eCompose[client][item1]][szName]);
+        //tPrintToChat(client, "%t {green} %s", "Compose lost", rd > 500000 ? g_eItems[g_eCompose[client][item2]][szName] : g_eItems[g_eCompose[client][item1]][szName]);
         tPrintToChat(client, "%t {orange}%d%t", "Compose lost", m_iFees, "credits");
         Store_SaveClientAll(client);
         g_iDataProtect[client] = GetTime()+30;

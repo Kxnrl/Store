@@ -3232,10 +3232,6 @@ void UTIL_ComposeItem(int client)
         return;
     }
 
-    char reason[128];
-    FormatEx(STRING(reason), "Compose Fee[%s]", g_eItems[g_iSelectedItem[client]][szName]);
-    Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
-    
     int probability = 0;
     switch(g_eCompose[client][types])
     {
@@ -3288,6 +3284,10 @@ void UTIL_ComposeItem(int client)
         m_iFees,
         probability,
         successful);
+
+    char reason[128];
+    FormatEx(STRING(reason), "Compose Fee[%s]", g_eItems[g_iSelectedItem[client]][szName]);
+    Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
 
     if(successful < probability)
     {

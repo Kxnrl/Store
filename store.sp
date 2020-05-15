@@ -3289,6 +3289,8 @@ void UTIL_ComposeItem(int client)
     FormatEx(STRING(reason), "Compose Fee[%s]", g_eItems[g_iSelectedItem[client]][szName]);
     Store_SetClientCredits(client, Store_GetClientCredits(client)-m_iFees, reason);
 
+    char m_szQuery[256];
+
     if(successful >= probability)
     {
         int rd = UTIL_GetRandomInt(0, 1000000);
@@ -3305,6 +3307,8 @@ void UTIL_ComposeItem(int client)
         Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
         Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iParent]][szName]);
         Call_Finish();
+        FormatEx(m_szQuery, 256, "INSERT INTO store_compose VALUES (DEFAULT, %d, '%s', '%s', '%s', 0, DEFAULT)", g_eClients[client][iId], g_eItems[g_iSelectedItem[client]][szUniqueId], g_eItems[g_eCompose[client][item1]][szUniqueId], g_eItems[g_eCompose[client][item2]][szUniqueId]);
+        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
         return;
     }
 
@@ -3327,6 +3331,9 @@ void UTIL_ComposeItem(int client)
     Call_PushString(g_eItems[g_iSelectedItem[client]][szName]);
     Call_PushString(g_eItems[g_eItems[g_iSelectedItem[client]][iParent]][szName]);
     Call_Finish();
+
+    FormatEx(m_szQuery, 256, "INSERT INTO store_compose VALUES (DEFAULT, %d, '%s', '%s', '%s', 1, DEFAULT)", g_eClients[client][iId], g_eItems[g_iSelectedItem[client]][szUniqueId], g_eItems[g_eCompose[client][item1]][szUniqueId], g_eItems[g_eCompose[client][item2]][szUniqueId]);
+    SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 }
 
 void UTIL_BuyItem(int client)

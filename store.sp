@@ -3314,7 +3314,7 @@ void UTIL_ComposeItem(int client)
 
     Store_RemoveItem(client, g_eCompose[client][item1]);
     Store_RemoveItem(client, g_eCompose[client][item2]);
-    Store_GiveItem(client, g_iSelectedItem[client], GetTime(), 0, 3);
+    Store_GiveItem(client, g_iSelectedItem[client], GetTime(), 0, 0);
     
     Store_SaveClientAll(client);
     

@@ -228,7 +228,13 @@
         "en" "{red}Compose failed! You lost your material and credits..."
         "chi" "{red}合成失败,你损失了合成材料!"
     }
-    
+
+    "Compose cost"
+    {
+        "en" "{red}You cost{silver}:{red}"
+        "chi" "{red}你花费了{silver}:{red}"
+    }
+
     "Compose successfully"
     {
         "#format" "{1:s}"

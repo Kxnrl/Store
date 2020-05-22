@@ -128,3 +128,19 @@ ADD `wearf` float(7,6) unsigned NOT NULL DEFAULT '0.01' COMMENT 'weaponskin';
 -- if u upgrade from 2.2
 ALTER TABLE `store_item_child`
 MODIFY `case` TINYINT(2) DEFAULT 0 NOT NULL;
+
+-- upgrade 2.3 pet
+ALTER TABLE `store_item_child` ADD COLUMN `scale` FLOAT(4,2) unsigned NOT NULL DEFAULT '1.0' COMMENT 'pet' AFTER `death`;
+ALTER TABLE `store_item_child` ADD COLUMN `idle2` varchar(32) NOT NULL DEFAULT 'ITEM_NO_IDLE2' COMMENT 'pet' AFTER `idle`;
+ALTER TABLE `store_item_child` ADD COLUMN `spawn` varchar(32) NOT NULL DEFAULT 'ITEM_NO_SPAWN' COMMENT 'pet' AFTER `idle2`;
+
+CREATE TABLE `store_compose` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `store_id` int(11) unsigned NOT NULL,
+  `selected_item` varchar(32) NOT NULL,
+  `item1` varchar(32) NOT NULL,
+  `item2` varchar(32) NOT NULL,
+  `result` tinyint(3) unsigned NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

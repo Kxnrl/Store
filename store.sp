@@ -2734,7 +2734,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
         }
         else
         {
-            FormatEx(STRING(m_szQuery), "SELECT * FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
+            FormatEx(STRING(m_szQuery), "SELECT `id`, `player_id`, `type`, `unique_id`, UNIX_TIMESTAMP(date_of_purchase) as `date_of_purchase`, date_of_expiration, price_of_purchase FROM store_items WHERE `player_id`=%d", g_eClients[client][iId]);
             g_hDatabase.Query(SQLCallback_LoadClientInventory_Items, m_szQuery, userid, DBPrio_Normal);
         }
 
@@ -2966,7 +2966,7 @@ void UTIL_LoadClientInventory(int client)
     if(m_szAuthId[0] == 0 || g_bInterMission)
         return;
 
-    FormatEx(STRING(m_szQuery), "SELECT * FROM store_players WHERE `authid`=\"%s\"", m_szAuthId[8]);
+    FormatEx(STRING(m_szQuery), "SELECT `id`, `authid`, `name`, `credits`, UNIX_TIMESTAMP(date_of_join) as `date_of_join`, UNIX_TIMESTAMP(date_of_last_join) as `date_of_last_join`, `ban` FROM store_players WHERE `authid`=\"%s\"", m_szAuthId[8]);
     g_hDatabase.Query(SQLCallback_LoadClientInventory_Credits, m_szQuery, g_eClients[client][iUserId], DBPrio_Normal);
 }
 

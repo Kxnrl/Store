@@ -144,3 +144,25 @@ CREATE TABLE `store_compose` (
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- upgrade 2.3 datetime -> timestamp
+ALTER TABLE `store_players` ADD COLUMN `date_of_join_` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `date_of_join`;
+UPDATE `store_players` SET `date_of_join_` = FROM_UNIXTIME(`date_of_join`);
+ALTER TABLE `store_players` DROP COLUMN `date_of_join`;
+ALTER TABLE `store_players` CHANGE `date_of_join_` `date_of_join` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `store_players` ADD COLUMN `date_of_last_join_` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `date_of_last_join`;
+UPDATE `store_players` SET `date_of_last_join_` = FROM_UNIXTIME(`date_of_last_join`);
+ALTER TABLE `store_players` DROP COLUMN `date_of_last_join`;
+ALTER TABLE `store_players` CHANGE `date_of_last_join_` `date_of_last_join` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `store_items` ADD COLUMN `date_of_purchase_` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `date_of_purchase`;
+UPDATE `store_items` SET `date_of_purchase_` = FROM_UNIXTIME(`date_of_purchase`);
+ALTER TABLE `store_items` DROP COLUMN `date_of_purchase`;
+ALTER TABLE `store_items` CHANGE `date_of_purchase_` `date_of_purchase` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `store_opencase` ADD COLUMN `date_` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `date`;
+UPDATE `store_opencase` SET `date_` = FROM_UNIXTIME(`date`);
+ALTER TABLE `store_opencase` DROP COLUMN `date`;
+ALTER TABLE `store_opencase` CHANGE `date_` `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `store_newlogs` ADD COLUMN `timestamp_` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `timestamp`;
+UPDATE `store_newlogs` SET `timestamp_` = FROM_UNIXTIME(`timestamp`);
+ALTER TABLE `store_newlogs` DROP COLUMN `timestamp`;
+ALTER TABLE `store_newlogs` CHANGE `timestamp_` `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;

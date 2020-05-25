@@ -2775,8 +2775,8 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
         }
 
         Call_OnClientLoaded(client);
-        FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+        //FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+        //SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 
         return;
     }
@@ -2825,8 +2825,8 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
     }
     else
     {
-        FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+        //FormatEx(STRING(m_szQuery), "DELETE FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
+        //SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
         
         Call_OnClientLoaded(client);
     }

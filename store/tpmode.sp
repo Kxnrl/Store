@@ -1,4 +1,4 @@
-#if defined GM_ZE || defined GM_KZ || defined GM_BH || defined GM_SR
+#if defined GM_ZE || defined GM_KZ || defined GM_BH || defined GM_SR || defined GM_TT
     #define Module_TPMode
 #endif
 
@@ -57,7 +57,7 @@ public Action Command_TP(int client, int args)
     }
 #endif
 
-    if (!store_thirdperson_enabled.BoolValue && !IsImmunityClient(client))
+    if (!AllowTP() && !IsImmunityClient(client))
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
@@ -94,7 +94,7 @@ public Action Command_Mirror(int client, int args)
     }
 #endif
 
-    if (!store_thirdperson_enabled.BoolValue && !IsImmunityClient(client))
+    if (!AllowTP() && !IsImmunityClient(client))
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
@@ -186,4 +186,12 @@ bool IsImmunityClient(int client)
         return false;
 
     return true;
+}
+
+bool AllowTP()
+{
+    if (store_thirdperson_enabled == null)
+        return false;
+
+    return store_thirdperson_enabled.BoolValue;
 }

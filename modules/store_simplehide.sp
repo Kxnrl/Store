@@ -10,6 +10,7 @@
 #include <sourcemod>
 #include <sdkhooks>
 #include <store>
+#include <store_stock>
 
 public Plugin myinfo = 
 {
@@ -35,7 +36,7 @@ public Action Command_Hide(int client, int args)
         return Plugin_Handled;
 
     g_bHide[client] = !g_bHide[client];
-    PrintToChat(client, "[\x04Store\x01]  %T", "hide setting", client, g_bHide[client] ? "on" : "off");
+    tPrintToChat(client, "[\x04Store\x01]  %T", "hide setting", client, g_bHide[client] ? "on" : "off");
 
     return Plugin_Handled;
 }

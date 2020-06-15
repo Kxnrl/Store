@@ -60,13 +60,15 @@ public void Store_OnTrailsCreated(int client, int entity)
 public void Store_OnParticlesCreated(int client, int entity)
 {
     g_Edict[entity] = client;
-    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmit);
+    SetTransmitFlags(entity);
+    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmitEx);
 }
 
 public void Store_OnNeonCreated(int client, int entity)
 {
     g_Edict[entity] = client;
-    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmit);
+    SetTransmitFlags(entity);
+    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmitEx);
 }
 
 public void Store_OnPetsCreated(int client, int entity)
@@ -79,6 +81,16 @@ public Action Event_OnTransmit(int entity, int sendto)
 {
     if (g_Edict[entity] == sendto)
         return Plugin_Continue;
+
+    return g_bHide[sendto] ? Plugin_Handled : Plugin_Continue;
+}
+
+public Action Event_OnTransmitEx(int entity, int sendto)
+{
+    if (g_Edict[entity] == sendto)
+        return Plugin_Continue;
+
+    SetTransmitFlags(entity);
 
     return g_bHide[sendto] ? Plugin_Handled : Plugin_Continue;
 }

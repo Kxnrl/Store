@@ -111,6 +111,12 @@ public Action Command_Mirror(int client, int args)
         tPrintToChat(client, "%T", "seeme tp", client);
         return Plugin_Handled;
     }
+
+    if(mp_forcecamera == null)
+    {
+        tPrintToChat(client, "%T", "tp not allow", client);
+        return Plugin_Handled;
+    }
     
     if(!g_bMirror[client])
     {
@@ -142,18 +148,6 @@ void CheckClientTP(int client)
     {
         ClientCommand(client, "firstperson");
         g_bThirdperson[client] = false;
-    }
-
-    if(g_bMirror[client])
-    {
-        SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", -1);
-        SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
-        SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
-        SetEntProp(client, Prop_Send, "m_iFOV", 90);
-        char value[6];
-        mp_forcecamera.GetString(value, 6);
-        mp_forcecamera.ReplicateToClient(client, value);
-        g_bMirror[client] = false;
     }
 }
 

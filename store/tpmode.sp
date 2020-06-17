@@ -165,7 +165,6 @@ public Action Timer_RepeatCheckTP(Handle timer, int userid)
     if (IsPlayerAlive(client))
     {
         g_bThirdperson[client] = true;
-        g_bMirror[client] = true;
         CheckClientTP(client);
         return Plugin_Stop;
     }

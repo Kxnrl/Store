@@ -289,7 +289,9 @@ public void OnAllPluginsLoaded()
 
     if(g_pClientprefs)
     {
-        // 
+#if defined Module_Sound
+        Sounds_OnClientprefs();
+#endif
     }
 
     if(g_pfysOptions)

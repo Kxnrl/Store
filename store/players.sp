@@ -114,7 +114,6 @@ public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBro
         return Plugin_Continue;
 
 #if defined Module_Skin
-    AttemptState(client, false); 
     RequestFrame(Broadcast_DeathSound, client);
     RequestFrame(FirstPersonDeathCamera, client);
 #endif
@@ -210,39 +209,8 @@ public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroa
     RequestFrame(OnClientTeamPost, client);
 #endif
 
-#if defined Module_Skin
-    if(!IsClientInGame(client) || IsFakeClient(client))
-        return Plugin_Handled;
-
-    if(oldteam != newteam && newteam == 1)
-        AttemptState(client, true);
-#endif
-
     return Plugin_Handled;
 }
-
-#if defined Module_Skin
-public void OnClientSettingsChanged(int client)
-{
-    if(!g_bSpecJoinPending[client])
-        return;
-
-    if(!IsClientInGame(client) || g_iClientTeam[client] == 1)
-    {
-        g_bSpecJoinPending[client] = false;
-        return;
-    }
-
-    char client_specmode[10];
-    GetClientInfo(client, "cl_spec_mode", client_specmode, 9);
-
-    if(StringToInt(client_specmode) > 4)
-    {
-        g_bSpecJoinPending[client] = false;
-        ChangeClientTeam(client, 1);
-    }
-}
-#endif
 
 #if defined TeamArms
 void OnClientTeamPost(int client)

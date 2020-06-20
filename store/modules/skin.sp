@@ -22,8 +22,8 @@ static ConVar spec_freeze_time;
 static ConVar mp_round_restart_delay;
 static ConVar sv_disablefreezecam;
 static ConVar spec_replay_enable;
+static ConVar store_firstperson_death_camera;
 
-bool   g_bSpecJoinPending[MAXPLAYERS+1];
 Handle g_tKillPreview[MAXPLAYERS+1];
 
 Handle g_hOnPlayerSkinDefault = null;
@@ -43,39 +43,74 @@ void Skin_OnPluginStart()
     RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
 
     //DEATH CAMERA CCVAR
+    store_firstperson_death_camera = CreateConVar("store_firstperson_death_camera", "1", "Camera for firstperson death view.", _, true, 0.0, true, 1.0);
+    store_firstperson_death_camera.AddChangeHook(FPD_OnConVarChanged);
+    store_firstperson_death_camera.SetBool(true, true, true);
+
     spec_freeze_time = FindConVar("spec_freeze_time");
-    HookConVarChange(spec_freeze_time, Skin_OnConVarChanged);
-    SetConVarString(spec_freeze_time, "-1.0", true);
-
     sv_disablefreezecam = FindConVar("sv_disablefreezecam");
-    HookConVarChange(sv_disablefreezecam, Skin_OnConVarChanged);
-    SetConVarString(sv_disablefreezecam, "1", true);
-
     mp_round_restart_delay = FindConVar("mp_round_restart_delay");
-    HookConVarChange(mp_round_restart_delay, Skin_OnConVarChanged);
-    SetConVarString(mp_round_restart_delay, "8", true);
-
     spec_replay_enable = FindConVar("spec_replay_enable");
-    HookConVarChange(spec_replay_enable, Skin_OnConVarChanged);
-    SetConVarString(spec_replay_enable, "0", true);
+
+    spec_freeze_time.AddChangeHook(Skin_OnConVarChanged);
+    sv_disablefreezecam.AddChangeHook(Skin_OnConVarChanged);
+    mp_round_restart_delay.AddChangeHook(Skin_OnConVarChanged);
+    spec_replay_enable.AddChangeHook(Skin_OnConVarChanged);
+
+    spec_freeze_time.SetFloat(-1.0, true, true);
+    sv_disablefreezecam.SetBool(true, true, true);
+    mp_round_restart_delay.SetFloat(8.0, true, true);
+    spec_replay_enable.SetBool(false, true, true);
+}
+
+public void FPD_OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+    if (StringToInt(newValue) == 0)
+    {
+        spec_freeze_time.RestoreDefault(true, true);
+        sv_disablefreezecam.RestoreDefault(true, true);
+        mp_round_restart_delay.RestoreDefault(true, true);
+        spec_replay_enable.RestoreDefault(true, true);
+    }
+    else
+    {
+        spec_freeze_time.SetFloat(-1.0, true, true);
+        sv_disablefreezecam.SetBool(true, true, true);
+        mp_round_restart_delay.SetFloat(8.0, true, true);
+        spec_replay_enable.SetBool(false, true, true);
+    }
 }
 
 public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-    if(convar == spec_freeze_time)
-        SetConVarString(spec_freeze_time, "-1.0", true);
-
-    if(convar == sv_disablefreezecam)
-        SetConVarString(sv_disablefreezecam, "1", true);    
-
-    if(convar == mp_round_restart_delay)
+    if (store_firstperson_death_camera.BoolValue)
     {
-        if(mp_round_restart_delay.FloatValue < 8.0)
-            SetConVarFloat(mp_round_restart_delay, 8.0, true);
-    }
+        if(convar == spec_freeze_time)
+            spec_freeze_time.SetFloat(-1.0, true, true);
 
-    if(convar == spec_replay_enable)
-        SetConVarString(spec_replay_enable, "0", true);
+        if(convar == sv_disablefreezecam)
+            sv_disablefreezecam.SetBool(true, true, true);
+
+        if(convar == mp_round_restart_delay)
+            mp_round_restart_delay.SetFloat(8.0, true, true);
+
+        if(convar == spec_replay_enable)
+            spec_replay_enable.SetBool(false, true, true);
+    }
+    else
+    {
+        if(convar == spec_freeze_time)
+            spec_freeze_time.RestoreDefault(true, true);
+
+        if(convar == sv_disablefreezecam)
+            sv_disablefreezecam.RestoreDefault(true, true);
+
+        if(convar == mp_round_restart_delay)
+            mp_round_restart_delay.RestoreDefault(true, true);
+
+        if(convar == spec_replay_enable)
+            spec_replay_enable.RestoreDefault(true, true);
+    }
 }
 
 void Skin_OnClientDisconnect(int client)
@@ -85,9 +120,6 @@ void Skin_OnClientDisconnect(int client)
 
     if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
         CreateTimer(0.0, Timer_ClearCamera, client);
-
-    if(g_bSpecJoinPending[client])
-        g_bSpecJoinPending[client] = false;
 }
 
 public Action Command_Arms(int client, int args)
@@ -416,6 +448,9 @@ public void FirstPersonDeathCamera(int client)
     if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
         return;
 
+    if (!store_firstperson_death_camera.BoolValue)
+        return;
+
     Action ret = Plugin_Continue;
     
     Call_StartForward(g_hOnFPDeathCamera);
@@ -423,7 +458,10 @@ public void FirstPersonDeathCamera(int client)
     Call_Finish(ret);
     
     if(ret >= Plugin_Handled)
+    {
+        g_iCameraRef[client] = INVALID_ENT_REFERENCE;
         return;
+    }
 
     int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 
@@ -507,17 +545,6 @@ public Action Timer_ClearCamera(Handle timer, int client)
     return Plugin_Stop;
 }
 
-void AttemptState(int client, bool spec)
-{
-    char client_specmode[10];
-    GetClientInfo(client, "cl_spec_mode", client_specmode, 9);
-    if(StringToInt(client_specmode) <= 4)
-    {
-        g_bSpecJoinPending[client] = spec;
-        ClientCommand(client, "cl_spec_mode 6");
-    }
-}
-
 #define FFADE_IN        0x0001        // Just here so we don't pass 0 into the function
 #define FFADE_OUT       0x0002        // Fade out (not in)
 #define FFADE_MODULATE  0x0004        // Modulate (don't blend)
@@ -557,8 +584,6 @@ void Skin_OnRunCmd(int client, int &buttons)
     int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
     if(m_iObserverMode <= 4)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 6);
-
-    //AttemptState(client, false);
 }
 
 static int GetEquippedSkin(int client)

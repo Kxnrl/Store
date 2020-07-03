@@ -21,15 +21,20 @@ void TPMode_OnPluginStart()
 
     RegConsoleCmd("sm_tp", Command_TP, "Toggle TP Mode");
     RegConsoleCmd("sm_seeme", Command_Mirror, "Toggle Mirror Mode");
+
+    HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
 }
 
 public void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-    if (!convar.BoolValue)
+    if (!convar.BoolValue || StringToInt(newValue) == 0)
     {
         for (int client = 1; client <= MaxClients; client++)
         if (IsClientInGame(client) && !IsFakeClient(client))
-        CheckClientTP(client);
+        {
+            ToggleTp(client, false);
+            ToggleMirror(client, false);
+        }
     }
 }
 
@@ -75,8 +80,7 @@ public Action Command_TP(int client, int args)
         return Plugin_Handled;
     }
 
-    g_bThirdperson[client] = !g_bThirdperson[client];
-    ClientCommand(client, g_bThirdperson[client] ? "thirdperson" : "firstperson");
+    ToggleTp(client, !g_bThirdperson[client]);
 
     return Plugin_Handled;
 }
@@ -117,15 +121,34 @@ public Action Command_Mirror(int client, int args)
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
     }
-    
-    if(!g_bMirror[client])
+
+    ToggleMirror(client, !g_bMirror[client]);
+
+    return Plugin_Handled;
+}
+
+public void Event_PlayerSpawn(Event e, const char[] name, bool dontBroadcast)
+{
+    int client = GetClientOfUserId(e.GetInt("userid"));
+    ToggleTp(client, false);
+    ToggleMirror(client, false);
+}
+
+void ToggleTp(int client, bool state)
+{
+    ClientCommand(client, state ? "thirdperson" : "firstperson");
+    g_bThirdperson[client] = state;
+}
+
+void ToggleMirror(int client, bool state)
+{
+    if(state)
     {
         SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", 0); 
         SetEntProp(client, Prop_Send, "m_iObserverMode", 1);
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 0);
         SetEntProp(client, Prop_Send, "m_iFOV", 120);
         mp_forcecamera.ReplicateToClient(client, "1");
-        g_bMirror[client] = true;
     }
     else
     {
@@ -136,40 +159,9 @@ public Action Command_Mirror(int client, int args)
         char value[6];
         mp_forcecamera.GetString(value, 6);
         mp_forcecamera.ReplicateToClient(client, value);
-        g_bMirror[client] = false;
     }
 
-    return Plugin_Handled;
-}
-
-void CheckClientTP(int client)
-{
-    if(g_bThirdperson[client])
-    {
-        ClientCommand(client, "firstperson");
-        g_bThirdperson[client] = false;
-    }
-}
-
-void TP_OnClientPutInServer(int client)
-{
-    CreateTimer(0.1, Timer_RepeatCheckTP, GetClientUserId(client), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-}
-
-public Action Timer_RepeatCheckTP(Handle timer, int userid)
-{
-    int client = GetClientOfUserId(userid);
-    if (!client || !IsClientInGame(client))
-        return Plugin_Stop;
-
-    if (IsPlayerAlive(client))
-    {
-        g_bThirdperson[client] = true;
-        CheckClientTP(client);
-        return Plugin_Stop;
-    }
-
-    return Plugin_Continue;
+    g_bMirror[client] = state;
 }
 
 bool IsImmunityClient(int client)

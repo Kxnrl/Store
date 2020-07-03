@@ -1093,9 +1093,6 @@ public void OnClientPostAdminCheck(int client)
 #if defined Module_Model
     Models_OnClientPutInServer(client);
 #endif
-
-    // force exit if player in tp
-    TP_OnClientPutInServer(client);
 }
 
 public void OnClientDisconnect(int client)
@@ -4074,7 +4071,8 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
     int attacker = GetClientOfUserId(event.GetInt("attacker"));
 #endif
 
-    CheckClientTP(client);
+    ToggleTp(client, false);
+    ToggleMirror(client, false);
 
 #if defined Module_Model
     Models_OnPlayerDeath(client);

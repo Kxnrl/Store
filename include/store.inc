@@ -82,6 +82,7 @@ native bool Store_IsPlayerHide(int client);
 native bool Store_IsStoreSpray(int client);
 native bool Store_GetClientPlayerSkins(int client, ArrayList array);
 native bool Store_GetAllPlayerSkins(ArrayList array);
+native bool Store_ApplyPlayerSkin(int client);
 
 native ArrayList Store_GetItemList(); // List<Store_Item>
 

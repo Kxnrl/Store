@@ -380,6 +380,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_IsPlayerTP",            Native_IsPlayerTP);
     CreateNative("Store_IsPlayerHide",          Native_IsPlayerHide);
     CreateNative("Store_IsStoreSpray",          Native_IsStoreSpray);
+    CreateNative("Store_ApplyPlayerSkin",       Native_ApplyPlayerSkin);
 
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
@@ -1014,6 +1015,19 @@ public any Native_GetAllPlayerSkins(Handle myself, int numParams)
     }
 
     return array.Length > 0;
+#else
+    return false;
+#endif
+}
+
+public any Native_ApplyPlayerSkin(Handle myself, int numParams)
+{
+#if defined Module_Skin
+    int client = GetNativeCell(1);
+    Store_RemoveClientGloves(client, -1);
+    Store_ResetPlayerSkin(client);
+    Store_PreSetClientModel(client);
+    return true;
 #else
     return false;
 #endif

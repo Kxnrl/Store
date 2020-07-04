@@ -129,9 +129,19 @@ public Action Command_Mirror(int client, int args)
 
 public void Event_PlayerSpawn(Event e, const char[] name, bool dontBroadcast)
 {
-    int client = GetClientOfUserId(e.GetInt("userid"));
+    CreateTimer(0.3, Timer_TPSpawnPost, e.GetInt("userid"));
+}
+
+public Action Timer_TPSpawnPost(Handle timer, int userid)
+{
+    int client = GetClientOfUserId(userid);
+    if (!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+        return Plugin_Stop;
+
     ToggleTp(client, false);
     ToggleMirror(client, false);
+
+    return Plugin_Stop;
 }
 
 void ToggleTp(int client, bool state)

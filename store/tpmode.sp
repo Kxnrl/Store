@@ -135,7 +135,7 @@ public void Event_PlayerSpawn(Event e, const char[] name, bool dontBroadcast)
 public Action Timer_TPSpawnPost(Handle timer, int userid)
 {
     int client = GetClientOfUserId(userid);
-    if (!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+    if (!client || !IsClientInGame(client) || !IsPlayerAlive(client) || IsFakeClient(client))
         return Plugin_Stop;
 
     ToggleTp(client, false);
@@ -172,6 +172,14 @@ void ToggleMirror(int client, bool state)
     }
 
     g_bMirror[client] = state;
+}
+
+void CheckMirror(int client)
+{
+    if (IsFakeClient(client) || !g_bMirror[client])
+        return;
+    
+    ToggleMirror(client, false);
 }
 
 bool IsImmunityClient(int client)

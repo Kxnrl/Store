@@ -4086,7 +4086,7 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 #endif
 
     ToggleTp(client, false);
-    ToggleMirror(client, false);
+    CheckMirror(client);
 
 #if defined Module_Model
     Models_OnPlayerDeath(client);

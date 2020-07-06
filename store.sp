@@ -2132,7 +2132,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
             {
                 char m_szQuery[128];
                 FormatEx(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`-%d WHERE `id`=%d", g_inCase[g_iClientCase[client]], g_eClients[client][iId]);
-                SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+                SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_High);
                 LogStoreError("EndingCaseMenu -> %d disconnected -> %d", g_eClients[client][iId], g_inCase[g_iClientCase[client]]);
             }
         }
@@ -2834,7 +2834,7 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
     if(i > 0)
     {
         FormatEx(STRING(m_szQuery), "SELECT * FROM store_equipment WHERE `player_id`=%d", g_eClients[client][iId]);
-        g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid, DBPrio_Low);
+        g_hDatabase.Query(SQLCallback_LoadClientInventory_Equipment, m_szQuery, userid, DBPrio_Normal);
     }
     else
     {
@@ -3086,7 +3086,7 @@ void UTIL_SaveClientData(int client, bool disconnect)
     if(disconnect)
     {
         g_eClients[client][iOriginalCredits] = g_eClients[client][iCredits];
-        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+        SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_High);
         UTIL_LogMessage(client, 0, "Disconnect");
     }
     else

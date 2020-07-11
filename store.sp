@@ -2310,10 +2310,8 @@ void DisplayComposeMenu(int client, bool last)
             if(!StrEqual(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin"))
                 continue;
 
-            if (g_eItems[i][iLevels] != level)
-                continue;
-            
-            if(g_eItems[i][bIgnore] || g_eItems[i][bCompose])
+            // if level not match or is personal item.
+            if (g_eItems[i][iLevels] != level || g_eItems[i][bIgnore])
                 continue;
 
             int uid = UTIL_GetClientItemId(client, i);

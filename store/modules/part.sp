@@ -87,6 +87,8 @@ void Store_SetClientPart(int client)
         float clientOrigin[3];
         GetClientAbsOrigin(client, clientOrigin);
 
+        clientOrigin[2] += 5.0;
+
         int iEnt = CreateEntityByName("info_particle_system");
 
         if(!IsValidEdict(iEnt))

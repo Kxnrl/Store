@@ -1611,7 +1611,10 @@ public Action Command_Case(int client, int args)
 {
     if(!IsClientInGame(client))
         return Plugin_Handled;
-    
+
+    if(LibraryExists("OpenCase"))
+        return Plugin_Handled;
+
     if(!g_eClients[client][bLoaded])
     {
         tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
@@ -1638,6 +1641,9 @@ public Action Command_Case(int client, int args)
 
 void UTIL_OpenSkinCase(int client)
 {
+    if(LibraryExists("OpenCase"))
+        return;
+
     Menu menu = new Menu(MenuHandler_SelectCase);
     menu.SetTitle("%T\n%T: %d\n ", "select case", client, "credits", client, g_eClients[client][iCredits]);
     menu.ExitBackButton = true;

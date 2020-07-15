@@ -381,6 +381,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_IsPlayerHide",          Native_IsPlayerHide);
     CreateNative("Store_IsStoreSpray",          Native_IsStoreSpray);
     CreateNative("Store_ApplyPlayerSkin",       Native_ApplyPlayerSkin);
+    CreateNative("Store_LogOpencase",           Native_LogOpenCase);
 
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
@@ -1050,6 +1051,22 @@ public int Native_IsStoreSpray(Handle plugin, int numParams)
 #else
     return false;
 #endif
+}
+
+public int Native_LogOpenCase(Handle plugin, int numParams)
+{
+    int client = GetNativeCell(1);
+    if (!g_eClients[client][bLoaded])
+        ThrowNativeError(SP_ERROR_NATIVE, "Client %L is not load.", client);
+
+    int itemid = GetNativeCell(2);
+    int length = GetNativeCell(3);
+    int caseid = GetNativeCell(5);
+
+    char handle[16];
+    GetNativeString(4, STRING(handle));
+
+    UTIL_LogOpencase(client, itemid, length, handle, caseid);
 }
 
 //////////////////////////////
@@ -2078,8 +2095,6 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 tPrintToChatAll("%t", "opencase earned perm", client, g_szCase[g_iClientCase[client]], name);
             }
 
-            char m_szQuery[256];
-
             if(StrEqual(data[0], "sell"))
             {
                 int crd = UTIL_GetSkinSellPrice(client, itemid, days);
@@ -2088,8 +2103,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 Store_SetClientCredits(client, Store_GetClientCredits(client)+crd-g_inCase[g_iClientCase[client]], reason);
                 if(days) tPrintToChat(client, "%t", "open and sell day chat", name, days, crd);
                 else tPrintToChat(client, "%t", "open and sell permanent chat", name, crd);
-                FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, FROM_UNIXTIME(%d), 'sell', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
-                SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+                UTIL_LogOpencase(client, itemid, days, "sell", g_iClientCase[client]);
                 UTIL_OpenSkinCase(client);
                 if(g_iClientCase[client] > 1)
                 {
@@ -2106,8 +2120,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 if(days) tPrintToChat(client, "%t", "open and add day chat", g_szCase[g_iClientCase[client]], name, days);
                 else tPrintToChat(client, "%t", "open and add permanent chat", g_szCase[g_iClientCase[client]], name);
                 Store_SaveClientAll(client);
-                FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, FROM_UNIXTIME(%d), 'add', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], days, GetTime(), g_iClientCase[client]);
-                SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+                UTIL_LogOpencase(client, itemid, days, "add", g_iClientCase[client]);
                 g_iDataProtect[client] = GetTime()+15;
                 g_iSelectedItem[client] = itemid;
                 DisplayItemMenu(client, itemid);
@@ -3950,6 +3963,16 @@ void UTIL_LogMessage(int client, int diff, const char[] message, any ...)
     char m_szQuery[512], EszReason[513];
     g_hDatabase.Escape(m_szReason, EszReason, 513);
     FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", FROM_UNIXTIME(%d))", g_eClients[client][iId], g_eClients[client][iCredits], diff, EszReason, GetTime());
+    SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
+}
+
+void UTIL_LogOpencase(int client, int itemid, int length, const char[] handle, int caseid)
+{
+    char eHandle[32];
+    g_hDatabase.Escape(handle, STRING(eHandle));
+
+    char m_szQuery[256];
+    FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, FROM_UNIXTIME(%d), '%s', %d)", g_eClients[client][iId], g_eItems[itemid][szUniqueId], length, GetTime(), eHandle, caseid);
     SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 }
 

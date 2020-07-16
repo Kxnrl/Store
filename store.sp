@@ -1166,7 +1166,13 @@ public Action Command_Store(int client, int args)
 {
     if(!IsClientInGame(client))
         return Plugin_Handled;
-    
+
+    if(args > 0)
+    {
+        tPrintToChat(client, "Invalid parameter.");
+        return Plugin_Handled;
+    }
+
     if(!g_eClients[client][bLoaded])
     {
         tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
@@ -1187,6 +1193,12 @@ public Action Command_Store(int client, int args)
 
 public Action Command_Inventory(int client, int args)
 {    
+    if(args > 0)
+    {
+        tPrintToChat(client, "Invalid parameter.");
+        return Plugin_Handled;
+    }
+
     if(!g_eClients[client][bLoaded])
     {
         tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
@@ -1207,6 +1219,12 @@ public Action Command_Inventory(int client, int args)
 
 public Action Command_Credits(int client, int args)
 {    
+    if(args > 0)
+    {
+        tPrintToChat(client, "Invalid parameter.");
+        return Plugin_Handled;
+    }
+
     if(!g_eClients[client][bLoaded])
     {
         tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
@@ -1631,6 +1649,12 @@ public Action Command_Case(int client, int args)
 
     if(LibraryExists("OpenCase"))
         return Plugin_Handled;
+
+    if(args > 0)
+    {
+        tPrintToChat(client, "Invalid parameter.");
+        return Plugin_Handled;
+    }
 
     if(!g_eClients[client][bLoaded])
     {

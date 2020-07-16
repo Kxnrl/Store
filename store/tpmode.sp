@@ -53,6 +53,12 @@ public Action Command_TP(int client, int args)
 {
     if(!client || !IsClientInGame(client))
         return Plugin_Handled;
+
+    if(args > 0)
+    {
+        tPrintToChat(client, "Invalid parameter.");
+        return Plugin_Handled;
+    }
     
 #if !defined Module_TPMode
     if(!IsImmunityClient(client))
@@ -89,6 +95,12 @@ public Action Command_Mirror(int client, int args)
 {
     if(!client || !IsClientInGame(client))
         return Plugin_Handled;
+
+    if(args > 0)
+    {
+        tPrintToChat(client, "Invalid parameter.");
+        return Plugin_Handled;
+    }
 
 #if !defined Module_TPMode
     if(!IsImmunityClient(client))

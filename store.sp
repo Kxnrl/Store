@@ -371,6 +371,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_SaveClientAll",         Native_SaveClientAll);
     CreateNative("Store_GetClientID",           Native_GetClientID);
     CreateNative("Store_IsClientBanned",        Native_IsClientBanned);
+    CreateNative("Store_SetClientBanState",     Native_SetClientBanState);
     CreateNative("Store_HasPlayerSkin",         Native_HasPlayerSkin);
     CreateNative("Store_GetPlayerSkin",         Native_GetPlayerSkin);
     CreateNative("Store_GetClientPlayerSkins",  Native_GetClientPlayerSkins);
@@ -463,6 +464,11 @@ public int Native_GetClientID(Handle myself, int numParams)
 public int Native_IsClientBanned(Handle myself, int numParams)
 {
     return g_eClients[GetNativeCell(1)][bBan];
+}
+
+public int Native_SetClientBanState(Handle myself, int numParams)
+{
+    g_eClients[GetNativeCell(1)][bBan] = GetNativeCell(2);
 }
 
 public int Native_RegisterHandler(Handle plugin, int numParams)

@@ -70,6 +70,7 @@ native int Store_GetClientID(int client);
 native int Store_GetItemExpiration(int client, int itemid);
 native int Store_GetSkinLevel(int client);
 native bool Store_IsClientBanned(int client);
+native void Store_SetClientBanState(int client, bool ban);
 native bool Store_IsClientLoaded(int client);
 native bool Store_HasClientItem(int client, int itemid);
 native bool Store_ExtClientItem(int client, int itemid, int expiration);

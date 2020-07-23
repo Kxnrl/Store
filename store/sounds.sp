@@ -51,7 +51,7 @@ public void Sound_OnMapStart()
         {
             Format(szPathStar, 256, "*%s", g_eSounds[i][szSound]);
             AddToStringTable(FindStringTable("soundprecache"), szPathStar);
-            Downloader_AddFileToDownloadsTable(szPath);
+            AddFileToDownloadsTable(szPath);
         }
     }
 }

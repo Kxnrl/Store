@@ -45,7 +45,7 @@ public void Hats_OnMapStart()
     for(int i = 0; i < g_iHats; ++i)
     {
         PrecacheModel(g_eHats[i][szModel], true);
-        Downloader_AddFileToDownloadsTable(g_eHats[i][szModel]);
+        AddFileToDownloadsTable(g_eHats[i][szModel]);
     }
 
     CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);

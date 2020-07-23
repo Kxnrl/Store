@@ -34,7 +34,7 @@ public void Trails_OnMapStart()
             g_iClientTrails[a][b] = INVALID_ENT_REFERENCE;
 
     for(int i = 0; i < g_iTrails; ++i)
-        Downloader_AddFileToDownloadsTable(g_eTrails[i][szMaterial]);
+        AddFileToDownloadsTable(g_eTrails[i][szMaterial]);
 }
 
 public void Trails_Reset()

@@ -168,12 +168,12 @@ public void PlayerSkins_OnMapStart()
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
         PrecacheModel(g_ePlayerSkins[i][szModel], true);
-        Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szModel]);
+        AddFileToDownloadsTable(g_ePlayerSkins[i][szModel]);
 
         if(g_ePlayerSkins[i][szArms][0] != 0)
         {
             PrecacheModel(g_ePlayerSkins[i][szArms], true);
-            Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
+            AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
         }
 
         if(g_ePlayerSkins[i][szSound][0] != 0)
@@ -183,7 +183,7 @@ public void PlayerSkins_OnMapStart()
             {
                 FormatEx(szPathStar, 256, "*%s", g_ePlayerSkins[i][szSound]);
                 AddToStringTable(FindStringTable("soundprecache"), szPathStar);
-                Downloader_AddFileToDownloadsTable(szPath);
+                AddFileToDownloadsTable(szPath);
             }
         }
     }

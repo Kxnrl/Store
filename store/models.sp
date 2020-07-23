@@ -31,12 +31,12 @@ public void Models_OnMapStart()
     for(int i = 0; i < g_iCustomModels; ++i)
     {
         g_eCustomModel[i][iCacheIdV] = PrecacheModel(g_eCustomModel[i][szModelV], true);
-        Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelV]);
+        AddFileToDownloadsTable(g_eCustomModel[i][szModelV]);
 
         if(!StrEqual(g_eCustomModel[i][szModelW], "none", false))
         {
             g_eCustomModel[i][iCacheIdW] = PrecacheModel(g_eCustomModel[i][szModelW], true);
-            Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelW]);
+            AddFileToDownloadsTable(g_eCustomModel[i][szModelW]);
             
             if(g_eCustomModel[i][iCacheIdW] == 0)
                 g_eCustomModel[i][iCacheIdW] = -1;
@@ -47,7 +47,7 @@ public void Models_OnMapStart()
             if(!IsModelPrecached(g_eCustomModel[i][szModelD]))
             {
                 PrecacheModel(g_eCustomModel[i][szModelD], true);
-                Downloader_AddFileToDownloadsTable(g_eCustomModel[i][szModelD]);
+                AddFileToDownloadsTable(g_eCustomModel[i][szModelD]);
             }
         }
     }

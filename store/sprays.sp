@@ -27,7 +27,7 @@ public void Sprays_OnMapStart()
         m_szDecal[strlen(m_szDecal)-4]=0;
 
         g_iSprayPrecache[i] = PrecacheDecal(m_szDecal, true);
-        Downloader_AddFileToDownloadsTable(g_szSprays[i]);
+        AddFileToDownloadsTable(g_szSprays[i]);
     }
 }
 

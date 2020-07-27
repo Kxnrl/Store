@@ -139,7 +139,7 @@ static char  g_szComposeFee[][] = {"5888", "9888", "15888", "21888", "29888", "3
 #include "store/tpmode.sp" // Module TP
 
 // Module Hats
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_BH
 #include "store/modules/hats.sp"
 #endif
 // Module Skin
@@ -172,7 +172,7 @@ static char  g_szComposeFee[][] = {"5888", "9888", "15888", "21888", "29888", "3
 #include "store/sprays.sp"
 #endif
 // Module FPVMI
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_BH
 #include "store/models.sp"
 #endif
 // Module Sound

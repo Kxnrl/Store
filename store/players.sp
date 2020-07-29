@@ -69,7 +69,7 @@ public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBro
     Store_RemoveClientGloves(client, -1);
     Store_ResetPlayerSkin(client);
     Store_PreSetClientModel(client);
-    CreateTimer(0.1, Timer_ClearCamera, client);
+    CreateTimer(0.05, Timer_ClearCamera, client);
     if(g_tKillPreview[client] != null) TriggerTimer(g_tKillPreview[client], false);
 #endif
 
@@ -89,6 +89,21 @@ public void OnClientSpawnPost(int client)
     Store_SetClientTrail(client);
 #endif
 
+#if defined Module_Hats && !defined Module_Skin
+    Store_SetClientHat(client);
+#endif
+
+    // particles should be delay.
+    CreateTimer(UTIL_GetRandomInt(5, 30) * 0.1, Timer_DelaySpawn, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action Timer_DelaySpawn(Handle timer, int userid)
+{
+    int client = GetClientOfUserId(userid);
+
+    if(!client || !IsPlayerAlive(client))
+        return Plugin_Stop;
+
 #if defined Module_Aura
     Store_SetClientAura(client);
 #endif
@@ -101,9 +116,7 @@ public void OnClientSpawnPost(int client)
     Store_SetClientPart(client);
 #endif
 
-#if defined Module_Hats && !defined Module_Skin
-    Store_SetClientHat(client);
-#endif
+    return Plugin_Stop;
 }
 
 public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBroadcast)

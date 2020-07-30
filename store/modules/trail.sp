@@ -96,6 +96,11 @@ public void Store_PreSetTrail(int client)
 
 void CreateTrail(int client, int itemid = -1, int slot = 0)
 {
+#if defined GM_ZE
+    if(g_iClientTeam[client] == 2)
+        return;
+#endif
+
     int m_iEquipped = (itemid == -1) ? Store_GetEquippedItem(client, "trail", slot) : itemid;
 
     if(m_iEquipped < 0)

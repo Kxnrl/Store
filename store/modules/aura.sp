@@ -85,6 +85,11 @@ void Store_SetClientAura(int client)
 {
     Store_RemoveClientAura(client);
 
+#if defined GM_ZE
+    if(g_iClientTeam[client] == 2)
+        return;
+#endif
+
     if(strlen(g_szAuraClient[client]) > 0)
     {
         float clientOrigin[3];

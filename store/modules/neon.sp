@@ -74,6 +74,11 @@ void Store_SetClientNeon(int client)
 {
     Store_RemoveClientNeon(client);
 
+#if defined GM_ZE
+    if(g_iClientTeam[client] == 2)
+        return;
+#endif
+
     int m_iEquipped = Store_GetEquippedItem(client, "neon", 0); 
     if(m_iEquipped < 0) 
         return;

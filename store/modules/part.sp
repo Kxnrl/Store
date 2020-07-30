@@ -82,6 +82,11 @@ void Store_SetClientPart(int client)
 {
     Store_RemoveClientPart(client);
 
+#if defined GM_ZE
+    if(g_iClientTeam[client] == 2)
+        return;
+#endif
+
     if(!(strcmp(g_szPartClient[client], "", false) == 0))
     {
         float clientOrigin[3];

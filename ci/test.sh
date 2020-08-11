@@ -4,7 +4,6 @@ git fetch --unshallow
 COUNT=$(git rev-list --count HEAD)
 FILE=$COUNT-$2-$3.7z
 
-
 #INFO
 echo "*** Trigger build ***"
 
@@ -17,6 +16,10 @@ else
   wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
 fi
 tar -xzf sourcemod.tar.gz
+
+#TransmitManager
+echo "Download TransmitManager.inc ..."
+wget "https://github.com/Kxnrl/sm-ext-TransmitManager/raw/master/TransmitManager.inc" -q -O include/TransmitManager.inc
 
 
 #PTaH

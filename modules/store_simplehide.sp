@@ -8,6 +8,7 @@
 #define PLUGIN_URL          "https://kxnrl.com"
 
 #include <sourcemod>
+#include <TransmitManager>
 #include <sdkhooks>
 #include <store>
 #include <store_stock>
@@ -37,6 +38,9 @@ public Action Command_Hide(int client, int args)
 
     g_bHide[client] = !g_bHide[client];
     tPrintToChat(client, "[\x04Store\x01]  %T", "hide setting", client, g_bHide[client] ? "on" : "off");
+    for (int i = MaxClients+1; i < 2048; i++)
+    if (g_Edict[i] > 0 && IsValidEdict(i))
+        TransmitManager_SetEntityState(i, client, !g_bHide[client]);
 
     return Plugin_Handled;
 }
@@ -46,52 +50,54 @@ public void OnClientConnected(int client)
     g_bHide[client] = false;
 }
 
+public void OnEntityDestroyed(int entity)
+{
+    if (MaxClients < entity < 2048)
+        g_Edict[entity] = 0;
+}
+
 public void Store_OnHatsCreated(int client, int entity, int slot)
 {
     g_Edict[entity] = client;
-    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmit);
+    TransmitManager_AddEntityHooks(entity);
+    TransmitManager_SetEntityOwner(entity, client);
+    UpdateTransmitState(entity);
 }
 
 public void Store_OnTrailsCreated(int client, int entity)
 {
     g_Edict[entity] = client;
-    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmit);
+    TransmitManager_AddEntityHooks(entity);
+    TransmitManager_SetEntityOwner(entity, client);
+    UpdateTransmitState(entity);
 }
 
 public void Store_OnParticlesCreated(int client, int entity)
 {
     g_Edict[entity] = client;
-    SetTransmitFlags(entity);
-    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmitEx);
+    TransmitManager_AddEntityHooks(entity);
+    TransmitManager_SetEntityOwner(entity, client);
+    UpdateTransmitState(entity);
 }
 
 public void Store_OnNeonCreated(int client, int entity)
 {
     g_Edict[entity] = client;
-    SetTransmitFlags(entity);
-    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmitEx);
+    TransmitManager_AddEntityHooks(entity);
+    TransmitManager_SetEntityOwner(entity, client);
+    UpdateTransmitState(entity);
 }
 
 public void Store_OnPetsCreated(int client, int entity)
 {
     g_Edict[entity] = client;
-    SDKHookEx(entity, SDKHook_SetTransmit, Event_OnTransmit);
+    TransmitManager_AddEntityHooks(entity);
+    TransmitManager_SetEntityOwner(entity, client);
+    UpdateTransmitState(entity);
 }
 
-public Action Event_OnTransmit(int entity, int sendto)
+void UpdateTransmitState(int entity)
 {
-    if (g_Edict[entity] == sendto)
-        return Plugin_Continue;
-
-    return g_bHide[sendto] ? Plugin_Handled : Plugin_Continue;
-}
-
-public Action Event_OnTransmitEx(int entity, int sendto)
-{
-    if (g_Edict[entity] == sendto)
-        return Plugin_Continue;
-
-    SetTransmitFlags(entity);
-
-    return g_bHide[sendto] ? Plugin_Handled : Plugin_Continue;
+    for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i))
+        TransmitManager_SetEntityState(entity, i, !g_bHide[i]);
 }

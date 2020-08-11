@@ -20,6 +20,10 @@ else
 fi
 tar -xzf sourcemod.tar.gz
 
+#TransmitManager
+echo "Download TransmitManager.inc ..."
+wget "https://github.com/Kxnrl/sm-ext-TransmitManager/raw/master/TransmitManager.inc" -q -O include/TransmitManager.inc
+
 
 #PTaH
 echo "Download PTaH.inc ..."

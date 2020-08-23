@@ -1342,15 +1342,16 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                 }
                 else if(!g_bInvMode[client])
                 {
+                    // hide personal item
+                    if (strlen(g_eItems[i][szSteam]) > 8)
+                        continue;
+
                     int m_iStyle = ITEMDRAW_DEFAULT;
                     if((g_eItems[i][iPlans]==0 && g_eClients[client][iCredits]<m_iPrice) || !AllowItemForAuth(client, g_eItems[i][szSteam]) || !AllowItemForVIP(client, g_eItems[i][bVIP]))
                         m_iStyle = ITEMDRAW_DISABLED;
 
                     if(strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0)
                     {
-                        // hide personal item
-                        if (strlen(g_eItems[i][szAuthId]) > 8)
-                            continue;
 #if defined Global_Skin
                         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Preview Available", client, g_eItems[i][szName]);
 #else

@@ -1349,7 +1349,7 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                     if(strcmp(g_eTypeHandlers[g_eItems[i][iHandler]][szType], "playerskin") == 0)
                     {
                         // hide personal item
-                        if (strlen(g_eItems[itemid][szAuthId]) > 8)
+                        if (strlen(g_eItems[i][szAuthId]) > 8)
                             continue;
 #if defined Global_Skin
                         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, "%T", "Item Preview Available", client, g_eItems[i][szName]);

@@ -51,7 +51,7 @@ A sourcemod in-game Store system.
   * materials ( optional )
   * particles ( optional )
   * sound ( optional )
-* Selete store_(GameMode).smx, and rename it to store.smx, others must be deleted. ***install 1 only***
+* Select store_(GameMode).smx, and rename it to store.smx, others must be deleted. ***install 1 only***
 * Import SQL table to your database. ( SQL scripts: addons/sourcemod/configs/database.sql )
 * If you upgrade from original zeph store: 
   - Add "uid" key for each item in 'addons/sourcemod/configs/items.txt'.  

@@ -16,10 +16,13 @@ static bool g_bClientDisable[MAXPLAYERS+1];
 static any g_eSounds[STORE_MAX_ITEMS][Sound];
 
 static Handle g_hCookieSounds;
+static Handle g_hOnCheerSound;
 
 public void Sounds_OnPluginStart()
 {
     Store_RegisterHandler("sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
+
+    g_hOnCheerSound = CreateGlobalForward("Store_OnCheerSound", ET_Hook, Param_Cell, Param_String, Param_Cell);
 
     RegConsoleCmd("cheer", Command_Cheer);
     RegConsoleCmd("sm_cheer", Command_Cheer);
@@ -170,6 +173,25 @@ public Action Command_Cheer(int client, int args)
 
 void StartSoundToAll(int client)
 {
+    char sound[256];
+    strcopy(sound, 256, g_eSounds[g_iSoundClient[client]][szSound]);
+
+    Action res = Plugin_Continue;
+    Call_StartForward(g_hOnCheerSound);
+    Call_PushCell(client);
+    Call_PushString(sound);
+    Call_PushCell(256);
+    Call_Finish(res);
+
+    if (res >= Plugin_Handled)
+        return;
+
+    if (res == Plugin_Continue)
+    {
+        // copy again
+        strcopy(sound, 256, g_eSounds[g_iSoundClient[client]][szSound]);
+    }
+
     int[] targets = new int[MaxClients];
     int total = 0;
     
@@ -187,7 +209,7 @@ void StartSoundToAll(int client)
     fPos[2] -= 3.0;
 
     char szPath[128];
-    Format(szPath, 128, "*%s", g_eSounds[g_iSoundClient[client]][szSound]);
+    Format(szPath, 128, "*%s", sound);
     EmitSound(targets, total, szPath, client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]][fVolume], SNDPITCH_NORMAL, client, fPos, fAgl, true);
 
     tPrintToChatAll("%t", "sound to all", client, g_eSounds[g_iSoundClient[client]][szName]);

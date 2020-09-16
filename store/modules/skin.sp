@@ -710,7 +710,7 @@ bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
     Action res = Plugin_Continue;
     Call_StartForward(gf);
     Call_PushCell(client);
-    Call_PushString(buff);
+    Call_PushStringEx(buff, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(len);
     Call_Finish(res);
 

@@ -160,7 +160,7 @@ static char  g_szComposeFee[][] = {"5888", "9888", "15888", "21888", "29888", "3
 #include "store/modules/trail.sp"
 #endif
 // Module PLAYERS
-#if defined Module_Hats || defined Module_Skin || defined Module_Neon || defined Module_Aura || defined Module_Part || defined Module_Trail || defined Module_Model
+#if defined Module_Hats || defined Module_Skin || defined Module_Neon || defined Module_Aura || defined Module_Part || defined Module_Trail
 #include "store/players.sp"
 #endif
 // Module Grenade
@@ -170,10 +170,6 @@ static char  g_szComposeFee[][] = {"5888", "9888", "15888", "21888", "29888", "3
 // Module Spray
 #if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
 #include "store/sprays.sp"
-#endif
-// Module FPVMI
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_BH
-#include "store/models.sp"
 #endif
 // Module Sound
 #if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
@@ -1126,10 +1122,6 @@ public void OnClientPostAdminCheck(int client)
     g_iDataProtect[client] = GetTime()+300;
 
     UTIL_LoadClientInventory(client);
-
-#if defined Module_Model
-    Models_OnClientPutInServer(client);
-#endif
 }
 
 public void OnClientDisconnect(int client)
@@ -1139,10 +1131,6 @@ public void OnClientDisconnect(int client)
 
 #if defined Module_Player
     Players_OnClientDisconnect(client);
-#endif
-
-#if defined Module_Model
-    Models_OnClientDisconnect(client);
 #endif
 
     UTIL_SaveClientData(client, true);
@@ -3548,7 +3536,6 @@ void Store_ResetAll()
         g_eTypeHandlers[i][bRaw]        = false;
         g_eTypeHandlers[i][bDisposable] = false;
         g_eTypeHandlers[i][hPlugin]     = INVALID_HANDLE;
-        g_eTypeHandlers[i][bEquipable]  = false;
         g_eTypeHandlers[i][fnMapStart]  = INVALID_FUNCTION;
         g_eTypeHandlers[i][fnReset]     = INVALID_FUNCTION;
         g_eTypeHandlers[i][fnConfig]    = INVALID_FUNCTION;
@@ -4105,10 +4092,6 @@ void UTIL_CheckModules()
     Sprays_OnPluginStart();
 #endif
 
-#if defined Module_Model
-    Models_OnPluginStart();
-#endif
-
 #if defined Module_Sound
     Sounds_OnPluginStart();
 #endif
@@ -4148,10 +4131,6 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
     ToggleTp(client, false);
     CheckMirror(client);
-
-#if defined Module_Model
-    Models_OnPlayerDeath(client);
-#endif
 
 #if defined Module_Spray
     Spray_OnClientDeath(attacker);

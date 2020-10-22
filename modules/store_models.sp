@@ -1,4 +1,25 @@
-#define Module_Model
+#pragma semicolon 1
+#pragma newdecls required
+
+#define PLUGIN_NAME         "Store - Weapon Skin"
+#define PLUGIN_AUTHOR       "Kyle"
+#define PLUGIN_DESCRIPTION  "store module weapon skin"
+#define PLUGIN_VERSION      "2.3.<commit_count>"
+#define PLUGIN_URL          "https://kxnrl.com"
+
+public Plugin myinfo = 
+{
+    name        = PLUGIN_NAME,
+    author      = PLUGIN_AUTHOR,
+    description = PLUGIN_DESCRIPTION,
+    version     = PLUGIN_VERSION,
+    url         = PLUGIN_URL
+};
+
+#include <sdktools>
+#include <sdkhooks>
+#include <store>
+#include <store_stock>
 
 static int g_iRefPVM[MAXPLAYERS+1];
 static int g_iOldSequence[MAXPLAYERS+1];
@@ -21,7 +42,12 @@ enum CustomModel
 static any g_eCustomModel[STORE_MAX_ITEMS][CustomModel];
 static int g_iCustomModels = 0;
 
-void Models_OnPluginStart()
+public void OnPluginStart()
+{
+    HookEvent("player_death", Event_PlayerDeath, EventHookMode_Post);
+}
+
+public void Store_OnStoreInit(Handle store_plugin)
 {
     Store_RegisterHandler("vwmodel", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
 }
@@ -95,7 +121,7 @@ public int Models_Remove(int client, int id)
     return g_eCustomModel[m_iData][iSlot];
 }
 
-void Models_OnClientPutInServer(int client)
+public void OnClientPutInServer(int client)
 {
     g_iRefPVM[client] = INVALID_ENT_REFERENCE;
     g_bHooked[client] = false;
@@ -103,7 +129,7 @@ void Models_OnClientPutInServer(int client)
     g_smClientWeapon[client] = new StringMap();
 }
 
-void Models_OnClientDisconnect(int client)
+public void OnClientDisconnect(int client)
 {
     if(g_bHooked[client])
     {
@@ -126,8 +152,10 @@ void Models_OnClientDisconnect(int client)
     }
 }
 
-void Models_OnPlayerDeath(int client)
+public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
+    int client = GetClientOfUserId(event.GetInt("userid"));
+
     if(!g_bHooked[client])
         return;
 

@@ -5,14 +5,13 @@
 |[![Build Status](https://travis-ci.com/Kxnrl/Store.svg?branch=master)](https://travis-ci.com/Kxnrl/Store) |[![Download](https://static.kxnrl.com/images/web/buttons/download.png)](https://build.kxnrl.com/Store/)  
   
   
-A sourcemod in-game Store system. 
+Store system for CS:GO. 
   
   
   
 ### Modules and Features:
 * Chat ( Core included )  - Process player name tag, name color, chat color.
 * Grenade ( Core included ) - When player throw a grenade, set nade model or add trail.
-* Model ( Core included ) - Allow player use custom weapon instead of valve's model.
 * VIP ( Core included ) - NOT effective, only add to store menu.
 * TPMode ( Core included ) - Allow player change to third-person or mirror mode.
 * Spray ( Core included ) - Allow player spray paint on object surface.
@@ -24,6 +23,7 @@ A sourcemod in-game Store system.
   * Skin ( Core included ) - Custom player skin and arms. (death sound and firstperson-death support)
   * Hats ( Core included ) - Allow player wear hat/glass/facemask/shield/wing.
   * trail ( Core included ) - Create a material trail that follow the player.
+* Model ( Coptional ) - Allow player use custom weapon instead of valve's model.
 * Pets ( optional ) - Create a pet that follow the player.
 * WeaponSkin ( optional ) - Allow use valve weaon skin and knife skin. ***Will trigger GSLT ban***
 * DefaultSkin (Optional) - Set player skin if player does not equip player skin. ***Requires Skin module***
@@ -235,6 +235,7 @@ to
   
 #### Any other questions
 * [Steam](https://steamcommunity.com/profiles/76561198048432253/)
+* [Discord](https://discord.gg/33xj7jD)
 * [Telegram](https://t.me/Kxnrl)
   
   

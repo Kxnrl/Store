@@ -1,8 +1,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#pragma dynamic 131072
-
 #define PLUGIN_NAME         "Store - Default player skins"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "store module default player skins"
@@ -18,8 +16,8 @@ public Plugin myinfo =
     url         = PLUGIN_URL
 };
 
+#include <sdktools>
 #include <store>
-#include <store_stock>
 
 char g_szDefaultSkin[2][192] = 
 {
@@ -37,8 +35,11 @@ bool g_bArmsLoaded[2];
 
 public void OnMapStart()
 {
-    for(int x = 0; x < sizeof(g_szDefaultSkin); ++x) g_bSkinLoaded[x] = (FileExists(g_szDefaultSkin[x]) && PrecacheModel(g_szDefaultSkin[x], false) && AddFileToDownloadsTable(g_szDefaultSkin[x]));
-    for(int x = 0; x < sizeof(g_szDefaultArms); ++x) g_bArmsLoaded[x] = (FileExists(g_szDefaultArms[x]) && PrecacheModel(g_szDefaultArms[x], false) && AddFileToDownloadsTable(g_szDefaultArms[x]));
+    for(int x = 0; x < sizeof(g_szDefaultSkin); ++x) g_bSkinLoaded[x] = (FileExists(g_szDefaultSkin[x]) && PrecacheModel(g_szDefaultSkin[x], false));
+    for(int x = 0; x < sizeof(g_szDefaultArms); ++x) g_bArmsLoaded[x] = (FileExists(g_szDefaultArms[x]) && PrecacheModel(g_szDefaultArms[x], false));
+
+    for(int x = 0; x < sizeof(g_szDefaultSkin); ++x) if (g_bSkinLoaded[x]) AddFileToDownloadsTable(g_szDefaultSkin[x]);
+    for(int x = 0; x < sizeof(g_szDefaultArms); ++x) if (g_bArmsLoaded[x]) AddFileToDownloadsTable(g_szDefaultArms[x]);
 }
 
 // Terriorst/Zombie = 0; Counter-Terriorst/Human = 1;

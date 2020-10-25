@@ -80,7 +80,7 @@ public void Pets_OnMapStart()
 {
     for(int i = 0; i < g_iPets; ++i)
     {
-        PrecacheModel(g_ePets[i][model], true);
+        PrecacheModel(g_ePets[i][model], false);
         AddFileToDownloadsTable(g_ePets[i][model]);
     }
 }

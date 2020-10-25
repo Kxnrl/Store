@@ -167,12 +167,12 @@ public void PlayerSkins_OnMapStart()
     char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        PrecacheModel(g_ePlayerSkins[i][szModel], true);
+        PrecacheModel(g_ePlayerSkins[i][szModel], false);
         AddFileToDownloadsTable(g_ePlayerSkins[i][szModel]);
 
         if(g_ePlayerSkins[i][szArms][0] != 0)
         {
-            PrecacheModel(g_ePlayerSkins[i][szArms], true);
+            PrecacheModel(g_ePlayerSkins[i][szArms], false);
             AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
         }
 
@@ -188,7 +188,7 @@ public void PlayerSkins_OnMapStart()
         }
     }
 
-    PrecacheModel("models/blackout.mdl", true);
+    PrecacheModel("models/blackout.mdl", false);
 }
 
 public void PlayerSkins_Reset()

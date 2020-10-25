@@ -37,8 +37,8 @@ bool g_bArmsLoaded[2];
 
 public void OnMapStart()
 {
-    for(int x = 0; x < sizeof(g_szDefaultSkin); ++x) g_bSkinLoaded[x] = (FileExists(g_szDefaultSkin[x]) && PrecacheModel(g_szDefaultSkin[x], true) && AddFileToDownloadsTable(g_szDefaultSkin[x]));
-    for(int x = 0; x < sizeof(g_szDefaultArms); ++x) g_bArmsLoaded[x] = (FileExists(g_szDefaultArms[x]) && PrecacheModel(g_szDefaultArms[x], true) && AddFileToDownloadsTable(g_szDefaultArms[x]));
+    for(int x = 0; x < sizeof(g_szDefaultSkin); ++x) g_bSkinLoaded[x] = (FileExists(g_szDefaultSkin[x]) && PrecacheModel(g_szDefaultSkin[x], false) && AddFileToDownloadsTable(g_szDefaultSkin[x]));
+    for(int x = 0; x < sizeof(g_szDefaultArms); ++x) g_bArmsLoaded[x] = (FileExists(g_szDefaultArms[x]) && PrecacheModel(g_szDefaultArms[x], false) && AddFileToDownloadsTable(g_szDefaultArms[x]));
 }
 
 // Terriorst/Zombie = 0; Counter-Terriorst/Human = 1;

@@ -4,7 +4,7 @@
 #define PLUGIN_NAME         "Store - Music Kit"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "store module music kit for csgo"
-#define PLUGIN_VERSION      "2.3.<commit_count>"
+#define PLUGIN_VERSION      "2.4.<commit_count>"
 #define PLUGIN_URL          "https://kxnrl.com"
 
 public Plugin myinfo = 

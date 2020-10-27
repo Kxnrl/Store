@@ -7,7 +7,7 @@
 #define PLUGIN_NAME         "Store - The Resurrection"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "a sourcemod store system"
-#define PLUGIN_VERSION      "2.3.<commit_count>"
+#define PLUGIN_VERSION      "2.4.<commit_count>"
 #define PLUGIN_URL          "https://kxnrl.com"
 
 public Plugin myinfo = 

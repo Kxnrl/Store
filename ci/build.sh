@@ -396,22 +396,6 @@ echo ""
 echo ""
 
 
-#解压素材文件
-#echo "Extract resource file ..."
-#echo "Processing archive: resources/materials/materials.7z"
-#7z x "resources/materials/materials.7z" -o"build/materials" >nul
-#mv resources/materials/materials.txt build/materials
-#echo "Processing archive: resources/materials/models.7z"
-#7z x "resources/models/models.7z" -o"build/models" >nul
-#mv resources/models/models.txt build/models
-#echo "Processing archive: resources/materials/particles.7z"
-#7z x "resources/particles/particles.7z" -o"build/particles" >nul
-#mv resources/particles/particles.txt build/particles
-#echo "Processing archive: resources/materials/sound.7z"
-#7z x "resources/sound/sound.7z" -o"build/sound" >nul
-#mv resources/sound/sound.txt build/sound
-
-
 #移动配置和翻译文件
 echo "Move configs and translations to build folder ..."
 mv configs/* build/addons/sourcemod/configs
@@ -431,8 +415,6 @@ echo "Compress file ..."
 cd build
 7z a $FILE   -t7z -mx9 README.md addons utils >nul
 if [ "$2" = "master" ]; then
-#    7z a $FILE -t7z -mx9 README.md addons utils materials models particles sound >nul
-# disallow package resouorce.
   7z a $LATEST -t7z -mx9 README.md addons utils >nul
 elif [ "$2" = "stable" ]; then
   7z a $STABLE -t7z -mx9 README.md addons utils >nul

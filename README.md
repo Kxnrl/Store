@@ -6,6 +6,8 @@
   
   
 Store system for CS:GO. 
+Current status: inactive, bug fix only  
+If you want to maintain this project, contact me.  
   
   
   
@@ -23,7 +25,7 @@ Store system for CS:GO.
   * Skin ( Core included ) - Custom player skin and arms. (death sound and firstperson-death support)
   * Hats ( Core included ) - Allow player wear hat/glass/facemask/shield/wing.
   * trail ( Core included ) - Create a material trail that follow the player.
-* Model ( Coptional ) - Allow player use custom weapon instead of valve's model.
+* Model ( optional ) - Allow player use custom weapon instead of valve's model.
 * Pets ( optional ) - Create a pet that follow the player.
 * WeaponSkin ( optional ) - Allow use valve weaon skin and knife skin. ***Will trigger GSLT ban***
 * DefaultSkin (Optional) - Set player skin if player does not equip player skin. ***Requires Skin module***
@@ -215,12 +217,12 @@ to
 ### License  
 * SourceMod plugins license under GPLv3 License.  
 * Shell, SQL and PHP scripts license under MIT License.  
-* any other file :  Non-commercial use.  
   
   
 ### Special Thanks
 [shanapu](https://github.com/shanapu "GitHub")  
 [zipcore](https://github.com/zipcore "GitHub")  
+[PerfectLaugh](https://github.com/PerfectLaugh "GitHub")
   
   
 ### Credits:  
@@ -228,14 +230,13 @@ to
 - FPVM_Interface: [franug](https://github.com/Franc1sco "GitHub")  
 - Chat-Processor: [Drixevel](https://github.com/Drixevel "GitHub")  
 - FirstPersonDeath: [Eun](https://forums.alliedmods.net/member.php?u=102471 "AlliedModders")  
-- Spec Target Fix: [shufen](https://github.com/Xectali "GitHub")  
 - Mirror mode: [franug](https://github.com/Franc1sco "GitHub") 
 - Weapon Skin: [kaganus](https://github.com/kaganus "GitHub") 
   
   
 #### Any other questions
 * [Steam](https://steamcommunity.com/profiles/76561198048432253/)
-* [Discord](https://discord.gg/33xj7jD)
+* Kxnrl#0001 (Discord)
 * [Telegram](https://t.me/Kxnrl)
   
   

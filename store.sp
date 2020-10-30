@@ -574,7 +574,12 @@ public int Native_SetClientMenu(Handle myself, int numParams)
 
 public int Native_GetClientCredits(Handle myself, int numParams)
 {
-    return g_eClients[GetNativeCell(1)][iCredits];
+    int client = GetNativeCell(1);
+
+    if (g_eClients[client][bBan])
+        return 0;
+
+    return g_eClients[client][iCredits];
 }
 
 public int Native_SetClientCredits(Handle myself, int numParams)

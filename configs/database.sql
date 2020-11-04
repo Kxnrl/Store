@@ -166,3 +166,6 @@ ALTER TABLE `store_newlogs` ADD COLUMN `timestamp_` TIMESTAMP NOT NULL DEFAULT C
 UPDATE `store_newlogs` SET `timestamp_` = FROM_UNIXTIME(`timestamp`);
 ALTER TABLE `store_newlogs` DROP COLUMN `timestamp`;
 ALTER TABLE `store_newlogs` CHANGE `timestamp_` `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- upgrade 2.4
+ALTER TABLE `store_item_child` ADD COLUMN `skin` tinyint(3) NOT NULL DEFAULT '-1' AFTER `arms`;

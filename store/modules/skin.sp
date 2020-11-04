@@ -6,7 +6,8 @@ enum PlayerSkin
     String:szArms[PLATFORM_MAX_PATH],
     String:szSound[PLATFORM_MAX_PATH],
     iLevel,
-    iTeam
+    iTeam,
+    nSkin,
 }
 
 static any g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
@@ -145,7 +146,8 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
     kv.GetString("arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
     kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
     
-    g_ePlayerSkins[g_iPlayerSkins][iLevel] = kv.GetNum("lvls", 0)+1;
+    g_ePlayerSkins[g_iPlayerSkins][iLevel] = kv.GetNum("lvls",  0);
+    g_ePlayerSkins[g_iPlayerSkins][nSkin]  = kv.GetNum("skin", -1);
 
 #if defined Global_Skin
     g_ePlayerSkins[g_iPlayerSkins][iTeam] = 4;
@@ -265,11 +267,36 @@ static void Store_SetClientModel(int client, int m_iData)
             return;
     }
 
-    SetEntityModel(client, skin_t);
-    strcopy(g_szSkinModel[client], 256, skin_t);
-
-    if(g_ePlayerSkins[m_iData][szSound][0] != 0)
+    if (g_ePlayerSkins[m_iData][szSound][0] != 0)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
+
+    // basic player skin
+    SetEntityModel(client, skin_t);
+
+    // check merged model ? skin? body?
+    if (g_ePlayerSkins[g_iPlayerSkins][nSkin] != -1)
+    {
+        // set?
+        SetEntProp(client, Prop_Send, "m_nBody", g_ePlayerSkins[g_iPlayerSkins][nSkin]);
+    }
+    else if (strcmp(skin_t, arms_t) == 0)
+    {
+        // https://steamcommunity.com/id/kuristaja_urhox/
+        // Thanks to Kuristaja
+
+        // [2020/10/27 7:38 PM]
+        // Kuristaja / Urhox:
+        // well looks like it's pretty simple:
+        // SetEntityModel(client, "models/player/custom_player/maoling/drakengard3/zero/zero2.mdl");
+        // SetEntProp(client, Prop_Send, "m_nBody", 3);
+        // SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/player/custom_player/maoling/drakengard3/zero/zero2.mdl");
+        // so m_nBody: 0 = first person arms, 1 = blank, 2 = blank, 3 = player model
+        // assuming every model is compile with the same id order
+
+        SetEntProp(client, Prop_Send, "m_nBody", 3);
+    }
+
+    strcopy(g_szSkinModel[client], 256, skin_t);
 
     if(!StrEqual(arms_t, "null"))
     {
@@ -659,8 +686,15 @@ void Store_CallDefaultSkin(int client)
 
     if(ret)
     {
-        if(IsModelPrecached(skin_t))
+        if (IsModelPrecached(skin_t))
+        {
             SetEntityModel(client, skin_t);
+            if (strcmp(skin_t, arms_t) == 0)
+            {
+                // magic hack
+                SetEntProp(client, Prop_Send, "m_nBody", 3);
+            }
+        }
 
         if (Store_CallSetPlayerSkinArms(client, arms_t, 128))
         {

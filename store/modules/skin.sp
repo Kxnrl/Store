@@ -274,10 +274,10 @@ static void Store_SetClientModel(int client, int m_iData)
     SetEntityModel(client, skin_t);
 
     // check merged model ? skin? body?
-    if (g_ePlayerSkins[g_iPlayerSkins][nSkin] != -1)
+    if (g_ePlayerSkins[m_iData][nSkin] > 0)
     {
         // set?
-        SetEntProp(client, Prop_Send, "m_nBody", g_ePlayerSkins[g_iPlayerSkins][nSkin]);
+        SetEntProp(client, Prop_Send, "m_nBody", g_ePlayerSkins[m_iData][nSkin]);
     }
     else if (strcmp(skin_t, arms_t) == 0)
     {

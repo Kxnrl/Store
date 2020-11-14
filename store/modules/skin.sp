@@ -279,22 +279,6 @@ static void Store_SetClientModel(int client, int m_iData)
         // set?
         SetEntProp(client, Prop_Send, "m_nBody", g_ePlayerSkins[m_iData][nSkin]);
     }
-    else if (strcmp(skin_t, arms_t) == 0)
-    {
-        // https://steamcommunity.com/id/kuristaja_urhox/
-        // Thanks to Kuristaja
-
-        // [2020/10/27 7:38 PM]
-        // Kuristaja / Urhox:
-        // well looks like it's pretty simple:
-        // SetEntityModel(client, "models/player/custom_player/maoling/drakengard3/zero/zero2.mdl");
-        // SetEntProp(client, Prop_Send, "m_nBody", 3);
-        // SetEntPropString(client, Prop_Send, "m_szArmsModel", "models/player/custom_player/maoling/drakengard3/zero/zero2.mdl");
-        // so m_nBody: 0 = first person arms, 1 = blank, 2 = blank, 3 = player model
-        // assuming every model is compile with the same id order
-
-        SetEntProp(client, Prop_Send, "m_nBody", 3);
-    }
 
     strcopy(g_szSkinModel[client], 256, skin_t);
 
@@ -689,11 +673,6 @@ void Store_CallDefaultSkin(int client)
         if (IsModelPrecached(skin_t))
         {
             SetEntityModel(client, skin_t);
-            if (strcmp(skin_t, arms_t) == 0)
-            {
-                // magic hack
-                SetEntProp(client, Prop_Send, "m_nBody", 3);
-            }
         }
 
         if (Store_CallSetPlayerSkinArms(client, arms_t, 128))

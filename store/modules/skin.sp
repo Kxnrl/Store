@@ -385,7 +385,7 @@ void Store_PreviewSkin(int client, int itemid)
     if (g_ePlayerSkins[g_eItems[itemid][iData]][nSkin] > 0)
     {
         // set?
-        SetEntProp(client, Prop_Send, "m_nBody", g_ePlayerSkins[g_eItems[itemid][iData]][nSkin]);
+        SetEntProp(m_iViewModel, Prop_Send, "m_nBody", g_ePlayerSkins[g_eItems[itemid][iData]][nSkin]);
     }
     
     SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);

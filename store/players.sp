@@ -131,6 +131,37 @@ public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBro
     RequestFrame(FirstPersonDeathCamera, client);
 #endif
 
+    DeathReset(client);
+
+    return Plugin_Continue;
+}
+
+public void ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool respawnOverride, bool respawn)
+{
+    g_iClientTeam[client] = 2;
+
+    DeathReset(client);
+
+#if defined Module_Skin
+    Store_ResetPlayerSkin(client);
+#endif
+}
+
+public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, bool teleportOverride, bool teleport)
+{
+    g_iClientTeam[client] = 2;
+
+    DeathReset(client);
+
+#if defined Module_Skin
+    Store_ResetPlayerSkin(client);
+#endif
+}
+
+void DeathReset(int client)
+{
+    #pragma unused client
+
 #if defined Module_Aura
     Store_RemoveClientAura(client);
 #endif
@@ -153,36 +184,6 @@ public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBro
         Store_RemoveClientTrail(client, i);
 #endif
     }
-
-    return Plugin_Continue;
-}
-
-public void ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool respawnOverride, bool respawn)
-{
-    g_iClientTeam[client] = 2;
-
-#if defined Module_Hats
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
-        Store_RemoveClientHats(client, i);
-#endif
-
-#if defined Module_Skin
-    Store_ResetPlayerSkin(client);
-#endif
-}
-
-public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, bool teleportOverride, bool teleport)
-{
-    g_iClientTeam[client] = 2;
-
-#if defined Module_Hats
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
-        Store_RemoveClientHats(client, i);
-#endif
-
-#if defined Module_Skin
-    Store_ResetPlayerSkin(client);
-#endif
 }
 
 public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroadcast)
@@ -222,7 +223,7 @@ public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroa
     RequestFrame(OnClientTeamPost, client);
 #endif
 
-    return Plugin_Handled;
+    return Plugin_Continue;
 }
 
 #if defined TeamArms

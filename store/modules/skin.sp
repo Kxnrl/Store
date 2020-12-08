@@ -325,7 +325,7 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
     if(g_szDeathVoice[client][0] != '*')
         return Plugin_Continue;
 
-    if (strcmp(soundEntry, "Player.Death") == 0)
+    if (strcmp(soundEntry, "Player.Death") == 0 || strcmp(soundEntry, "Player.DeathFem") == 0)
     {
         // Block
         return Plugin_Handled;

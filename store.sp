@@ -356,6 +356,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_SetClientCredits",      Native_SetClientCredits);
     CreateNative("Store_IsItemInBoughtPackage", Native_IsItemInBoughtPackage);
     CreateNative("Store_DisplayConfirmMenu",    Native_DisplayConfirmMenu);
+    CreateNative("Store_UseItem",               Native_UseItem);
     CreateNative("Store_GiveItem",              Native_GiveItem);
     CreateNative("Store_GetItemId",             Native_GetItemId);
     CreateNative("Store_GetTypeId",             Native_GetTypeId);
@@ -729,6 +730,19 @@ public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
 
     m_hMenu.ExitButton = false;
     m_hMenu.Display(client, 0);
+}
+
+public int Native_UseItem(Handle plugin, int numParams)
+{
+    int  client = GetNativeCell(1);
+    int  itemid = GetNativeCell(2);
+    bool synced = GetNativeCell(3);
+    int  slot   = GetNativeCell(4);
+
+    if (!Store_HasClientItem(client, itemid))
+        return -1;
+
+    return UTIL_UseItem(client, itemid, synced, slot);
 }
 
 public int Native_GiveItem(Handle plugin, int numParams)

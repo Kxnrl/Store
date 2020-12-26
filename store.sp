@@ -3736,8 +3736,11 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         int price_1m = item_child.FetchInt(14);
         int price_pm = item_child.FetchInt(15);
 
+        // skip m_nBody
+        // #18
+
         // team
-        g_eItems[g_iItems][iTeam] = item_child.FetchInt(18);
+        g_eItems[g_iItems][iTeam] = item_child.FetchInt(19);
         
         if(price_1d != 0 || price_1m != 0)
         {

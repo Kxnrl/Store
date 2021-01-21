@@ -798,7 +798,7 @@ public int Native_GiveItem(Handle plugin, int numParams)
         g_eClientItems[client][m_iId][bSynced] = false;
         g_eClientItems[client][m_iId][bDeleted] = false;
         UTIL_LogMessage(client, 0, "Give item [%s][%s] via native, p[%d], e[%d] from %s", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], m_iDateOfPurchase, expiration, pFile);
-        return;
+        return true;
     }
 
     UTIL_LogMessage(client, 0, "Give and Ext item [%s][%s] via native, e[%d] from %s", g_eItems[itemid][szUniqueId], g_eItems[itemid][szName], expiration, pFile);

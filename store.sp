@@ -86,6 +86,7 @@ Handle g_hOnClientBuyItem = null;
 Handle g_hOnClientPurchased = null;
 Handle g_hOnClientComposed = null;
 Handle g_hOnClientComposing = null;
+Handle g_hOnGiveClientItem = null;
 
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
@@ -343,6 +344,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String,    Param_Cell, Param_Cell);
     g_hOnClientComposing = CreateGlobalForward("Store_OnClientComposing", ET_Hook,   Param_Cell, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String);
     g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,      Param_Cell, Param_String, Param_String);
+    g_hOnGiveClientItem  = CreateGlobalForward("Store_OnGiveClientItem",  ET_Hook,   Param_Cell, Param_String,    Param_Cell, Param_Cell,   Param_Cell);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -754,19 +756,30 @@ public int Native_GiveItem(Handle plugin, int numParams)
     int price = GetNativeCell(5);
 
     if (expiration < GetTime() && expiration > 0)
-        return;
+        return false;
 
     if(IsFakeClient(client) || !g_eClients[client][bLoaded] || g_eClients[client][bBan])
     {
         LogStoreError("Native_GiveItem -> %N itemid %d purchase %d expiration %d price %d -> ban? loaded? fakeclient?", client, itemid, purchase, expiration, price);
-        return;
+        return false;
     }
 
     if(itemid < 0)
     {
         LogStoreError("Native_GiveItem -> %N itemid %d purchase %d expiration %d price %d", client, itemid, purchase, expiration, price);
-        return;
+        return false;
     }
+
+    Action res = Plugin_Continue;
+    Call_StartForward(g_hOnGiveClientItem);
+    Call_PushCell(client);
+    Call_PushString(g_eItems[itemid][szUniqueId]);
+    Call_PushCell(purchase);
+    Call_PushCell(expiration);
+    Call_PushCell(price);
+    Call_Finish(res);
+    if (res >= Plugin_Handled)
+        return false;
 
     char pFile[32];
     GetPluginFilename(plugin, pFile, 32);
@@ -800,6 +813,8 @@ public int Native_GiveItem(Handle plugin, int numParams)
     {
         LogMessage("Try to extend item at %L but have ext %d", client, ext);
     }
+
+    return true;
 }
 
 public int Native_RemoveItem(Handle myself, int numParams)

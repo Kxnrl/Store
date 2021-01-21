@@ -65,11 +65,11 @@ native int Store_GetTypeId(const char[] type);
 native int Store_GetItemId(const char[] uid);
 native int Store_GetItemData(int itemid, const any[] local);
 native int Store_UseItem(int client, int itemid, bool synced = false, int slot = 0);
-native int Store_GiveItem(int client, int itemid, int purchase = 0, int expiration = 0, int price = 0);
 native int Store_RemoveItem(int client, int itemid);
 native int Store_GetClientID(int client);
 native int Store_GetItemExpiration(int client, int itemid);
 native int Store_GetSkinLevel(int client);
+native bool Store_GiveItem(int client, int itemid, int purchase = 0, int expiration = 0, int price = 0);
 native bool Store_IsClientBanned(int client);
 native void Store_SetClientBanState(int client, bool ban);
 native bool Store_IsClientLoaded(int client);
@@ -106,6 +106,7 @@ forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
 forward Action Store_OnClientComposing(int client, int &probability, int itemid, const char[] uid, const char[] itemName, const char[] itemParentName);
 forward void   Store_OnClientComposed(int client, bool success, int itemid, const char[] itemName, const char[] itemParentName);
 forward Action Store_OnCheerSound(int client, char sound[256], char name[64]);
+forward Action Store_OnGiveClientItem(int client, const char[] uid, int purchase, int expiration, int price);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

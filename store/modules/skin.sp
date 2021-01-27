@@ -325,7 +325,8 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
     if(g_szDeathVoice[client][0] != '*')
         return Plugin_Continue;
 
-    if (strcmp(soundEntry, "Player.Death") == 0 || strcmp(soundEntry, "Player.DeathFem") == 0)
+    //if (strcmp(soundEntry, "Player.Death") == 0 || strcmp(soundEntry, "Player.DeathFem") == 0)
+    if (strncmp(soundEntry, "Player.Death", 12) == 0)
     {
         // Block
         return Plugin_Handled;
@@ -356,9 +357,9 @@ void Broadcast_DeathSound(int client)
 
     int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 3.0);
 
-#if defined GM_ZE
-    EmitSoundToClient(client, g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
-#else
+//#if defined GM_ZE
+//    EmitSoundToClient(client, g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
+//#else
     EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
 #endif
 }

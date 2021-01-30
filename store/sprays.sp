@@ -7,10 +7,13 @@ static int g_iSprayPrecache[STORE_MAX_ITEMS] = {-1,...};
 static int g_iSprayCache[MAXPLAYERS+1] = {-1,...};
 static int g_iSprayLimit[MAXPLAYERS+1] = {0,...};
 static int g_iSprays = 0;
+static Handle g_fwdOnClientSpray;
 
 public void Sprays_OnPluginStart()
 {
     Store_RegisterHandler("spray", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
+
+    g_fwdOnClientSpray = CreateGlobalForward("Store_OnClientSpray", ET_Ignore, Param_Cell);
 
     RegConsoleCmd("spray", Command_Spray);
     RegConsoleCmd("sprays", Command_Spray);
@@ -118,6 +121,10 @@ void Sprays_Create(int client)
     TE_WriteVector("m_vecOrigin",m_flView);
     TE_WriteNum("m_nIndex", g_iSprayPrecache[g_iSprayCache[client]]);
     TE_SendToAll();
+
+    Call_StartForward(g_fwdOnClientSpray);
+    Call_PushCell(client);
+    Call_Finish();
 }
 
 void GetPlayerEyeViewPoint(int client, float m_fPosition[3])

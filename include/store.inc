@@ -107,6 +107,7 @@ forward Action Store_OnClientComposing(int client, int &probability, int itemid,
 forward void   Store_OnClientComposed(int client, bool success, int itemid, const char[] itemName, const char[] itemParentName);
 forward Action Store_OnCheerSound(int client, char sound[256], char name[64]);
 forward Action Store_OnGiveClientItem(int client, const char[] uid, int purchase, int expiration, int price);
+forward void   Store_OnClientSpray(int client);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

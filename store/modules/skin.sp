@@ -690,7 +690,22 @@ void Store_CallDefaultSkin(int client)
                 SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
             }
         }
+
+        EnforceDeathSound(client, skin_t);
     }
+}
+
+void EnforceDeathSound(int client, const char[] skin)
+{
+    int index = FindDataIndexByModel(skin);
+    if (index == -1)
+    {
+        // item not from store DB
+        return;
+    }
+
+    if (g_ePlayerSkins[index][szSound][0] != 0)
+        FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[index][szSound]);
 }
 
 Action Store_CallPreSetModel(int client, char skin[128], char arms[128])

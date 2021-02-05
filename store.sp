@@ -382,6 +382,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_IsStoreSpray",          Native_IsStoreSpray);
     CreateNative("Store_ApplyPlayerSkin",       Native_ApplyPlayerSkin);
     CreateNative("Store_LogOpencase",           Native_LogOpenCase);
+    CreateNative("Store_IsInDeathCamera",       Native_InDeathCamera);
 
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
@@ -1103,6 +1104,15 @@ public int Native_LogOpenCase(Handle plugin, int numParams)
     GetNativeString(4, STRING(handle));
 
     UTIL_LogOpencase(client, itemid, length, handle, caseid);
+}
+
+public int Native_InDeathCamera(Handle plugin, int numParams)
+{
+#if defined Module_Skin
+    return IsInDeathCamera(GetNativeCell(1));
+#else
+    return false;
+#endif
 }
 
 //////////////////////////////

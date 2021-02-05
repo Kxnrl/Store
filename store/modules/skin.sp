@@ -589,18 +589,13 @@ static void FadeScreenWhite(int client)
     EndMessage();
 }
 
-void Skin_OnRunCmd(int client, int &buttons)
+void Skin_OnRunCmd(int client, int buttons)
 {
-    if(IsPlayerAlive(client))
-        return;
-    
     if(g_iCameraRef[client] == INVALID_ENT_REFERENCE)
         return;
 
-    buttons = 0;
-
     int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
-    if(m_iObserverMode <= 4)
+    if (m_iObserverMode < 6)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 6);
 }
 
@@ -781,4 +776,9 @@ int FindDataIndexByModel(const char[] skin)
             return i;
     }
     return -1;
+}
+
+bool IsInDeathCamera(int client)
+{
+    return g_iCameraRef[client] != INVALID_ENT_REFERENCE;
 }

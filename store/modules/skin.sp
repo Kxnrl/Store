@@ -589,7 +589,7 @@ static void FadeScreenWhite(int client)
     EndMessage();
 }
 
-void Skin_OnRunCmd(int client, int buttons)
+void Skin_OnRunCmd(int client)
 {
     if(g_iCameraRef[client] == INVALID_ENT_REFERENCE)
         return;

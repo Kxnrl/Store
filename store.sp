@@ -4333,7 +4333,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 #endif
 
 #if defined Module_Skin
-    Skin_OnRunCmd(client, buttons);
+    Skin_OnRunCmd(client);
 #endif
 
     return Plugin_Continue;

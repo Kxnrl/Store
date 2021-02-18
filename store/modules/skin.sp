@@ -591,7 +591,9 @@ static void FadeScreenWhite(int client)
 
 void Skin_OnRunCmd(int client)
 {
-    if(g_iCameraRef[client] == INVALID_ENT_REFERENCE)
+    if (g_iCameraRef[client] == INVALID_ENT_REFERENCE)
+        return;
+    if (IsPlayerAlive(client))
         return;
 
     int m_iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");

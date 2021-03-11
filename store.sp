@@ -2182,7 +2182,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
                 char reason[128];
                 FormatEx(STRING(reason), "open %s and add [%s] d[%d] c[%d]", g_szCase[g_iClientCase[client]], name, days, g_inCase[g_iClientCase[client]]);
                 Store_SetClientCredits(client, Store_GetClientCredits(client)-g_inCase[g_iClientCase[client]], reason);
-                Store_GiveItem(client, itemid, GetTime(), (days == 0) ? 0 : GetTime()+days*86400, 233);
+                Store_GiveItem(client, itemid, GetTime(), (days == 0) ? 0 : GetTime()+days*86400, -11);
                 if(days) tPrintToChat(client, "%t", "open and add day chat", g_szCase[g_iClientCase[client]], name, days);
                 else tPrintToChat(client, "%t", "open and add permanent chat", g_szCase[g_iClientCase[client]], name);
                 Store_SaveClientAll(client);
@@ -3410,7 +3410,7 @@ void UTIL_ComposeItem(int client)
 
     Store_RemoveItem(client, g_eCompose[client][item1]);
     Store_RemoveItem(client, g_eCompose[client][item2]);
-    Store_GiveItem(client, g_iSelectedItem[client], GetTime(), 0, 0);
+    Store_GiveItem(client, g_iSelectedItem[client], GetTime(), 0, -13);
     
     Store_SaveClientAll(client);
     

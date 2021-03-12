@@ -75,6 +75,8 @@ public Plugin myinfo =
 #define DeathChat
 #endif
 
+#define MAX_SKIN_LEVEL 6
+
 //////////////////////////////
 //     GLOBAL VARIABLES     //
 //////////////////////////////
@@ -1558,16 +1560,16 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
             Store_DisplayPreviousMenu(client);
 }
 
-void UTIL_GetLevelType(int itemid, char[] buffer, int maxLen)
+void UTIL_GetLevelType(int client, int itemid, char[] buffer, int maxLen)
 {
     switch(g_eItems[itemid][iLevels])
     {
-        case  2: strcopy(buffer, maxLen, "保密"); //合成
-        case  3: strcopy(buffer, maxLen, "隐秘"); //开箱
-        case  4: strcopy(buffer, maxLen, "违禁"); //活动
-        case  5: strcopy(buffer, maxLen, "史诗"); //专属
-        case  6: strcopy(buffer, maxLen, "神话"); //专属
-        default: strcopy(buffer, maxLen, "受限"); //普通
+        case  2: FormatEx(buffer, maxLen, "%T", "level 2", client);
+        case  3: FormatEx(buffer, maxLen, "%T", "level 3", client);
+        case  4: FormatEx(buffer, maxLen, "%T", "level 4", client);
+        case  5: FormatEx(buffer, maxLen, "%T", "level 5", client);
+        case  6: FormatEx(buffer, maxLen, "%T", "level 6", client);
+        default: FormatEx(buffer, maxLen, "%T", "level 1", client);
     }
 }
 
@@ -1587,7 +1589,7 @@ void DisplayPreviewMenu(int client, int itemid)
     AddMenuItemEx(m_hMenu, (g_eItems[itemid][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_eItems[itemid][szDesc]);
 
     char leveltype[32];
-    UTIL_GetLevelType(itemid, leveltype, 32);
+    UTIL_GetLevelType(client, itemid, leveltype, 32);
     AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] <= 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
 
     AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "3", "%T", "Open Case Available", client);
@@ -2083,7 +2085,7 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
     strcopy(name, 128, g_eItems[itemid][szName]);
 
     char leveltype[32];
-    UTIL_GetLevelType(itemid, leveltype, 32);
+    UTIL_GetLevelType(client, itemid, leveltype, 32);
     AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "%T: %s - %s", "playerskin", client, name, leveltype);
     if(days)
     {
@@ -2270,7 +2272,7 @@ void DisplayItemMenu(int client, int itemid)
             AddMenuItemEx(m_hMenu, (g_eItems[g_iItems][szDesc][0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%s", g_eItems[itemid][szDesc]);
     
             char leveltype[32];
-            UTIL_GetLevelType(itemid, leveltype, 32);
+            UTIL_GetLevelType(client, itemid, leveltype, 32);
             AddMenuItemEx(m_hMenu, (g_eItems[itemid][iLevels] == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_eItems[itemid][iLevels], leveltype);
             AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "4", "%T", "Open Case Available", client);
         }
@@ -3738,7 +3740,9 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         item_child.FetchString(8, g_eItems[g_iItems][szName], 32);
 
         // Field 9 -> lvls
-        g_eItems[g_iItems][iLevels] = item_child.FetchInt(9); //item_child.FetchInt(9) + 1;
+        g_eItems[g_iItems][iLevels] = item_child.FetchInt(9);
+        if (g_eItems[g_iItems][iLevels] > MAX_SKIN_LEVEL) // override to max
+            g_eItems[g_iItems][iLevels] = MAX_SKIN_LEVEL;
 
         // Field 10 -> desc
         char m_szDesc[128];

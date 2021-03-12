@@ -771,4 +771,40 @@
         "en" "Allow previous"
         "chi" "允许重复"
     }
+
+    "level 1"
+    {
+        "en"  "Lv.1"
+        "chi" "普通"
+    }
+
+    "level 2"
+    {
+        "en"  "Lv.2"
+        "chi" "初级"
+    }
+
+    "level 3"
+    {
+        "en"  "Lv.3"
+        "chi" "高级"
+    }
+    
+    "level 4"
+    {
+        "en"  "Lv.4"
+        "chi" "稀有"
+    }
+
+    "level 5"
+    {
+        "en"  "Lv.5"
+        "chi" "传说"
+    }
+
+    "level 6"
+    {
+        "en"  "Lv.6"
+        "chi" "史诗"
+    }
 }

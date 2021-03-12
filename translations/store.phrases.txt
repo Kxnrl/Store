@@ -807,4 +807,16 @@
         "en"  "Lv.6"
         "chi" "史诗"
     }
+
+    "category empty"
+    {
+        "en" "Category is empty"
+        "chi" "别点辣, 里面空空如也"
+    }
+
+    "store empty"
+    {
+        "en" "Store Empty"
+        "chi" "商店里面好像什么都没有上架呢"
+    }
 }

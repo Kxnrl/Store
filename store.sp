@@ -1405,6 +1405,21 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
             }
         }
     }
+
+    if (m_hMenu.ItemCount == 0)
+    {
+        delete m_hMenu;
+        if (parent == -1)
+        {
+            tPrintToChat(client, "%T","store empty", client);
+        }
+        else
+        {
+            tPrintToChat(client, "%T", "category empty", client);
+            DisplayStoreMenu(client, g_iMenuBack[client], g_iLastSelection[client]);
+        }
+        return;
+    }
     
     if(last == -1)
         m_hMenu.Display(client, 0);

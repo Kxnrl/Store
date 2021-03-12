@@ -1505,7 +1505,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
 
                     if(g_eItems[m_iId][bCompose])
                     {
-                        if(g_eClients[client][iCredits] >= 5000)
+                        if(g_eClients[client][iCredits] >= g_inCase[1])
                         {
                             g_eCompose[client][item1]=-1;
                             g_eCompose[client][item2]=-1;
@@ -1513,7 +1513,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                             DisplayComposeMenu(client, false);
                         }
                         else
-                            tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 5000);
+                            tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_inCase[1]);
                         return;
                     }
                     else
@@ -1635,7 +1635,7 @@ public int MenuHandler_Preview(Menu menu, MenuAction action, int client, int par
 
         if(selected == 0)
         {
-            if(g_eClients[client][iCredits] >= 5000)
+            if(g_eClients[client][iCredits] >= g_inCase[1])
             {
                 g_eCompose[client][item1]=-1;
                 g_eCompose[client][item2]=-1;
@@ -1643,7 +1643,7 @@ public int MenuHandler_Preview(Menu menu, MenuAction action, int client, int par
                 DisplayComposeMenu(client, false);
             }
             else
-                tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, 5000);
+                tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_inCase[1]);
         }
         else if(selected == 1)
         {
@@ -3317,7 +3317,7 @@ void UTIL_ComposeItem(int client)
     
     int m_iFees = StringToInt(g_szComposeFee[g_eCompose[client][types]]);
 
-    if(Store_GetClientCredits(client) < m_iFees || m_iFees < 5000)
+    if(Store_GetClientCredits(client) < m_iFees)
     {
         tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, m_iFees);
         return;

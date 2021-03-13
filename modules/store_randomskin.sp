@@ -368,7 +368,7 @@ public void OnClientConnected(int client)
     g_sPrevious[client][0] = '\0';
 }
 
-public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128])
+public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128], int &_body)
 {
     if (!GetPlayerStatus(client))
         return Plugin_Continue;
@@ -429,6 +429,8 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
             strcopy(g_sPrevious[client], 32, item);
             strcopy(_skin, 128, s[m_Skin]);
             strcopy(_arms, 129, s[m_Arms]);
+            _body = s[m_Body];
+            
             tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s[m_Name]);
             return Plugin_Changed;
         }

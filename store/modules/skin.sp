@@ -7,7 +7,7 @@ enum PlayerSkin
     String:szSound[PLATFORM_MAX_PATH],
     iLevel,
     iTeam,
-    nSkin,
+    nBody,
 }
 
 static any g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
@@ -19,6 +19,7 @@ static int    g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 static int    g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 static char   g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 static char   g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static bool   g_bShouldFireEvent[MAXPLAYERS+1];
 static ConVar spec_freeze_time;
 static ConVar mp_round_restart_delay;
 static ConVar sv_disablefreezecam;
@@ -35,7 +36,7 @@ void Skin_OnPluginStart()
 {
     g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
     g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
-    g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String);
+    g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
 
     AddNormalSoundHook(Hook_NormalSound);
 
@@ -147,7 +148,7 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
     kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
     
     g_ePlayerSkins[g_iPlayerSkins][iLevel] = kv.GetNum("lvls",  0);
-    g_ePlayerSkins[g_iPlayerSkins][nSkin]  = kv.GetNum("skin", -1);
+    g_ePlayerSkins[g_iPlayerSkins][nBody]  = kv.GetNum("skin", -1);
 
 #if defined Global_Skin
     g_ePlayerSkins[g_iPlayerSkins][iTeam] = 4;
@@ -255,8 +256,9 @@ static void Store_SetClientModel(int client, int m_iData)
     char skin_t[128], arms_t[128];
     strcopy(skin_t, 128, g_ePlayerSkins[m_iData][szModel]);
     strcopy(arms_t, 128, g_ePlayerSkins[m_iData][szArms]);
+    int body_t = g_ePlayerSkins[m_iData][nBody];
 
-    Action res = Store_CallPreSetModel(client, skin_t, arms_t);
+    Action res = Store_CallPreSetModel(client, skin_t, arms_t, body_t);
     if (res >= Plugin_Handled)
         return;
     else if (res == Plugin_Changed)
@@ -274,10 +276,10 @@ static void Store_SetClientModel(int client, int m_iData)
     SetEntityModel(client, skin_t);
 
     // check merged model ? skin? body?
-    if (g_ePlayerSkins[m_iData][nSkin] > 0)
+    if (body_t > 0)
     {
         // set?
-        SetEntProp(client, Prop_Send, "m_nBody", g_ePlayerSkins[m_iData][nSkin]);
+        SetEntProp(client, Prop_Send, "m_nBody", body_t);
     }
 
     strcopy(g_szSkinModel[client], 256, skin_t);
@@ -286,9 +288,7 @@ static void Store_SetClientModel(int client, int m_iData)
     {
         if (Store_CallSetPlayerSkinArms(client, arms_t, 128))
         {
-            // Has valve gloves?
-            Store_RemoveClientGloves(client, 0);
-            SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+            Store_SetClientArms(client, arms_t);
         }
     }
 
@@ -383,10 +383,10 @@ void Store_PreviewSkin(int client, int itemid)
     
     DispatchSpawn(m_iViewModel);
 
-    if (g_ePlayerSkins[g_eItems[itemid][iData]][nSkin] > 0)
+    if (g_ePlayerSkins[g_eItems[itemid][iData]][nBody] > 0)
     {
         // set?
-        SetEntProp(m_iViewModel, Prop_Send, "m_nBody", g_ePlayerSkins[g_eItems[itemid][iData]][nSkin]);
+        SetEntProp(m_iViewModel, Prop_Send, "m_nBody", g_ePlayerSkins[g_eItems[itemid][iData]][nBody]);
     }
     
     SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
@@ -635,6 +635,11 @@ void Store_RemoveClientGloves(int client, int m_iData = -1)
         AcceptEntityInput(gloves, "KillHierarchy");
 }
 
+void Store_OnPlayerSpawn(int client)
+{
+    g_bShouldFireEvent[client] = false;
+}
+
 void Store_ResetPlayerSkin(int client)
 {
     strcopy(g_szSkinModel[client], 256, "#default");
@@ -683,8 +688,7 @@ void Store_CallDefaultSkin(int client)
         {
             if(IsModelPrecached(arms_t))
             {
-                Store_RemoveClientGloves(client, 0);
-                SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+                Store_SetClientArms(client, arms_t);
             }
         }
 
@@ -705,9 +709,9 @@ void EnforceDeathSound(int client, const char[] skin)
         FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[index][szSound]);
 }
 
-Action Store_CallPreSetModel(int client, char skin[128], char arms[128])
+Action Store_CallPreSetModel(int client, char skin[128], char arms[128], int &body)
 {
-    char s[128], a[128];
+    char s[128], a[128]; int b = body;
     strcopy(s, 128, skin);
     strcopy(a, 128, arms);
 
@@ -717,12 +721,14 @@ Action Store_CallPreSetModel(int client, char skin[128], char arms[128])
     Call_PushCell(client);
     Call_PushStringEx(s, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushStringEx(a,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCellRef(b);
     Call_Finish(res);
 
     if (res == Plugin_Changed)
     {
         strcopy(skin, 128, s);
         strcopy(arms, 128, a);
+        body = b;
     }
 
     return res;
@@ -759,7 +765,7 @@ bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
     return false;
 }
 
-bool GetSkinData(int itemid, char skin[128], char arms[128])
+bool GetSkinData(int itemid, char skin[128], char arms[128], int &body)
 {
     int m_iData = Store_GetDataIndex(itemid);
     if (m_iData == -1)
@@ -767,6 +773,7 @@ bool GetSkinData(int itemid, char skin[128], char arms[128])
 
     strcopy(skin, 128, g_ePlayerSkins[m_iData][szModel]);
     strcopy(arms, 128, g_ePlayerSkins[m_iData][szArms]);
+    body = g_ePlayerSkins[m_iData][nBody];
     return true;
 }
 
@@ -783,4 +790,24 @@ int FindDataIndexByModel(const char[] skin)
 bool IsInDeathCamera(int client)
 {
     return g_iCameraRef[client] != INVALID_ENT_REFERENCE;
+}
+
+static void Store_SetClientArms(int client, const char[] arms_t)
+{
+    Store_RemoveClientGloves(client, 0);
+    SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
+
+    if (!g_bShouldFireEvent[client])
+    {
+        g_bShouldFireEvent[client] = true;
+        return;
+    }
+
+    Event event = CreateEvent("player_spawn", true);
+    if (event == null)
+        return;
+
+    event.SetInt("userid", GetClientUserId(client));
+    event.FireToClient(client);
+    event.Cancel();
 }

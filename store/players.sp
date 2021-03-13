@@ -66,6 +66,7 @@ public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBro
     RequestFrame(OnClientSpawnPost, client);
 
 #if defined Module_Skin
+    Store_OnPlayerSpawn(client);
     Store_RemoveClientGloves(client, -1);
     Store_ResetPlayerSkin(client);
     Store_PreSetClientModel(client);

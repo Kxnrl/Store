@@ -357,10 +357,19 @@ void Broadcast_DeathSound(int client)
 
     int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 3.0);
 
+    int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
+
+    if (m_iRagdoll > MaxClients)
+    {
+        // make sound following ragdoll
+        SetVariantString("facemask");
+        AcceptEntityInput(speaker, "SetParentAttachment", speaker, speaker, 0);
+    }
+
 //#if defined GM_ZE
 //    EmitSoundToClient(client, g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
 //#else
-    EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
+    EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
 //#endif
 }
 
@@ -483,7 +492,7 @@ public void FirstPersonDeathCamera(int client)
 
     int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 
-    if(m_iRagdoll < 0)
+    if (m_iRagdoll < 0)
         return;
 
     SpawnCamAndAttach(client, m_iRagdoll);

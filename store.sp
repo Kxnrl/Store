@@ -597,6 +597,9 @@ public int Native_SetClientCredits(Handle myself, int numParams)
     int m_iCredits = GetNativeCell(2);
     int difference = m_iCredits-g_eClients[client][iCredits];
     
+    // maybe not needed?
+    // if going to intermission, after 3 seconds, we force disconnect client then mark as not load.
+    /*
     if(g_bInterMission)
     {
         char path[128];
@@ -604,6 +607,7 @@ public int Native_SetClientCredits(Handle myself, int numParams)
         LogToFileEx(path, "Native_SetClientCredits -> %L -> %d -> %d -> %d", client, g_eClients[client][iId], m_iCredits, difference);
         return false;
     }
+    */
 
     if (numParams < 3)
     {

@@ -366,11 +366,28 @@ void Broadcast_DeathSound(int client)
         AcceptEntityInput(speaker, "SetParentAttachment", speaker, speaker, 0);
     }
 
-//#if defined GM_ZE
-//    EmitSoundToClient(client, g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 0.8, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
-//#else
-    EmitSoundToAll(g_szDeathVoice[client], speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, 1.0, SNDPITCH_NORMAL, speaker, fPos, fAgl, true);
-//#endif
+
+    EmitSoundToClient(client, g_szDeathVoice[client], SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, 0.8);
+
+    int[] clients = new int[MAXPLAYERS+1]; int counts; float vPos[3];
+    for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i) && !IsFakeClient(i))
+    {
+        if (IsPlayerAlive(i))
+        {
+            GetClientEyePosition(i, vPos);
+            if (GetVectorDistance(fPos, vPos) >= 1024.0)
+            {
+                // skip if so far
+                continue;
+            }
+        }
+
+        clients[counts++] = i;
+    }
+
+    if (counts > 0)
+        EmitSound(clients, counts, g_szDeathVoice[client], speaker, SNDCHAN_VOICE);
+
 }
 
 void Store_PreviewSkin(int client, int itemid)

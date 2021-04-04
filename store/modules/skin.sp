@@ -366,11 +366,10 @@ void Broadcast_DeathSound(int client)
         AcceptEntityInput(speaker, "SetParentAttachment", speaker, speaker, 0);
     }
 
-
     EmitSoundToClient(client, g_szDeathVoice[client], SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, 0.8);
 
     int[] clients = new int[MAXPLAYERS+1]; int counts; float vPos[3];
-    for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i) && !IsFakeClient(i))
+    for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i) && !IsFakeClient(i) && i != client)
     {
         if (IsPlayerAlive(i))
         {

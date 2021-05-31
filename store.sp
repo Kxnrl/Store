@@ -3651,6 +3651,7 @@ public void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] e
 
     char parent_str[12];
 
+    int validCategories = 0;
     while(item_parent.FetchRow())
     {
         // Store to Map
@@ -3671,7 +3672,11 @@ public void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] e
         g_eItems[g_iItems][iHandler] = g_iPackageHandler;
 
         g_iItems++;
+        validCategories++;
     }
+
+    if (validCategories == 0)
+        SetFailState("Can not retrieve item.parent from database: fetched %d rows, but they are invalid.", item_parent.RowCount);
     
     // Refresh Parent's parent.
     for(int parent = 0; parent < g_iItems; parent++)
@@ -3697,6 +3702,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
 
     ArrayList item_array = new ArrayList(ByteCountToCells(32));
 
+    int validItems = 0;
     while(item_child.FetchRow())
     {
         // Field 1 -> type
@@ -3866,8 +3872,12 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
             g_aCaseSkins[caseType].PushString(m_szUniqueId);
         }
 
-        ++g_iItems;
+        g_iItems++;
+        validItems++;
     }
+
+    if (validItems == 0)
+        SetFailState("Can not retrieve item.child from database: fetched %d rows, but they are invalid.", item_child.RowCount);
 
     ArrayList items = new ArrayList(view_as<int>(Store_Item));
 

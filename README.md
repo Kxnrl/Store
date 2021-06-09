@@ -37,7 +37,7 @@ If you want to maintain this project, contact me.
 * **sm_credits** - Show my credits to all players.
 * **sm_hide** - Toggle -> hide all hats/pets/trails/neons, it will release your FPS. [alias: ***sm_hideneon***/***sm_hidetrail***]
 * **cheer** - Trigger -> server play sound. [alias: ***sm_cheer***]
-* **sm_crpb** - Toggle -> block cheer sound.
+* **sm_sspb** - Toggle -> block cheer sound.
 * **spray** - Trigger -> spary paint.
 * **sm_tp** - Toggle -> third-person mode or first-person mode.
 * **sm_seeme** - Toggle -> mirror mode or normal mode.

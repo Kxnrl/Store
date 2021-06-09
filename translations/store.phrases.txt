@@ -592,7 +592,7 @@
         "#format" "{1:N},{2:s}"
         "en" "{green}{1}{normal} used [{blue}{2}{normal}] (!sspb to mute)"
         "chi" "{green}{1}{normal} 使用音效 [{blue}{2}{normal}]"
-        "da" "{green}{1}{normal} benyttede [{blue}{2}{normal}] (!crpb til at mute)"
+        "da" "{green}{1}{normal} benyttede [{blue}{2}{normal}] (!sspb til at mute)"
     }
     
     "on"

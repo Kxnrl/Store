@@ -1,5 +1,7 @@
 #define Module_Sound
 
+#define SOUND_COOKIE_NAME "Store.Sound.Setting"
+
 enum Sound
 {
     String:szName[128],
@@ -26,7 +28,7 @@ public void Sounds_OnPluginStart()
 
     RegConsoleCmd("cheer", Command_Cheer);
     RegConsoleCmd("sm_cheer", Command_Cheer);
-    RegConsoleCmd("sm_crpb", Command_Silence);
+    RegConsoleCmd("sm_sspb", Command_Silence);
 
     Sounds_OnClientprefs();
 }
@@ -35,7 +37,7 @@ void Sounds_OnClientprefs()
 {
     if(g_pClientprefs)
     {
-        g_hCookieSounds = RegClientCookie("store_sounds", "", CookieAccess_Protected);
+        g_hCookieSounds = RegClientCookie(SOUND_COOKIE_NAME, "", CookieAccess_Protected);
     }
     else
     {
@@ -221,7 +223,7 @@ public void Sounds_OnLoadOptions(int client)
 {
     if(g_pfysOptions)
     {
-        g_bClientDisable[client] = Opts_GetOptBool(client, "Store.Sounds.Disabled", false);
+        g_bClientDisable[client] = Opts_GetOptBool(client, SOUND_COOKIE_NAME, false);
         return;
     }
 
@@ -251,7 +253,7 @@ static void SetSoundState(int client, bool state)
 {
     if(g_pfysOptions)
     {
-        Opts_SetOptBool(client, "Store.Sounds.Disabled", state);
+        Opts_SetOptBool(client, SOUND_COOKIE_NAME, state);
     }
     else if(g_pClientprefs)
     {

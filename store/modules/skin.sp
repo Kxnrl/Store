@@ -32,6 +32,7 @@ Handle g_hOnPlayerSkinDefault = null;
 Handle g_hOnPlayerSetModel = null;
 Handle g_hOnPlayerSetModelPost = null;
 Handle g_hOnFPDeathCamera = null;
+Handle g_hOnPlayerDeathVoice = null;
 
 void Skin_OnPluginStart()
 {
@@ -39,6 +40,7 @@ void Skin_OnPluginStart()
     g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
     g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
     g_hOnPlayerSetModelPost = CreateGlobalForward("Store_OnSetPlayerSkinPost", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
+    g_hOnPlayerDeathVoice = CreateGlobalForward("Store_OnPlayerDeathVoice", ET_Event, Param_Cell, Param_String);
 
     AddNormalSoundHook(Hook_NormalSound);
 
@@ -358,6 +360,22 @@ void Broadcast_DeathSound(int client)
         return;
 #endif
 
+    char sound[PLATFORM_MAX_PATH];
+    strcopy(sound, PLATFORM_MAX_PATH, g_szDeathVoice[client]);
+
+    Action res = Plugin_Continue;
+
+    Call_StartForward(g_hOnPlayerDeathVoice);
+    Call_PushCell(client);
+    Call_PushStringEx(sound, PLATFORM_MAX_PATH, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_Finish(res);
+
+    if (res >= Plugin_Handled)
+        return;
+
+    if (res == Plugin_Continue)
+        strcopy(sound, PLATFORM_MAX_PATH, g_szDeathVoice[client]);
+
     float fPos[3], fAgl[3];
     GetClientEyePosition(client, fPos);
     GetClientEyeAngles  (client, fAgl);
@@ -375,7 +393,7 @@ void Broadcast_DeathSound(int client)
         AcceptEntityInput(speaker, "SetParentAttachment", speaker, speaker, 0);
     }
 
-    EmitSoundToClient(client, g_szDeathVoice[client], SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, 0.8);
+    EmitSoundToClient(client, sound, SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, 1.0);
 
     int[] clients = new int[MAXPLAYERS+1]; int counts; float vPos[3];
     for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i) && !IsFakeClient(i) && i != client)
@@ -394,7 +412,7 @@ void Broadcast_DeathSound(int client)
     }
 
     if (counts > 0)
-        EmitSound(clients, counts, g_szDeathVoice[client], speaker, SNDCHAN_VOICE);
+        EmitSound(clients, counts, sound, speaker, SNDCHAN_VOICE, _, _, 1.0);
 
 }
 

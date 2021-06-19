@@ -30,6 +30,7 @@ Handle g_tKillPreview[MAXPLAYERS+1];
 
 Handle g_hOnPlayerSkinDefault = null;
 Handle g_hOnPlayerSetModel = null;
+Handle g_hOnPlayerSetModelPost = null;
 Handle g_hOnFPDeathCamera = null;
 
 void Skin_OnPluginStart()
@@ -37,6 +38,7 @@ void Skin_OnPluginStart()
     g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
     g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
     g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
+    g_hOnPlayerSetModelPost = CreateGlobalForward("Store_OnSetPlayerSkinPost", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
 
     AddNormalSoundHook(Hook_NormalSound);
 
@@ -293,6 +295,13 @@ static void Store_SetClientModel(int client, int m_iData)
     }
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
+
+    Call_StartForward(g_hOnPlayerSetModelPost);
+    Call_PushCell(client);
+    Call_PushString(skin_t);
+    Call_PushString(arms_t);
+    Call_PushCell(body_t);
+    Call_Finish();
 
 #if defined Module_Hats
     Store_SetClientHat(client);

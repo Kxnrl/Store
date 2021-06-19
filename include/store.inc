@@ -99,6 +99,7 @@ forward void   Store_OnClientPurchased(int client, const char[] uid, int length,
 forward bool   Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
 forward Action Store_OnFPDeathCamera(int client);
 forward Action Store_OnSetPlayerSkin(int client, char skin[128], char arms[128], int &body);
+forward void   Store_OnSetPlayerSkinPost(int client, const char[] skin, const char[] arms, const int body);
 forward void   Store_OnHatsCreated(int client, int entity, int slot);
 forward void   Store_OnTrailsCreated(int client, int entity);
 forward void   Store_OnParticlesCreated(int client, int entity);

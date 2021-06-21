@@ -2,71 +2,71 @@
 
 #define STRING(%1) %1, sizeof(%1)
 
-enum Item_Plan
+enum struct Item_Plan
 {
-    String:szName[ITEM_NAME_LENGTH],
-    iPrice,
-    iTime
+    char szName[ITEM_NAME_LENGTH];
+    int iPrice;
+    int iTime;
 }
 
-enum Type_Handler
+enum struct Type_Handler
 {
-    String:szType[64],
-    String:szPlFile[64],
-    bool:bEquipable,
-    bool:bRaw,
-    bool:bDisposable,
-    Handle:hPlugin,
-    Function:fnMapStart,
-    Function:fnReset,
-    Function:fnConfig,
-    Function:fnUse,
-    Function:fnRemove
+    char szType[64];
+    char szPlFile[64];
+    bool bEquipable;
+    bool bRaw;
+    bool bDisposable;
+    Handle hPlugin;
+    Function fnMapStart;
+    Function fnReset;
+    Function fnConfig;
+    Function fnUse;
+    Function fnRemove;
 }
 
-enum Client_Item
+enum struct Client_Item
 {
-    iId,
-    iUniqueId,
-    bool:bSynced,
-    bool:bDeleted,
-    iDateOfPurchase,
-    iDateOfExpiration,
-    iPriceOfPurchase,
+    int iId;
+    int iUniqueId;
+    bool bSynced;
+    bool bDeleted;
+    int iDateOfPurchase;
+    int iDateOfExpiration;
+    int iPriceOfPurchase;
 }
 
-enum Client_Data
+enum struct Client_Data
 {
-    iId,
-    iUserId,
-    String:szAuthId[32],
-    iCredits,
-    iOriginalCredits,
-    iDateOfJoin,
-    iDateOfLastJoin,
-    iItems,
-    aEquipment[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
-    aEquipmentSynced[STORE_MAX_HANDLERS*STORE_MAX_SLOTS],
-    bool:bBan,
-    bool:bLoaded,
-    bool:bRefresh,
-    Handle:hTimer
+    int iId;
+    int iUserId;
+    char szAuthId[32];
+    int iCredits;
+    int iOriginalCredits;
+    int iDateOfJoin;
+    int iDateOfLastJoin;
+    int iItems;
+    int aEquipment[STORE_MAX_HANDLERS*STORE_MAX_SLOTS];
+    int aEquipmentSynced[STORE_MAX_HANDLERS*STORE_MAX_SLOTS];
+    bool bBan;
+    bool bLoaded;
+    bool bRefresh;
+    Handle hTimer;
 }
 
-enum Menu_Handler
+enum struct Menu_Handler
 {
-    String:szIdentifier[64],
-    String:szPlFile[64],
-    Handle:hPlugin,
-    Function:fnMenu,
-    Function:fnHandler
+    char szIdentifier[64];
+    char szPlFile[64];
+    Handle hPlugin;
+    Function fnMenu;
+    Function fnHandler;
 }
 
-enum Compose_Data
+enum struct Compose_Data
 {
-    item1,
-    item2,
-    types
+    int item1;
+    int item2;
+    int types;
 }
 
 public bool TraceRayDontHitSelf(int entity, int mask, any data)

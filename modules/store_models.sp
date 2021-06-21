@@ -28,15 +28,15 @@ static char g_szCurWpn[MAXPLAYERS+1][64];
 static float g_fOldCycle[MAXPLAYERS+1];
 static StringMap g_smClientWeapon[MAXPLAYERS+1];
 
-enum CustomModel
+enum struct CustomModel
 {
-    String:szModelV[PLATFORM_MAX_PATH],
-    String:szModelW[PLATFORM_MAX_PATH],
-    String:szModelD[PLATFORM_MAX_PATH],
-    String:szEntity[32],
-    iSlot,
-    iCacheIdV,
-    iCacheIdW
+    char szModelV[PLATFORM_MAX_PATH],
+    char szModelW[PLATFORM_MAX_PATH],
+    char szModelD[PLATFORM_MAX_PATH],
+    char szEntity[32],
+    int iSlot,
+    int iCacheIdV,
+    int iCacheIdW
 }
 
 static any g_eCustomModel[STORE_MAX_ITEMS][CustomModel];

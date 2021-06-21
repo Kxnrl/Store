@@ -22,34 +22,34 @@ public SharedPlugin __pl_store =
 #define STORE_MAX_PLANS     8
 #define STORE_MAX_SLOTS     6
 
-enum Store_Item
+enum struct Store_Item
 {
-    String:szName[ITEM_NAME_LENGTH],
-    String:szUniqueId[32],
-    String:szDesc[128],
-    String:szSteam[256],
-    iData,
-    iPrice,
-    iParent,
-    iHandler,
-    iPlans,
-    iTeam,
-    iLevels,
-    iCaseType,
-    bool:bIgnore,
-    bool:bBuyable,
-    bool:bGiftable,
-    bool:bCompose,
-    bool:bVIP
+    char szName[ITEM_NAME_LENGTH];
+    char szUniqueId[32];
+    char szDesc[128];
+    char szSteam[256];
+    int iData;
+    int iPrice;
+    int iParent;
+    int iHandler;
+    int iPlans;
+    int iTeam;
+    int iLevels;
+    int iCaseType;
+    bool bIgnore;
+    bool bBuyable;
+    bool bGiftable;
+    bool bCompose;
+    bool bVIP;
 }
 
-enum SkinData_t
+enum struct SkinData_t
 {
-    String:m_Name[ITEM_NAME_LENGTH],
-    String:m_UId[32],
-    String:m_Skin[128],
-    String:m_Arms[128],
-    m_Body
+    char m_Name[ITEM_NAME_LENGTH];
+    char m_UId[32];
+    char m_Skin[128];
+    char m_Arms[128];
+    int m_Body;
 }
 
 native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false, bool disposable = false);

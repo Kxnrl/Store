@@ -2,12 +2,12 @@
 
 #define SOUND_COOKIE_NAME "Store.Sound.Setting"
 
-enum Sound
+enum struct Sound
 {
-    String:szName[128],
-    String:szSound[128],
-    Float:fVolume,
-    iCooldown
+    char szName[128];
+    char szSound[128];
+    float fVolume;
+    int iCooldown;
 }
 
 static int g_iSounds = 0;
@@ -15,7 +15,7 @@ static int g_iSoundClient[MAXPLAYERS+1];
 static int g_iSoundSpam[MAXPLAYERS+1];
 static bool g_bClientDisable[MAXPLAYERS+1];
 
-static any g_eSounds[STORE_MAX_ITEMS][Sound];
+static Sound g_eSounds[STORE_MAX_ITEMS];
 
 static Handle g_hCookieSounds;
 static Handle g_hOnCheerSound;
@@ -51,10 +51,10 @@ public void Sound_OnMapStart()
     char szPathStar[256];
     for(int i = 0; i < g_iSounds; ++i)
     {
-        Format(szPath, 256, "sound/%s", g_eSounds[i][szSound]);
+        Format(szPath, 256, "sound/%s", g_eSounds[i].szSound);
         if(FileExists(szPath, true))
         {
-            Format(szPathStar, 256, "*%s", g_eSounds[i][szSound]);
+            Format(szPathStar, 256, "*%s", g_eSounds[i].szSound);
             AddToStringTable(FindStringTable("soundprecache"), szPathStar);
             AddFileToDownloadsTable(szPath);
         }
@@ -75,22 +75,22 @@ public void Sound_Reset()
 public bool Sound_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSounds);
-    kv.GetString("sound", g_eSounds[g_iSounds][szSound], 128);
-    kv.GetString("shortname", g_eSounds[g_iSounds][szName], 128);
-    g_eSounds[g_iSounds][fVolume] = kv.GetFloat("volume", 0.3);
-    g_eSounds[g_iSounds][iCooldown] = kv.GetNum("cooldown", 30);
+    kv.GetString("sound", g_eSounds[g_iSounds].szSound, 128);
+    kv.GetString("shortname", g_eSounds[g_iSounds].szName, 128);
+    g_eSounds[g_iSounds].fVolume = kv.GetFloat("volume", 0.3);
+    g_eSounds[g_iSounds].iCooldown = kv.GetNum("cooldown", 30);
 
-    if(g_eSounds[g_iSounds][iCooldown] < 30)
-        g_eSounds[g_iSounds][iCooldown] = 30;
+    if(g_eSounds[g_iSounds].iCooldown < 30)
+        g_eSounds[g_iSounds].iCooldown = 30;
     
-    if(g_eSounds[g_iSounds][fVolume] > 1.0)
-        g_eSounds[g_iSounds][fVolume] = 1.0;
+    if(g_eSounds[g_iSounds].fVolume > 1.0)
+        g_eSounds[g_iSounds].fVolume = 1.0;
     
-    if(g_eSounds[g_iSounds][fVolume] <= 0.0)
-        g_eSounds[g_iSounds][fVolume] = 0.05;
+    if(g_eSounds[g_iSounds].fVolume <= 0.0)
+        g_eSounds[g_iSounds].fVolume = 0.05;
     
     char szPath[256];
-    FormatEx(szPath, 256, "sound/%s", g_eSounds[g_iSounds][szSound]);
+    FormatEx(szPath, 256, "sound/%s", g_eSounds[g_iSounds].szSound);
     if(FileExists(szPath, true))
     {
         ++g_iSounds;

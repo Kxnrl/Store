@@ -57,7 +57,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
-    g_aSkins = new ArrayList(view_as<int>(SkinData_t));
+    g_aSkins = new ArrayList(sizeof(SkinData_t));
 
     RegConsoleCmd("sm_rs", Command_RandomSkin);
     RegConsoleCmd("sm_randomskin", Command_RandomSkin);
@@ -300,7 +300,7 @@ public int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
 
 void DisplaySkinMenu(int client, int position = -1)
 {
-    ArrayList array = new ArrayList(view_as<int>(SkinData_t));
+    ArrayList array = new ArrayList(sizeof(SkinData_t));
     Store_GetClientPlayerSkins(client, array);
 
     if (array.Length == 0)
@@ -319,11 +319,11 @@ void DisplaySkinMenu(int client, int position = -1)
 
     for (int i = array.Length - 1; i >= 0; i--)
     {
-        any skin[SkinData_t];
-        array.GetArray(i, skin[0]);
+        SkinData_t skin;
+        array.GetArray(i, skin, sizeof(SkinData_t));
 
-        FormatEx(xkey,   33, "%s;", skin[m_UId]);
-        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "*" : "x", skin[m_Name]);
+        FormatEx(xkey,   33, "%s;", skin.m_UId);
+        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "*" : "x", skin.m_Name);
         menu.AddItem(xkey, buffer);
     }
 
@@ -422,16 +422,16 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
 
     for (int i = 0; i < g_aSkins.Length; i++)
     {
-        any s[SkinData_t];
-        g_aSkins.GetArray(i, s[0]);
-        if (strcmp(item, s[m_UId]) == 0)
+        SkinData_t s;
+        g_aSkins.GetArray(i, s, sizeof(SkinData_t));
+        if (strcmp(item, s.m_UId) == 0)
         {
             strcopy(g_sPrevious[client], 32, item);
-            strcopy(_skin, 128, s[m_Skin]);
-            strcopy(_arms, 129, s[m_Arms]);
-            _body = s[m_Body];
+            strcopy(_skin, 128, s.m_Skin);
+            strcopy(_arms, 129, s.m_Arms);
+            _body = s.m_Body;
             
-            tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s[m_Name]);
+            tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);
             return Plugin_Changed;
         }
     }

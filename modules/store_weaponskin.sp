@@ -21,18 +21,18 @@ public Plugin myinfo =
 #include <PTaH>
 #include <clientprefs>
 
-enum WeaponSkin
+enum struct WeaponSkin
 {
-    String:szUnique[32],
-    String:szWeapon[32],
-    iSlot,
-    iSeed,
-    iWearT,
-    iPaint,
-    Float:fWearF
+    char szUnique[32];
+    char szWeapon[32];
+    int iSlot;
+    int iSeed;
+    int iWearT;
+    int iPaint;
+    float fWearF;
 }
 
-static any g_eWeaponSkin[STORE_MAX_ITEMS][WeaponSkin];
+static WeaponSkin g_eWeaponSkin[STORE_MAX_ITEMS];
 static int g_iWeaponSkin = 0;
 static int g_iOffsetName = -1;
 static int g_iOffsetMyWP = -1;
@@ -114,16 +114,16 @@ public bool WeaponSkin_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iWeaponSkin);
 
-    KvGetString(kv, "uid"   , g_eWeaponSkin[g_iWeaponSkin][szUnique], 32);
-    KvGetString(kv, "weapon", g_eWeaponSkin[g_iWeaponSkin][szWeapon], 32);
+    KvGetString(kv, "uid"   , g_eWeaponSkin[g_iWeaponSkin].szUnique, 32);
+    KvGetString(kv, "weapon", g_eWeaponSkin[g_iWeaponSkin].szWeapon, 32);
 
-    g_eWeaponSkin[g_iWeaponSkin][iSlot]  = KvGetNum(kv, "slot", SLOT_1);
-    g_eWeaponSkin[g_iWeaponSkin][iSeed]  = KvGetNum(kv, "seed");
-    g_eWeaponSkin[g_iWeaponSkin][iPaint] = KvGetNum(kv, "paint");
-    g_eWeaponSkin[g_iWeaponSkin][iWearT] = KvGetNum(kv, "weart", -1);
-    g_eWeaponSkin[g_iWeaponSkin][fWearF] = KvGetFloat(kv, "wearf", 0.0416);
+    g_eWeaponSkin[g_iWeaponSkin].iSlot  = KvGetNum(kv, "slot", SLOT_1);
+    g_eWeaponSkin[g_iWeaponSkin].iSeed  = KvGetNum(kv, "seed");
+    g_eWeaponSkin[g_iWeaponSkin].iPaint = KvGetNum(kv, "paint");
+    g_eWeaponSkin[g_iWeaponSkin].iWearT = KvGetNum(kv, "weart", -1);
+    g_eWeaponSkin[g_iWeaponSkin].fWearF = KvGetFloat(kv, "wearf", 0.0416);
     
-    //LogMessage("Weapon Skin -> %s -> Paint[%d] Seed[%d] Slot[%d] WearT[%d] WearF[%f]", g_eWeaponSkin[g_iWeaponSkin][szUnique], g_eWeaponSkin[g_iWeaponSkin][iPaint], g_eWeaponSkin[g_iWeaponSkin][iSeed], g_eWeaponSkin[g_iWeaponSkin][iSlot], g_eWeaponSkin[g_iWeaponSkin][iWearT], g_eWeaponSkin[g_iWeaponSkin][fWearF]);
+    //LogMessage("Weapon Skin -> %s -> Paint[%d] Seed[%d] Slot[%d] WearT[%d] WearF[%f]", g_eWeaponSkin[g_iWeaponSkin].szUnique, g_eWeaponSkin[g_iWeaponSkin].iPaint, g_eWeaponSkin[g_iWeaponSkin].iSeed, g_eWeaponSkin[g_iWeaponSkin].iSlot, g_eWeaponSkin[g_iWeaponSkin].iWearT, g_eWeaponSkin[g_iWeaponSkin].fWearF);
 
     g_iWeaponSkin++;
     return true;
@@ -140,7 +140,7 @@ public int WeaponSkin_Equip(int client, int id)
     pack.Reset();
     RequestFrame(CheckClientWeapon, pack);
 
-    return g_eWeaponSkin[m_iData][iSlot];
+    return g_eWeaponSkin[m_iData].iSlot;
 }
 
 public int WeaponSkin_Remove(int client, int id)
@@ -154,7 +154,7 @@ public int WeaponSkin_Remove(int client, int id)
     pack.Reset();
     RequestFrame(CheckClientWeapon, pack);
 
-    return g_eWeaponSkin[m_iData][iSlot];
+    return g_eWeaponSkin[m_iData].iSlot;
 }
 
 public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemView &item, bool &ignoredCEconItemView, bool &OriginIsNULL, float Origin[3])
@@ -172,7 +172,7 @@ public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemVi
     int m_iData = Store_GetDataIndex(itemid);
 
     ignoredCEconItemView = true;
-    strcopy(classname, 64, g_eWeaponSkin[m_iData][szWeapon]);
+    strcopy(classname, 64, g_eWeaponSkin[m_iData].szWeapon);
 
     return Plugin_Changed;
 }
@@ -191,7 +191,7 @@ public void Event_GiveNamedItemPost(int client, const char[] classname, const CE
         if(itemid >= 0)
         {
             int m_iData = Store_GetDataIndex(itemid);
-            if(strcmp(classname, g_eWeaponSkin[m_iData][szWeapon], false) == 0)
+            if(strcmp(classname, g_eWeaponSkin[m_iData].szWeapon, false) == 0)
                 SetWeaponEconmoney(client, m_iData, entity);
         }
     }
@@ -205,23 +205,23 @@ void SetWeaponEconmoney(int client, int data, int weapon)
     SetEntProp(weapon, Prop_Send, "m_iItemIDLow", -1);
     SetEntProp(weapon, Prop_Send, "m_iItemIDHigh", IDHigh++);
     
-    if(g_eWeaponSkin[data][iSlot] == SLOT_3)
+    if(g_eWeaponSkin[data].iSlot == SLOT_3)
     {
         EquipPlayerWeapon(client, weapon);
     }
 
-    SetEntProp(weapon, Prop_Send, "m_nFallbackPaintKit", g_eWeaponSkin[data][iPaint]);
-    SetEntProp(weapon, Prop_Send, "m_nFallbackSeed", (g_eWeaponSkin[data][iSeed] == -1) ? GetRandomInt(0, 1024) : g_eWeaponSkin[data][iSeed]);
-    SetEntProp(weapon, Prop_Send, "m_iEntityQuality", (g_eWeaponSkin[data][iSlot] == SLOT_3) ? 3 : 8);
+    SetEntProp(weapon, Prop_Send, "m_nFallbackPaintKit", g_eWeaponSkin[data].iPaint);
+    SetEntProp(weapon, Prop_Send, "m_nFallbackSeed", (g_eWeaponSkin[data].iSeed == -1) ? GetRandomInt(0, 1024) : g_eWeaponSkin[data].iSeed);
+    SetEntProp(weapon, Prop_Send, "m_iEntityQuality", (g_eWeaponSkin[data].iSlot == SLOT_3) ? 3 : 8);
 
-    switch(g_eWeaponSkin[data][iWearT])
+    switch(g_eWeaponSkin[data].iWearT)
     {
         case 0 : SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", (GetURandomFloat() * (0.006999  - 0.001234)) + 0.001234);
         case 1 : SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", (GetURandomFloat() * (0.149999  - 0.070000)) + 0.070000);
         case 2 : SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", (GetURandomFloat() * (0.369999  - 0.150000)) + 0.150000);
         case 3 : SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", (GetURandomFloat() * (0.439999  - 0.370000)) + 0.370000);
         case 4 : SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", (GetURandomFloat() * (0.999999  - 0.440000)) + 0.440000);
-        default: SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", g_eWeaponSkin[data][fWearF]);
+        default: SetEntPropFloat(weapon, Prop_Send, "m_flFallbackWear", g_eWeaponSkin[data].fWearF);
     }
 
     if(GetUserFlagBits(client) & ADMFLAG_CUSTOM1)
@@ -252,7 +252,7 @@ void CheckClientWeapon(DataPack dp)
         return;
 
     int weapon = -1;
-    if(g_eWeaponSkin[data][iSlot] == SLOT_3)
+    if(g_eWeaponSkin[data].iSlot == SLOT_3)
     {
         weapon = GetPlayerWeaponSlot(client, SLOT_2);
         if(weapon == -1) return;
@@ -270,7 +270,7 @@ void CheckClientWeapon(DataPack dp)
             CreateTimer(0.1, Timer_GiveTaser, pack, TIMER_FLAG_NO_MAPCHANGE);
         }
     }
-    else weapon = GetPlayerWeaponEntity(client, g_eWeaponSkin[data][szWeapon]);
+    else weapon = GetPlayerWeaponEntity(client, g_eWeaponSkin[data].szWeapon);
 
     if(weapon == -1)
         return;
@@ -285,18 +285,18 @@ void CheckClientWeapon(DataPack dp)
     int Clip2 = GetEntProp(weapon, Prop_Data, "m_iClip2");
 
     if(!RemovePlayerItem(client, weapon))
-        LogError("RemovePlayerItem -> %N -> %d.%s", client, weapon, g_eWeaponSkin[data][szWeapon]);
+        LogError("RemovePlayerItem -> %N -> %d.%s", client, weapon, g_eWeaponSkin[data].szWeapon);
 
     if(!AcceptEntityInput(weapon, "KillHierarchy"))
-        LogError("AcceptEntityInput -> %N -> %d.%s", client, weapon, g_eWeaponSkin[data][szWeapon]);
+        LogError("AcceptEntityInput -> %N -> %d.%s", client, weapon, g_eWeaponSkin[data].szWeapon);
 
-    if(unique && g_eWeaponSkin[data][iSlot] == SLOT_3)
+    if(unique && g_eWeaponSkin[data].iSlot == SLOT_3)
     {
         GivePlayerItem(client, "weapon_knife");
         return;
     }
 
-    weapon = GivePlayerItem(client, g_eWeaponSkin[data][szWeapon]);
+    weapon = GivePlayerItem(client, g_eWeaponSkin[data].szWeapon);
     
 
     if(!IsValidEdict(weapon))

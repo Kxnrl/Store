@@ -15,10 +15,10 @@ static int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 public bool Neon_Config(KeyValues kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iNeons); 
-    KvGetColor(kv, "color", g_eHats[g_iNeons].iColor[0], g_eHats[g_iNeons].iColor[1], g_eHats[g_iNeons].iColor[2], g_eHats[g_iNeons].iColor[3]); 
-    g_eHats[g_iNeons].iBright = kv.GetNum("brightness");
-    g_eHats[g_iNeons].iDistance = kv.GetNum("distance");
-    g_eHats[g_iNeons].iFade = kv.GetNum("distancefade");
+    KvGetColor(kv, "color", g_eNeons[g_iNeons].iColor[0], g_eNeons[g_iNeons].iColor[1], g_eNeons[g_iNeons].iColor[2], g_eNeons[g_iNeons].iColor[3]); 
+    g_eNeons[g_iNeons].iBright = kv.GetNum("brightness");
+    g_eNeons[g_iNeons].iDistance = kv.GetNum("distance");
+    g_eNeons[g_iNeons].iFade = kv.GetNum("distancefade");
     ++g_iNeons;
     return true; 
 }
@@ -85,7 +85,7 @@ void Store_SetClientNeon(int client)
 
     int m_iData = Store_GetDataIndex(m_iEquipped);
 
-    if(g_eHats[m_iData].iColor[3] != 0)
+    if(g_eNeons[m_iData].iColor[3] != 0)
     {
         float clientOrigin[3];
         GetClientAbsOrigin(client, clientOrigin);
@@ -93,16 +93,16 @@ void Store_SetClientNeon(int client)
         int iNeon = CreateEntityByName("light_dynamic");
         
         char m_szString[100];
-        IntToString(g_eHats[m_iData].iBright, m_szString, 100);
+        IntToString(g_eNeons[m_iData].iBright, m_szString, 100);
         DispatchKeyValue(iNeon, "brightness", m_szString);
 
-        FormatEx(m_szString, 100, "%d %d %d %d", g_eHats[m_iData].iColor[0], g_eHats[m_iData].iColor[1], g_eHats[m_iData].iColor[2], g_eHats[m_iData].iColor[3]);
+        FormatEx(m_szString, 100, "%d %d %d %d", g_eNeons[m_iData].iColor[0], g_eNeons[m_iData].iColor[1], g_eNeons[m_iData].iColor[2], g_eNeons[m_iData].iColor[3]);
         DispatchKeyValue(iNeon, "_light", m_szString);
         
-        IntToString(g_eHats[m_iData].iFade, m_szString, 100);
+        IntToString(g_eNeons[m_iData].iFade, m_szString, 100);
         DispatchKeyValue(iNeon, "spotlight_radius", m_szString);
 
-        IntToString(g_eHats[m_iData].iDistance, m_szString, 100);
+        IntToString(g_eNeons[m_iData].iDistance, m_szString, 100);
         DispatchKeyValue(iNeon, "distance", m_szString);
 
         DispatchKeyValue(iNeon, "style", "0");

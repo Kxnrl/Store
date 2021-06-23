@@ -47,14 +47,14 @@ public int Trails_Equip(int client, int id)
     if(IsPlayerAlive(client))
         Store_SetClientTrail(client);
 
-    return g_eTrails[Store_GetDataIndex(id)][iSlot];
+    return g_eTrails[Store_GetDataIndex(id)].iSlot;
 }
 
 public int Trails_Remove(int client, int id)
 {
     Store_SetClientTrail(client);
 
-    return  g_eTrails[Store_GetDataIndex(id)][iSlot];
+    return  g_eTrails[Store_GetDataIndex(id)].iSlot;
 }
 
 void Store_RemoveClientTrail(int client, int slot)

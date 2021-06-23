@@ -211,7 +211,7 @@ public int PlayerSkins_Equip(int client, int id)
 #if defined Global_Skin
     return 2;
 #else
-    return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
+    return g_ePlayerSkins[Store_GetDataIndex(id)].iTeam-2;
 #endif
 }
 
@@ -223,7 +223,7 @@ public int PlayerSkins_Remove(int client, int id)
 #if defined Global_Skin
     return 2;
 #else
-    return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
+    return g_ePlayerSkins[Store_GetDataIndex(id)].iTeam-2;
 #endif
 }
 
@@ -426,7 +426,7 @@ void Store_PreviewSkin(int client, int itemid)
     FormatEx(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
     DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
     DispatchKeyValue(m_iViewModel, "spawnflags", "64");
-    DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_eItems[itemid][iData]][szModel]);
+    DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_Items[itemid].iData].szModel);
     DispatchKeyValue(m_iViewModel, "rendermode", "0");
     DispatchKeyValue(m_iViewModel, "renderfx", "0");
     DispatchKeyValue(m_iViewModel, "rendercolor", "255 255 255");
@@ -435,10 +435,10 @@ void Store_PreviewSkin(int client, int itemid)
     
     DispatchSpawn(m_iViewModel);
 
-    if (g_ePlayerSkins[g_eItems[itemid][iData]][nBody] > 0)
+    if (g_ePlayerSkins[g_Items[itemid].iData].nBody > 0)
     {
         // set?
-        SetEntProp(m_iViewModel, Prop_Send, "m_nBody", g_ePlayerSkins[g_eItems[itemid][iData]][nBody]);
+        SetEntProp(m_iViewModel, Prop_Send, "m_nBody", g_ePlayerSkins[g_Items[itemid].iData].nBody);
     }
     
     SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);

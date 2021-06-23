@@ -98,7 +98,7 @@ public bool GrenadeTrails_Config(KeyValues kv, int itemid)
 
 public int GrenadeSkins_Equip(int client, int id)
 {
-    return g_eGrenadeSkins[Store_GetDataIndex(id)][iSlot];
+    return g_eGrenadeSkins[Store_GetDataIndex(id)].iSlot;
 }
 
 public int GrenadeTrails_Equip(int client, int id)
@@ -108,7 +108,7 @@ public int GrenadeTrails_Equip(int client, int id)
 
 public int GrenadeSkins_Remove(int client, int id)
 {
-    return g_eGrenadeSkins[Store_GetDataIndex(id)][iSlot];
+    return g_eGrenadeSkins[Store_GetDataIndex(id)].iSlot;
 }
 
 public int GrenadeTrails_Remove(int client, int id)

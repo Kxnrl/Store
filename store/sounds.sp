@@ -144,7 +144,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
             StrContains(sArgs, "hhh", false) != -1
         )
         {
-            g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]][iCooldown];
+            g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]].iCooldown;
             StartSoundToAll(client);
         }
 }
@@ -166,7 +166,7 @@ public Action Command_Cheer(int client, int args)
         return Plugin_Handled;
     }
 
-    g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]][iCooldown];
+    g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]].iCooldown;
 
     StartSoundToAll(client);
 
@@ -176,8 +176,8 @@ public Action Command_Cheer(int client, int args)
 void StartSoundToAll(int client)
 {
     char sound[256], name[64];
-    strcopy(sound, 256, g_eSounds[g_iSoundClient[client]][szSound]);
-    strcopy(name,   64, g_eSounds[g_iSoundClient[client]][szName]);
+    strcopy(sound, 256, g_eSounds[g_iSoundClient[client]].szSound);
+    strcopy(name,   64, g_eSounds[g_iSoundClient[client]].szName);
 
     Action res = Plugin_Continue;
     Call_StartForward(g_hOnCheerSound);
@@ -192,8 +192,8 @@ void StartSoundToAll(int client)
     if (res == Plugin_Continue)
     {
         // copy again
-        strcopy(sound, 256, g_eSounds[g_iSoundClient[client]][szSound]);
-        strcopy(name,   64, g_eSounds[g_iSoundClient[client]][szName]);
+        strcopy(sound, 256, g_eSounds[g_iSoundClient[client]].szSound);
+        strcopy(name,   64, g_eSounds[g_iSoundClient[client]].szName);
     }
 
     int[] targets = new int[MaxClients];
@@ -214,7 +214,7 @@ void StartSoundToAll(int client)
 
     char szPath[128];
     Format(szPath, 128, "*%s", sound);
-    EmitSound(targets, total, szPath, client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]][fVolume], SNDPITCH_NORMAL, client, fPos, fAgl, true);
+    EmitSound(targets, total, szPath, client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]].fVolume, SNDPITCH_NORMAL, client, fPos, fAgl, true);
 
     tPrintToChatAll("%t", "sound to all", client, name);
 }

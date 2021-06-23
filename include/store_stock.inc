@@ -1,3 +1,9 @@
+#if defined __STORE_STOCK__
+    #endinput
+#endif
+
+#define __STORE_STOCK__
+
 #include <sdktools>
 
 #define STRING(%1) %1, sizeof(%1)

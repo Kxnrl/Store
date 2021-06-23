@@ -426,9 +426,9 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         g_aSkins.GetArray(i, s, sizeof(SkinData_t));
         if (strcmp(item, s.m_UId) == 0)
         {
-            strcopy(g_sPrevious[client], 32, item);
-            strcopy(_skin, 128, s.m_Skin);
-            strcopy(_arms, 129, s.m_Arms);
+            strcopy(g_sPrevious[client], sizeof(g_sPrevious[]), item);
+            strcopy(_skin, sizeof(_skin), s.m_Skin);
+            strcopy(_arms, sizeof(_skin), s.m_Arms);
             _body = s.m_Body;
             
             tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);

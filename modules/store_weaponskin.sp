@@ -172,7 +172,7 @@ public Action Event_GiveNamedItemPre(int client, char classname[64], CEconItemVi
     int m_iData = Store_GetDataIndex(itemid);
 
     ignoredCEconItemView = true;
-    strcopy(classname, 64, g_eWeaponSkin[m_iData].szWeapon);
+    strcopy(classname, sizeof(classname), g_eWeaponSkin[m_iData].szWeapon);
 
     return Plugin_Changed;
 }

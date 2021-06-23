@@ -199,7 +199,7 @@ public void Hook_WeaponSwitchPost_Models(int client, int weapon)
     SetEntProp(weapon, Prop_Send, "m_nModelIndex", 0); 
     SetEntProp(m_iPVM, Prop_Send, "m_nModelIndex", model_index);
 
-    strcopy(g_szCurWpn[client], 64, classname);
+    strcopy(g_szCurWpn[client], sizeof(g_szCurWpn[]), classname);
     g_bHooked[client] = SDKHookEx(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
 }
 

@@ -305,6 +305,13 @@ static void Store_SetClientModel(int client, int m_iData)
     Call_PushCell(body_t);
     Call_Finish();
 
+    Call_StartForward(g_hOnPlayerSetModelPost);
+    Call_PushCell(client);
+    Call_PushString(skin_t);
+    Call_PushString(arms_t);
+    Call_PushCell(body_t);
+    Call_Finish();
+
 #if defined Module_Hats
     Store_SetClientHat(client);
 #endif

@@ -428,7 +428,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         {
             strcopy(g_sPrevious[client], sizeof(g_sPrevious[]), item);
             strcopy(_skin, sizeof(_skin), s.m_Skin);
-            strcopy(_arms, sizeof(_skin), s.m_Arms);
+            strcopy(_arms, sizeof(_arms), s.m_Arms);
             _body = s.m_Body;
             
             tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);

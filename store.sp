@@ -498,11 +498,11 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
     g_TypeHandlers[m_iId].bEquipable = GetNativeCell(7);
     g_TypeHandlers[m_iId].bRaw = GetNativeCell(8);
     g_TypeHandlers[m_iId].bDisposable = GetNativeCell(9);
-    strcopy(g_TypeHandlers[m_iId].szType, 32, m_szType);
+    strcopy(g_TypeHandlers[m_iId].szType, sizeof(Type_Handler::szType), m_szType);
 
     char file[64];
     GetPluginFilename(plugin, file, 64);
-    strcopy(g_TypeHandlers[m_iId].szPlFile, 32, file);
+    strcopy(g_TypeHandlers[m_iId].szPlFile, sizeof(Type_Handler::szPlFile), file);
 
     return m_iId;
 }
@@ -525,11 +525,11 @@ public int Native_RegisterMenuHandler(Handle plugin, int numParams)
     g_MenuHandlers[m_iId].hPlugin = plugin;
     g_MenuHandlers[m_iId].fnMenu = GetNativeFunction(2);
     g_MenuHandlers[m_iId].fnHandler = GetNativeFunction(3);
-    strcopy(g_MenuHandlers[m_iId].szIdentifier, 64, m_szIdentifier);
+    strcopy(g_MenuHandlers[m_iId].szIdentifier, sizeof(Menu_Handler::szIdentifier), m_szIdentifier);
 
     char file[64];
     GetPluginFilename(plugin, file, 64);
-    strcopy(g_MenuHandlers[m_iId].szPlFile, 64, file);
+    strcopy(g_MenuHandlers[m_iId].szPlFile, sizeof(Menu_Handler::szPlFile), file);
 
     return m_iId;
 }
@@ -1018,10 +1018,10 @@ public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
         if (g_Items[i].iHandler == handler && Store_HasClientItem(client, i) && GetSkinData(i, m, a, b))
         {
             SkinData_t s;
-            strcopy(s.m_Name,  64, g_Items[i].szName);
-            strcopy(s.m_UId,   32, g_Items[i].szUniqueId);
-            strcopy(s.m_Skin, 128, m);
-            strcopy(s.m_Arms, 128, a);
+            strcopy(s.m_Name, sizeof(SkinData_t::m_Name), g_Items[i].szName);
+            strcopy(s.m_UId, sizeof(SkinData_t::m_UId), g_Items[i].szUniqueId);
+            strcopy(s.m_Skin, sizeof(SkinData_t::m_Skin), m);
+            strcopy(s.m_Arms, sizeof(SkinData_t::m_Arms), a);
             s.m_Body = b;
             array.PushArray(s, sizeof(SkinData_t));
         }
@@ -1052,10 +1052,10 @@ public any Native_GetAllPlayerSkins(Handle myself, int numParams)
         if (g_Items[i].iHandler == handler && GetSkinData(i, m, a, b))
         {
             SkinData_t s;
-            strcopy(s.m_Name,  64, g_Items[i].szName);
-            strcopy(s.m_UId,   32, g_Items[i].szUniqueId);
-            strcopy(s.m_Skin, 128, m);
-            strcopy(s.m_Arms, 128, a);
+            strcopy(s.m_Name, sizeof(SkinData_t::m_Name), g_Items[i].szName);
+            strcopy(s.m_UId, sizeof(SkinData_t::m_UId), g_Items[i].szUniqueId);
+            strcopy(s.m_Skin, sizeof(SkinData_t::m_Skin), m);
+            strcopy(s.m_Arms, sizeof(SkinData_t::m_Arms), a);
             s.m_Body = b;
             array.PushArray(s, sizeof(SkinData_t));
         }
@@ -2104,7 +2104,7 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
     menu.ExitButton = false;
 
     char name[128];
-    strcopy(name, 128, g_Items[itemid].szName);
+    strcopy(name, sizeof(name), g_Items[itemid].szName);
 
     char leveltype[32];
     UTIL_GetLevelType(client, itemid, leveltype, 32);
@@ -2174,7 +2174,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
             int days = StringToInt(data[2]);
 
             char name[128];
-            strcopy(name, 128, g_Items[itemid].szName);
+            strcopy(name, sizeof(name), g_Items[itemid].szName);
 
             if(days)
             {
@@ -2385,16 +2385,16 @@ void DisplayComposeMenu(int client, bool last)
     // 合成道具1
     char sitem1[64];
     if(g_Compose[client].item1 >= 0)
-        strcopy(sitem1, 64, g_Items[g_Compose[client].item1].szName);
+        strcopy(sitem1, sizeof(sitem1), g_Items[g_Compose[client].item1].szName);
     else
-        FormatEx(sitem1, 64, "%T", "unselect", client);
+        FormatEx(sitem1, sizeof(sitem1), "%T", "unselect", client);
     
     // 合成道具2
     char sitem2[64];
     if(g_Compose[client].item2 >= 0)
-        strcopy(sitem2, 64, g_Items[g_Compose[client].item2].szName);
+        strcopy(sitem2, sizeof(sitem1), g_Items[g_Compose[client].item2].szName);
     else
-        FormatEx(sitem2, 64, "%T", "unselect", client);
+        FormatEx(sitem2, sizeof(sitem1), "%T", "unselect", client);
 
     m_hMenu.SetTitle("%T\n ", "Title Compose", client, g_Items[g_iSelectedItem[client]].szName, sitem1, sitem2);
 
@@ -2836,7 +2836,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
     g_ClientData[client].iUserId = userid;
     g_ClientData[client].iItems = 0;
     GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), true);
-    strcopy(g_ClientData[client].szAuthId, 32, m_szSteamID[8]);
+    strcopy(g_ClientData[client].szAuthId, sizeof(Client_Data::szAuthId), m_szSteamID[8]);
 
     if(results.FetchRow() && results.RowCount > 0)
     {
@@ -3735,7 +3735,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         }
         item_array.PushString(m_szUniqueId);
         g_Items[g_iItems].szUniqueId[0] = '\0';
-        strcopy(g_Items[g_iItems].szUniqueId, 32, m_szUniqueId);
+        strcopy(g_Items[g_iItems].szUniqueId, sizeof(Store_Item::szUniqueId), m_szUniqueId);
 
         // Field 3 -> buyable
         char m_bitBuyable[2];
@@ -3757,7 +3757,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         item_child.FetchString(6, m_szAuth, 256);
         g_Items[g_iItems].szSteam[0] = '\0';
         if(strcmp(m_szAuth, "ITEM_NOT_PERSONAL") != 0)
-            strcopy(g_Items[g_iItems].szSteam, 256, m_szAuth);
+            strcopy(g_Items[g_iItems].szSteam, sizeof(Store_Item::szSteam), m_szAuth);
 
         // Field 7 -> vip
         char m_bitVIP[2];
@@ -3777,7 +3777,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         item_child.FetchString(10, m_szDesc, 128);
         g_Items[g_iItems].szDesc[0] = '\0';
         if(StrContains(m_szDesc, "ITEM_NO") == -1)
-            strcopy(g_Items[g_iItems].szDesc, 128, m_szDesc);
+            strcopy(g_Items[g_iItems].szDesc, sizeof(Store_Item::szDesc), m_szDesc);
 
         // Field 11 -> case
         int caseType = item_child.FetchInt(11);
@@ -3805,7 +3805,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
 
             if(price_1d > 0)
             {
-                strcopy(g_PurchasePlan[g_iItems][0].szName, 32, "1 day");
+                strcopy(g_PurchasePlan[g_iItems][0].szName, sizeof(Item_Plan::szName), "1 day");
                 g_PurchasePlan[g_iItems][0].iPrice = price_1d;
                 g_PurchasePlan[g_iItems][0].iTime = 86400;
                 g_Items[g_iItems].iPlans++;
@@ -3813,7 +3813,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
             
             if(price_1m > 0)
             {
-                strcopy(g_PurchasePlan[g_iItems][1].szName, 32, "1 month");
+                strcopy(g_PurchasePlan[g_iItems][1].szName, sizeof(Item_Plan::szName), "1 month");
                 g_PurchasePlan[g_iItems][1].iPrice = price_1m;
                 g_PurchasePlan[g_iItems][1].iTime = 2592000;
                 g_Items[g_iItems].iPlans++;
@@ -3821,7 +3821,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
             
             if(price_pm > 0)
             {
-                strcopy(g_PurchasePlan[g_iItems][2].szName, 32, "Permanent");
+                strcopy(g_PurchasePlan[g_iItems][2].szName, sizeof(Item_Plan::szName), "Permanent");
                 g_PurchasePlan[g_iItems][2].iPrice = price_pm;
                 g_PurchasePlan[g_iItems][2].iTime = 0;
                 g_Items[g_iItems].iPlans++;

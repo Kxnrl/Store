@@ -12,6 +12,7 @@ enum PlayerSkin
 
 static any g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
 
+static bool   g_bSoundHooked;
 static int    g_iPlayerSkins = 0;
 static int    g_iSkinLevel[MAXPLAYERS+1];
 static int    g_iPreviewTimes[MAXPLAYERS+1];
@@ -41,8 +42,6 @@ void Skin_OnPluginStart()
     g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
     g_hOnPlayerSetModelPost = CreateGlobalForward("Store_OnSetPlayerSkinPost", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
     g_hOnPlayerDeathVoice = CreateGlobalForward("Store_OnPlayerDeathVoice", ET_Event, Param_Cell, Param_String);
-
-    AddNormalSoundHook(Hook_NormalSound);
 
     Store_RegisterHandler("playerskin", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
 
@@ -171,6 +170,7 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
 
 public void PlayerSkins_OnMapStart()
 {
+    int deathsounds = 0;
     char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
@@ -191,11 +191,27 @@ public void PlayerSkins_OnMapStart()
                 FormatEx(szPathStar, 256, "*%s", g_ePlayerSkins[i][szSound]);
                 AddToStringTable(FindStringTable("soundprecache"), szPathStar);
                 AddFileToDownloadsTable(szPath);
+                deathsounds++;
             }
         }
     }
 
     PrecacheModel("models/blackout.mdl", false);
+
+    if (deathsounds > 0)
+    {
+        AddNormalSoundHook(Hook_NormalSound);
+        g_bSoundHooked = true;
+    }
+}
+
+void PlayerSkins_OnMapEnd()
+{
+    if (g_bSoundHooked)
+    {
+        g_bSoundHooked = false;
+        RemoveNormalSoundHook(Hook_NormalSound);
+    }
 }
 
 public void PlayerSkins_Reset()

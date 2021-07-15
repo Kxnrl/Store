@@ -4,6 +4,7 @@
 static UserMsg g_umUMId;
 static Handle g_hCPAForward;
 static Handle g_hCPPForward;
+static Handle g_hCPRForward;
 static StringMap g_tMsgFmt;
 static bool g_bChat[MAXPLAYERS+1];
 
@@ -23,6 +24,7 @@ public void CPSupport_OnPluginStart()
 
     g_hCPAForward = CreateGlobalForward("CP_OnChatMessage",     ET_Hook,   Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
     g_hCPPForward = CreateGlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
+    g_hCPRForward = CreateGlobalForward("CP_OnChatRainbow",     ET_Hook,   Param_String, Param_Cell);
 
     AddCommandListener(Command_Say, "say");
     AddCommandListener(Command_Say, "say_team");
@@ -180,6 +182,23 @@ void String_Rainbow(const char[] input, char[] output, int maxLen)
     int bytes, buffs;
     int size = strlen(input)+1;
     char[] copy = new char [size];
+    strcopy(copy, size, input);
+
+    Action res = Plugin_Continue;
+    Call_StartForward(g_hCPRForward);
+    Call_PushStringEx(copy, size, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(size);
+    Call_Finish(res);
+    if (res >= Plugin_Handled)
+    {
+        strcopy(output, maxLen, input);
+        return;
+    }
+    if (res == Plugin_Changed)
+    {
+        strcopy(output, maxLen, copy);
+        return;
+    }
 
     for(int x = 0; x < size; ++x)
     {

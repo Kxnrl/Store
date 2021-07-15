@@ -421,6 +421,13 @@ public void OnMapStart()
     }
 }
 
+public void OnMapEnd()
+{
+#if defined Module_Skin
+    PlayerSkins_OnMapEnd();
+#endif
+}
+
 //////////////////////////////
 //         NATIVES          //
 //////////////////////////////

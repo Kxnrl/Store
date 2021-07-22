@@ -221,7 +221,7 @@ void String_Rainbow(const char[] input, char[] output, int maxLen)
             continue;
         }
 
-        strcopy(copy, size, input);
+        strcopy(copy, maxLen, input);
         copy[x+1] = '\0';
         output[bytes] = RandomColor();
         bytes++;

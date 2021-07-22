@@ -180,14 +180,13 @@ Action CPA_Forward(int &client, char[] flagstring, char[] name, char[] message, 
 void String_Rainbow(const char[] input, char[] output, int maxLen)
 {
     int bytes, buffs;
-    int size = strlen(input)+1;
-    char[] copy = new char [size];
-    strcopy(copy, size, input);
+    char[] copy = new char [maxLen];
+    strcopy(copy, maxLen, input);
 
     Action res = Plugin_Continue;
     Call_StartForward(g_hCPRForward);
-    Call_PushStringEx(copy, size, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushCell(size);
+    Call_PushStringEx(copy, maxLen, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(maxLen);
     Call_Finish(res);
     if (res >= Plugin_Handled)
     {
@@ -200,14 +199,14 @@ void String_Rainbow(const char[] input, char[] output, int maxLen)
         return;
     }
 
-    for(int x = 0; x < size; ++x)
+    for(int x = 0; x < maxLen; ++x)
     {
         if(input[x] == '\0')
             break;
         
         if(buffs == 2)
         {
-            strcopy(copy, size, input);
+            strcopy(copy, maxLen, input);
             copy[x+1] = '\0';
             output[bytes] = RandomColor();
             bytes++;

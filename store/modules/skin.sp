@@ -732,6 +732,14 @@ void Store_GetPlayerSkinModel(int client, char[] model, int maxLen)
 
 void Store_CallDefaultSkin(int client)
 {
+#if defined GM_ZE
+    if(g_iClientTeam[client] == 2)
+    {
+        strcopy(g_szSkinModel[client], 256, "#zombie");
+        return;
+    }
+#endif
+
     char skin_t[128], arms_t[128];
 
     bool ret = false;

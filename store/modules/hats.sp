@@ -7,6 +7,7 @@ enum struct Hat
     float fPosition[3];
     float fAngles[3];
     bool bBonemerge;
+    bool bHide;
     int iSlot;
 }
 
@@ -27,6 +28,7 @@ public bool Hats_Config(KeyValues kv, int itemid)
     g_eHats[g_iHats].fAngles = m_fTemp;
     g_eHats[g_iHats].bBonemerge = (kv.GetNum("bonemerge", 0)?true:false);
     g_eHats[g_iHats].iSlot = kv.GetNum("slot");
+    g_eHats[g_iHats].bHide = kv.GetNum("hide", 1) ? true : false; // hide by default
     kv.GetString("attachment", g_eHats[g_iHats].szAttachment, 64, "facemask");
     
     if(!(FileExists(g_eHats[g_iHats].szModel, true)))
@@ -157,7 +159,12 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
 
         g_iClientHats[client][g_eHats[m_iData].iSlot] = EntIndexToEntRef(m_iEnt);
         
-        SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
+        if (g_eHats[m_iData].bHide)
+        {
+            // hook transmit
+            SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
+        }
+
         Call_OnHatsCreated(client, m_iEnt);
         
         TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR); 
@@ -177,8 +184,9 @@ void Store_RemoveClientHats(int client, int slot)
         int entity = EntRefToEntIndex(g_iClientHats[client][slot]);
         if(entity > 0 && IsValidEdict(entity))
         {
-            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
-            AcceptEntityInput(entity, "Kill");
+            //SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
+            //AcceptEntityInput(entity, "Kill");
+            RemoveEntity(entity);
         }
         g_iClientHats[client][slot] = INVALID_ENT_REFERENCE;
     }
@@ -190,6 +198,10 @@ public Action Hook_SetTransmit_Hat(int ent, int client)
         return IsPlayerTP(client) ? Plugin_Continue : Plugin_Handled;
 
     if(g_iSpecTarget[client] == g_iHatsOwners[ent])
+        return Plugin_Handled;
+
+    // for gotv
+    if(IsClientSourceTV(client))
         return Plugin_Handled;
 
     return Plugin_Continue;

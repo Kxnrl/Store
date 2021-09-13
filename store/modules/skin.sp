@@ -174,10 +174,11 @@ public void PlayerSkins_OnMapStart()
     char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        PrecacheModel(g_ePlayerSkins[i][szModel], false);
+        PrecacheModel(g_ePlayerSkins[i][szModel], true); // only true for player skin body
         AddFileToDownloadsTable(g_ePlayerSkins[i][szModel]);
 
-        if(g_ePlayerSkins[i][szArms][0] != 0)
+        // prevent double call
+        if(g_ePlayerSkins[i][szArms][0] != 0 && strcmp(g_ePlayerSkins[i][szArms], g_ePlayerSkins[i][szModel], false) != 0)
         {
             PrecacheModel(g_ePlayerSkins[i][szArms], false);
             AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);

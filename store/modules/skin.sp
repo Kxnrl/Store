@@ -1,16 +1,16 @@
 #define Module_Skin
 
-enum PlayerSkin
+enum struct PlayerSkin
 {
-    String:szModel[PLATFORM_MAX_PATH],
-    String:szArms[PLATFORM_MAX_PATH],
-    String:szSound[PLATFORM_MAX_PATH],
-    iLevel,
-    iTeam,
-    nBody,
+    char szModel[PLATFORM_MAX_PATH];
+    char szArms[PLATFORM_MAX_PATH];
+    char szSound[PLATFORM_MAX_PATH];
+    int iLevel;
+    int iTeam;
+    int nBody;
 }
 
-static any g_ePlayerSkins[STORE_MAX_ITEMS][PlayerSkin];
+static PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS];
 
 static bool   g_bSoundHooked;
 static int    g_iPlayerSkins = 0;
@@ -146,20 +146,20 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPlayerSkins);
     
-    kv.GetString("model", g_ePlayerSkins[g_iPlayerSkins][szModel], PLATFORM_MAX_PATH);
-    kv.GetString("arms", g_ePlayerSkins[g_iPlayerSkins][szArms], PLATFORM_MAX_PATH);
-    kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins][szSound], PLATFORM_MAX_PATH);
+    kv.GetString("model", g_ePlayerSkins[g_iPlayerSkins].szModel, PLATFORM_MAX_PATH);
+    kv.GetString("arms", g_ePlayerSkins[g_iPlayerSkins].szArms, PLATFORM_MAX_PATH);
+    kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins].szSound, PLATFORM_MAX_PATH);
     
-    g_ePlayerSkins[g_iPlayerSkins][iLevel] = kv.GetNum("lvls",  0);
-    g_ePlayerSkins[g_iPlayerSkins][nBody]  = kv.GetNum("skin", -1);
+    g_ePlayerSkins[g_iPlayerSkins].iLevel = kv.GetNum("lvls",  0);
+    g_ePlayerSkins[g_iPlayerSkins].nBody  = kv.GetNum("skin", -1);
 
 #if defined Global_Skin
-    g_ePlayerSkins[g_iPlayerSkins][iTeam] = 4;
+    g_ePlayerSkins[g_iPlayerSkins].iTeam = 4;
 #else
-    g_ePlayerSkins[g_iPlayerSkins][iTeam] = kv.GetNum("team");
+    g_ePlayerSkins[g_iPlayerSkins].iTeam = kv.GetNum("team");
 #endif
 
-    if(FileExists(g_ePlayerSkins[g_iPlayerSkins][szModel], true))
+    if(FileExists(g_ePlayerSkins[g_iPlayerSkins].szModel, true))
     {
         ++g_iPlayerSkins;
         return true;
@@ -174,22 +174,22 @@ public void PlayerSkins_OnMapStart()
     char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        PrecacheModel(g_ePlayerSkins[i][szModel], true); // only true for player skin body
-        AddFileToDownloadsTable(g_ePlayerSkins[i][szModel]);
+        PrecacheModel(g_ePlayerSkins[i].szModel, true); // only true for player skin body
+        AddFileToDownloadsTable(g_ePlayerSkins[i].szModel);
 
         // prevent double call
-        if(g_ePlayerSkins[i][szArms][0] != 0 && strcmp(g_ePlayerSkins[i][szArms], g_ePlayerSkins[i][szModel], false) != 0)
+        if(g_ePlayerSkins[i].szArms[0] != 0 && strcmp(g_ePlayerSkins[i].szArms, g_ePlayerSkins[i].szModel, false) != 0)
         {
-            PrecacheModel(g_ePlayerSkins[i][szArms], false);
-            AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
+            PrecacheModel(g_ePlayerSkins[i].szArms, false);
+            AddFileToDownloadsTable(g_ePlayerSkins[i].szArms);
         }
 
-        if(g_ePlayerSkins[i][szSound][0] != 0)
+        if(g_ePlayerSkins[i].szSound[0] != 0)
         {
-            FormatEx(szPath, 256, "sound/%s", g_ePlayerSkins[i][szSound]);
+            FormatEx(szPath, 256, "sound/%s", g_ePlayerSkins[i].szSound);
             if(FileExists(szPath, true))
             {
-                FormatEx(szPathStar, 256, "*%s", g_ePlayerSkins[i][szSound]);
+                FormatEx(szPathStar, 256, "*%s", g_ePlayerSkins[i].szSound);
                 AddToStringTable(FindStringTable("soundprecache"), szPathStar);
                 AddFileToDownloadsTable(szPath);
                 deathsounds++;
@@ -228,7 +228,7 @@ public int PlayerSkins_Equip(int client, int id)
 #if defined Global_Skin
     return 2;
 #else
-    return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
+    return g_ePlayerSkins[Store_GetDataIndex(id)].iTeam-2;
 #endif
 }
 
@@ -240,7 +240,7 @@ public int PlayerSkins_Remove(int client, int id)
 #if defined Global_Skin
     return 2;
 #else
-    return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
+    return g_ePlayerSkins[Store_GetDataIndex(id)].iTeam-2;
 #endif
 }
 
@@ -275,9 +275,9 @@ static void Store_SetClientModel(int client, int m_iData)
 #endif
 
     char skin_t[128], arms_t[128];
-    strcopy(skin_t, 128, g_ePlayerSkins[m_iData][szModel]);
-    strcopy(arms_t, 128, g_ePlayerSkins[m_iData][szArms]);
-    int body_t = g_ePlayerSkins[m_iData][nBody];
+    strcopy(skin_t, 128, g_ePlayerSkins[m_iData].szModel);
+    strcopy(arms_t, 128, g_ePlayerSkins[m_iData].szArms);
+    int body_t = g_ePlayerSkins[m_iData].nBody;
 
     Action res = Store_CallPreSetModel(client, skin_t, arms_t, body_t);
     if (res >= Plugin_Handled)
@@ -290,8 +290,8 @@ static void Store_SetClientModel(int client, int m_iData)
             return;
     }
 
-    if (g_ePlayerSkins[m_iData][szSound][0] != 0)
-        FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData][szSound]);
+    if (g_ePlayerSkins[m_iData].szSound[0] != 0)
+        FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData].szSound);
 
     // basic player skin
     SetEntityModel(client, skin_t);
@@ -313,7 +313,14 @@ static void Store_SetClientModel(int client, int m_iData)
         }
     }
 
-    g_iSkinLevel[client] = g_ePlayerSkins[m_iData][iLevel];
+    g_iSkinLevel[client] = g_ePlayerSkins[m_iData].iLevel;
+
+    Call_StartForward(g_hOnPlayerSetModelPost);
+    Call_PushCell(client);
+    Call_PushString(skin_t);
+    Call_PushString(arms_t);
+    Call_PushCell(body_t);
+    Call_Finish();
 
     Call_StartForward(g_hOnPlayerSetModelPost);
     Call_PushCell(client);
@@ -443,7 +450,7 @@ void Store_PreviewSkin(int client, int itemid)
     FormatEx(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
     DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
     DispatchKeyValue(m_iViewModel, "spawnflags", "64");
-    DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_eItems[itemid][iData]][szModel]);
+    DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_Items[itemid].iData].szModel);
     DispatchKeyValue(m_iViewModel, "rendermode", "0");
     DispatchKeyValue(m_iViewModel, "renderfx", "0");
     DispatchKeyValue(m_iViewModel, "rendercolor", "255 255 255");
@@ -452,10 +459,10 @@ void Store_PreviewSkin(int client, int itemid)
     
     DispatchSpawn(m_iViewModel);
 
-    if (g_ePlayerSkins[g_eItems[itemid][iData]][nBody] > 0)
+    if (g_ePlayerSkins[g_Items[itemid].iData].nBody > 0)
     {
         // set?
-        SetEntProp(m_iViewModel, Prop_Send, "m_nBody", g_ePlayerSkins[g_eItems[itemid][iData]][nBody]);
+        SetEntProp(m_iViewModel, Prop_Send, "m_nBody", g_ePlayerSkins[g_Items[itemid].iData].nBody);
     }
     
     SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
@@ -782,8 +789,8 @@ void EnforceDeathSound(int client, const char[] skin)
         return;
     }
 
-    if (g_ePlayerSkins[index][szSound][0] != 0)
-        FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[index][szSound]);
+    if (g_ePlayerSkins[index].szSound[0] != 0)
+        FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[index].szSound);
 }
 
 Action Store_CallPreSetModel(int client, char skin[128], char arms[128], int &body)
@@ -848,9 +855,9 @@ bool GetSkinData(int itemid, char skin[128], char arms[128], int &body)
     if (m_iData == -1)
         return false;
 
-    strcopy(skin, 128, g_ePlayerSkins[m_iData][szModel]);
-    strcopy(arms, 128, g_ePlayerSkins[m_iData][szArms]);
-    body = g_ePlayerSkins[m_iData][nBody];
+    strcopy(skin, 128, g_ePlayerSkins[m_iData].szModel);
+    strcopy(arms, 128, g_ePlayerSkins[m_iData].szArms);
+    body = g_ePlayerSkins[m_iData].nBody;
     return true;
 }
 
@@ -858,7 +865,7 @@ int FindDataIndexByModel(const char[] skin)
 {
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        if (strcmp(g_ePlayerSkins[i][szModel], skin) == 0)
+        if (strcmp(g_ePlayerSkins[i].szModel, skin) == 0)
             return i;
     }
     return -1;

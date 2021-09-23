@@ -10,11 +10,7 @@ echo "*** Trigger build ***"
 
 #下载SM
 echo "Download sourcemod ..."
-if [ "$1" = "1.10" ]; then
-  wget "https://sm.alliedmods.net/smdrop/1.10/sourcemod-1.10.0-git6366-linux.tar.gz" -q -O sourcemod.tar.gz
-else
-  wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
-fi
+wget "http://www.sourcemod.net/latest.php?version=$1&os=linux" -q -O sourcemod.tar.gz
 tar -xzf sourcemod.tar.gz
 
 #TransmitManager

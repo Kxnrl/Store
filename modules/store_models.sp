@@ -28,18 +28,18 @@ static char g_szCurWpn[MAXPLAYERS+1][64];
 static float g_fOldCycle[MAXPLAYERS+1];
 static StringMap g_smClientWeapon[MAXPLAYERS+1];
 
-enum CustomModel
+enum struct CustomModel
 {
-    String:szModelV[PLATFORM_MAX_PATH],
-    String:szModelW[PLATFORM_MAX_PATH],
-    String:szModelD[PLATFORM_MAX_PATH],
-    String:szEntity[32],
-    iSlot,
-    iCacheIdV,
-    iCacheIdW
+    char szModelV[PLATFORM_MAX_PATH];
+    char szModelW[PLATFORM_MAX_PATH];
+    char szModelD[PLATFORM_MAX_PATH];
+    char szEntity[32];
+    int iSlot;
+    int iCacheIdV;
+    int iCacheIdW;
 }
 
-static any g_eCustomModel[STORE_MAX_ITEMS][CustomModel];
+static CustomModel g_eCustomModel[STORE_MAX_ITEMS];
 static int g_iCustomModels = 0;
 
 public void OnPluginStart()
@@ -56,24 +56,24 @@ public void Models_OnMapStart()
 {
     for(int i = 0; i < g_iCustomModels; ++i)
     {
-        g_eCustomModel[i][iCacheIdV] = PrecacheModel(g_eCustomModel[i][szModelV], false);
-        AddFileToDownloadsTable(g_eCustomModel[i][szModelV]);
+        g_eCustomModel[i].iCacheIdV = PrecacheModel(g_eCustomModel[i].szModelV, false);
+        AddFileToDownloadsTable(g_eCustomModel[i].szModelV);
 
-        if(!StrEqual(g_eCustomModel[i][szModelW], "none", false))
+        if(!StrEqual(g_eCustomModel[i].szModelW, "none", false))
         {
-            g_eCustomModel[i][iCacheIdW] = PrecacheModel(g_eCustomModel[i][szModelW], false);
-            AddFileToDownloadsTable(g_eCustomModel[i][szModelW]);
+            g_eCustomModel[i].iCacheIdW = PrecacheModel(g_eCustomModel[i].szModelW, false);
+            AddFileToDownloadsTable(g_eCustomModel[i].szModelW);
             
-            if(g_eCustomModel[i][iCacheIdW] == 0)
-                g_eCustomModel[i][iCacheIdW] = -1;
+            if(g_eCustomModel[i].iCacheIdW == 0)
+                g_eCustomModel[i].iCacheIdW = -1;
         }
         
-        if(!StrEqual(g_eCustomModel[i][szModelD], "none", false))
+        if(!StrEqual(g_eCustomModel[i].szModelD, "none", false))
         {
-            if(!IsModelPrecached(g_eCustomModel[i][szModelD]))
+            if(!IsModelPrecached(g_eCustomModel[i].szModelD))
             {
-                PrecacheModel(g_eCustomModel[i][szModelD], false);
-                AddFileToDownloadsTable(g_eCustomModel[i][szModelD]);
+                PrecacheModel(g_eCustomModel[i].szModelD, false);
+                AddFileToDownloadsTable(g_eCustomModel[i].szModelD);
             }
         }
     }
@@ -87,13 +87,13 @@ public void Models_Reset()
 public bool Models_Config(KeyValues kv, int itemid) 
 {
     Store_SetDataIndex(itemid, g_iCustomModels);
-    kv.GetString("model", g_eCustomModel[g_iCustomModels][szModelV], PLATFORM_MAX_PATH);
-    kv.GetString("worldmodel", g_eCustomModel[g_iCustomModels][szModelW], PLATFORM_MAX_PATH, "none");
-    kv.GetString("dropmodel", g_eCustomModel[g_iCustomModels][szModelD], PLATFORM_MAX_PATH, "none");
-    kv.GetString("weapon", g_eCustomModel[g_iCustomModels][szEntity], 32);
-    g_eCustomModel[g_iCustomModels][iSlot] = kv.GetNum("slot");
+    kv.GetString("model", g_eCustomModel[g_iCustomModels].szModelV, PLATFORM_MAX_PATH);
+    kv.GetString("worldmodel", g_eCustomModel[g_iCustomModels].szModelW, PLATFORM_MAX_PATH, "none");
+    kv.GetString("dropmodel", g_eCustomModel[g_iCustomModels].szModelD, PLATFORM_MAX_PATH, "none");
+    kv.GetString("weapon", g_eCustomModel[g_iCustomModels].szEntity, 32);
+    g_eCustomModel[g_iCustomModels].iSlot = kv.GetNum("slot");
     
-    if(FileExists(g_eCustomModel[g_iCustomModels][szModelV], true))
+    if(FileExists(g_eCustomModel[g_iCustomModels].szModelV, true))
     {
         ++g_iCustomModels;    
         return true;
@@ -105,20 +105,20 @@ public int Models_Equip(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
 
-    if(!Models_AddModels(client, g_eCustomModel[m_iData][szEntity], g_eCustomModel[m_iData][iCacheIdV], g_eCustomModel[m_iData][iCacheIdW], g_eCustomModel[m_iData][szModelD]) && IsClientInGame(client))
+    if(!Models_AddModels(client, g_eCustomModel[m_iData].szEntity, g_eCustomModel[m_iData].iCacheIdV, g_eCustomModel[m_iData].iCacheIdW, g_eCustomModel[m_iData].szModelD) && IsClientInGame(client))
         tPrintToChat(client, "\x02 unknown error! please contact to admin!");
 
-    return g_eCustomModel[m_iData][iSlot];
+    return g_eCustomModel[m_iData].iSlot;
 }
 
 public int Models_Remove(int client, int id) 
 {
     int m_iData = Store_GetDataIndex(id);
 
-    if(!Models_RemoveModels(client, g_eCustomModel[m_iData][szEntity]) && IsClientInGame(client))
+    if(!Models_RemoveModels(client, g_eCustomModel[m_iData].szEntity) && IsClientInGame(client))
         tPrintToChat(client, "\x02 unknown error! please contact to admin!");
 
-    return g_eCustomModel[m_iData][iSlot];
+    return g_eCustomModel[m_iData].iSlot;
 }
 
 public void OnClientPutInServer(int client)
@@ -199,7 +199,7 @@ public void Hook_WeaponSwitchPost_Models(int client, int weapon)
     SetEntProp(weapon, Prop_Send, "m_nModelIndex", 0); 
     SetEntProp(m_iPVM, Prop_Send, "m_nModelIndex", model_index);
 
-    strcopy(g_szCurWpn[client], 64, classname);
+    strcopy(g_szCurWpn[client], sizeof(g_szCurWpn[]), classname);
     g_bHooked[client] = SDKHookEx(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
 }
 

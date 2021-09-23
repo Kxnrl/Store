@@ -1,12 +1,12 @@
 #define Module_Trail
 
-enum Trail
+enum struct Trail
 {
-    String:szMaterial[PLATFORM_MAX_PATH],
-    iSlot
+    char szMaterial[PLATFORM_MAX_PATH];
+    int iSlot;
 }
 
-static any g_eTrails[STORE_MAX_ITEMS][Trail];
+static Trail g_eTrails[STORE_MAX_ITEMS];
 
 static int g_iTrails = 0;
 static int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
@@ -15,10 +15,10 @@ public bool Trails_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iTrails);
     
-    kv.GetString("material", g_eTrails[g_iTrails][szMaterial], PLATFORM_MAX_PATH);
-    g_eTrails[g_iTrails][iSlot] = kv.GetNum("slot");
+    kv.GetString("material", g_eTrails[g_iTrails].szMaterial, PLATFORM_MAX_PATH);
+    g_eTrails[g_iTrails].iSlot = kv.GetNum("slot");
 
-    if(FileExists(g_eTrails[g_iTrails][szMaterial], true))
+    if(FileExists(g_eTrails[g_iTrails].szMaterial, true))
     {
         ++g_iTrails;
         return true;
@@ -34,7 +34,7 @@ public void Trails_OnMapStart()
             g_iClientTrails[a][b] = INVALID_ENT_REFERENCE;
 
     for(int i = 0; i < g_iTrails; ++i)
-        AddFileToDownloadsTable(g_eTrails[i][szMaterial]);
+        AddFileToDownloadsTable(g_eTrails[i].szMaterial);
 }
 
 public void Trails_Reset()
@@ -47,14 +47,14 @@ public int Trails_Equip(int client, int id)
     if(IsPlayerAlive(client))
         Store_SetClientTrail(client);
 
-    return g_eTrails[Store_GetDataIndex(id)][iSlot];
+    return g_eTrails[Store_GetDataIndex(id)].iSlot;
 }
 
 public int Trails_Remove(int client, int id)
 {
     Store_SetClientTrail(client);
 
-    return  g_eTrails[Store_GetDataIndex(id)][iSlot];
+    return  g_eTrails[Store_GetDataIndex(id)].iSlot;
 }
 
 void Store_RemoveClientTrail(int client, int slot)
@@ -117,7 +117,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
     {
         if((m_aEquipped[m_iNumEquipped] = Store_GetEquippedItem(client, "trail", i)) >= 0)
         {
-            if(i == g_eTrails[m_iData][iSlot])
+            if(i == g_eTrails[m_iData].iSlot)
                 m_iCurrent = m_iNumEquipped;
             ++m_iNumEquipped;
         }
@@ -134,7 +134,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
     DispatchKeyValue(entity, "rendercolor", "255 255 255");
     DispatchKeyValue(entity, "lifetime", "1.0");
     DispatchKeyValue(entity, "rendermode", "5");
-    DispatchKeyValue(entity, "spritename", g_eTrails[m_iData][szMaterial]);
+    DispatchKeyValue(entity, "spritename", g_eTrails[m_iData].szMaterial);
     DispatchKeyValue(entity, "startwidth", "10.0");
     DispatchKeyValue(entity, "endwidth", "10.0");
     SetEntPropFloat(entity, Prop_Send, "m_flTextureRes", 0.05);

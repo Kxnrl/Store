@@ -1,17 +1,17 @@
 #define Module_Hats
 
-enum Hat
+enum struct Hat
 {
-    String:szModel[PLATFORM_MAX_PATH],
-    String:szAttachment[64],
-    Float:fPosition[3],
-    Float:fAngles[3],
-    bool:bBonemerge,
-    bool:bHide,
-    iSlot
+    char szModel[PLATFORM_MAX_PATH];
+    char szAttachment[64];
+    float fPosition[3];
+    float fAngles[3];
+    bool bBonemerge;
+    bool bHide;
+    int iSlot;
 }
 
-static any g_eHats[STORE_MAX_ITEMS][Hat];
+static Hat g_eHats[STORE_MAX_ITEMS];
 static int g_iClientHats[MAXPLAYERS+1][STORE_MAX_SLOTS];
 static int g_iHats = 0;
 static int g_iSpecTarget[MAXPLAYERS+1];
@@ -21,17 +21,17 @@ public bool Hats_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iHats);
     float m_fTemp[3];
-    kv.GetString("model", g_eHats[g_iHats][szModel], PLATFORM_MAX_PATH);
+    kv.GetString("model", g_eHats[g_iHats].szModel, PLATFORM_MAX_PATH);
     KvGetVector(kv, "position", m_fTemp);
-    g_eHats[g_iHats][fPosition] = m_fTemp;
+    g_eHats[g_iHats].fPosition = m_fTemp;
     KvGetVector(kv, "angles", m_fTemp);
-    g_eHats[g_iHats][fAngles] = m_fTemp;
-    g_eHats[g_iHats][bBonemerge] = (kv.GetNum("bonemerge", 0)?true:false);
-    g_eHats[g_iHats][iSlot] = kv.GetNum("slot");
-    g_eHats[g_iHats][bHide] = (kv.GetNum("hide", 1)?true:false); // hide by default
-    kv.GetString("attachment", g_eHats[g_iHats][szAttachment], 64, "facemask");
+    g_eHats[g_iHats].fAngles = m_fTemp;
+    g_eHats[g_iHats].bBonemerge = (kv.GetNum("bonemerge", 0)?true:false);
+    g_eHats[g_iHats].iSlot = kv.GetNum("slot");
+    g_eHats[g_iHats].bHide = kv.GetNum("hide", 1) ? true : false; // hide by default
+    kv.GetString("attachment", g_eHats[g_iHats].szAttachment, 64, "facemask");
     
-    if(!(FileExists(g_eHats[g_iHats][szModel], true)))
+    if(!(FileExists(g_eHats[g_iHats].szModel, true)))
         return false;
 
     ++g_iHats;
@@ -46,8 +46,8 @@ public void Hats_OnMapStart()
 
     for(int i = 0; i < g_iHats; ++i)
     {
-        PrecacheModel(g_eHats[i][szModel], false);
-        AddFileToDownloadsTable(g_eHats[i][szModel]);
+        PrecacheModel(g_eHats[i].szModel, false);
+        AddFileToDownloadsTable(g_eHats[i].szModel);
     }
 
     CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
@@ -85,17 +85,17 @@ public int Hats_Equip(int client, int id)
     int m_iData = Store_GetDataIndex(id);
     if(IsPlayerAlive(client))
     {
-        Store_RemoveClientHats(client, g_eHats[m_iData][iSlot]);
+        Store_RemoveClientHats(client, g_eHats[m_iData].iSlot);
         CreateHat(client, id);
     }
-    return g_eHats[m_iData][iSlot];
+    return g_eHats[m_iData].iSlot;
 }
 
 public int Hats_Remove(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
-    Store_RemoveClientHats(client, g_eHats[m_iData][iSlot]);
-    return g_eHats[m_iData][iSlot];
+    Store_RemoveClientHats(client, g_eHats[m_iData].iSlot);
+    return g_eHats[m_iData].iSlot;
 }
 
 void Store_SetClientHat(int client)
@@ -128,14 +128,14 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         GetClientAbsOrigin(client,m_fHatOrigin);
         GetClientAbsAngles(client,m_fHatAngles);
         
-        m_fHatAngles[0] += g_eHats[m_iData][fAngles][0];
-        m_fHatAngles[1] += g_eHats[m_iData][fAngles][1];
-        m_fHatAngles[2] += g_eHats[m_iData][fAngles][2];
+        m_fHatAngles[0] += g_eHats[m_iData].fAngles[0];
+        m_fHatAngles[1] += g_eHats[m_iData].fAngles[1];
+        m_fHatAngles[2] += g_eHats[m_iData].fAngles[2];
 
         float m_fOffset[3];
-        m_fOffset[0] = g_eHats[m_iData][fPosition][0];
-        m_fOffset[1] = g_eHats[m_iData][fPosition][1];
-        m_fOffset[2] = g_eHats[m_iData][fPosition][2];
+        m_fOffset[0] = g_eHats[m_iData].fPosition[0];
+        m_fOffset[1] = g_eHats[m_iData].fPosition[1];
+        m_fOffset[2] = g_eHats[m_iData].fPosition[2];
 
         GetAngleVectors(m_fHatAngles, m_fForward, m_fRight, m_fUp);
 
@@ -144,22 +144,22 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         m_fHatOrigin[2] += m_fRight[2]*m_fOffset[0]+m_fForward[2]*m_fOffset[1]+m_fUp[2]*m_fOffset[2];
 
         int m_iEnt = CreateEntityByName("prop_dynamic_override");
-        DispatchKeyValue(m_iEnt, "model", g_eHats[m_iData][szModel]);
+        DispatchKeyValue(m_iEnt, "model", g_eHats[m_iData].szModel);
         DispatchKeyValue(m_iEnt, "spawnflags", "256");
         DispatchKeyValue(m_iEnt, "solid", "0");
         SetEntPropEnt(m_iEnt, Prop_Send, "m_hOwnerEntity", client);
 
         g_iHatsOwners[m_iEnt] = client;
 
-        if(g_eHats[m_iData][bBonemerge])
+        if(g_eHats[m_iData].bBonemerge)
             Bonemerge(m_iEnt);
 
         DispatchSpawn(m_iEnt);    
         AcceptEntityInput(m_iEnt, "TurnOn", m_iEnt, m_iEnt, 0);
 
-        g_iClientHats[client][g_eHats[m_iData][iSlot]] = EntIndexToEntRef(m_iEnt);
+        g_iClientHats[client][g_eHats[m_iData].iSlot] = EntIndexToEntRef(m_iEnt);
         
-        if (g_eHats[m_iData][bHide])
+        if (g_eHats[m_iData].bHide)
         {
             // hook transmit
             SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
@@ -172,7 +172,7 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         SetVariantString("!activator");
         AcceptEntityInput(m_iEnt, "SetParent", client, m_iEnt, 0);
 
-        SetVariantString(g_eHats[m_iData][szAttachment]);
+        SetVariantString(g_eHats[m_iData].szAttachment);
         AcceptEntityInput(m_iEnt, "SetParentAttachmentMaintainOffset", m_iEnt, m_iEnt, 0);
     }
 }

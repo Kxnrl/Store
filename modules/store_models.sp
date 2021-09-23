@@ -169,14 +169,14 @@ public void Hook_WeaponSwitchPost_Models(int client, int weapon)
         return;
     
     char classname[32];
-    if(!GetWeaponClassname(weapon, classname, STRING(classname)))
+    if(!GetWeaponClassname(weapon, STRING(classname)))
         return;
 
     if(StrContains(classname, "item", false) == 0)
         return;
     
     char m_szGlobalName[256];
-    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", m_szGlobalName, STRING(m_szGlobalName));
+    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", STRING(m_szGlobalName));
     if(StrContains(m_szGlobalName, "custom", false) != 0)
         return;
     

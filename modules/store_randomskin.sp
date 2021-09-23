@@ -144,7 +144,7 @@ bool GetPlayerStatus(int client)
     else if (g_pCookies)
     {
         char buffer[8];
-        GetClientCookie(client, g_hCookies[0], buffer, 8);
+        GetClientCookie(client, g_hCookies[0], STRING(buffer));
         return strcmp(buffer, "true") == 0;
     }
 
@@ -161,7 +161,7 @@ bool GetPlayerPrevious(int client)
     else if (g_pCookies)
     {
         char buffer[8];
-        GetClientCookie(client, g_hCookies[2], buffer, 8);
+        GetClientCookie(client, g_hCookies[2], STRING(buffer));
         return strcmp(buffer, "true") == 0;
     }
 
@@ -219,7 +219,7 @@ void DisplayMainMenu(int client)
 {
     char options[512], buffer[64], skin[MAX_SKINS][32];
     GetPlayerEquips(client, options);
-    ExplodeString(options, ";", skin, MAX_SKINS, 32, false);
+    ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
     bool changed = false;
     int nums = 0;
     for (int i = 0; i < MAX_SKINS; i++)
@@ -231,8 +231,8 @@ void DisplayMainMenu(int client)
             {
                 if (!Store_HasClientItem(client, itemid))
                 {
-                    Format(skin[i], 32, "%s;", skin[i]);
-                    ReplaceString(options, 512, skin[i], "");
+                    Format(skin[i], sizeof(skin[]), "%s;", skin[i]);
+                    ReplaceString(STRING(options), skin[i], "");
                     changed = true;
                 }
                 else
@@ -251,16 +251,16 @@ void DisplayMainMenu(int client)
 
     menu.SetTitle("[Store]  %T\nE: %d ", "random skin", client, nums);
 
-    FormatEx(buffer, 64, "%T: %T", "feature status", client, GetPlayerStatus(client) ? "On" : "Off", client);
+    FormatEx(STRING(buffer), "%T: %T", "feature status", client, GetPlayerStatus(client) ? "On" : "Off", client);
     menu.AddItem("Lilia",  buffer);
 
-    FormatEx(buffer, 64, "%T: %T", "allow previous", client, GetPlayerPrevious(client) ? "On" : "Off", client);
+    FormatEx(STRING(buffer), "%T: %T", "allow previous", client, GetPlayerPrevious(client) ? "On" : "Off", client);
     menu.AddItem("Lilia",  buffer);
 
-    FormatEx(buffer, 64, "%T", "select skin", client);
+    FormatEx(STRING(buffer), "%T", "select skin", client);
     menu.AddItem("Lilia",  buffer);
 
-    FormatEx(buffer, 64, "%T", "clear all", client);
+    FormatEx(STRING(buffer), "%T", "clear all", client);
     menu.AddItem("Lilia",  buffer);
 
     menu.ExitBackButton = false;
@@ -323,7 +323,7 @@ void DisplaySkinMenu(int client, int position = -1)
         array.GetArray(i, skin, sizeof(SkinData_t));
 
         FormatEx(xkey,   33, "%s;", skin.m_UId);
-        FormatEx(buffer, 64, "[%s] %s", StrContains(options, xkey) > -1 ? "*" : "x", skin.m_Name);
+        FormatEx(STRING(buffer), "[%s] %s", StrContains(options, xkey) > -1 ? "*" : "x", skin.m_Name);
         menu.AddItem(xkey, buffer);
     }
 
@@ -345,16 +345,16 @@ public int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
     else if (action == MenuAction_Select)
     {
         char xkey[33], options[512];
-        menu.GetItem(slot, xkey, 33);
+        menu.GetItem(slot, STRING(xkey));
         GetPlayerEquips(client, options);
 
         if (StrContains(options, xkey) > -1)
         {
-            ReplaceString(options, 512, xkey, "");
+            ReplaceString(STRING(options), xkey, "");
         }
         else
         {
-            StrCat(options, 512, xkey);
+            StrCat(STRING(options), xkey);
         }
 
         SetPlayerEquips(client, options);
@@ -375,7 +375,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
 
     char options[512], skin[MAX_SKINS][32], item[32];
     GetPlayerEquips(client, options);
-    int skip = ExplodeString(options, ";", skin, MAX_SKINS, 32, false);
+    int skip = ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
     bool prev = GetPlayerPrevious(client), changed;
 
     ArrayList list = new ArrayList(ByteCountToCells(32));
@@ -392,8 +392,8 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
                 }
                 else
                 {
-                    Format(skin[i], 32, "%s;", skin[i]);
-                    ReplaceString(options, 512, skin[i], "");
+                    Format(skin[i], sizeof(skin[]), "%s;", skin[i]);
+                    ReplaceString(STRING(options), skin[i], "");
                     changed = true;
                 }
             }
@@ -417,7 +417,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         g_sPrevious[client][0] = '\0';
         return Plugin_Continue;
     }
-    list.GetString(UTIL_GetRandomInt(0, list.Length - 1), item, 32);
+    list.GetString(UTIL_GetRandomInt(0, list.Length - 1), STRING(item));
     delete list;
 
     for (int i = 0; i < g_aSkins.Length; i++)
@@ -427,8 +427,8 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         if (strcmp(item, s.m_UId) == 0)
         {
             strcopy(g_sPrevious[client], sizeof(g_sPrevious[]), item);
-            strcopy(_skin, sizeof(_skin), s.m_Skin);
-            strcopy(_arms, sizeof(_arms), s.m_Arms);
+            strcopy(STRING(_skin), s.m_Skin);
+            strcopy(STRING(_arms), s.m_Arms);
             _body = s.m_Body;
             
             tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);

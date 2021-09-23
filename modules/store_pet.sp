@@ -95,12 +95,12 @@ public bool Pets_Config(Handle kv, int itemid)
     Store_SetDataIndex(itemid, g_iPets);
     
     float m_fTemp[3];
-    KvGetString(kv, "model", g_ePets[g_iPets].model, 256);
-    KvGetString(kv, "idle", g_ePets[g_iPets].idle, 32);
-    KvGetString(kv, "idle2", g_ePets[g_iPets].idle2, 32);
-    KvGetString(kv, "run", g_ePets[g_iPets].run, 32);
-    KvGetString(kv, "spawn", g_ePets[g_iPets].spawn, 32);
-    KvGetString(kv, "death", g_ePets[g_iPets].death, 32);
+    KvGetString(kv, "model", g_ePets[g_iPets].model, sizeof(Pet::model));
+    KvGetString(kv, "idle", g_ePets[g_iPets].idle, sizeof(Pet::idle));
+    KvGetString(kv, "idle2", g_ePets[g_iPets].idle2, sizeof(Pet::idle2));
+    KvGetString(kv, "run", g_ePets[g_iPets].run, sizeof(Pet::run));
+    KvGetString(kv, "spawn", g_ePets[g_iPets].spawn, sizeof(Pet::spawn));
+    KvGetString(kv, "death", g_ePets[g_iPets].death, sizeof(Pet::death));
     KvGetVector(kv, "position", m_fTemp);
     g_ePets[g_iPets].fPosition = m_fTemp;
     KvGetVector(kv, "angles", m_fTemp);

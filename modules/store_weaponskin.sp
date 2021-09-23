@@ -91,7 +91,7 @@ public Action Command_Named(int client, int args)
     }
     
     char name[32];
-    GetCmdArg(1, name, 32);
+    GetCmdArg(1, STRING(name));
     
     if(strlen(name) < 4)
     {
@@ -114,8 +114,8 @@ public bool WeaponSkin_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iWeaponSkin);
 
-    KvGetString(kv, "uid"   , g_eWeaponSkin[g_iWeaponSkin].szUnique, 32);
-    KvGetString(kv, "weapon", g_eWeaponSkin[g_iWeaponSkin].szWeapon, 32);
+    KvGetString(kv, "uid"   , g_eWeaponSkin[g_iWeaponSkin].szUnique, sizeof(WeaponSkin::szUnique));
+    KvGetString(kv, "weapon", g_eWeaponSkin[g_iWeaponSkin].szWeapon, sizeof(WeaponSkin::szWeapon));
 
     g_eWeaponSkin[g_iWeaponSkin].iSlot  = KvGetNum(kv, "slot", SLOT_1);
     g_eWeaponSkin[g_iWeaponSkin].iSeed  = KvGetNum(kv, "seed");
@@ -227,10 +227,10 @@ void SetWeaponEconmoney(int client, int data, int weapon)
     if(GetUserFlagBits(client) & ADMFLAG_CUSTOM1)
     {
         char name[32];
-        GetClientCookie(client, g_hCookieNamed, name, 32);
+        GetClientCookie(client, g_hCookieNamed, STRING(name));
         if(strlen(name) >= 4)
         {
-            SetEntDataString(weapon, g_iOffsetName, name, 32);
+            SetEntDataString(weapon, g_iOffsetName, STRING(name));
             PrintToChat(client, "[\x04Store\x01]   Set your skin named \x04%s", name);
         }
     }
@@ -257,7 +257,7 @@ void CheckClientWeapon(DataPack dp)
         weapon = GetPlayerWeaponSlot(client, SLOT_2);
         if(weapon == -1) return;
         char classname[32];
-        GetEdictClassname(weapon, classname, 32);
+        GetEdictClassname(weapon, STRING(classname));
         if(strcmp(classname, "weapon_taser") == 0)
         {
             int taser = weapon;
@@ -356,7 +356,7 @@ int GetPlayerWeaponEntity(int client, const char[] weapons)
 
     for(int offset = 0; offset < 128; offset += 4)
         if(IsValidEdict((weapon = GetEntDataEnt2(client, g_iOffsetMyWP+offset))))
-            if(GetWeaponClassname(weapon, -1, classname, 32))
+            if(GetWeaponClassname(weapon, -1, STRING(classname)))
                 if(strcmp(weapons, classname, false) == 0)
                     return weapon;
 

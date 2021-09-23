@@ -36,7 +36,7 @@ public Action CommandCredits(int client, int args)
     }
 
     char arg[32];
-    GetCmdArg(2, arg, 32);
+    GetCmdArg(2, STRING(arg));
     
     int credits = 0;
     if(StringToIntEx(arg, credits) == 0 || credits <= 0)
@@ -49,7 +49,7 @@ public Action CommandCredits(int client, int args)
     int target_list[MAXPLAYERS], target_count;
     bool tn_is_ml;
 
-    GetCmdArg(1, arg, 32);
+    GetCmdArg(1, STRING(arg));
     if ((target_count = ProcessTargetString(
             arg,
             client,
@@ -65,7 +65,7 @@ public Action CommandCredits(int client, int args)
     }
     
     char reason[128];
-    FormatEx(reason, 128, "Give command by \"%L\"", client);
+    FormatEx(STRING(reason), "Give command by \"%L\"", client);
 
     for(int i = 0; i < target_count; i++)
     {

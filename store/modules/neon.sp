@@ -93,16 +93,16 @@ void Store_SetClientNeon(int client)
         int iNeon = CreateEntityByName("light_dynamic");
         
         char m_szString[100];
-        IntToString(g_eNeons[m_iData].iBright, m_szString, 100);
+        IntToString(g_eNeons[m_iData].iBright, STRING(m_szString));
         DispatchKeyValue(iNeon, "brightness", m_szString);
 
-        FormatEx(m_szString, 100, "%d %d %d %d", g_eNeons[m_iData].iColor[0], g_eNeons[m_iData].iColor[1], g_eNeons[m_iData].iColor[2], g_eNeons[m_iData].iColor[3]);
+        FormatEx(STRING(m_szString), "%d %d %d %d", g_eNeons[m_iData].iColor[0], g_eNeons[m_iData].iColor[1], g_eNeons[m_iData].iColor[2], g_eNeons[m_iData].iColor[3]);
         DispatchKeyValue(iNeon, "_light", m_szString);
         
-        IntToString(g_eNeons[m_iData].iFade, m_szString, 100);
+        IntToString(g_eNeons[m_iData].iFade, STRING(m_szString));
         DispatchKeyValue(iNeon, "spotlight_radius", m_szString);
 
-        IntToString(g_eNeons[m_iData].iDistance, m_szString, 100);
+        IntToString(g_eNeons[m_iData].iDistance, STRING(m_szString));
         DispatchKeyValue(iNeon, "distance", m_szString);
 
         DispatchKeyValue(iNeon, "style", "0");

@@ -434,7 +434,7 @@ public void OnMapEnd()
 public int Native_GetItemId(Handle myself, int numParams)
 {
     char uid[256];
-    if(GetNativeString(1, uid, 256) != SP_ERROR_NONE)
+    if(GetNativeString(1, STRING(uid)) != SP_ERROR_NONE)
         return -1;
 
     return UTIL_GetItemId(uid, -1);
@@ -443,7 +443,7 @@ public int Native_GetItemId(Handle myself, int numParams)
 public int Native_GetTypeId(Handle myself, int numParams)
 {
     char type[32];
-    if(GetNativeString(1, type, 32) != SP_ERROR_NONE)
+    if(GetNativeString(1, STRING(type)) != SP_ERROR_NONE)
         return -1;
 
     return UTIL_GetTypeHandler(type);
@@ -508,7 +508,7 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
     strcopy(g_TypeHandlers[m_iId].szType, sizeof(Type_Handler::szType), m_szType);
 
     char file[64];
-    GetPluginFilename(plugin, file, 64);
+    GetPluginFilename(plugin, STRING(file));
     strcopy(g_TypeHandlers[m_iId].szPlFile, sizeof(Type_Handler::szPlFile), file);
 
     return m_iId;
@@ -535,7 +535,7 @@ public int Native_RegisterMenuHandler(Handle plugin, int numParams)
     strcopy(g_MenuHandlers[m_iId].szIdentifier, sizeof(Menu_Handler::szIdentifier), m_szIdentifier);
 
     char file[64];
-    GetPluginFilename(plugin, file, 64);
+    GetPluginFilename(plugin, STRING(file));
     strcopy(g_MenuHandlers[m_iId].szPlFile, sizeof(Menu_Handler::szPlFile), file);
 
     return m_iId;
@@ -611,7 +611,7 @@ public int Native_SetClientCredits(Handle myself, int numParams)
     if(g_bInterMission)
     {
         char path[128];
-        BuildPath(Path_SM, path, 128, "logs/store.warn.log");
+        BuildPath(Path_SM, STRING(path), "logs/store.warn.log");
         LogToFileEx(path, "Native_SetClientCredits -> %L -> %d -> %d -> %d", client, g_ClientData[client].iId, m_iCredits, difference);
         return false;
     }
@@ -624,7 +624,7 @@ public int Native_SetClientCredits(Handle myself, int numParams)
     }
 
     char logMsg[128];
-    if(GetNativeString(3, logMsg, 128) != SP_ERROR_NONE)
+    if(GetNativeString(3, STRING(logMsg)) != SP_ERROR_NONE)
     {
         ThrowNativeError(SP_ERROR_NATIVE, "Failed to get reason in native call.");
         return false;
@@ -673,7 +673,7 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
         char m_szQuery[512], eReason[256];
         FormatEx(STRING(m_szQuery), "UPDATE store_players SET credits=credits+%d WHERE id=%d", difference, m_iStoreId);
         SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_High);
-        g_hDatabase.Escape(logMsg, eReason, 256);
+        g_hDatabase.Escape(logMsg, STRING(eReason));
         FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", FROM_UNIXTIME(%d))", m_iStoreId, g_ClientData[client].iCredits + difference, difference, eReason, iTimeStamp);
         SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
         return Plugin_Stop;
@@ -730,7 +730,7 @@ public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
     pack.WriteFunction(GetNativeFunction(3));
 
     char file[64];
-    GetPluginFilename(plugin, file, 64);
+    GetPluginFilename(plugin, STRING(file));
     pack.WriteString(file);
 
     pack.Reset();
@@ -797,7 +797,7 @@ public int Native_GiveItem(Handle plugin, int numParams)
         return false;
 
     char pFile[32];
-    GetPluginFilename(plugin, pFile, 32);
+    GetPluginFilename(plugin, STRING(pFile));
 
     if(!Store_HasClientItem(client, itemid))
     {
@@ -1446,9 +1446,9 @@ static char[] FormatSkinTag(int client, int itemid, bool equip)
     char buffer[128];
 
 #if defined Skin_TeamTag
-    FormatEx(buffer, 128, "%s%T", (strcmp(g_TypeHandlers[g_Items[itemid].iHandler].szType, "playerskin") == 0) ? (g_Items[itemid].iTeam == 2 ? "[TE] " : "[CT] ") : "", equip ? "Item Equipped" : "Item Bought", client, g_Items[itemid].szName);
+    FormatEx(STRING(buffer), "%s%T", (strcmp(g_TypeHandlers[g_Items[itemid].iHandler].szType, "playerskin") == 0) ? (g_Items[itemid].iTeam == 2 ? "[TE] " : "[CT] ") : "", equip ? "Item Equipped" : "Item Bought", client, g_Items[itemid].szName);
 #else
-    FormatEx(buffer, 128, "%T", equip ? "Item Equipped" : "Item Bought", client, g_Items[itemid].szName);
+    FormatEx(STRING(buffer), "%T", equip ? "Item Equipped" : "Item Bought", client, g_Items[itemid].szName);
 #endif
 
     return buffer;
@@ -1618,7 +1618,7 @@ void DisplayPreviewMenu(int client, int itemid)
     AddMenuItemEx(m_hMenu, (g_Items[itemid].szDesc[0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_Items[itemid].szDesc);
 
     char leveltype[32];
-    UTIL_GetLevelType(client, itemid, leveltype, 32);
+    UTIL_GetLevelType(client, itemid, STRING(leveltype));
     AddMenuItemEx(m_hMenu, (g_Items[itemid].iLevels <= 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_Items[itemid].iLevels, leveltype);
 
     AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "3", "%T", "Open Case Available", client);
@@ -1925,7 +1925,7 @@ public Action Timer_OpeningCase(Handle timer, int userid)
 
     int aid = UTIL_GetRandomInt(0, g_aCaseSkins[type].Length-1);
     char modelname[32];
-    g_aCaseSkins[type].GetString(aid, modelname, 32);
+    g_aCaseSkins[type].GetString(aid, STRING(modelname));
 
     int itemid = UTIL_GetItemId(modelname);
 
@@ -2111,10 +2111,10 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
     menu.ExitButton = false;
 
     char name[128];
-    strcopy(name, sizeof(name), g_Items[itemid].szName);
+    strcopy(STRING(name), g_Items[itemid].szName);
 
     char leveltype[32];
-    UTIL_GetLevelType(client, itemid, leveltype, 32);
+    UTIL_GetLevelType(client, itemid, STRING(leveltype));
     AddMenuItemEx(menu, ITEMDRAW_DISABLED, "", "%T: %s - %s", "playerskin", client, name, leveltype);
     if(days)
     {
@@ -2132,9 +2132,9 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
 
     int crd = UTIL_GetSkinSellPrice(client, itemid, days);
     char fmt[32];
-    FormatEx(fmt, 32, "sell_%d_%d", itemid, days);
+    FormatEx(STRING(fmt), "sell_%d_%d", itemid, days);
     AddMenuItemEx(menu, ITEMDRAW_DEFAULT, fmt, "%T(%d)", "quickly sell", client, crd);
-    FormatEx(fmt, 32, "add_%d_%d", itemid, days);
+    FormatEx(STRING(fmt), "add_%d_%d", itemid, days);
     AddMenuItemEx(menu, Store_HasClientItem(client, itemid) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT, fmt, "%T", "income", client);
 
     menu.Display(client, 0);
@@ -2181,7 +2181,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
             int days = StringToInt(data[2]);
 
             char name[128];
-            strcopy(name, sizeof(name), g_Items[itemid].szName);
+            strcopy(STRING(name), g_Items[itemid].szName);
 
             if(days)
             {
@@ -2301,7 +2301,7 @@ void DisplayItemMenu(int client, int itemid)
             AddMenuItemEx(m_hMenu, (g_Items[g_iItems].szDesc[0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%s", g_Items[itemid].szDesc);
     
             char leveltype[32];
-            UTIL_GetLevelType(client, itemid, leveltype, 32);
+            UTIL_GetLevelType(client, itemid, STRING(leveltype));
             AddMenuItemEx(m_hMenu, (g_Items[itemid].iLevels == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_Items[itemid].iLevels, leveltype);
             AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "4", "%T", "Open Case Available", client);
         }
@@ -2392,16 +2392,16 @@ void DisplayComposeMenu(int client, bool last)
     // 合成道具1
     char sitem1[64];
     if(g_Compose[client].item1 >= 0)
-        strcopy(sitem1, sizeof(sitem1), g_Items[g_Compose[client].item1].szName);
+        strcopy(STRING(sitem1), g_Items[g_Compose[client].item1].szName);
     else
-        FormatEx(sitem1, sizeof(sitem1), "%T", "unselect", client);
+        FormatEx(STRING(sitem1), "%T", "unselect", client);
     
     // 合成道具2
     char sitem2[64];
     if(g_Compose[client].item2 >= 0)
-        strcopy(sitem2, sizeof(sitem1), g_Items[g_Compose[client].item2].szName);
+        strcopy(STRING(sitem2), g_Items[g_Compose[client].item2].szName);
     else
-        FormatEx(sitem2, sizeof(sitem1), "%T", "unselect", client);
+        FormatEx(STRING(sitem2), "%T", "unselect", client);
 
     m_hMenu.SetTitle("%T\n ", "Title Compose", client, g_Items[g_iSelectedItem[client]].szName, sitem1, sitem2);
 
@@ -2435,7 +2435,7 @@ void DisplayComposeMenu(int client, bool last)
             if(uid < 0 || g_ClientItem[client][uid].iDateOfExpiration != 0)
                 continue;
 
-            IntToString(i, m_szId, 8);
+            IntToString(i, STRING(m_szId));
             AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, m_szId, g_Items[i].szName);
         }
     }
@@ -2495,7 +2495,7 @@ public int MenuHandler_Compose(Menu menu, MenuAction action, int client, int par
             {
                 g_Compose[client].types=itemid;
                 char m_szTitle[256];
-                FormatEx(m_szTitle, 256, "%T", "Confirm_Compose", client, g_Items[g_iSelectedItem[client]].szName, g_Items[g_Compose[client].item1].szName, g_Items[g_Compose[client].item2].szName, g_szComposeFee[itemid]);
+                FormatEx(STRING(m_szTitle), "%T", "Confirm_Compose", client, g_Items[g_iSelectedItem[client]].szName, g_Items[g_Compose[client].item1].szName, g_Items[g_Compose[client].item2].szName, g_szComposeFee[itemid]);
                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Compose, 0);
             }
         }
@@ -2734,7 +2734,7 @@ public int MenuHandler_Confirm(Menu menu, MenuAction action, int client, int par
             DataPack pack = view_as<DataPack>(StringToInt(m_szCallback));
             Handle m_hPlugin = pack.ReadCell();
             Function fnMenuCallback = pack.ReadFunction();
-            pack.ReadString(m_szFile, 64);
+            pack.ReadString(STRING(m_szFile));
             delete pack;
             if(m_hPlugin != null && fnMenuCallback != INVALID_FUNCTION && IsPluginRunning(m_hPlugin, m_szFile))
             {
@@ -2871,8 +2871,8 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
     else
     {
         char m_szName[64], m_szEName[128];
-        GetClientName(client, m_szName, 64);
-        g_hDatabase.Escape(m_szName, m_szEName, 128);
+        GetClientName(client, STRING(m_szName));
+        g_hDatabase.Escape(m_szName, STRING(m_szEName));
         FormatEx(STRING(m_szQuery), "INSERT INTO store_players (`authid`, `name`, `credits`, `date_of_join`, `date_of_last_join`, `ban`) VALUES(\"%s\", '%s', 300, NOW(), NOW(), '0')", g_ClientData[client].szAuthId, m_szEName);
         g_hDatabase.Query(SQLCallback_InsertClient, m_szQuery, userid, DBPrio_High);
     }
@@ -3193,8 +3193,8 @@ void UTIL_SaveClientData(int client, bool disconnect)
         return;
     
     char m_szQuery[512], m_szName[64], m_szEName[128];
-    GetClientName(client, m_szName, 64);
-    g_hDatabase.Escape(m_szName, m_szEName, 128);
+    GetClientName(client, STRING(m_szName));
+    g_hDatabase.Escape(m_szName, STRING(m_szEName));
     FormatEx(STRING(m_szQuery), "UPDATE store_players SET `credits`=`credits`+%d, `date_of_last_join`=FROM_UNIXTIME(%d), `name`='%s' WHERE `id`=%d", g_ClientData[client].iCredits-g_ClientData[client].iOriginalCredits, g_ClientData[client].iDateOfLastJoin, m_szEName, g_ClientData[client].iId);
 
     if(disconnect)
@@ -3434,7 +3434,7 @@ void UTIL_ComposeItem(int client)
         Call_PushString(g_Items[g_iSelectedItem[client]].szName);
         Call_PushString(g_Items[g_Items[g_iSelectedItem[client]].iParent].szName);
         Call_Finish();
-        FormatEx(m_szQuery, 256, "INSERT INTO store_compose VALUES (DEFAULT, %d, '%s', '%s', '%s', 0, DEFAULT)", g_ClientData[client].iId, g_Items[g_iSelectedItem[client]].szUniqueId, g_Items[g_Compose[client].item1].szUniqueId, g_Items[g_Compose[client].item2].szUniqueId);
+        FormatEx(STRING(m_szQuery), "INSERT INTO store_compose VALUES (DEFAULT, %d, '%s', '%s', '%s', 0, DEFAULT)", g_ClientData[client].iId, g_Items[g_iSelectedItem[client]].szUniqueId, g_Items[g_Compose[client].item1].szUniqueId, g_Items[g_Compose[client].item2].szUniqueId);
         SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
         return;
     }
@@ -3459,7 +3459,7 @@ void UTIL_ComposeItem(int client)
     Call_PushString(g_Items[g_Items[g_iSelectedItem[client]].iParent].szName);
     Call_Finish();
 
-    FormatEx(m_szQuery, 256, "INSERT INTO store_compose VALUES (DEFAULT, %d, '%s', '%s', '%s', 1, DEFAULT)", g_ClientData[client].iId, g_Items[g_iSelectedItem[client]].szUniqueId, g_Items[g_Compose[client].item1].szUniqueId, g_Items[g_Compose[client].item2].szUniqueId);
+    FormatEx(STRING(m_szQuery), "INSERT INTO store_compose VALUES (DEFAULT, %d, '%s', '%s', '%s', 1, DEFAULT)", g_ClientData[client].iId, g_Items[g_iSelectedItem[client]].szUniqueId, g_Items[g_Compose[client].item1].szUniqueId, g_Items[g_Compose[client].item2].szUniqueId);
     SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 }
 
@@ -3663,7 +3663,7 @@ public void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] e
     while(item_parent.FetchRow())
     {
         // Store to Map
-        IntToString(item_parent.FetchInt(0), parent_str, 12);
+        IntToString(item_parent.FetchInt(0), STRING(parent_str));
         if(!g_smParentMap.SetValue(parent_str, g_iItems, true))
         {
             LogStoreError("Failed to bind itemId[%d] to parentId[%s]", g_iItems, parent_str);
@@ -3671,7 +3671,7 @@ public void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] e
         }
 
         // name
-        item_parent.FetchString(1, g_Items[g_iItems].szName, 64);
+        item_parent.FetchString(1, g_Items[g_iItems].szName, sizeof(Store_Item::szName));
 
         // parent
         g_Items[g_iItems].iParent = item_parent.FetchInt(2);
@@ -3715,7 +3715,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
     {
         // Field 1 -> type
         char m_szType[32];
-        item_child.FetchString(1, m_szType, 32);
+        item_child.FetchString(1, STRING(m_szType));
         if(strcmp(m_szType, "ITEM_ERROR") == 0)
         {
             //LogStoreError("Failed to loaded %s -> ITEM_ERROR", g_Items[g_iItems].szName);
@@ -3732,7 +3732,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         
         // Field 2 -> uid
         char m_szUniqueId[32];
-        item_child.FetchString(2, m_szUniqueId, 32);
+        item_child.FetchString(2, STRING(m_szUniqueId));
 
         // Ignore bad item or dumplicate item
         if(strcmp(m_szUniqueId, "ITEM_ERROR") == 0 || item_array.FindString(m_szUniqueId) != -1)
@@ -3761,7 +3761,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
 
         // Field 6 -> auth
         char m_szAuth[256];
-        item_child.FetchString(6, m_szAuth, 256);
+        item_child.FetchString(6, STRING(m_szAuth));
         g_Items[g_iItems].szSteam[0] = '\0';
         if(strcmp(m_szAuth, "ITEM_NOT_PERSONAL") != 0)
             strcopy(g_Items[g_iItems].szSteam, sizeof(Store_Item::szSteam), m_szAuth);
@@ -3772,7 +3772,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         g_Items[g_iItems].bVIP = (m_bitVIP[0] == 1) ? true : false;
 
         // Field 8 -> name
-        item_child.FetchString(8, g_Items[g_iItems].szName, 32);
+        item_child.FetchString(8, g_Items[g_iItems].szName, sizeof(Store_Item::szName));
 
         // Field 9 -> lvls
         g_Items[g_iItems].iLevels = item_child.FetchInt(9);
@@ -3781,7 +3781,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
 
         // Field 10 -> desc
         char m_szDesc[128];
-        item_child.FetchString(10, m_szDesc, 128);
+        item_child.FetchString(10, STRING(m_szDesc));
         g_Items[g_iItems].szDesc[0] = '\0';
         if(StrContains(m_szDesc, "ITEM_NO") == -1)
             strcopy(g_Items[g_iItems].szDesc, sizeof(Store_Item::szDesc), m_szDesc);
@@ -3847,8 +3847,8 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         for(int field = 1; field < count; ++field)
         {
             char key[32], values[192];
-            item_child.FieldNumToName(field, key, 32);
-            item_child.FetchString(field, values, 192);
+            item_child.FieldNumToName(field, STRING(key));
+            item_child.FetchString(field, STRING(values));
             if(StrContains(values, "ITEM_NO") == -1)
                 kv.SetString(key, values);
         }
@@ -3908,7 +3908,7 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
     }
 
     char map[128];
-    GetCurrentMap(map, 128);
+    GetCurrentMap(STRING(map));
     if(strlen(map) > 3 && IsMapValid(map))
     {
         LogMessage("Force reload map to prevent server crash!"); //late precache will crash server.
@@ -3922,7 +3922,7 @@ int UTIL_GetParent(int itemId, int parentId)
     {
         int index;
         char parent_str[12];
-        IntToString(parentId, parent_str, 12);
+        IntToString(parentId, STRING(parent_str));
 
         if(!g_smParentMap.GetValue(parent_str, index))
         {
@@ -4072,7 +4072,7 @@ void UTIL_LogMessage(int client, int diff, const char[] message, any ...)
     VFormat(STRING(m_szReason), message, 4);
 
     char m_szQuery[512], EszReason[513];
-    g_hDatabase.Escape(m_szReason, EszReason, 513);
+    g_hDatabase.Escape(m_szReason, STRING(EszReason));
     FormatEx(STRING(m_szQuery), "INSERT INTO store_newlogs VALUES (DEFAULT, %d, %d, %d, \"%s\", FROM_UNIXTIME(%d))", g_ClientData[client].iId, g_ClientData[client].iCredits, diff, EszReason, GetTime());
     SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 }
@@ -4083,7 +4083,7 @@ void UTIL_LogOpencase(int client, int itemid, int length, const char[] handle, i
     g_hDatabase.Escape(handle, STRING(eHandle));
 
     char m_szQuery[256];
-    FormatEx(m_szQuery, 256, "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, FROM_UNIXTIME(%d), '%s', %d)", g_ClientData[client].iId, g_Items[itemid].szUniqueId, length, GetTime(), eHandle, caseid);
+    FormatEx(STRING(m_szQuery), "INSERT INTO store_opencase VALUES (DEFAULT, %d, '%s', %d, FROM_UNIXTIME(%d), '%s', %d)", g_ClientData[client].iId, g_Items[itemid].szUniqueId, length, GetTime(), eHandle, caseid);
     SQL_TVoid(g_hDatabase, m_szQuery, DBPrio_Low);
 }
 
@@ -4278,15 +4278,15 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 
     int m_iCredits = 0;
     char szFrom[128], szReason[128];
-    FormatEx(szFrom, 128, "\x10[");
-    FormatEx(szReason, 128, "%T[", "online earn credits", client);
+    FormatEx(STRING(szFrom), "\x10[");
+    FormatEx(STRING(szReason), "%T[", "online earn credits", client);
 
     m_iCredits += g_iCreditsTimerOnline;
-    StrCat(szFrom, 128, "\x04Online");
-    StrCat(szReason, 128, "Online");
+    StrCat(STRING(szFrom), "\x04Online");
+    StrCat(STRING(szReason), "Online");
 
-    StrCat(szFrom, 128, "\x10]");
-    StrCat(szReason, 128, "]");
+    StrCat(STRING(szFrom), "\x10]");
+    StrCat(STRING(szReason), "]");
 
     if(!m_iCredits)
         return Plugin_Continue;

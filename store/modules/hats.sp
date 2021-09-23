@@ -29,7 +29,7 @@ public bool Hats_Config(KeyValues kv, int itemid)
     g_eHats[g_iHats].bBonemerge = (kv.GetNum("bonemerge", 0)?true:false);
     g_eHats[g_iHats].iSlot = kv.GetNum("slot");
     g_eHats[g_iHats].bHide = kv.GetNum("hide", 1) ? true : false; // hide by default
-    kv.GetString("attachment", g_eHats[g_iHats].szAttachment, 64, "facemask");
+    kv.GetString("attachment", g_eHats[g_iHats].szAttachment, sizeof(Hat::szAttachment), "facemask");
     
     if(!(FileExists(g_eHats[g_iHats].szModel, true)))
         return false;

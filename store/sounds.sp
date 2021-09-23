@@ -51,10 +51,10 @@ public void Sound_OnMapStart()
     char szPathStar[256];
     for(int i = 0; i < g_iSounds; ++i)
     {
-        Format(szPath, 256, "sound/%s", g_eSounds[i].szSound);
+        Format(STRING(szPath), "sound/%s", g_eSounds[i].szSound);
         if(FileExists(szPath, true))
         {
-            Format(szPathStar, 256, "*%s", g_eSounds[i].szSound);
+            Format(STRING(szPathStar), "*%s", g_eSounds[i].szSound);
             AddToStringTable(FindStringTable("soundprecache"), szPathStar);
             AddFileToDownloadsTable(szPath);
         }
@@ -75,8 +75,8 @@ public void Sound_Reset()
 public bool Sound_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSounds);
-    kv.GetString("sound", g_eSounds[g_iSounds].szSound, 128);
-    kv.GetString("shortname", g_eSounds[g_iSounds].szName, 128);
+    kv.GetString("sound", g_eSounds[g_iSounds].szSound, sizeof(Sound::szSound));
+    kv.GetString("shortname", g_eSounds[g_iSounds].szName, sizeof(Sound::szName));
     g_eSounds[g_iSounds].fVolume = kv.GetFloat("volume", 0.3);
     g_eSounds[g_iSounds].iCooldown = kv.GetNum("cooldown", 30);
 
@@ -90,7 +90,7 @@ public bool Sound_Config(KeyValues kv, int itemid)
         g_eSounds[g_iSounds].fVolume = 0.05;
     
     char szPath[256];
-    FormatEx(szPath, 256, "sound/%s", g_eSounds[g_iSounds].szSound);
+    FormatEx(STRING(szPath), "sound/%s", g_eSounds[g_iSounds].szSound);
     if(FileExists(szPath, true))
     {
         ++g_iSounds;
@@ -176,14 +176,14 @@ public Action Command_Cheer(int client, int args)
 void StartSoundToAll(int client)
 {
     char sound[256], name[64];
-    strcopy(sound, 256, g_eSounds[g_iSoundClient[client]].szSound);
-    strcopy(name,   64, g_eSounds[g_iSoundClient[client]].szName);
+    strcopy(STRING(sound), g_eSounds[g_iSoundClient[client]].szSound);
+    strcopy(STRING(name),  g_eSounds[g_iSoundClient[client]].szName);
 
     Action res = Plugin_Continue;
     Call_StartForward(g_hOnCheerSound);
     Call_PushCell(client);
-    Call_PushStringEx(sound, 256, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushStringEx(name, 64, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(sound), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(name),  SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_Finish(res);
 
     if (res >= Plugin_Handled)
@@ -192,8 +192,8 @@ void StartSoundToAll(int client)
     if (res == Plugin_Continue)
     {
         // copy again
-        strcopy(sound, 256, g_eSounds[g_iSoundClient[client]].szSound);
-        strcopy(name,   64, g_eSounds[g_iSoundClient[client]].szName);
+        strcopy(STRING(sound), g_eSounds[g_iSoundClient[client]].szSound);
+        strcopy(STRING(name),  g_eSounds[g_iSoundClient[client]].szName);
     }
 
     int[] targets = new int[MaxClients];
@@ -213,7 +213,7 @@ void StartSoundToAll(int client)
     fPos[2] -= 3.0;
 
     char szPath[128];
-    Format(szPath, 128, "*%s", sound);
+    Format(STRING(szPath), "*%s", sound);
     EmitSound(targets, total, szPath, client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]].fVolume, SNDPITCH_NORMAL, client, fPos, fAgl, true);
 
     tPrintToChatAll("%t", "sound to all", client, name);
@@ -230,7 +230,7 @@ public void Sounds_OnLoadOptions(int client)
     if(g_pClientprefs)
     {
         char buff[4];
-        GetClientCookie(client, g_hCookieSounds, buff, 4);
+        GetClientCookie(client, g_hCookieSounds, STRING(buff));
         
         if(buff[0] != 0)
             g_bClientDisable[client] = (StringToInt(buff) == 1 ? true : false);

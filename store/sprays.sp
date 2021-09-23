@@ -71,7 +71,7 @@ public int Sprays_Reset()
 public bool Sprays_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSprays);
-    kv.GetString("material", g_szSprays[g_iSprays], 256);
+    kv.GetString("material", g_szSprays[g_iSprays], sizeof(g_szSprays[]));
     g_iSprayCooldown[g_iSprays] = kv.GetNum("cooldown", 30);
 
     if(FileExists(g_szSprays[g_iSprays], true))

@@ -90,7 +90,7 @@ public bool Models_Config(KeyValues kv, int itemid)
     kv.GetString("model", g_eCustomModel[g_iCustomModels].szModelV, PLATFORM_MAX_PATH);
     kv.GetString("worldmodel", g_eCustomModel[g_iCustomModels].szModelW, PLATFORM_MAX_PATH, "none");
     kv.GetString("dropmodel", g_eCustomModel[g_iCustomModels].szModelD, PLATFORM_MAX_PATH, "none");
-    kv.GetString("weapon", g_eCustomModel[g_iCustomModels].szEntity, 32);
+    kv.GetString("weapon", g_eCustomModel[g_iCustomModels].szEntity, sizeof(CustomModel::szEntity));
     g_eCustomModel[g_iCustomModels].iSlot = kv.GetNum("slot");
     
     if(FileExists(g_eCustomModel[g_iCustomModels].szModelV, true))
@@ -169,18 +169,18 @@ public void Hook_WeaponSwitchPost_Models(int client, int weapon)
         return;
     
     char classname[32];
-    if(!GetWeaponClassname(weapon, classname, 32))
+    if(!GetWeaponClassname(weapon, classname, STRING(classname)))
         return;
 
     if(StrContains(classname, "item", false) == 0)
         return;
     
     char m_szGlobalName[256];
-    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", m_szGlobalName, 256);
+    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", m_szGlobalName, STRING(m_szGlobalName));
     if(StrContains(m_szGlobalName, "custom", false) != 0)
         return;
     
-    ReplaceString(m_szGlobalName, 256, "custom", "");
+    ReplaceString(STRING(m_szGlobalName), "custom", "");
 
     char m_szData[2][192];
     ExplodeString(m_szGlobalName, ";", m_szData, 2, 192);
@@ -222,17 +222,17 @@ public Action Hook_WeaponEquip_Models(int client, int weapon)
         return Plugin_Continue;
 
     char classname[32];
-    if(!GetWeaponClassname(weapon, classname, 32))
+    if(!GetWeaponClassname(weapon, STRING(classname)))
         return Plugin_Continue;
 
     char m_szGlobalName[256];
-    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", m_szGlobalName, 256);
+    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", STRING(m_szGlobalName));
     if(StrContains(m_szGlobalName, "custom", false) == 0)
         return Plugin_Continue;
 
     char classname_world[32], classname_drop[32];
-    FormatEx(classname_world, 32, "%s_world", classname);
-    FormatEx(classname_drop,  32, "%s_drop",  classname);
+    FormatEx(STRING(classname_world), "%s_world", classname);
+    FormatEx(STRING(classname_drop),  "%s_drop",  classname);
 
     int model_world;
     if(g_smClientWeapon[client].GetValue(classname_world, model_world) && model_world != -1)
@@ -243,7 +243,7 @@ public Action Hook_WeaponEquip_Models(int client, int weapon)
     }
 
     char model_drop[192];
-    if(GetTrieString(g_smClientWeapon[client], classname_drop, model_drop, 192) && !StrEqual(model_drop, "none"))
+    if(GetTrieString(g_smClientWeapon[client], classname_drop, STRING(model_drop)) && !StrEqual(model_drop, "none"))
     {
         if(!IsModelPrecached(model_drop))
             LogError("Hook_WeaponEquip_Models -> not precached -> %s", model_drop);
@@ -253,7 +253,7 @@ public Action Hook_WeaponEquip_Models(int client, int weapon)
     if(!g_smClientWeapon[client].GetValue(classname, model_index) || model_index == -1)
         return Plugin_Continue;
 
-    FormatEx(m_szGlobalName, 256, "custom%i;%s", model_index, model_drop);
+    FormatEx(STRING(m_szGlobalName), "custom%i;%s", model_index, model_drop);
     DispatchKeyValue(weapon, "globalname", m_szGlobalName);
     
     return Plugin_Continue;
@@ -345,12 +345,12 @@ void SetWorldModel(int iRef)
         return;
 
     char m_szGlobalName[256];
-    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", m_szGlobalName, 256);
+    GetEntPropString(weapon, Prop_Data, "m_iGlobalname", STRING(m_szGlobalName));
 
     if(StrContains(m_szGlobalName, "custom", false) != 0)
         return;
 
-    ReplaceString(m_szGlobalName, 64, "custom", "");
+    ReplaceString(STRING(m_szGlobalName), "custom", "");
 
     char m_szData[2][192];
     ExplodeString(m_szGlobalName, ";", m_szData, 2, 192);
@@ -375,8 +375,8 @@ bool Models_AddModels(int client, const char[] classname, int model_view, int mo
     }
 
     char world_name[32], drop_name[32];
-    FormatEx(world_name, 32, "%s_world", classname);
-    FormatEx(drop_name,  32, "%s_drop",  classname);
+    FormatEx(STRING(world_name), "%s_world", classname);
+    FormatEx(STRING(drop_name),  "%s_drop",  classname);
 
     SetTrieValue(g_smClientWeapon[client],  classname,  model_view);
     SetTrieValue(g_smClientWeapon[client],  world_name, model_world);
@@ -393,8 +393,8 @@ bool Models_RemoveModels(int client, const char[] classname)
         return false;
 
     char world_name[32], drop_name[32];
-    FormatEx(world_name, 32, "%s_world", classname);
-    FormatEx(drop_name,  32, "%s_drop",  classname);
+    FormatEx(STRING(world_name), "%s_world", classname);
+    FormatEx(STRING(drop_name),  "%s_drop",  classname);
 
     g_smClientWeapon[client].Remove(classname);
     g_smClientWeapon[client].Remove(world_name);
@@ -451,7 +451,7 @@ void RefreshWeapon(int client, const char[] classname)
 public Action Timer_GiveBackWeapon(Handle timer, DataPack pack)
 {
     char classname[32];
-    pack.ReadString(classname, 32);
+    pack.ReadString(STRING(classname));
     int client = pack.ReadCell();
     int m_iPrimaryAmmoCount = pack.ReadCell();
     int m_iSecondaryAmmoCount = pack.ReadCell();

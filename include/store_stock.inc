@@ -93,10 +93,10 @@ stock void LogStoreError(const char[] buffer, any ...)
 {
     static char path[128];
     if(!path[0])
-        BuildPath(Path_SM, path, 128, "logs/store.error.log");
+        BuildPath(Path_SM, STRING(path), "logs/store.error.log");
 
     char error[1024];
-    VFormat(error, 1024, buffer, 2);
+    VFormat(STRING(error), buffer, 2);
     LogToFileEx(path, error);
 }
 
@@ -126,7 +126,7 @@ stock bool AllowItemForAuth(int client, const char[] authid)
         return true;
 
     char m_szAuthId[32];
-    if(!GetClientAuthId(client, AuthId_Steam2, m_szAuthId, 32))
+    if(!GetClientAuthId(client, AuthId_Steam2, STRING(m_szAuthId)))
         return false;
 
     if(StrContains(authid, m_szAuthId) == -1)
@@ -178,7 +178,7 @@ stock int GetClientWeaponIndexByClassname(int client, const char[] classname)
 
         weapon = GetEntDataEnt2(client, offset);
 
-        if(!IsValidEdict(weapon) || !GetEdictClassname(weapon, weaponclass, 32) || StrContains(weaponclass, "weapon_") != 0)
+        if(!IsValidEdict(weapon) || !GetEdictClassname(weapon, STRING(weaponclass)) || StrContains(weaponclass, "weapon_") != 0)
             continue;
 
         if(strcmp(weaponclass, classname) == 0)
@@ -248,9 +248,9 @@ stock bool AddMenuItemEx(Handle menu, int style, char[] info, char[] display, an
 stock void tPrintToChat(int client, const char[] szMessage, any ...)
 {
     char szBuffer[256];
-    VFormat(szBuffer, 256, szMessage, 3);
-    ReplaceColorsCode(szBuffer, 256);
-    Format(szBuffer, 256, "[\x04Store\x01]  %s", szBuffer);
+    VFormat(STRING(szBuffer), szMessage, 3);
+    ReplaceColorsCode(STRING(szBuffer));
+    Format(STRING(szBuffer), "[\x04Store\x01]  %s", szBuffer);
     //PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
 
     Protobuf SayText2 = view_as<Protobuf>(StartMessageOne("SayText2", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
@@ -279,8 +279,8 @@ stock void tPrintToChatAll(const char[] szMessage, any ...)
         if(IsClientInGame(client) && !IsFakeClient(client))
         {
             SetGlobalTransTarget(client);
-            VFormat(szBuffer, 256, szMessage, 2);
-            ReplaceColorsCode(szBuffer, 256);
+            VFormat(STRING(szBuffer), szMessage, 2);
+            ReplaceColorsCode(STRING(szBuffer));
             PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
         }
     }
@@ -377,7 +377,7 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float rem
     if(removeDelay > 0.0)
     {
         char input[128];
-        FormatEx(input, 128, "OnUser4 !self:Kill::%.2f:1", removeDelay);
+        FormatEx(STRING(input), "OnUser4 !self:Kill::%.2f:1", removeDelay);
         SetVariantString(input);
         AcceptEntityInput(speaker, "AddOutput");
         AcceptEntityInput(speaker, "FireUser4");

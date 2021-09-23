@@ -64,7 +64,7 @@ public void CPSupport_Reset()
 public bool NameTags_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameTags);
-    kv.GetString("tag", g_szNameTags[g_iNameTags], 128);
+    kv.GetString("tag", g_szNameTags[g_iNameTags], sizeof(g_szNameTags[]));
     ++g_iNameTags;
 
     return true;
@@ -73,7 +73,7 @@ public bool NameTags_Config(KeyValues kv, int itemid)
 public bool NameColors_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameColors);
-    kv.GetString("color", g_szNameColors[g_iNameColors], 32);
+    kv.GetString("color", g_szNameColors[g_iNameColors], sizeof(g_szNameColors[]));
     ++g_iNameColors;
 
     return true;
@@ -82,7 +82,7 @@ public bool NameColors_Config(KeyValues kv, int itemid)
 public bool MsgColors_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iMessageColors);
-    kv.GetString("color", g_szMessageColors[g_iMessageColors], 32);
+    kv.GetString("color", g_szMessageColors[g_iMessageColors], sizeof(g_szMessageColors[]));
     ++g_iMessageColors;
 
     return true;
@@ -98,7 +98,7 @@ public int CPSupport_Remove(int client, int id)
 
 }
 
-void CPP_Forward(int client, const char[] flagstring, const char[] name, const char[] message, ArrayList hRecipients, bool removedColor, bool processColor)
+void CPP_Forward(int client, const char flagstring[32], const char name[128], const char message[256], ArrayList hRecipients, bool removedColor, bool processColor)
 {
     Call_StartForward(g_hCPPForward);
     Call_PushCell(client);
@@ -111,7 +111,7 @@ void CPP_Forward(int client, const char[] flagstring, const char[] name, const c
     Call_Finish();
 }
 
-Action CPA_Forward(int &client, char[] flagstring, char[] name, char[] message, ArrayList hRecipients, bool &removedColor, bool &processColor)
+Action CPA_Forward(int &client, char flagstring[32], char name[128], char message[256], ArrayList hRecipients, bool &removedColor, bool &processColor)
 {
     int m_iEquippedNameTag = Store_GetEquippedItem(client, "nametag");
     int m_iEquippedNameColor = Store_GetEquippedItem(client, "namecolor");
@@ -137,10 +137,10 @@ Action CPA_Forward(int &client, char[] flagstring, char[] name, char[] message, 
     if(rainbowname)
     {
         char buffer[128];
-        String_Rainbow(name, buffer, 128);
-        Format(name, 128, "%s %s", m_szNameTag, buffer);
+        String_Rainbow(name, STRING(buffer));
+        Format(STRING(name), "%s %s", m_szNameTag, buffer);
     }
-    else Format(name, 128, "%s%s %s", m_szNameTag, m_szNameColor, name);
+    else Format(STRING(name), "%s%s %s", m_szNameTag, m_szNameColor, name);
 
     if(m_iEquippedMsgColor >= 0)
     {
@@ -148,18 +148,18 @@ Action CPA_Forward(int &client, char[] flagstring, char[] name, char[] message, 
         if(strcmp(g_szMessageColors[m_iData], "rainbow") == 0)
         {
             char buffer[256];
-            String_Rainbow(message, buffer, 256);
-            strcopy(message, 256, buffer);
+            String_Rainbow(message, STRING(buffer));
+            strcopy(STRING(message), buffer);
         }
-        else Format(message, 256, "%s%s", g_szMessageColors[m_iData], message);
+        else Format(STRING(message), "%s%s", g_szMessageColors[m_iData], message);
     }
 
     Call_StartForward(g_hCPAForward);
     Call_PushCellRef(client);
     Call_PushCell(hRecipients);
-    Call_PushStringEx(flagstring, 32, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushStringEx(name, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushStringEx(message, 256, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(flagstring), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(name), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(message), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCellRef(processColor);
     Call_PushCellRef(removedColor);
 
@@ -324,21 +324,21 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 
     char m_szFlag[32], m_szName[128], m_szMsg[256], m_szFmt[32];
 
-    msg.ReadString("msg_name", m_szFlag, 32);
-    msg.ReadString("params", m_szName, 128, 0);
-    msg.ReadString("params", m_szMsg, 256, 1);
+    msg.ReadString("msg_name", STRING(m_szFlag));
+    msg.ReadString("params", STRING(m_szName), 0);
+    msg.ReadString("params", STRING(m_szMsg), 1);
 
-    if(!g_tMsgFmt.GetString(m_szFlag, m_szFmt, 32))
+    if(!g_tMsgFmt.GetString(m_szFlag, STRING(m_szFmt)))
         return Plugin_Continue;
 
-    RemoveAllColors(m_szName, 128);
-    RemoveAllColors(m_szMsg, 256);
+    RemoveAllColors(STRING(m_szName));
+    RemoveAllColors(STRING(m_szMsg));
 
     char m_szNameCopy[128];
-    strcopy(m_szNameCopy, 128, m_szName);
+    strcopy(STRING(m_szNameCopy), m_szName);
 
     char m_szFlagCopy[32];
-    strcopy(m_szFlagCopy, 32, m_szFlag);
+    strcopy(STRING(m_szFlagCopy), m_szFlag);
 
     ArrayList hRecipients = new ArrayList();
 
@@ -398,7 +398,7 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
         return iResults;
     }
 
-    if(strcmp(m_szFlag, m_szFlagCopy) != 0 && !g_tMsgFmt.GetString(m_szFlag, m_szFmt, 256))
+    if(strcmp(m_szFlag, m_szFlagCopy) != 0 && !g_tMsgFmt.GetString(m_szFlag, STRING(m_szFmt)))
     {
         delete hRecipients;
         return Plugin_Continue;
@@ -408,9 +408,9 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
     {
         switch(g_iClientTeam[m_iSender])
         {
-            case  3: Format(m_szName, 128, "\x0B%s", m_szName);
-            case  2: Format(m_szName, 128, "\x05%s", m_szName);
-            default: Format(m_szName, 128, "\x01%s", m_szName);
+            case  3: Format(STRING(m_szName), "\x0B%s", m_szName);
+            case  2: Format(STRING(m_szName), "\x05%s", m_szName);
+            default: Format(STRING(m_szName), "\x01%s", m_szName);
         }
     }
 
@@ -446,36 +446,36 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     }
 
     char m_szName[128];
-    data.ReadString(m_szName, 128);
+    data.ReadString(STRING(m_szName));
 
     char m_szMsg[256];
-    data.ReadString(m_szMsg, 256);
+    data.ReadString(STRING(m_szMsg));
 
     char m_szFlag[32];
-    data.ReadString(m_szFlag, 32);
+    data.ReadString(STRING(m_szFlag));
 
     char m_szFmt[32];
-    data.ReadString(m_szFmt, 32);
+    data.ReadString(STRING(m_szFmt));
 
     bool removedColor = data.ReadCell();
     bool processColor = data.ReadCell();
 
     char m_szBuffer[512];
-    strcopy(m_szBuffer, 512, m_szFmt);
+    strcopy(STRING(m_szBuffer), m_szFmt);
 
-    ReplaceString(m_szBuffer, 512, "{1} :  {2}", "{1} {normal}:  {2}");
-    ReplaceString(m_szBuffer, 512, "{1}", m_szName);
-    ReplaceString(m_szBuffer, 512, "{2}", m_szMsg);
+    ReplaceString(STRING(m_szBuffer), "{1} :  {2}", "{1} {normal}:  {2}");
+    ReplaceString(STRING(m_szBuffer), "{1}", m_szName);
+    ReplaceString(STRING(m_szBuffer), "{2}", m_szMsg);
 
     if(removedColor)
     {
-        RemoveAllColors(m_szName, 128);
-        RemoveAllColors(m_szMsg, 256);
+        RemoveAllColors(STRING(m_szName));
+        RemoveAllColors(STRING(m_szMsg));
     }
 
     if(processColor)
     {
-        ReplaceColorsCode(m_szBuffer, 512, g_iClientTeam[m_iSender]);
+        ReplaceColorsCode(STRING(m_szBuffer), g_iClientTeam[m_iSender]);
     }
 
     Protobuf pb = view_as<Protobuf>(StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));

@@ -186,10 +186,10 @@ public void PlayerSkins_OnMapStart()
 
         if(g_ePlayerSkins[i].szSound[0] != 0)
         {
-            FormatEx(szPath, 256, "sound/%s", g_ePlayerSkins[i].szSound);
+            FormatEx(STRING(szPath), "sound/%s", g_ePlayerSkins[i].szSound);
             if(FileExists(szPath, true))
             {
-                FormatEx(szPathStar, 256, "*%s", g_ePlayerSkins[i].szSound);
+                FormatEx(STRING(szPathStar), "*%s", g_ePlayerSkins[i].szSound);
                 AddToStringTable(FindStringTable("soundprecache"), szPathStar);
                 AddFileToDownloadsTable(szPath);
                 deathsounds++;
@@ -269,14 +269,14 @@ static void Store_SetClientModel(int client, int m_iData)
 #if defined GM_ZE
     if(g_iClientTeam[client] == 2)
     {
-        strcopy(g_szSkinModel[client], 256, "#zombie");
+        strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), "#zombie");
         return;
     }
 #endif
 
     char skin_t[128], arms_t[128];
-    strcopy(skin_t, 128, g_ePlayerSkins[m_iData].szModel);
-    strcopy(arms_t, 128, g_ePlayerSkins[m_iData].szArms);
+    strcopy(STRING(skin_t), g_ePlayerSkins[m_iData].szModel);
+    strcopy(STRING(arms_t), g_ePlayerSkins[m_iData].szArms);
     int body_t = g_ePlayerSkins[m_iData].nBody;
 
     Action res = Store_CallPreSetModel(client, skin_t, arms_t, body_t);
@@ -291,7 +291,7 @@ static void Store_SetClientModel(int client, int m_iData)
     }
 
     if (g_ePlayerSkins[m_iData].szSound[0] != 0)
-        FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[m_iData].szSound);
+        FormatEx(g_szDeathVoice[client], sizeof(g_szDeathVoice[]), "*%s", g_ePlayerSkins[m_iData].szSound);
 
     // basic player skin
     SetEntityModel(client, skin_t);
@@ -303,11 +303,11 @@ static void Store_SetClientModel(int client, int m_iData)
         SetEntProp(client, Prop_Send, "m_nBody", body_t);
     }
 
-    strcopy(g_szSkinModel[client], 256, skin_t);
+    strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), skin_t);
 
     if(!StrEqual(arms_t, "null"))
     {
-        if (Store_CallSetPlayerSkinArms(client, arms_t, 128))
+        if (Store_CallSetPlayerSkinArms(client, STRING(arms_t)))
         {
             Store_SetClientArms(client, arms_t);
         }
@@ -447,7 +447,7 @@ void Store_PreviewSkin(int client, int itemid)
 
     int m_iViewModel = CreateEntityByName("prop_dynamic_override"); //prop_physics_multiplayer
     char m_szTargetName[32];
-    FormatEx(m_szTargetName, 32, "Store_Preview_%d", m_iViewModel);
+    FormatEx(STRING(m_szTargetName), "Store_Preview_%d", m_iViewModel);
     DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
     DispatchKeyValue(m_iViewModel, "spawnflags", "64");
     DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_Items[itemid].iData].szModel);
@@ -568,7 +568,7 @@ public void FirstPersonDeathCamera(int client)
 static bool SpawnCamAndAttach(int client, int ragdoll)
 {
     char m_szTargetName[32]; 
-    FormatEx(m_szTargetName, 32, "ragdoll%d", client);
+    FormatEx(STRING(m_szTargetName), "ragdoll%d", client);
     DispatchKeyValue(ragdoll, "targetname", m_szTargetName);
 
     int iEntity = CreateEntityByName("prop_dynamic");
@@ -576,7 +576,7 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
         return false;
 
     char m_szCamera[32]; 
-    FormatEx(m_szCamera, 32, "ragdollCam%d", iEntity);
+    FormatEx(STRING(m_szCamera), "ragdollCam%d", iEntity);
 
     DispatchKeyValue(iEntity, "targetname", m_szCamera);
     DispatchKeyValue(iEntity, "parentname", m_szTargetName);
@@ -589,7 +589,7 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
     GetClientEyeAngles(client, m_fAngles);
     
     char m_szCamAngles[64];
-    FormatEx(m_szCamAngles, 64, "%f %f %f", m_fAngles[0], m_fAngles[1], m_fAngles[2]);
+    FormatEx(STRING(m_szCamAngles), "%f %f %f", m_fAngles[0], m_fAngles[1], m_fAngles[2]);
 
     DispatchKeyValue(iEntity, "angles", m_szCamAngles);
 
@@ -718,7 +718,7 @@ void Store_OnPlayerSpawn(int client)
 
 void Store_ResetPlayerSkin(int client)
 {
-    strcopy(g_szSkinModel[client], 256, "#default");
+    strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), "#default");
     g_iSkinLevel[client] = 0;
     g_szDeathVoice[client][0] = '\0';
 }
@@ -743,7 +743,7 @@ void Store_CallDefaultSkin(int client)
 #if defined GM_ZE
     if(g_iClientTeam[client] == 2)
     {
-        strcopy(g_szSkinModel[client], 256, "#zombie");
+        strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), "#zombie");
         return;
     }
 #endif
@@ -755,9 +755,9 @@ void Store_CallDefaultSkin(int client)
     Call_StartForward(g_hOnPlayerSkinDefault);
     Call_PushCell(client);
     Call_PushCell(g_iClientTeam[client]-2);
-    Call_PushStringEx(skin_t, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(skin_t), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(128);
-    Call_PushStringEx(arms_t,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(arms_t), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(128);
     Call_Finish(ret);
 
@@ -768,7 +768,7 @@ void Store_CallDefaultSkin(int client)
             SetEntityModel(client, skin_t);
         }
 
-        if (Store_CallSetPlayerSkinArms(client, arms_t, 128))
+        if (Store_CallSetPlayerSkinArms(client, STRING(arms_t)))
         {
             if(IsModelPrecached(arms_t))
             {
@@ -790,21 +790,21 @@ void EnforceDeathSound(int client, const char[] skin)
     }
 
     if (g_ePlayerSkins[index].szSound[0] != 0)
-        FormatEx(g_szDeathVoice[client], 256, "*%s", g_ePlayerSkins[index].szSound);
+        FormatEx(g_szDeathVoice[client], sizeof(g_szDeathVoice[]), "*%s", g_ePlayerSkins[index].szSound);
 }
 
 Action Store_CallPreSetModel(int client, char skin[128], char arms[128], int &body)
 {
     char s[128], a[128]; int b = body;
-    strcopy(s, 128, skin);
-    strcopy(a, 128, arms);
+    strcopy(STRING(s), skin);
+    strcopy(STRING(a), arms);
 
     Action res = Plugin_Continue;
 
     Call_StartForward(g_hOnPlayerSetModel);
     Call_PushCell(client);
-    Call_PushStringEx(s, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushStringEx(a,  128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(s), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(a), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCellRef(b);
     Call_Finish(res);
 
@@ -827,12 +827,12 @@ bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
     }
 
     char buff[128];
-    strcopy(buff, 128, arms);
+    strcopy(STRING(buff), arms);
 
     Action res = Plugin_Continue;
     Call_StartForward(gf);
     Call_PushCell(client);
-    Call_PushStringEx(buff, 128, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(buff), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(len);
     Call_Finish(res);
 

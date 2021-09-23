@@ -81,9 +81,9 @@ public bool GrenadeTrails_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iGrenadeTrails);
     kv.GetString("material", g_eGrenadeTrails[g_iGrenadeTrails].szMaterial, PLATFORM_MAX_PATH, "materials/sprites/laserbeam.vmt");
-    kv.GetString("width", g_eGrenadeTrails[g_iGrenadeTrails].szWidth, 16, "10.0");
+    kv.GetString("width", g_eGrenadeTrails[g_iGrenadeTrails].szWidth, sizeof(GrenadeTrail::szWidth), "10.0");
     g_eGrenadeTrails[g_iGrenadeTrails].fWidth = kv.GetFloat("width", 10.0);
-    kv.GetString("color", g_eGrenadeTrails[g_iGrenadeTrails].szColor, 16, "255 255 255 255");
+    kv.GetString("color", g_eGrenadeTrails[g_iGrenadeTrails].szColor, sizeof(GrenadeTrail::szColor), "255 255 255 255");
     KvGetColor(kv, "color", g_eGrenadeTrails[g_iGrenadeTrails].iColor[0], g_eGrenadeTrails[g_iGrenadeTrails].iColor[1], g_eGrenadeTrails[g_iGrenadeTrails].iColor[2], g_eGrenadeTrails[g_iGrenadeTrails].iColor[3]);
     g_eGrenadeTrails[g_iGrenadeTrails].iSlot = kv.GetNum("slot");
     
@@ -143,7 +143,7 @@ public void Grenades_OnEntitySpawnedPost(int entity)
         return;
 
     char m_szClassname[64];
-    GetEdictClassname(entity, m_szClassname, 64);
+    GetEdictClassname(entity, STRING(m_szClassname));
 
     for(int i = 0; i < strlen(m_szClassname); ++i)
         if(m_szClassname[i]=='_')

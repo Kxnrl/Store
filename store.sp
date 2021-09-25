@@ -63,7 +63,7 @@ public Plugin myinfo =
 
 // Custom Module
 // skin does not match with team
-#if defined GM_TT || defined GM_ZE || defined GM_KZ || defined GM_BH || defined GM_JB
+#if defined GM_TT || defined GM_ZE || defined GM_KZ || defined GM_BH || defined GM_SR || defined GM_JB
 #define Global_Skin
 #undef Skin_TeamTag
 #endif
@@ -168,7 +168,7 @@ static char  g_szComposeFee[][] = {"5888", "9888", "15888", "21888", "29888", "3
 #include "store/players.sp"
 #endif
 // Module Grenade
-#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR
+#if defined GM_TT || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG
 #include "store/grenades.sp"
 #endif
 // Module Spray

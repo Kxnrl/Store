@@ -297,33 +297,33 @@
     "Chat Bought Item"
     {
         "#format" "{1:s},{2:t}"
-        "en" "You have bought a {HIGHLIGHT}{1} {2}{NORMAL}, you need equip that."
-        "chi" "你购买了 {HIGHLIGHT}{1} {2}{NORMAL}, 你需要选择已购买的物品来装备."
-        "da" "Du har købt en {HIGHLIGHT}{1} {2}{NORMAL}, du mangler at tage varen på."
+        "en" "You have bought a {green}{1} {2}{white}, you need equip that."
+        "chi" "你购买了 {green}{1} {2}{white}, 你需要选择已购买的物品来装备."
+        "da" "Du har købt en {green}{1} {2}{white}, du mangler at tage varen på."
     }
     
     "Chat Sold Item"
     {
         "#format" "{1:s},{2:t}"
-        "en" "You have sold a {HIGHLIGHT}{1} {2}{NORMAL}."
-        "chi" "你卖掉了 {HIGHLIGHT}{1} {2}{NORMAL}."
-        "da" "Du har sold en {HIGHLIGHT}{1} {2}{NORMAL}."
+        "en" "You have sold a {green}{1} {2}{white}."
+        "chi" "你卖掉了 {green}{1} {2}{white}."
+        "da" "Du har sold en {green}{1} {2}{white}."
     }
     
     "Chat Gift Item Sent"
     {
         "#format" "{1:N},{2:s},{3:t}"
-        "en" "You have sent {HIGHLIGHT}{1}{NORMAL} a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
-        "chi" "你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL} 给玩家 {HIGHLIGHT}{1}{NORMAL}."
-        "da" "Du har sendt {HIGHLIGHT}{1}{NORMAL} en {HIGHLIGHT}{2} {3}{NORMAL} som en gave."
+        "en" "You have sent {green}{1}{white} a {green}{2} {3}{white} as a gift."
+        "chi" "你赠送了物品 {green}{2} {3}{white} 给玩家 {green}{1}{white}."
+        "da" "Du har sendt {green}{1}{white} en {green}{2} {3}{white} som en gave."
     }
     
     "Chat Gift Item Received"
     {
         "#format" "{1:N},{2:s},{3:t}"
-        "en" "{HIGHLIGHT}{1}{NORMAL} has sent you a {HIGHLIGHT}{2} {3}{NORMAL} as a gift."
-        "chi" "玩家 {HIGHLIGHT}{1}{NORMAL} 给你赠送了物品 {HIGHLIGHT}{2} {3}{NORMAL}."
-        "da" "{HIGHLIGHT}{1}{NORMAL} har sendt {HIGHLIGHT}{2} {3}{NORMAL} som en gave."
+        "en" "{green}{1}{white} has sent you a {green}{2} {3}{white} as a gift."
+        "chi" "玩家 {green}{1}{white} 给你赠送了物品 {green}{2} {3}{white}."
+        "da" "{green}{1}{white} har sendt {green}{2} {3}{white} som en gave."
     }
     
     "Credit Gift Disabled"
@@ -412,9 +412,9 @@
     "Player Credits"
     {
         "#format" "{1:N},{2:d}"
-        "en" "{HIGHLIGHT}{1}{NORMAL} has {HIGHLIGHT}{2}{NORMAL} credits."
-        "chi" "{HIGHLIGHT}{1}{NORMAL} 现在拥有 {HIGHLIGHT}{2}{NORMAL} 积分."
-        "da" "{HIGHLIGHT}{1}{NORMAL} har {HIGHLIGHT}{2}{NORMAL} credits."
+        "en" "{green}{1}{white} has {green}{2}{white} credits."
+        "chi" "{green}{1}{white} 现在拥有 {green}{2}{white} 积分."
+        "da" "{green}{1}{white} har {green}{2}{white} credits."
     }
 
     // Item type names for chat messages

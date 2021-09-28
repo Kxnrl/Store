@@ -75,13 +75,6 @@ enum struct Compose_Data
     int types;
 }
 
-public bool TraceRayDontHitSelf(int entity, int mask, any data)
-{
-    if(entity == data)
-        return false;
-    return true;
-}
-
 stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, char[] display, any ...)
 {
     char m_display[256];
@@ -146,48 +139,6 @@ stock bool AllowItemForVIP(int client, bool vip)
     return false;
 }
 
-stock bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
-{
-    if(!GetEdictClassname(weapon, classname, maxLen))
-        return false;
-    
-    if(!HasEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
-        return false;
-    
-    switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
-    {
-        case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
-        case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
-        case 63: strcopy(classname, maxLen, "weapon_cz75a");
-        case 64: strcopy(classname, maxLen, "weapon_revolver");
-    }
-    
-    return true;
-}
-
-// credits:  https://github.com/bcserv/smlib/
-stock int GetClientWeaponIndexByClassname(int client, const char[] classname)
-{
-    int offset = FindDataMapInfo(client, "m_hMyWeapons") - 4;
-
-    int weapon = -1;
-    char weaponclass[32];
-    for(int i = 0; i < 48; ++i)
-    {
-        offset += 4;
-
-        weapon = GetEntDataEnt2(client, offset);
-
-        if(!IsValidEdict(weapon) || !GetEdictClassname(weapon, STRING(weaponclass)) || StrContains(weaponclass, "weapon_") != 0)
-            continue;
-
-        if(strcmp(weaponclass, classname) == 0)
-            return weapon;
-    }
-
-    return -1;
-}
-
 stock bool IsValidClient(int client)
 {
     if(client > MaxClients || client < 1)
@@ -208,36 +159,6 @@ stock void ClearTimer(Handle &timer)
     }
 }
 
-stock int GetClientAimTargetPos(int client, float pos[3]) 
-{
-    if(client < 1) 
-        return -1;
-
-    float vAngles[3];
-    float vOrigin[3];
-    
-    GetClientEyePosition(client,vOrigin);
-    GetClientEyeAngles(client, vAngles);
-    
-    Handle trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceFilterAllEntities, client);
-    
-    TR_GetEndPosition(pos, trace);
-    
-    int entity = TR_GetEntityIndex(trace);
-    
-    delete trace;
-    
-    return entity;
-}
-
-public bool TraceFilterAllEntities(int entity, int contentsMask, int client)
-{
-    if(entity == client || entity > MaxClients || !IsClientInGame(entity) || !IsPlayerAlive(entity))
-        return false;
-
-    return true;
-}
-
 stock bool AddMenuItemEx(Handle menu, int style, char[] info, char[] display, any ...)
 {
     char m_display[256];
@@ -249,25 +170,9 @@ stock void tPrintToChat(int client, const char[] szMessage, any ...)
 {
     char szBuffer[256];
     VFormat(STRING(szBuffer), szMessage, 3);
+    Format(STRING(szBuffer), "[{green}Store{white}]  %s", szBuffer);
     ReplaceColorsCode(STRING(szBuffer));
-    Format(STRING(szBuffer), "[\x04Store\x01]  %s", szBuffer);
-    //PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
-
-    Protobuf SayText2 = view_as<Protobuf>(StartMessageOne("SayText2", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
-    if(SayText2 == null)
-    {
-        LogError("StartMessageOne -> SayText2 is null");
-        return;
-    }
-
-    SayText2.SetInt("ent_idx", 0);
-    SayText2.SetBool("chat", true);
-    SayText2.SetString("msg_name", szBuffer);
-    SayText2.AddString("params", "");
-    SayText2.AddString("params", "");
-    SayText2.AddString("params", "");
-    SayText2.AddString("params", "");
-    EndMessage();
+    SayText2(client, szBuffer);
 }
 
 stock void tPrintToChatAll(const char[] szMessage, any ...)
@@ -280,68 +185,112 @@ stock void tPrintToChatAll(const char[] szMessage, any ...)
         {
             SetGlobalTransTarget(client);
             VFormat(STRING(szBuffer), szMessage, 2);
+            Format(STRING(szBuffer), "[{green}Store{white}]  %s", szBuffer);
             ReplaceColorsCode(STRING(szBuffer));
-            PrintToChat(client, "[\x04Store\x01]  %s", szBuffer);
+            SayText2(client, szBuffer); 
         }
+    }
+}
+
+stock void SayText2(int client, const char[] text, int sender = 0, bool sound = true)
+{
+    static EngineVersion engine = Engine_Unknown;
+    if (engine == Engine_Unknown)
+        engine  = GetEngineVersion();
+
+    Handle um = StartMessageOne(engine == Engine_CSGO ? "SayText2" : "SayText", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
+    if (um == null)
+    {
+        LogError("StartMessageOne -> SayText2 is null");
+        return;
+    }
+
+    if (engine == Engine_CSGO)
+    {
+        Protobuf msg = view_as<Protobuf>(um);
+        msg.SetInt("ent_idx", sender);
+        msg.SetBool("chat", sound);
+        msg.SetString("msg_name", text);
+        msg.AddString("params", "");
+        msg.AddString("params", "");
+        msg.AddString("params", "");
+        msg.AddString("params", "");
+        EndMessage();
+    }
+    else // for L4D2/Insurgency
+    {
+        BfWrite msg = view_as<BfWrite>(um);
+        msg.WriteByte(sender);
+        msg.WriteByte(sound);
+        msg.WriteString(text);
+        EndMessage();
     }
 }
 
 stock void ReplaceColorsCode(char[] message, int maxLen, int team = 0)
 {
-    ReplaceString(message, maxLen, "{normal}", "\x01", false);
-    ReplaceString(message, maxLen, "{default}", "\x01", false);
-    ReplaceString(message, maxLen, "{white}", "\x01", false);
-    ReplaceString(message, maxLen, "{darkred}", "\x02", false);
-    switch(team)
+    static EngineVersion engine = Engine_Unknown;
+    if (engine == Engine_Unknown)
+        engine  = GetEngineVersion();
+
+    if (engine == Engine_CSGO)
     {
-        case 3 : ReplaceString(message, maxLen, "{teamcolor}", "\x0B", false);
-        case 2 : ReplaceString(message, maxLen, "{teamcolor}", "\x05", false);
-        default: ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
+        ReplaceString(message, maxLen, "{normal}",      "\x01", false);
+        ReplaceString(message, maxLen, "{default}",     "\x01", false);
+        ReplaceString(message, maxLen, "{white}",       "\x01", false);
+        ReplaceString(message, maxLen, "{team}",        "\x03", false);
+
+        ReplaceString(message, maxLen, "{darkred}",     "\x02", false);
+        ReplaceString(message, maxLen, "{pink}",        "\x03", false);
+        ReplaceString(message, maxLen, "{green}",       "\x04", false);
+        ReplaceString(message, maxLen, "{lightgreen}",  "\x05", false);
+        ReplaceString(message, maxLen, "{lime}",        "\x06", false);
+        ReplaceString(message, maxLen, "{red}",         "\x07", false);
+        ReplaceString(message, maxLen, "{grey}",        "\x08", false);
+        ReplaceString(message, maxLen, "{yellow}",      "\x09", false);
+        ReplaceString(message, maxLen, "{gold}",        "\x10", false);
+        ReplaceString(message, maxLen, "{silver}",      "\x0A", false);
+        ReplaceString(message, maxLen, "{blue}",        "\x0B", false);
+        ReplaceString(message, maxLen, "{darkblue}",    "\x0C", false);
+        ReplaceString(message, maxLen, "{purple}",      "\x0E", false);
+        ReplaceString(message, maxLen, "{lightred}",    "\x0F", false);
+
+        switch(team)
+        {
+            case 3 : ReplaceString(message, maxLen, "{teamcolor}", "\x0B", false);
+            case 2 : ReplaceString(message, maxLen, "{teamcolor}", "\x05", false);
+            default: ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
+        }
     }
-    ReplaceString(message, maxLen, "{pink}", "\x03", false);
-    ReplaceString(message, maxLen, "{green}", "\x04", false);
-    ReplaceString(message, maxLen, "{highlight}", "\x04", false);
-    ReplaceString(message, maxLen, "{yellow}", "\x05", false);
-    ReplaceString(message, maxLen, "{lightgreen}", "\x05", false);
-    ReplaceString(message, maxLen, "{lime}", "\x06", false);
-    ReplaceString(message, maxLen, "{lightred}", "\x07", false);
-    ReplaceString(message, maxLen, "{red}", "\x07", false);
-    ReplaceString(message, maxLen, "{gray}", "\x08", false);
-    ReplaceString(message, maxLen, "{grey}", "\x08", false);
-    ReplaceString(message, maxLen, "{olive}", "\x09", false);
-    ReplaceString(message, maxLen, "{orange}", "\x10", false);
-    ReplaceString(message, maxLen, "{silver}", "\x0A", false);
-    ReplaceString(message, maxLen, "{lightblue}", "\x0B", false);
-    ReplaceString(message, maxLen, "{blue}", "\x0C", false);
-    ReplaceString(message, maxLen, "{purple}", "\x0E", false);
-    ReplaceString(message, maxLen, "{darkorange}", "\x0F", false);
+    else
+    {
+        ReplaceString(message, maxLen, "{normal}",      "\x07FFFFFF", false);
+        ReplaceString(message, maxLen, "{default}",     "\x07FFFFFF", false);
+        ReplaceString(message, maxLen, "{white}",       "\x07FFFFFF", false);
+        ReplaceString(message, maxLen, "{darkred}",     "\x07FF0000", false);
+        ReplaceString(message, maxLen, "{pink}",        "\x07D32CE6", false);
+        ReplaceString(message, maxLen, "{green}",       "\x077FFF00", false);
+        ReplaceString(message, maxLen, "{lime}",        "\x07BFFF00", false);
+        ReplaceString(message, maxLen, "{yellow}",      "\x07FFD700", false);
+        ReplaceString(message, maxLen, "{lightgreen}",  "\x0798FB98", false);
+        ReplaceString(message, maxLen, "{lightred}",    "\x07EB4B4B", false);
+        ReplaceString(message, maxLen, "{red}",         "\x07DC143C", false);
+        ReplaceString(message, maxLen, "{gray}",        "\x07DCDCDC", false);
+        ReplaceString(message, maxLen, "{grey}",        "\x07DCDCDC", false);
+        ReplaceString(message, maxLen, "{olive}",       "\x07808000", false);
+        ReplaceString(message, maxLen, "{gold}",        "\x07E4AE39", false);
+        ReplaceString(message, maxLen, "{silver}",      "\x07B0C3D9", false);
+        ReplaceString(message, maxLen, "{lightblue}",   "\x075E98D9", false);
+        ReplaceString(message, maxLen, "{blue}",        "\x074B69FF", false);
+        ReplaceString(message, maxLen, "{purple}",      "\x078847FF", false);
+        ReplaceString(message, maxLen, "{darkorange}",  "\x07CF6A32", false);
+    }
 }
 
 stock void RemoveAllColors(char[] message, int maxLen)
 {
-    ReplaceString(message, maxLen, "{normal}", "", false);
-    ReplaceString(message, maxLen, "{default}", "", false);
-    ReplaceString(message, maxLen, "{white}", "", false);
-    ReplaceString(message, maxLen, "{darkred}", "", false);
-    ReplaceString(message, maxLen, "{teamcolor}", "", false);
-    ReplaceString(message, maxLen, "{pink}", "", false);
-    ReplaceString(message, maxLen, "{green}", "", false);
-    ReplaceString(message, maxLen, "{HIGHLIGHT}", "", false);
-    ReplaceString(message, maxLen, "{lime}", "", false);
-    ReplaceString(message, maxLen, "{lightgreen}", "", false);
-    ReplaceString(message, maxLen, "{lime}", "", false);
-    ReplaceString(message, maxLen, "{lightred}", "", false);
-    ReplaceString(message, maxLen, "{red}", "", false);
-    ReplaceString(message, maxLen, "{gray}", "", false);
-    ReplaceString(message, maxLen, "{grey}", "", false);
-    ReplaceString(message, maxLen, "{olive}", "", false);
-    ReplaceString(message, maxLen, "{yellow}", "", false);
-    ReplaceString(message, maxLen, "{orange}", "", false);
-    ReplaceString(message, maxLen, "{silver}", "", false);
-    ReplaceString(message, maxLen, "{lightblue}", "", false);
-    ReplaceString(message, maxLen, "{blue}", "", false);
-    ReplaceString(message, maxLen, "{purple}", "", false);
-    ReplaceString(message, maxLen, "{darkorange}", "", false);
+    ReplaceColorsCode(message, maxLen);
+
     ReplaceString(message, maxLen, "\x01", "", false);
     ReplaceString(message, maxLen, "\x02", "", false);
     ReplaceString(message, maxLen, "\x03", "", false);
@@ -358,6 +307,27 @@ stock void RemoveAllColors(char[] message, int maxLen)
     ReplaceString(message, maxLen, "\x0D", "", false);
     ReplaceString(message, maxLen, "\x0E", "", false);
     ReplaceString(message, maxLen, "\x0F", "", false);
+
+    ReplaceString(message, maxLen, "\x07FFFFFF", "", false);
+    ReplaceString(message, maxLen, "\x07FFFFFF", "", false);
+    ReplaceString(message, maxLen, "\x07FFFFFF", "", false);
+    ReplaceString(message, maxLen, "\x07FF0000", "", false);
+    ReplaceString(message, maxLen, "\x07D32CE6", "", false);
+    ReplaceString(message, maxLen, "\x077FFF00", "", false);
+    ReplaceString(message, maxLen, "\x07BFFF00", "", false);
+    ReplaceString(message, maxLen, "\x07FFD700", "", false);
+    ReplaceString(message, maxLen, "\x0798FB98", "", false);
+    ReplaceString(message, maxLen, "\x07EB4B4B", "", false);
+    ReplaceString(message, maxLen, "\x07DC143C", "", false);
+    ReplaceString(message, maxLen, "\x07DCDCDC", "", false);
+    ReplaceString(message, maxLen, "\x07DCDCDC", "", false);
+    ReplaceString(message, maxLen, "\x07808000", "", false);
+    ReplaceString(message, maxLen, "\x07E4AE39", "", false);
+    ReplaceString(message, maxLen, "\x07B0C3D9", "", false);
+    ReplaceString(message, maxLen, "\x075E98D9", "", false);
+    ReplaceString(message, maxLen, "\x074B69FF", "", false);
+    ReplaceString(message, maxLen, "\x078847FF", "", false);
+    ReplaceString(message, maxLen, "\x07CF6A32", "", false);
 }
 
 stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float removeDelay = 0.1)
@@ -386,11 +356,6 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float rem
     return speaker;
 }
 
-stock bool PreDownload(const char[] path)
-{
-    return FileExists(path) && AddFileToDownloadsTable(path);
-}
-
 //https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4
 stock void PrecacheParticleEffect(const char[] effect)
 {
@@ -414,11 +379,6 @@ stock void PrecacheEffect(const char[] name)
     bool save = LockStringTables(false);
     AddToStringTable(table, name);
     LockStringTables(save);
-}
-
-stock void SetTransmitFlags(int entity)
-{
-    SetEdictFlags(entity, (GetEdictFlags(entity) ^ FL_EDICT_ALWAYS));
 }
 
 #define SIZE_OF_INT 2147483647

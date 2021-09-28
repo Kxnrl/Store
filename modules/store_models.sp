@@ -510,3 +510,45 @@ int FindEntityByClassname2(int start, const char[] classname)
 
     return FindEntityByClassname(start, classname); 
 }
+
+stock bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
+{
+    if(!GetEdictClassname(weapon, classname, maxLen))
+        return false;
+    
+    if(!HasEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
+        return false;
+    
+    switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
+    {
+        case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
+        case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
+        case 63: strcopy(classname, maxLen, "weapon_cz75a");
+        case 64: strcopy(classname, maxLen, "weapon_revolver");
+    }
+    
+    return true;
+}
+
+// credits:  https://github.com/bcserv/smlib/
+stock int GetClientWeaponIndexByClassname(int client, const char[] classname)
+{
+    int offset = FindDataMapInfo(client, "m_hMyWeapons") - 4;
+
+    int weapon = -1;
+    char weaponclass[32];
+    for(int i = 0; i < 48; ++i)
+    {
+        offset += 4;
+
+        weapon = GetEntDataEnt2(client, offset);
+
+        if(!IsValidEdict(weapon) || !GetEdictClassname(weapon, STRING(weaponclass)) || StrContains(weaponclass, "weapon_") != 0)
+            continue;
+
+        if(strcmp(weaponclass, classname) == 0)
+            return weapon;
+    }
+
+    return -1;
+}

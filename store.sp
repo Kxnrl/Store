@@ -26,7 +26,6 @@ public Plugin myinfo =
 #include <sourcemod>
 #include <sdkhooks>
 #include <sdktools>
-#include <cstrike>
 #include <store>
 #include <store_stock>
 
@@ -43,7 +42,7 @@ public Plugin myinfo =
 //////////////////////////////
 
 // Server
-#define <Compile_Environment>
+#define GM_EF // <Compile_Environment>
 //GM_TT -> ttt server
 //GM_ZE -> zombie escape server
 //GM_MG -> mini games server
@@ -54,6 +53,8 @@ public Plugin myinfo =
 //GM_HG -> hunger game server
 //GM_SR -> death surf server
 //GM_BH -> bhop server
+//GM_IS -> insurgency
+//GM_EF -> left 4 dead(2)
 
 // VERIFY CREDITS
 //#define DATA_VERIFY
@@ -172,11 +173,11 @@ static char  g_szComposeFee[][] = {"5888", "9888", "15888", "21888", "29888", "3
 #include "store/grenades.sp"
 #endif
 // Module Spray
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HZ || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_IS || defined GM_EF
 #include "store/sprays.sp"
 #endif
 // Module Sound
-#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH
+#if defined GM_TT || defined GM_ZE || defined GM_MG || defined GM_JB || defined GM_HG || defined GM_SR || defined GM_KZ || defined GM_BH || defined GM_IS || defined GM_EF
 #include "store/sounds.sp"
 #endif
 
@@ -226,6 +227,14 @@ public void Pupd_OnCheckAllPlugins()
     Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/BH/");
 #endif
 
+#if defined GM_IS
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/IS/");
+#endif
+
+#if defined GM_EF
+    Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/EF/");
+#endif
+
     Pupd_CheckTranslation("store.phrases.txt", "https://build.kxnrl.com/updater/Store/translation/");
 }
 
@@ -234,10 +243,19 @@ public void Pupd_OnCheckAllPlugins()
 //////////////////////////////
 public void OnPluginStart()
 {
+    EngineVersion engine = GetEngineVersion();
+    #if defined GM_IS
+    if (engine != Engine_Insurgency)
+        SetFailState("Current game is not be supported! Insurgency only!");
+    #elseif defined GM_EF
+    if(!(engine == Engine_Left4Dead || engine == Engine_Left4Dead2))
+        SetFailState("Current game is not be supported! Left 4 Dead(2) only!");
+    #else
     // Check Engine
-    if(GetEngineVersion() != Engine_CSGO)
+    if (engine != Engine_CSGO)
         SetFailState("Current game is not be supported! CSGO only!");
-    
+    #endif
+
     if(g_smParentMap == null)
         g_smParentMap = new StringMap();
 
@@ -263,7 +281,10 @@ public void OnPluginStart()
     HookEvent("player_death",       OnPlayerDeath,  EventHookMode_Post);
 
     // Prevent Server freezing by SQL databsae?
-    HookEventEx("cs_win_panel_match", OnGameOver, EventHookMode_Post);
+    if (engine == Engine_CSGO)
+        HookEvent("cs_win_panel_match", OnGameOver, EventHookMode_Post);
+    else if (engine == Engine_Insurgency)
+        HookEvent("game_end", OnGameOver, EventHookMode_Post);
 
     // Load the translations file
     LoadTranslations("store.phrases");
@@ -1167,10 +1188,6 @@ public void OnClientConnected(int client)
     Sound_OnClientConnected(client);
 #endif
 
-#if defined Module_Chat
-    Chat_OnClientConnected(client);
-#endif
-
     TPMode_OnClientConnected(client);
 }
 
@@ -1235,7 +1252,7 @@ public Action Command_Store(int client, int args)
 
     if(g_ClientData[client].bBan)
     {
-        tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
+        tPrintToChat(client,"[{red}CAT{white}]  %T", "cat banned", client);
         return Plugin_Handled;
     }    
 
@@ -1261,7 +1278,7 @@ public Action Command_Inventory(int client, int args)
     
     if(g_ClientData[client].bBan)
     {
-        tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
+        tPrintToChat(client,"[{red}CAT{white}]  %T", "cat banned", client);
         return Plugin_Handled;
     }    
     
@@ -1287,7 +1304,7 @@ public Action Command_Credits(int client, int args)
     
     if(g_ClientData[client].bBan)
     {
-        tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
+        tPrintToChat(client,"[{red}CAT{white}]  %T", "cat banned", client);
         return Plugin_Handled;
     }    
 
@@ -1737,7 +1754,7 @@ public Action Command_Case(int client, int args)
 
     if(g_ClientData[client].bBan)
     {
-        tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
+        tPrintToChat(client,"[{red}CAT{white}]  %T", "cat banned", client);
         return Plugin_Handled;
     }    
 
@@ -1918,7 +1935,7 @@ public Action Timer_OpeningCase(Handle timer, int userid)
 
     if(g_aCaseSkins[type].Length <= 0)
     {
-        tPrintToChat(client, "\x07%T \x0A->\x02 Null Array", "unknown error", client);
+        tPrintToChat(client, "{red}%T {silver}->{darkred} Null Array", "unknown error", client);
         LogStoreError("Null Array in Case Array [%s]", g_szCase[type+1]);
         return Plugin_Stop;
     }
@@ -1932,7 +1949,7 @@ public Action Timer_OpeningCase(Handle timer, int userid)
     if(itemid < 0)
     {
         LogStoreError("Item Id Error %s", modelname);
-        tPrintToChat(client, "\x07%T \x0A->\x02 Invalid Item", "unknown error", client);
+        tPrintToChat(client, "{red}%T {silver}->{darkred} Invalid Item", "unknown error", client);
         return Plugin_Stop;
     }
 
@@ -2100,7 +2117,7 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
 
     if(g_ClientData[client].bBan)
     {
-        tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
+        tPrintToChat(client,"[{red}CAT{white}]  %T", "cat banned", client);
         return;
     }
 
@@ -2164,7 +2181,7 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
 
             if(g_ClientData[client].bBan)
             {
-                tPrintToChat(client,"[\x02CAT\x01]  %T", "cat banned", client);
+                tPrintToChat(client,"[{red}CAT{white}]  %T", "cat banned", client);
                 return;
             }
 
@@ -2710,7 +2727,7 @@ public int MenuHandler_Gift(Menu menu, MenuAction action, int client, int param2
                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Gift, m_iId);
             }
             else
-                tPrintToChat(client, " \x02UNKNOWN ERROR\x01 :  \x07%d", UTIL_GetRandomInt(100000, 999999));
+                tPrintToChat(client, " {darkred}UNKNOWN ERROR{white} :  {red}%d", UTIL_GetRandomInt(100000, 999999));
         }
     }
     else if(action==MenuAction_Cancel)
@@ -3552,7 +3569,7 @@ void UTIL_GiftItem(int client, int receiver, int item)
     
     if(m_iFees < 0)
     {
-        tPrintToChat(client, " \x02UNKNOWN ERROR\x01 :  \x07%d", UTIL_GetRandomInt(100000, 999999));
+        tPrintToChat(client, " {darkred}UNKNOWN ERROR{white} :  {red}%d", UTIL_GetRandomInt(100000, 999999));
         return;
     }
 
@@ -4278,14 +4295,14 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 
     int m_iCredits = 0;
     char szFrom[128], szReason[128];
-    FormatEx(STRING(szFrom), "\x10[");
+    FormatEx(STRING(szFrom), "{gold}[");
     FormatEx(STRING(szReason), "%T[", "online earn credits", client);
 
     m_iCredits += g_iCreditsTimerOnline;
-    StrCat(STRING(szFrom), "\x04Online");
+    StrCat(STRING(szFrom), "{green}Online");
     StrCat(STRING(szReason), "Online");
 
-    StrCat(STRING(szFrom), "\x10]");
+    StrCat(STRING(szFrom), "{gold}]");
     StrCat(STRING(szReason), "]");
 
     if(!m_iCredits)
@@ -4293,8 +4310,8 @@ public Action Timer_OnlineCredit(Handle timer, int client)
 
     Store_SetClientCredits(client, Store_GetClientCredits(client) + m_iCredits, szReason);
 
-    tPrintToChat(client, "\x10%T", "earn credits chat", client, m_iCredits);
-    PrintToChat(client, " \x0A%T%s", "earn credits from chat", client, szFrom);
+    tPrintToChat(client, "{gold}%T", "earn credits chat", client, m_iCredits);
+    PrintToChat(client, " {silver}%T%s", "earn credits from chat", client, szFrom);
 
     return Plugin_Continue;
 }

@@ -10,6 +10,7 @@ static ConVar mp_forcecamera = null;
 
 void TPMode_OnPluginStart()
 {
+#if !defined GM_IS
     store_thirdperson_enabled = CreateConVar("store_thirdperson_enabled", "1", "Enable or not third person.", _, true, 0.0, true, 1.0);
     store_thirdperson_enabled.AddChangeHook(ConVar_store_thirdperson_enabled);
 
@@ -23,6 +24,7 @@ void TPMode_OnPluginStart()
     RegConsoleCmd("sm_seeme", Command_Mirror, "Toggle Mirror Mode");
 
     HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
+#endif
 }
 
 public void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValue, const char[] newValue)

@@ -259,6 +259,44 @@ echo ""
 echo ""
 
 
+#编译Store主程序 => Insurgency
+echo "Compiling store core [insurgency] ..."
+cp store.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store.sp
+do
+  sed -i "s%<Compile_Environment>%GM_IS%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_is.smx"
+if [ ! -f "build/addons/sourcemod/plugins/store_is.smx" ]; then
+  echo "Compile store core [insurgency] failed!"
+  exit 1;
+fi
+mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_is.sp
+echo ""
+echo ""
+
+
+#编译Store主程序 => Left 4 Dead(2)
+echo "Compiling store core [l4d(2)] ..."
+cp store.sp addons/sourcemod/scripting
+for file in addons/sourcemod/scripting/store.sp
+do
+  sed -i "s%<Compile_Environment>%GM_EF%g" $file > output.txt
+  rm output.txt
+done
+addons/sourcemod/scripting/spcomp -E -v0 addons/sourcemod/scripting/store.sp -o"build/addons/sourcemod/plugins/store_ef.smx"
+if [ ! -f "build/addons/sourcemod/plugins/store_ef.smx" ]; then
+  echo "Compile store core [l4d(2)] failed!"
+  exit 1;
+fi
+mv addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/
+mv build/addons/sourcemod/scripting/store.sp build/addons/sourcemod/scripting/store_ef.sp
+echo ""
+echo ""
+
+
 #编译Store模组Pets
 echo "Compiling store module [pet] ..."
 cp -f modules/store_pet.sp addons/sourcemod/scripting

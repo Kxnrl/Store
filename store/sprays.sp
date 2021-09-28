@@ -169,3 +169,8 @@ void Spray_OnRunCmd(int client, int &buttons)
         Command_Spray(client, 0);
     }
 }
+
+static bool TraceRayDontHitSelf(int entity, int mask, any data)
+{
+    return (entity != data);
+}

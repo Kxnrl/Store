@@ -421,3 +421,22 @@ bool IsWeaponKnife(const char[] classname)
 
     return false;
 }
+
+stock bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
+{
+    if(!GetEdictClassname(weapon, classname, maxLen))
+        return false;
+    
+    if(!HasEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
+        return false;
+    
+    switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
+    {
+        case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
+        case 61: strcopy(classname, maxLen, "weapon_usp_silencer");
+        case 63: strcopy(classname, maxLen, "weapon_cz75a");
+        case 64: strcopy(classname, maxLen, "weapon_revolver");
+    }
+    
+    return true;
+}

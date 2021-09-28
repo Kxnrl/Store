@@ -1,12 +1,15 @@
 #define Module_Chat
 
+#if defined GM_IS || defined GM_EF
+    #define USE_BF
+#endif
+
 #define TEAM_SPEC 1
 static UserMsg g_umUMId;
 static Handle g_hCPAForward;
 static Handle g_hCPPForward;
 static Handle g_hCPRForward;
 static StringMap g_tMsgFmt;
-static bool g_bChat[MAXPLAYERS+1];
 
 static char g_szNameTags[STORE_MAX_ITEMS][128];
 static char g_szNameColors[STORE_MAX_ITEMS][32];
@@ -22,21 +25,16 @@ public void CPSupport_OnPluginStart()
 
     g_tMsgFmt = new StringMap();
 
-    g_hCPAForward = CreateGlobalForward("CP_OnChatMessage",     ET_Hook,   Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
-    g_hCPPForward = CreateGlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
-    g_hCPRForward = CreateGlobalForward("CP_OnChatRainbow",     ET_Hook,   Param_String, Param_Cell);
-
-    AddCommandListener(Command_Say, "say");
-    AddCommandListener(Command_Say, "say_team");
+    if(!GenerateMessageFormats())
+    {
+        LogError("Error loading Chat Format, CP support will be disabled.");
+        return;
+    }
 
     if((g_umUMId = GetUserMessageId("SayText2")) != INVALID_MESSAGE_ID)
     {
+        // hook UM
         HookUserMessage(g_umUMId, OnSayText2, true);
-        if(!GenerateMessageFormats())
-        {
-            LogError("Error loading Chat Format, CP support will be disabled.");
-            return;
-        }
     }
     else
     {
@@ -44,9 +42,15 @@ public void CPSupport_OnPluginStart()
         return;
     }
 
+    g_hCPAForward = CreateGlobalForward("CP_OnChatMessage",     ET_Hook,   Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
+    g_hCPPForward = CreateGlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
+    g_hCPRForward = CreateGlobalForward("CP_OnChatRainbow",     ET_Hook,   Param_String, Param_Cell);
+
     Store_RegisterHandler("nametag", CPSupport_OnMappStart, CPSupport_Reset, NameTags_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("namecolor", CPSupport_OnMappStart, CPSupport_Reset, NameColors_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("msgcolor", CPSupport_OnMappStart, CPSupport_Reset, MsgColors_Config, CPSupport_Equip, CPSupport_Remove, true);
+
+    LogMessage("Init CP...");
 }
 
 public void CPSupport_OnMappStart()
@@ -179,6 +183,10 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
 
 void String_Rainbow(const char[] input, char[] output, int maxLen)
 {
+#if defined USE_BF
+    #pragma unused g_hCPRForward
+    strcopy(output, maxLen, input);
+#else
     int bytes, buffs;
     char[] copy = new char [maxLen];
     strcopy(copy, maxLen, input);
@@ -229,8 +237,10 @@ void String_Rainbow(const char[] input, char[] output, int maxLen)
     }
 
     output[++bytes] = '\0';
+#endif
 }
 
+#if !defined USE_BF
 bool IsChar(char c)
 {
     if(0 <= c <= 126)
@@ -263,6 +273,7 @@ int RandomColor()
 
     return '\x01';
 }
+#endif
 
 bool GenerateMessageFormats()
 {
@@ -282,57 +293,68 @@ bool GenerateMessageFormats()
             g_tMsgFmt.SetString("Cstrike_Chat_AllSpec", "*SPEC* {1} :  {2}");
             return true;
         }
+        case Engine_Left4Dead2, Engine_Left4Dead:
+        {
+            g_tMsgFmt.SetString("L4D_Chat_Infected",        "(Infected) {1} : {2}");
+            g_tMsgFmt.SetString("L4D_Chat_Survivor",        "(Survivor) {1} : {2}");
+            g_tMsgFmt.SetString("L4D_Chat_Infected_Dead",   "*DEAD*(Infected) {1} : {2}");
+            g_tMsgFmt.SetString("L4D_Chat_Survivor_Dead",   "*DEAD*(Survivor) {1} : {2}");
+            g_tMsgFmt.SetString("L4D_Chat_Spec",            "(Spectator) {1} : {2}");
+            g_tMsgFmt.SetString("L4D_Chat_All",             "{1} : {2}");
+            g_tMsgFmt.SetString("L4D_Chat_AllDead",         "*DEAD* {1} : {2}");
+            g_tMsgFmt.SetString("L4D_Chat_AllSpec",         "*SPEC* {1} : {2}");
+            return true;
+        }
+        case Engine_Insurgency:
+        {
+            g_tMsgFmt.SetString("INS_Chat_All",         " {1} :  {2}");
+            g_tMsgFmt.SetString("INS_Chat_AllDead",     "*DEAD* {1} :  {2}");
+            g_tMsgFmt.SetString("INS_Chat_AllSpec",     "*SPEC* {1} :  {2}");
+            g_tMsgFmt.SetString("INS_Chat",             " {1} :  {2}");
+            g_tMsgFmt.SetString("INS_Chat_Dead",        "*DEAD* {1} :  {2}");
+            g_tMsgFmt.SetString("INS_Chat_Spec",        "(TEAM) *SPEC* {1} :  {2}");
+            return true;
+        }
     }
 
     return false;
 }
 
-void Chat_OnClientConnected(int client)
-{
-    g_bChat[client] = false;
-}
-
-public Action Command_Say(int client, const char[] command, int argc)
-{
-    if(g_bChat[client])
-        return Plugin_Handled;
-
-    g_bChat[client] = true;
-    CreateTimer(0.1, Timer_Say, client);
-    return Plugin_Continue;
-}
-
-public Action Timer_Say(Handle timer, int client)
-{
-    g_bChat[client] = false;
-    return Plugin_Stop;
-}
-
+#if defined USE_BF
+public Action OnSayText2(UserMsg msg_id, BfRead   msg, const int[] players, int playersNum, bool reliable, bool init)
+#else
 public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int playersNum, bool reliable, bool init)
+#endif
 {
+
+#if defined USE_BF
+    int m_iSender = msg.ReadByte();
+#else
     int m_iSender = PbReadInt(msg, "ent_idx");
+#endif
 
     if(m_iSender <= 0)
         return Plugin_Continue;
-    
-    if(!g_bChat[m_iSender])
-        return Plugin_Handled;
 
-    g_bChat[m_iSender] = false;
+    char m_szFlag[32], m_szName[128], m_szText[256], m_szFmt[32];
 
+#if defined USE_BF
+    bool m_bChat = !!msg.ReadByte();
+    msg.ReadString(STRING(m_szFlag));
+    msg.ReadString(STRING(m_szName));
+    msg.ReadString(STRING(m_szText));
+#else
     bool m_bChat = msg.ReadBool("chat");
-
-    char m_szFlag[32], m_szName[128], m_szMsg[256], m_szFmt[32];
-
     msg.ReadString("msg_name", STRING(m_szFlag));
     msg.ReadString("params", STRING(m_szName), 0);
-    msg.ReadString("params", STRING(m_szMsg), 1);
+    msg.ReadString("params", STRING(m_szText), 1);
+#endif
 
     if(!g_tMsgFmt.GetString(m_szFlag, STRING(m_szFmt)))
         return Plugin_Continue;
 
     RemoveAllColors(STRING(m_szName));
-    RemoveAllColors(STRING(m_szMsg));
+    RemoveAllColors(STRING(m_szText));
 
     char m_szNameCopy[128];
     strcopy(STRING(m_szNameCopy), m_szName);
@@ -342,55 +364,12 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 
     ArrayList hRecipients = new ArrayList();
 
-    if(!ChatFromDead(m_szFlag) || g_iClientTeam[m_iSender] == TEAM_SPEC)
-    {
-        if(ChatToAll(m_szFlag))
-        {
-            for(int i = 1; i <= MaxClients; ++i)
-                if(IsClientInGame(i) && !IsFakeClient(i))
-                    hRecipients.Push(i);
-        }
-        else
-        {
-            for(int i = 1; i <= MaxClients; ++i)
-                if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender]))
-                    hRecipients.Push(i);
-        }
-    }
-    else
-    {
-#if defined DeathChat
-        if(ChatToAll(m_szFlag))
-        {
-            for(int i = 1; i <= MaxClients; ++i)
-                if(IsClientInGame(i) && !IsFakeClient(i))
-                    hRecipients.Push(i);
-        }
-        else
-        {
-            for(int i = 1; i <= MaxClients; ++i)
-                if(IsClientInGame(i) && !IsFakeClient(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iClientTeam[i] == TEAM_SPEC))
-                    hRecipients.Push(i);
-        }
-#else
-        if(ChatToAll(m_szFlag))
-        {
-            for(int i = 1; i <= MaxClients; ++i)
-                if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i))
-                    hRecipients.Push(i);
-        }
-        else
-        {
-            for(int i = 1; i <= MaxClients; ++i)
-                if(IsClientInGame(i) && !IsFakeClient(i) && !IsPlayerAlive(i) && (g_iClientTeam[i] == g_iClientTeam[m_iSender] || g_iClientTeam[i] == TEAM_SPEC))
-                    hRecipients.Push(i);
-        }
-#endif
-    }
+    for (int i = 0; i < playersNum; i++)
+        hRecipients.Push(players[i]);
 
     bool removedColor = false;
     bool processColor = true;
-    Action iResults = CPA_Forward(m_iSender, m_szFlag, m_szName, m_szMsg, hRecipients, removedColor, processColor);
+    Action iResults = CPA_Forward(m_iSender, m_szFlag, m_szName, m_szText, hRecipients, removedColor, processColor);
 
     if(iResults != Plugin_Changed)
     {
@@ -404,6 +383,7 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
         return Plugin_Continue;
     }
 
+#if !defined USE_BF
     if(strcmp(m_szNameCopy, m_szName) == 0)
     {
         switch(g_iClientTeam[m_iSender])
@@ -413,13 +393,14 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
             default: Format(STRING(m_szName), "\x01%s", m_szName);
         }
     }
+#endif
 
     DataPack pack = new DataPack();
     pack.WriteCell(m_iSender);
     pack.WriteCell(m_bChat);
     pack.WriteCell(hRecipients);
     pack.WriteString(m_szName);
-    pack.WriteString(m_szMsg);
+    pack.WriteString(m_szText);
     pack.WriteString(m_szFlag);
     pack.WriteString(m_szFmt);
     pack.WriteCell(removedColor);
@@ -448,8 +429,8 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     char m_szName[128];
     data.ReadString(STRING(m_szName));
 
-    char m_szMsg[256];
-    data.ReadString(STRING(m_szMsg));
+    char m_szText[256];
+    data.ReadString(STRING(m_szText));
 
     char m_szFlag[32];
     data.ReadString(STRING(m_szFlag));
@@ -465,12 +446,17 @@ void Frame_OnChatMessage_SayText2(DataPack data)
 
     ReplaceString(STRING(m_szBuffer), "{1} :  {2}", "{1} {normal}:  {2}");
     ReplaceString(STRING(m_szBuffer), "{1}", m_szName);
-    ReplaceString(STRING(m_szBuffer), "{2}", m_szMsg);
+    ReplaceString(STRING(m_szBuffer), "{2}", m_szText);
+
+#if defined GM_IS
+    if (strcmp(m_szFlag, "INS_Chat_Dead") == 0)
+        Format(STRING(m_szBuffer), "(TEAM) %s", m_szBuffer);
+#endif
 
     if(removedColor)
     {
         RemoveAllColors(STRING(m_szName));
-        RemoveAllColors(STRING(m_szMsg));
+        RemoveAllColors(STRING(m_szText));
     }
 
     if(processColor)
@@ -478,14 +464,28 @@ void Frame_OnChatMessage_SayText2(DataPack data)
         ReplaceColorsCode(STRING(m_szBuffer), g_iClientTeam[m_iSender]);
     }
 
-    Protobuf pb = view_as<Protobuf>(StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
-    if(pb == null)
+#if defined USE_BF
+    Handle um = StartMessage("SayText",  target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
+#else
+    Handle um = StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
+#endif
+    if(um == null)
     {
         delete hRecipients;
         delete data;
         LogError("Frame_OnChatMessage_SayText2 -> StartMessageEx -> null");
         return;
     }
+
+#if defined USE_BF
+    BfWrite msg = view_as<BfWrite>(um);
+    msg.WriteByte(m_iSender);
+    msg.WriteByte(m_bChat);
+    msg.WriteString(m_szBuffer);
+    EndMessage();
+    LogMessage("Sent -> %N -> %s", m_iSender, m_szBuffer);
+#else
+    Protobuf pb = view_as<Protobuf>(um);
     pb.SetInt("ent_idx", m_iSender);
     pb.SetBool("chat", m_bChat);
     pb.SetString("msg_name", m_szBuffer);
@@ -494,21 +494,12 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     pb.AddString("params", "");
     pb.AddString("params", "");
     EndMessage();
-    
-    CPP_Forward(m_iSender, m_szFlag, m_szName, m_szMsg, hRecipients, removedColor, processColor);
+#endif
+
+    CPP_Forward(m_iSender, m_szFlag, m_szName, m_szText, hRecipients, removedColor, processColor);
 
     delete hRecipients;
     delete data;
-}
-
-stock bool ChatToAll(const char[] flag)
-{
-    return (StrContains(flag, "_All", true) != -1);
-}
-
-stock bool ChatFromDead(const char[] flag)
-{
-    return (StrContains(flag, "Dead", true) != -1);
 }
 
 static void CheckCPandSCP()

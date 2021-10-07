@@ -340,11 +340,18 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 
 #if defined USE_BF
     bool m_bChat = !!msg.ReadByte();
+#else
+    bool m_bChat = msg.ReadBool("chat");
+#endif
+
+    if (!m_bChat)
+        return Plugin_Continue;
+
+#if defined USE_BF
     msg.ReadString(STRING(m_szFlag));
     msg.ReadString(STRING(m_szName));
     msg.ReadString(STRING(m_szText));
 #else
-    bool m_bChat = msg.ReadBool("chat");
     msg.ReadString("msg_name", STRING(m_szFlag));
     msg.ReadString("params", STRING(m_szName), 0);
     msg.ReadString("params", STRING(m_szText), 1);
@@ -483,7 +490,6 @@ void Frame_OnChatMessage_SayText2(DataPack data)
     msg.WriteByte(m_bChat);
     msg.WriteString(m_szBuffer);
     EndMessage();
-    LogMessage("Sent -> %N -> %s", m_iSender, m_szBuffer);
 #else
     Protobuf pb = view_as<Protobuf>(um);
     pb.SetInt("ent_idx", m_iSender);

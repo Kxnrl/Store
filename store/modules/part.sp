@@ -89,8 +89,9 @@ void Store_SetClientPart(int client)
 
     if(!(strcmp(g_szPartClient[client], "", false) == 0))
     {
-        float clientOrigin[3];
+        float clientOrigin[3], clientAngles[3];
         GetClientAbsOrigin(client, clientOrigin);
+        GetClientAbsAngles(client, clientAngles);
 
         clientOrigin[2] += 5.0;
 
@@ -105,11 +106,11 @@ void Store_SetClientPart(int client)
         DispatchKeyValue(iEnt, "start_active", "1");
         DispatchKeyValue(iEnt, "effect_name", g_szPartClient[client]);
         DispatchSpawn(iEnt);
-        
-        TeleportEntity(iEnt, clientOrigin, NULL_VECTOR, NULL_VECTOR);
+
+        TeleportEntity(iEnt, clientOrigin, clientAngles, NULL_VECTOR);
  
         SetVariantString("!activator");
-        AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
+        AcceptEntityInput(iEnt, "SetParent", client, iEnt);
 
         ActivateEntity(iEnt);
         

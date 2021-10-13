@@ -92,8 +92,9 @@ void Store_SetClientAura(int client)
 
     if(strlen(g_szAuraClient[client]) > 0)
     {
-        float clientOrigin[3];
+        float clientOrigin[3], clientAngles[3];
         GetClientAbsOrigin(client, clientOrigin);
+        GetClientAbsAngles(client, clientAngles);
 
         clientOrigin[2] += 5.0;
 
@@ -103,10 +104,10 @@ void Store_SetClientAura(int client)
         DispatchKeyValue(iEnt, "effect_name", g_szAuraClient[client]);
         DispatchSpawn(iEnt);
 
-        TeleportEntity(iEnt, clientOrigin, NULL_VECTOR, NULL_VECTOR);
+        TeleportEntity(iEnt, clientOrigin, clientAngles, NULL_VECTOR);
 
         SetVariantString("!activator");
-        AcceptEntityInput(iEnt, "SetParent", client, iEnt, 0);
+        AcceptEntityInput(iEnt, "SetParent", client, iEnt);
 
         ActivateEntity(iEnt);
 

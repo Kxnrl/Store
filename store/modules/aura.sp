@@ -96,7 +96,7 @@ void Store_SetClientAura(int client)
         GetClientAbsOrigin(client, clientOrigin);
         GetClientAbsAngles(client, clientAngles);
 
-        clientOrigin[2] += 5.0;
+        clientOrigin[2] += 0.5;
 
         int iEnt = CreateEntityByName("info_particle_system");
         

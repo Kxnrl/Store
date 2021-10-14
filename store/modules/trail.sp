@@ -157,7 +157,7 @@ void AttachTrail(int ent, int client, int current, int num)
     float m_fPosition[3];
     m_fPosition[0] = m_fX;
     m_fPosition[1] = 0.0;
-    m_fPosition[2]= 5.0+(current/3)*30.0;
+    m_fPosition[2]= 0.5+(current/3)*30.0;
     GetClientAbsOrigin(client, m_fOrigin);
     AddVectors(m_fOrigin, m_fPosition, m_fOrigin);
     TeleportEntity(ent, m_fOrigin, m_fTemp, NULL_VECTOR);

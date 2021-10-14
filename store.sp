@@ -407,6 +407,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_ApplyPlayerSkin",       Native_ApplyPlayerSkin);
     CreateNative("Store_LogOpencase",           Native_LogOpenCase);
     CreateNative("Store_IsInDeathCamera",       Native_InDeathCamera);
+    CreateNative("Store_IsGlobalTeam",          Native_IsGlobalTeam);
 
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
@@ -1147,6 +1148,15 @@ public int Native_InDeathCamera(Handle plugin, int numParams)
 {
 #if defined Module_Skin
     return IsInDeathCamera(GetNativeCell(1));
+#else
+    return false;
+#endif
+}
+
+public int Native_IsGlobalTeam(Handle plugin, int numParams)
+{
+#if defined Global_Skin
+    return true;
 #else
     return false;
 #endif

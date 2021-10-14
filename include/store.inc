@@ -91,6 +91,7 @@ native bool Store_GetAllPlayerSkins(ArrayList array);
 native bool Store_ApplyPlayerSkin(int client);
 native void Store_LogOpencase(int client, int item, int days, const char[] handle, int type);
 native void Store_IsInDeathCamera(int client);
+native bool Store_IsGlobalTeam();
 
 native ArrayList Store_GetItemList(); // List<Store_Item>
 

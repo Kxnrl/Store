@@ -1421,10 +1421,6 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                     if (!g_Items[i].bDisplay)
                         continue;
 
-                    int m_iStyle = ITEMDRAW_DEFAULT;
-                    if((g_Items[i].iPlans==0 && g_ClientData[client].iCredits<m_iPrice) || !AllowItemForAuth(client, g_Items[i].szSteam) || !AllowItemForVIP(client, g_Items[i].bVIP))
-                        m_iStyle = ITEMDRAW_DISABLED;
-
                     if(strcmp(g_TypeHandlers[g_Items[i].iHandler].szType, "playerskin") == 0)
                     {
 #if defined Global_Skin
@@ -1435,7 +1431,13 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                         continue;
                     }
 
-                    if(g_Items[i].iPlans==0)
+                    int m_iStyle = ITEMDRAW_DEFAULT;
+                    if((g_Items[i].iPlans==0 && g_ClientData[client].iCredits<m_iPrice) || !AllowItemForAuth(client, g_Items[i].szSteam) || !AllowItemForVIP(client, g_Items[i].bVIP) || !g_Items[i].bBuyable)
+                        m_iStyle = ITEMDRAW_DISABLED;
+
+                    if (!g_Items[i].bBuyable)
+                        AddMenuItem  (m_hMenu, m_iStyle, m_szId, g_Items[i].szName);
+                    else if(g_Items[i].iPlans==0)
                         AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Available", client, g_Items[i].szName, g_Items[i].iPrice);
                     else
                         AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Plan Available", client, g_Items[i].szName, g_Items[i].iPrice);
@@ -1547,8 +1549,10 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                 g_iMenuBack[client]=g_Items[m_iId].iParent;
                 g_iSelectedItem[client] = m_iId;
                 g_iSelectedPlan[client] = -1;
+
+                bool hasItem = Store_HasClientItem(client, m_iId);
                 
-                if(!Store_HasClientItem(client, m_iId))
+                if(!hasItem)
                 {
                     if(StrEqual(g_TypeHandlers[g_Items[m_iId].iHandler].szType, "playerskin"))
                     {
@@ -1571,7 +1575,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                     }
                     else
                     {
-                        if((g_ClientData[client].iCredits>=g_Items[m_iId].iPrice || g_Items[m_iId].iPlans>0 && g_ClientData[client].iCredits>=UTIL_GetLowestPrice(m_iId)) && g_Items[m_iId].iPrice != -1)
+                        if((g_ClientData[client].iCredits>=g_Items[m_iId].iPrice || g_Items[m_iId].iPlans>0 && g_ClientData[client].iCredits>=UTIL_GetLowestPrice(m_iId)) && g_Items[m_iId].iPrice != -1 && g_Items[m_iId].bBuyable)
                         {
                             if(g_Items[m_iId].iPlans > 0)
                                 DisplayPlanMenu(client, m_iId);
@@ -1588,7 +1592,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
 
                 if(g_Items[m_iId].iHandler != g_iPackageHandler)
                 {
-                    if(Store_HasClientItem(client, m_iId))
+                    if(hasItem)
                     {
                         if(g_TypeHandlers[g_Items[m_iId].iHandler].bRaw)
                         {
@@ -1604,7 +1608,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                     }
                     else DisplayStoreMenu(client, g_iMenuBack[client]);                    
                 }
-                else DisplayStoreMenu(client, (Store_HasClientItem(client, m_iId) || g_Items[m_iId].iPrice == -1) ? m_iId : g_Items[m_iId].iParent);
+                else DisplayStoreMenu(client, (hasItem || g_Items[m_iId].iPrice == -1) ? m_iId : g_Items[m_iId].iParent);
             }
         }
     }
@@ -1700,7 +1704,7 @@ public int MenuHandler_Preview(Menu menu, MenuAction action, int client, int par
         }
         else if(selected == 1)
         {
-            if((g_ClientData[client].iCredits>=g_Items[m_iId].iPrice || g_Items[m_iId].iPlans>0 && g_ClientData[client].iCredits>=UTIL_GetLowestPrice(m_iId)) && g_Items[m_iId].iPrice != -1)
+            if((g_ClientData[client].iCredits>=g_Items[m_iId].iPrice || g_Items[m_iId].iPlans>0 && g_ClientData[client].iCredits>=UTIL_GetLowestPrice(m_iId)) && g_Items[m_iId].iPrice != -1 && g_Items[m_iId].bBuyable)
             {
                 if(g_Items[m_iId].iPlans > 0)
                     DisplayPlanMenu(client, m_iId);
@@ -2540,12 +2544,19 @@ public int MenuHandler_Plan(Menu menu, MenuAction action, int client, int param2
         delete menu;
     else if(action == MenuAction_Select)
     {
-        g_iSelectedPlan[client]=param2;
-        g_iMenuNum[client]=4;
+        if (g_Items[g_iSelectedItem[client]].bBuyable)
+        {
+            g_iSelectedPlan[client]=param2;
+            g_iMenuNum[client]=4;
 
-        char m_szTitle[128];
-        FormatEx(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_Items[g_iSelectedItem[client]].szName, g_TypeHandlers[g_Items[g_iSelectedItem[client]].iHandler].szType);
-        Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
+            char m_szTitle[128];
+            FormatEx(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_Items[g_iSelectedItem[client]].szName, g_TypeHandlers[g_Items[g_iSelectedItem[client]].iHandler].szType);
+            Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
+        }
+        else 
+        {
+            Store_DisplayPreviousMenu(client);
+        }
     }
     else if(action==MenuAction_Cancel)
         if(param2 == MenuCancel_ExitBack)

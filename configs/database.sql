@@ -172,4 +172,4 @@ ALTER TABLE `store_item_child` ADD COLUMN `skin` tinyint(3) NOT NULL DEFAULT '-1
 ALTER TABLE `store_item_child` ADD COLUMN `hide` tinyint(3) NOT NULL DEFAULT  '1' AFTER `wearf`;
 
 -- upgrade 2.5.1
-ALTER TABLE `store_item_child` ADD COLUMN 'display' bit(1) NOT NULL DEFAULT b'1' AFTER `only`;
+ALTER TABLE `store_item_child` ADD COLUMN `display` bit(1) NOT NULL DEFAULT b'1' AFTER `only`;

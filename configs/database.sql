@@ -170,3 +170,6 @@ ALTER TABLE `store_newlogs` CHANGE `timestamp_` `timestamp` TIMESTAMP NOT NULL D
 -- upgrade 2.4
 ALTER TABLE `store_item_child` ADD COLUMN `skin` tinyint(3) NOT NULL DEFAULT '-1' AFTER `arms`;
 ALTER TABLE `store_item_child` ADD COLUMN `hide` tinyint(3) NOT NULL DEFAULT  '1' AFTER `wearf`;
+
+-- upgrade 2.5.1
+ALTER TABLE `store_item_child` ADD COLUMN 'display' bit(1) NOT NULL DEFAULT b'1' AFTER `only`;

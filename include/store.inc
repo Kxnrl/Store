@@ -44,6 +44,7 @@ enum struct Store_Item
     bool bGiftable;
     bool bCompose;
     bool bVIP;
+    bool bDisplay;
 }
 
 enum struct SkinData_t

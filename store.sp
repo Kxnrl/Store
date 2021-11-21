@@ -7,7 +7,7 @@
 #define PLUGIN_NAME         "Store - The Resurrection"
 #define PLUGIN_AUTHOR       "Kyle"
 #define PLUGIN_DESCRIPTION  "a sourcemod store system"
-#define PLUGIN_VERSION      "2.5.<commit_count>"
+#define PLUGIN_VERSION      "2.5.1.<commit_count>"
 #define PLUGIN_URL          "https://kxnrl.com"
 
 public Plugin myinfo = 
@@ -1417,8 +1417,8 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                 }
                 else if(!g_bInvMode[client])
                 {
-                    // hide personal item
-                    if (strlen(g_Items[i].szSteam) > 8)
+                    // use display setting instead
+                    if (!g_Items[i].bDisplay)
                         continue;
 
                     int m_iStyle = ITEMDRAW_DEFAULT;
@@ -1434,9 +1434,6 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
 #endif
                         continue;
                     }
-
-                    if(!g_Items[i].bBuyable)
-                        continue;
 
                     if(g_Items[i].iPlans==0)
                         AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Available", client, g_Items[i].szName, g_Items[i].iPrice);
@@ -3786,46 +3783,51 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         item_child.FetchString(5, m_bitOnly, 2);
         g_Items[g_iItems].bIgnore = (m_bitOnly[0] == 1) ? true : false;
 
-        // Field 6 -> auth
+        // Field 6 -> display
+        char m_bitDisplay[2];
+        item_child.FetchString(6, m_bitDisplay, 2);
+        g_Items[g_iItems].bDisplay = (m_bitDisplay[0] == 1) ? true : false;
+
+        // Field 7 -> auth
         char m_szAuth[256];
-        item_child.FetchString(6, STRING(m_szAuth));
+        item_child.FetchString(7, STRING(m_szAuth));
         g_Items[g_iItems].szSteam[0] = '\0';
         if(strcmp(m_szAuth, "ITEM_NOT_PERSONAL") != 0)
             strcopy(g_Items[g_iItems].szSteam, sizeof(Store_Item::szSteam), m_szAuth);
 
-        // Field 7 -> vip
+        // Field 8 -> vip
         char m_bitVIP[2];
-        item_child.FetchString(7, m_bitVIP, 2);
+        item_child.FetchString(8, m_bitVIP, 2);
         g_Items[g_iItems].bVIP = (m_bitVIP[0] == 1) ? true : false;
 
-        // Field 8 -> name
-        item_child.FetchString(8, g_Items[g_iItems].szName, sizeof(Store_Item::szName));
+        // Field 9 -> name
+        item_child.FetchString(9, g_Items[g_iItems].szName, sizeof(Store_Item::szName));
 
-        // Field 9 -> lvls
-        g_Items[g_iItems].iLevels = item_child.FetchInt(9);
+        // Field 10 -> lvls
+        g_Items[g_iItems].iLevels = item_child.FetchInt(10);
         if (g_Items[g_iItems].iLevels > MAX_SKIN_LEVEL) // override to max
             g_Items[g_iItems].iLevels = MAX_SKIN_LEVEL;
 
-        // Field 10 -> desc
+        // Field 11 -> desc
         char m_szDesc[128];
-        item_child.FetchString(10, STRING(m_szDesc));
+        item_child.FetchString(11, STRING(m_szDesc));
         g_Items[g_iItems].szDesc[0] = '\0';
         if(StrContains(m_szDesc, "ITEM_NO") == -1)
             strcopy(g_Items[g_iItems].szDesc, sizeof(Store_Item::szDesc), m_szDesc);
 
-        // Field 11 -> case
-        int caseType = item_child.FetchInt(11);
+        // Field 12 -> case
+        int caseType = item_child.FetchInt(12);
         g_Items[g_iItems].iCaseType = caseType;
 
-        // Field 12 -> Compose
+        // Field 13 -> Compose
         char m_bitCompose[2];
-        item_child.FetchString(12, m_bitCompose, 2);
+        item_child.FetchString(13, m_bitCompose, 2);
         g_Items[g_iItems].bCompose = (m_bitCompose[0] == 1) ? true : false;
 
-        // Field 13,14,15 -> price
-        int price_1d = item_child.FetchInt(13);
-        int price_1m = item_child.FetchInt(14);
-        int price_pm = item_child.FetchInt(15);
+        // Field 14,15,16 -> price
+        int price_1d = item_child.FetchInt(14);
+        int price_1m = item_child.FetchInt(15);
+        int price_pm = item_child.FetchInt(16);
 
         // skip m_nBody
         // #18

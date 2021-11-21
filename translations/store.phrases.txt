@@ -54,16 +54,16 @@
     "Item Plan Available"
     {
         "#format" "{1:s}"
-        "en" "{1} (Choose Plan)"
-        "chi" "{1} (选择购买套餐)"
-        "da" "{1} (Vælg Plan)"
+        "en" "{1}  (Choose Plan)"
+        "chi" "{1}  (选择购买时长)"
+        "da" "{1}  (Vælg Plan)"
     }
     
     "Item Preview Available"
     {
         "#format" "{1:s}"
         "en" "{1} (View details)"
-        "chi" "{1} (查看详细)"
+        "chi" "{1}"
         "da" "{1} (Se detaljer)"
     }
     
@@ -202,7 +202,7 @@
     {
         "#format" "{1:d}"
         "en" "Credits: {1}"
-        "chi" "积分: {1}  充值请上论坛"
+        "chi" "积分: {1}"
         "da" "Credits: {1}"
     }
     

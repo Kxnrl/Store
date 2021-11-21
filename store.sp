@@ -1436,7 +1436,7 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                         m_iStyle = ITEMDRAW_DISABLED;
 
                     if (!g_Items[i].bBuyable)
-                        AddMenuItem  (m_hMenu, m_iStyle, m_szId, g_Items[i].szName);
+                        AddMenuItem  (m_hMenu,           m_szId, g_Items[i].szName, m_iStyle);
                     else if(g_Items[i].iPlans==0)
                         AddMenuItemEx(m_hMenu, m_iStyle, m_szId, "%T", "Item Available", client, g_Items[i].szName, g_Items[i].iPrice);
                     else

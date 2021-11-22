@@ -3840,11 +3840,12 @@ public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         int price_1m = item_child.FetchInt(15);
         int price_pm = item_child.FetchInt(16);
 
-        // skip m_nBody
-        // #18
+        // #17 model
+        // #18 arms
+        // #19 skin
 
-        // team
-        g_Items[g_iItems].iTeam = item_child.FetchInt(19);
+        // #20 team
+        g_Items[g_iItems].iTeam = item_child.FetchInt(20);
         
         if(price_1d != 0 || price_1m != 0)
         {

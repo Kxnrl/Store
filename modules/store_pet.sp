@@ -39,19 +39,35 @@ enum struct Pet
     int iSlot;
 }
 
-static Pet g_ePets[STORE_MAX_ITEMS];
+enum struct PetInfo_t
+{
+    int m_iEntRef;
+    int m_iDataIndex;
+
+    int m_iLastAnimation;
+    int m_iNextIdleTimes;
+    int m_iLastSpawnTime;
+
+    void Reset()
+    {
+        this.m_iEntRef = INVALID_ENT_REFERENCE;
+        this.m_iDataIndex = -1;
+    }
+}
+
 static int g_iPets = 0;
-static int g_iPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
-static int g_iLastAnimation[MAXPLAYERS+1][STORE_MAX_SLOTS];
-static int g_iLastIdleTimes[MAXPLAYERS+1][STORE_MAX_SLOTS];
-static int g_iLastSpawnTime[MAXPLAYERS+1][STORE_MAX_SLOTS];
 static int g_iOwner[2048];
+
+static Handle g_hDelay[MAXPLAYERS+1];
+
+static Pet g_ePets[STORE_MAX_ITEMS];
+static PetInfo_t g_sPetRef[MAXPLAYERS+1][STORE_MAX_SLOTS];
 
 public void OnPluginStart()
 {
     HookEvent("player_spawn", Pets_PlayerSpawn, EventHookMode_Post);
     HookEvent("player_death", Pets_PlayerDeath, EventHookMode_Post);
-    HookEvent("player_team", Pets_PlayerTeam, EventHookMode_Post);
+    HookEvent("player_team",  Pets_PlayerTeam,  EventHookMode_Post);
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -160,31 +176,49 @@ void Store_RemovePet(int client)
 public void OnClientConnected(int client)
 {
     for(int i = 0; i < STORE_MAX_SLOTS; ++i)
-        g_iPetRef[client][i] = INVALID_ENT_REFERENCE;
+        g_sPetRef[client][i].Reset();
 }
 
 public void OnClientDisconnect(int client)
 {
+    delete g_hDelay[client];
+
     Store_RemovePet(client);
 }
 
 public void Pets_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast)
 {
+    // fix first join
+    if (GetEventInt(event, "teamnum") == 0)
+        return;
+
+    //TODO performance problem
+    // I don't know why player_spwan called twice...
+
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
-    if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
-        return;
-    
-    Store_SetClientPet(client);
+    if (g_hDelay[client] != null)
+        delete g_hDelay[client];
+
+    g_hDelay[client] = CreateTimer(UTIL_GetRandomInt(1, 3) * 0.1, Timer_DelaySpawn, client);
+}
+
+Action Timer_DelaySpawn(Handle timer, int client)
+{
+    g_hDelay[client] = null;
+
+    if (IsPlayerAlive(client))
+    {
+        Store_SetClientPet(client);
+    }
+    return Plugin_Stop;
 }
 
 public void Pets_PlayerDeath(Handle event, const char[] name, bool dontBroadcast)
 {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
-    if(!client || !IsClientInGame(client))
-        return;
-
+    delete g_hDelay[client];
     Store_ClientDeathPet(client);
 }
 
@@ -219,46 +253,48 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 void AdjustPet(int client, int slot, const float fDist)
 {
-    if(g_iPetRef[client][slot] == INVALID_ENT_REFERENCE)
+    if(g_sPetRef[client][slot].m_iEntRef == INVALID_ENT_REFERENCE)
         return;
 
-    int entity = EntRefToEntIndex(g_iPetRef[client][slot]);
+    int entity = EntRefToEntIndex(g_sPetRef[client][slot].m_iEntRef);
 
     if(!IsValidEdict(entity))
         return;
 
     int time = GetTime();
-    if (time < g_iLastSpawnTime[client][slot])
+    if (time < g_sPetRef[client][slot].m_iLastSpawnTime)
         return;
 
-    int m_iData = Store_GetDataIndex(Store_GetEquippedItem(client, "pet", slot));
+    int m_iData = g_sPetRef[client][slot].m_iDataIndex;
+    if (m_iData < 0)
+        return;
 
-    if(g_iLastAnimation[client][slot] != 1 && fDist > 0.0 && g_ePets[m_iData].run[0])
+    if(g_sPetRef[client][slot].m_iLastAnimation != 1 && fDist > 0.0 && g_ePets[m_iData].run[0])
     {
         SetVariantString(g_ePets[m_iData].run);
-        AcceptEntityInput(EntRefToEntIndex(g_iPetRef[client][slot]), "SetAnimation");
-        g_iLastAnimation[client][slot] = 1;
+        AcceptEntityInput(entity, "SetAnimation");
+        g_sPetRef[client][slot].m_iLastAnimation = 1;
     }
-    else if(g_iLastAnimation[client][slot] != 2 && fDist == 0.0 && g_ePets[m_iData].idle[0])
+    else if(g_sPetRef[client][slot].m_iLastAnimation != 2 && fDist == 0.0 && g_ePets[m_iData].idle[0])
     {
-        if (g_iLastIdleTimes[client][slot] < time && g_ePets[m_iData].idle2[0])
+        if (g_sPetRef[client][slot].m_iNextIdleTimes < time && g_ePets[m_iData].idle2[0])
         {
-            g_iLastSpawnTime[client][slot] = time + 2;
-            g_iLastIdleTimes[client][slot] = time + 15;
+            g_sPetRef[client][slot].m_iLastSpawnTime = time + 2;
+            g_sPetRef[client][slot].m_iNextIdleTimes = time + UTIL_GetRandomInt(12, 36);
             SetVariantString(g_ePets[m_iData].idle2);
         }
         else
         {
             SetVariantString(g_ePets[m_iData].idle);
         }
-        AcceptEntityInput(EntRefToEntIndex(g_iPetRef[client][slot]), "SetAnimation");
-        g_iLastAnimation[client][slot] = 2;
+        AcceptEntityInput(entity, "SetAnimation");
+        g_sPetRef[client][slot].m_iLastAnimation = 2;
     }
 }
 
 void CreatePet(int client, int itemid = -1, int slot = 0)
 {
-    if(g_iPetRef[client][slot] != INVALID_ENT_REFERENCE)
+    if(g_sPetRef[client][slot].m_iEntRef != INVALID_ENT_REFERENCE)
     {
         LogError("Why you create entity with equipped slot?");
         return;
@@ -315,9 +351,10 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
     SetVariantString("!activator");
     AcceptEntityInput(entity, "SetParent", client, entity, 0);
 
-    g_iPetRef[client][slot] = EntIndexToEntRef(entity);
-    g_iLastAnimation[client][slot] = -1;
-    g_iLastSpawnTime[client][slot] = GetTime() + 2;
+    g_sPetRef[client][slot].m_iDataIndex = m_iData;
+    g_sPetRef[client][slot].m_iEntRef = EntIndexToEntRef(entity);
+    g_sPetRef[client][slot].m_iLastAnimation = -1;
+    g_sPetRef[client][slot].m_iLastSpawnTime = GetTime() + 2;
 
     g_iOwner[entity] = client;
 
@@ -332,12 +369,12 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
 
 void ResetPet(int client, int slot)
 {
-    if(g_iPetRef[client][slot] == INVALID_ENT_REFERENCE)
+    if(g_sPetRef[client][slot].m_iEntRef == INVALID_ENT_REFERENCE)
         return;
 
-    int entity = EntRefToEntIndex(g_iPetRef[client][slot]);
+    int entity = EntRefToEntIndex(g_sPetRef[client][slot].m_iEntRef);
 
-    g_iPetRef[client][slot] = INVALID_ENT_REFERENCE;
+    g_sPetRef[client][slot].Reset();
 
     if(entity == -1 || !IsValidEdict(client))
         return;
@@ -349,15 +386,17 @@ void ResetPet(int client, int slot)
 
 void DeathPet(int client, int slot)
 {
-    if(g_iPetRef[client][slot] == INVALID_ENT_REFERENCE)
+    if(g_sPetRef[client][slot].m_iEntRef == INVALID_ENT_REFERENCE)
         return;
 
-    int entity = EntRefToEntIndex(g_iPetRef[client][slot]);
+    int entity = EntRefToEntIndex(g_sPetRef[client][slot].m_iEntRef);
 
     if(!IsValidEdict(entity))
         return;
     
-    int m_iData = Store_GetDataIndex(Store_GetEquippedItem(client, "pet", slot));
+    int m_iData = g_sPetRef[client][slot].m_iDataIndex;
+    if (m_iData < 0)
+        return;
     
     if(g_ePets[m_iData].death[0] == '\0')
     {
@@ -366,8 +405,8 @@ void DeathPet(int client, int slot)
     }
     
     SetVariantString(g_ePets[m_iData].death);
-    AcceptEntityInput(EntRefToEntIndex(g_iPetRef[client][slot]), "SetAnimation");
-    g_iLastAnimation[client][slot] = 3;
+    AcceptEntityInput(entity, "SetAnimation");
+    g_sPetRef[client][slot].m_iLastAnimation = 3;
     HookSingleEntityOutput(entity, "OnAnimationDone", Hook_OnAnimationDone, true);
 }
 
@@ -382,8 +421,8 @@ public void Hook_OnAnimationDone(const char[] output, int caller, int activator,
     {
         int iRef = EntIndexToEntRef(caller);
         for(int slot = 0; slot < STORE_MAX_SLOTS; ++slot)
-            if(g_iPetRef[owner][slot] == iRef)
-                g_iPetRef[owner][slot] = INVALID_ENT_REFERENCE;
+            if(g_sPetRef[owner][slot].m_iEntRef == iRef)
+                g_sPetRef[owner][slot].Reset();
     }
 
     AcceptEntityInput(caller, "Kill");

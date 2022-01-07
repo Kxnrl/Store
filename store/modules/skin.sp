@@ -147,7 +147,7 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
     Store_SetDataIndex(itemid, g_iPlayerSkins);
     
     kv.GetString("model", g_ePlayerSkins[g_iPlayerSkins].szModel, PLATFORM_MAX_PATH);
-    kv.GetString("arms", g_ePlayerSkins[g_iPlayerSkins].szArms, PLATFORM_MAX_PATH);
+    kv.GetString("arms",  g_ePlayerSkins[g_iPlayerSkins].szArms,  PLATFORM_MAX_PATH);
     kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins].szSound, PLATFORM_MAX_PATH);
     
     g_ePlayerSkins[g_iPlayerSkins].iLevel = kv.GetNum("lvls",  0);
@@ -159,13 +159,19 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
     g_ePlayerSkins[g_iPlayerSkins].iTeam = kv.GetNum("team");
 #endif
 
-    if(FileExists(g_ePlayerSkins[g_iPlayerSkins].szModel, true))
+    if(!FileExists(g_ePlayerSkins[g_iPlayerSkins].szModel, true))
     {
-        ++g_iPlayerSkins;
-        return true;
+        // missing model
+        return false;
     }
 
-    return false;
+    if(g_ePlayerSkins[g_iPlayerSkins].szArms[0] && !FileExists(g_ePlayerSkins[g_iPlayerSkins].szArms, true))
+    {
+        LogError("Missing 'Arms' files for '%s'::'%s'.", g_ePlayerSkins[g_iPlayerSkins].szModel, g_ePlayerSkins[g_iPlayerSkins].szArms);
+    }
+
+    g_iPlayerSkins++;
+    return true;
 }
 
 public void PlayerSkins_OnMapStart()

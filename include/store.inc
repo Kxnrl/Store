@@ -67,7 +67,7 @@ native int Store_GetClientCredits(int client);
 native int Store_SetClientCredits(int client, int credits, const char[] log = "未知");
 native int Store_DisplayConfirmMenu(int client, const char[] title, Function callback, any data);
 native int Store_GetTypeId(const char[] type);
-native int Store_GetItemId(const char[] uid);
+native int Store_GetItemId(const char uid[32]);
 native int Store_GetItemData(int itemid, const any[] local);
 native int Store_UseItem(int client, int itemid, bool synced = false, int slot = 0);
 native int Store_RemoveItem(int client, int itemid);
@@ -99,12 +99,12 @@ native ArrayList Store_GetItemList(); // List<Store_Item>
 forward void   Store_OnStoreInit(Handle store_plugin);
 forward void   Store_OnStoreAvailable(ArrayList items); // ArrayList will be automatically freed.  List<Store_Item>
 forward void   Store_OnClientLoaded(int client);
-forward Action Store_OnClientBuyItem(int client, const char[] uid, int length, int price);
-forward void   Store_OnClientPurchased(int client, const char[] uid, int length, int price);
+forward Action Store_OnClientBuyItem(int client, const char uid[32], int length, int price);
+forward void   Store_OnClientPurchased(int client, const char uid[32], int length, int price);
 forward bool   Store_OnPlayerSkinDefault(int client, int team, char[] skin, int skinLen, char[] arms, int armsLen);
 forward Action Store_OnFPDeathCamera(int client);
 forward Action Store_OnSetPlayerSkin(int client, char skin[128], char arms[128], int &body);
-forward void   Store_OnSetPlayerSkinPost(int client, const char[] skin, const char[] arms, const int body);
+forward void   Store_OnSetPlayerSkinPost(int client, const char skin[128], const char arms[128], const int body);
 forward Action Store_OnPlayerDeathVoice(int client, char sound[PLATFORM_MAX_PATH]);
 forward void   Store_OnHatsCreated(int client, int entity, int slot);
 forward void   Store_OnTrailsCreated(int client, int entity);
@@ -112,13 +112,13 @@ forward void   Store_OnParticlesCreated(int client, int entity);
 forward void   Store_OnNeonCreated(int client, int entity);
 forward void   Store_OnPetsCreated(int client, int entity);
 forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
-forward Action Store_OnClientComposing(int client, int &probability, int itemid, const char[] uid, const char[] itemName, const char[] itemParentName);
-forward void   Store_OnClientComposed(int client, bool success, int itemid, const char[] itemName, const char[] itemParentName);
+forward Action Store_OnClientComposing(int client, int &probability, int itemid, const char uid[32], const char itemName[ITEM_NAME_LENGTH], const char itemParentName[ITEM_NAME_LENGTH]);
+forward void   Store_OnClientComposed(int client, bool success, int itemid, const char itemName[ITEM_NAME_LENGTH], const char itemParentName[ITEM_NAME_LENGTH]);
 forward Action Store_OnCheerSound(int client, char sound[256], char name[64]);
-forward Action Store_OnGiveClientItem(int client, const char[] uid, int purchase, int expiration, int price);
+forward Action Store_OnGiveClientItem(int client, const char uid[32], int purchase, int expiration, int price);
 forward void   Store_OnClientSpray(int client);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);
-forward void   CP_OnChatMessagePost(int client, ArrayList recipients, const char[] flags, const char[] name, const char[] message, bool processColors, bool removeColors);
+forward void   CP_OnChatMessagePost(int client, ArrayList recipients, const char flags[32], const char name[128], const char message[256], bool processColors, bool removeColors);
 forward Action CP_OnChatRainbow(char[] chat, int maxLen);

@@ -180,7 +180,8 @@ public void PlayerSkins_OnMapStart()
     char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        PrecacheModel(g_ePlayerSkins[i].szModel, true); // only true for player skin body
+        // TODO: Test client crash on map change.
+        PrecacheModel(g_ePlayerSkins[i].szModel, false); // only true for player skin body
         AddFileToDownloadsTable(g_ePlayerSkins[i].szModel);
 
         // prevent double call

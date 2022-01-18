@@ -178,7 +178,7 @@ void DisplayMainMenu(int client)
                 }
                 else
                 {
-                    if (global && GetSkinTeamById(skin[i]) != g_iSelected[client])
+                    if (!global && GetSkinTeamById(skin[i]) != g_iSelected[client])
                     {
                         // skip if not match team
                         continue;
@@ -313,7 +313,7 @@ public int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
         delete menu;
     else if (action == MenuAction_Select)
     {
-        if (Store_IsGlobalTeam() && GetClientTeam(client) != g_iSelected[client])
+        if (!Store_IsGlobalTeam() && GetClientTeam(client) != g_iSelected[client])
         {
             DisplaySkinMenu(client, slot);
             return;

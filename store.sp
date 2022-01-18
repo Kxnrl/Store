@@ -30,10 +30,12 @@ public Plugin myinfo =
 #include <store_stock>
 
 #undef REQUIRE_EXTENSIONS
+#undef AUTOLOAD_EXTENSIONS
 #undef REQUIRE_PLUGIN
 #include <clientprefs>
 #include <fys.opts>
 #include <fys.pupd>
+#define AUTOLOAD_EXTENSIONS
 #define REQUIRE_EXTENSIONS
 #define REQUIRE_PLUGIN
 

@@ -54,6 +54,7 @@ enum struct SkinData_t
     char m_Skin[128];
     char m_Arms[128];
     int m_Body;
+    int m_Team;
 }
 
 native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false, bool disposable = false);

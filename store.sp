@@ -1043,8 +1043,8 @@ public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
 
     for (int i = 0; i < g_iItems; i++)
     {
-        char m[128], a[128]; int b;
-        if (g_Items[i].iHandler == handler && Store_HasClientItem(client, i) && GetSkinData(i, m, a, b))
+        char m[128], a[128]; int b, t;
+        if (g_Items[i].iHandler == handler && Store_HasClientItem(client, i) && GetSkinData(i, m, a, b, t))
         {
             SkinData_t s;
             strcopy(s.m_Name, sizeof(SkinData_t::m_Name), g_Items[i].szName);
@@ -1052,6 +1052,7 @@ public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
             strcopy(s.m_Skin, sizeof(SkinData_t::m_Skin), m);
             strcopy(s.m_Arms, sizeof(SkinData_t::m_Arms), a);
             s.m_Body = b;
+            s.m_Team = t;
             array.PushArray(s, sizeof(SkinData_t));
         }
     }
@@ -1077,8 +1078,8 @@ public any Native_GetAllPlayerSkins(Handle myself, int numParams)
 
     for (int i = 0; i < g_iItems; i++)
     {
-        char m[128], a[128]; int b;
-        if (g_Items[i].iHandler == handler && GetSkinData(i, m, a, b))
+        char m[128], a[128]; int b, t;
+        if (g_Items[i].iHandler == handler && GetSkinData(i, m, a, b, t))
         {
             SkinData_t s;
             strcopy(s.m_Name, sizeof(SkinData_t::m_Name), g_Items[i].szName);
@@ -1086,6 +1087,7 @@ public any Native_GetAllPlayerSkins(Handle myself, int numParams)
             strcopy(s.m_Skin, sizeof(SkinData_t::m_Skin), m);
             strcopy(s.m_Arms, sizeof(SkinData_t::m_Arms), a);
             s.m_Body = b;
+            s.m_Team = t;
             array.PushArray(s, sizeof(SkinData_t));
         }
     }

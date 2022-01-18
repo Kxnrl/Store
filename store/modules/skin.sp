@@ -856,7 +856,7 @@ bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
     return false;
 }
 
-bool GetSkinData(int itemid, char skin[128], char arms[128], int &body)
+bool GetSkinData(int itemid, char skin[128], char arms[128], int &body, int &team)
 {
     int m_iData = Store_GetDataIndex(itemid);
     if (m_iData == -1)
@@ -865,6 +865,7 @@ bool GetSkinData(int itemid, char skin[128], char arms[128], int &body)
     strcopy(skin, 128, g_ePlayerSkins[m_iData].szModel);
     strcopy(arms, 128, g_ePlayerSkins[m_iData].szArms);
     body = g_ePlayerSkins[m_iData].nBody;
+    team = g_ePlayerSkins[m_iData].iTeam;
     return true;
 }
 

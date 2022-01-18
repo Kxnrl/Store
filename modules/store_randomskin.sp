@@ -336,6 +336,8 @@ public int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
 
         DisplaySkinMenu(client, slot);
     }
+    else if (action == MenuAction_Cancel && slot == MenuCancel_ExitBack)
+        DisplaySkinMenu(client);
 }
 
 public void OnClientConnected(int client)

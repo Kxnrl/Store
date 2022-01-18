@@ -440,7 +440,7 @@ int GetSkinTeamById(const char[] uid)
     {
         SkinData_t s;
         g_aSkins.GetArray(i, s, sizeof(SkinData_t));
-        if (strcmp(item, s.m_UId) == 0)
+        if (strcmp(uid, s.m_UId) == 0)
             return s.m_Team;
     }
     return TEAM_GX;

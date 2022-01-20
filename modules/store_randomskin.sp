@@ -1,6 +1,5 @@
 #pragma semicolon 1
 #pragma newdecls required
-#pragma dynamic 131072
 
 #define PLUGIN_NAME         "Store - Random player skins"
 #define PLUGIN_AUTHOR       "Kyle"
@@ -408,20 +407,25 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     list.GetString(UTIL_GetRandomInt(0, list.Length - 1), STRING(item));
     delete list;
 
+    bool global = Store_IsGlobalTeam();
+
     for (int i = 0; i < g_aSkins.Length; i++)
     {
         SkinData_t s;
         g_aSkins.GetArray(i, s, sizeof(SkinData_t));
-        if (strcmp(item, s.m_UId) == 0 && s.m_Team == teamEx)
-        {
-            strcopy(g_sPrevious[client][teamEx], sizeof(g_sPrevious[][]), item);
-            strcopy(STRING(_skin), s.m_Skin);
-            strcopy(STRING(_arms), s.m_Arms);
-            _body = s.m_Body;
-            
-            tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);
-            return Plugin_Changed;
-        }
+        if (strcmp(item, s.m_UId) != 0)
+            continue;
+        
+        if (!global && s.m_Team != teamEx)
+            continue;
+
+        strcopy(g_sPrevious[client][teamEx], sizeof(g_sPrevious[][]), item);
+        strcopy(STRING(_skin), s.m_Skin);
+        strcopy(STRING(_arms), s.m_Arms);
+        _body = s.m_Body;
+        
+        tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);
+        return Plugin_Changed;
     }
 
     g_sPrevious[client][teamEx][0] = '\0';

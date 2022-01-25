@@ -200,7 +200,7 @@ public void Pets_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast
     if (g_hDelay[client] != null)
         delete g_hDelay[client];
 
-    g_hDelay[client] = CreateTimer(UTIL_GetRandomInt(1, 3) * 0.1, Timer_DelaySpawn, client);
+    g_hDelay[client] = CreateTimer(UTIL_GetRandomInt(1, 10) * 0.1, Timer_DelaySpawn, client);
 }
 
 Action Timer_DelaySpawn(Handle timer, int client)

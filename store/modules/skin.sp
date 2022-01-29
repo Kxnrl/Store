@@ -291,7 +291,7 @@ static void Store_SetClientModel(int client, int m_iData)
     else if (res == Plugin_Changed)
     {
         // verify data index;
-        m_iData = FindDataIndexByModel(skin_t);
+        m_iData = FindDataIndexByModel(skin_t, body_t);
         if (m_iData == -1)
             return;
     }
@@ -782,7 +782,7 @@ void Store_CallDefaultSkin(int client)
             }
         }
 
-        EnforceDeathSound(client, skin_t);
+        EnforceDeathSound(client, skin_t, 0);
     }
 }
 
@@ -868,11 +868,11 @@ bool GetSkinData(int itemid, char skin[128], char arms[128], int &body, int &tea
     return true;
 }
 
-int FindDataIndexByModel(const char[] skin)
+int FindDataIndexByModel(const char[] skin, const int body)
 {
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        if (strcmp(g_ePlayerSkins[i].szModel, skin) == 0)
+        if (strcmp(g_ePlayerSkins[i].szModel, skin) == 0 && body == g_ePlayerSkins[i].nBody)
             return i;
     }
     return -1;

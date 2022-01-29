@@ -37,7 +37,7 @@ Handle g_hOnPlayerDeathVoice = null;
 
 void Skin_OnPluginStart()
 {
-    g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell);
+    g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
     g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
     g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
     g_hOnPlayerSetModelPost = CreateGlobalForward("Store_OnSetPlayerSkinPost", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
@@ -754,7 +754,7 @@ void Store_CallDefaultSkin(int client)
     }
 #endif
 
-    char skin_t[128], arms_t[128];
+    char skin_t[128], arms_t[128]; int body;
 
     bool ret = false;
 
@@ -765,6 +765,7 @@ void Store_CallDefaultSkin(int client)
     Call_PushCell(128);
     Call_PushStringEx(STRING(arms_t), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(128);
+    Call_PushCellRef(body);
     Call_Finish(ret);
 
     if(ret)
@@ -772,6 +773,9 @@ void Store_CallDefaultSkin(int client)
         if (IsModelPrecached(skin_t))
         {
             SetEntityModel(client, skin_t);
+
+            if (body > 0)
+                SetEntProp(client, Prop_Send, "m_nBody", body);
         }
 
         if (Store_CallSetPlayerSkinArms(client, STRING(arms_t)))
@@ -782,13 +786,13 @@ void Store_CallDefaultSkin(int client)
             }
         }
 
-        EnforceDeathSound(client, skin_t, 0);
+        EnforceDeathSound(client, skin_t, body);
     }
 }
 
-void EnforceDeathSound(int client, const char[] skin)
+void EnforceDeathSound(int client, const char[] skin, const int body)
 {
-    int index = FindDataIndexByModel(skin);
+    int index = FindDataIndexByModel(skin, body);
     if (index == -1)
     {
         // item not from store DB

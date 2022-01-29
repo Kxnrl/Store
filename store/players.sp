@@ -58,7 +58,7 @@ void Players_OnClientDisconnect(int client)
 
 public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBroadcast)
 {
-    if (event.GetNum("teamnum", -1) == 0)
+    if (event.GetInt("teamnum", -1) == 0)
         return Plugin_Continue;
 
     int client = GetClientOfUserId(event.GetInt("userid"));

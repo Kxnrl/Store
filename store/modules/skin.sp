@@ -876,8 +876,14 @@ int FindDataIndexByModel(const char[] skin, const int body)
 {
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        if (strcmp(g_ePlayerSkins[i].szModel, skin) == 0 && body == g_ePlayerSkins[i].nBody)
+        if (strcmp(g_ePlayerSkins[i].szModel, skin) == 0) {
+            if (g_ePlayerSkins[i].nBody > 0) {
+                if (body != g_ePlayerSkins[i].nBody) {
+                    continue;
+                }
+            }
             return i;
+        }
     }
     return -1;
 }

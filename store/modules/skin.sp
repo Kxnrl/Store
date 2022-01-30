@@ -150,8 +150,8 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
     kv.GetString("arms",  g_ePlayerSkins[g_iPlayerSkins].szArms,  PLATFORM_MAX_PATH);
     kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins].szSound, PLATFORM_MAX_PATH);
     
-    g_ePlayerSkins[g_iPlayerSkins].iLevel = kv.GetNum("lvls",  0);
-    g_ePlayerSkins[g_iPlayerSkins].nBody  = kv.GetNum("skin", -1);
+    g_ePlayerSkins[g_iPlayerSkins].iLevel = kv.GetNum("lvls", 0);
+    g_ePlayerSkins[g_iPlayerSkins].nBody  = kv.GetNum("skin", 0);
 
 #if defined Global_Skin
     g_ePlayerSkins[g_iPlayerSkins].iTeam = 4;

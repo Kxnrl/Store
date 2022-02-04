@@ -13,7 +13,6 @@ include/adt_trie.inc
 include/banning.inc
 include/basecomm.inc
 include/bitbuffer.inc
-include/clientprefs.inc
 include/clients.inc
 include/commandfilters.inc
 include/commandline.inc

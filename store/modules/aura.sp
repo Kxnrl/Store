@@ -100,6 +100,7 @@ void Store_SetClientAura(int client)
 
         int iEnt = CreateEntityByName("info_particle_system");
         
+        DispatchKeyValue(iEnt, "targetname", "store_item_aura");
         DispatchKeyValue(iEnt , "start_active", "1");
         DispatchKeyValue(iEnt, "effect_name", g_szAuraClient[client]);
         DispatchSpawn(iEnt);

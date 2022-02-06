@@ -144,6 +144,7 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         m_fHatOrigin[2] += m_fRight[2]*m_fOffset[0]+m_fForward[2]*m_fOffset[1]+m_fUp[2]*m_fOffset[2];
 
         int m_iEnt = CreateEntityByName("prop_dynamic_override");
+        DispatchKeyValue(m_iEnt, "targetname", "store_item_pet");
         DispatchKeyValue(m_iEnt, "model", g_eHats[m_iData].szModel);
         DispatchKeyValue(m_iEnt, "spawnflags", "256");
         DispatchKeyValue(m_iEnt, "solid", "0");

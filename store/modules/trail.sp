@@ -129,7 +129,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
         return;
 
     entity = CreateEntityByName("env_spritetrail");
-    DispatchKeyValue(entity, "classname", "env_spritetrail");
+    DispatchKeyValue(entity, "targetname", "store_item_trail");
     DispatchKeyValue(entity, "renderamt", "255");
     DispatchKeyValue(entity, "rendercolor", "255 255 255");
     DispatchKeyValue(entity, "lifetime", "1.0");

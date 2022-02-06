@@ -103,6 +103,8 @@ void Store_SetClientPart(int client)
             return;
         }
 
+        DispatchKeyValue(iEnt, "targetname", "store_item_particle");
+
         DispatchKeyValue(iEnt, "start_active", "1");
         DispatchKeyValue(iEnt, "effect_name", g_szPartClient[client]);
         DispatchSpawn(iEnt);

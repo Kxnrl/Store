@@ -112,6 +112,8 @@ void Store_SetClientNeon(int client)
         DispatchSpawn(iNeon);
         AcceptEntityInput(iNeon, "TurnOn");
 
+        DispatchKeyValue(iNeon, "targetname", "store_item_neon");
+
         TeleportEntity(iNeon, clientOrigin, NULL_VECTOR, NULL_VECTOR);
 
         SetVariantString("!activator");

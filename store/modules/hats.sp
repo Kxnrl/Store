@@ -9,6 +9,7 @@ enum struct Hat
     bool bBonemerge;
     bool bHide;
     int iSlot;
+    int iTeam;
 }
 
 static Hat g_eHats[STORE_MAX_ITEMS];
@@ -29,8 +30,9 @@ public bool Hats_Config(KeyValues kv, int itemid)
     g_eHats[g_iHats].bBonemerge = (kv.GetNum("bonemerge", 0)?true:false);
     g_eHats[g_iHats].iSlot = kv.GetNum("slot");
     g_eHats[g_iHats].bHide = kv.GetNum("hide", 1) ? true : false; // hide by default
+    g_eHats[g_iHats].iTeam = kv.GetNum("team");
     kv.GetString("attachment", g_eHats[g_iHats].szAttachment, sizeof(Hat::szAttachment), "facemask");
-    
+
     if(!(FileExists(g_eHats[g_iHats].szModel, true)))
         return false;
 
@@ -117,6 +119,12 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         
 #if defined GM_ZE
         if(g_iClientTeam[client] == 2)
+            return;
+#endif
+
+#if !defined Global_Skin
+        // if not in global team mode, we chose team
+        if (g_eHats[m_iData].iTeam > 0 && g_iClientTeam[client] != g_eHats[m_iData].iTeam)
             return;
 #endif
 

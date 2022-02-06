@@ -37,6 +37,7 @@ enum struct Pet
     float fAngles[3];
     float fScale;
     int iSlot;
+    int iTeam;
 }
 
 enum struct PetInfo_t
@@ -122,8 +123,9 @@ public bool Pets_Config(Handle kv, int itemid)
     KvGetVector(kv, "angles", m_fTemp);
     g_ePets[g_iPets].fAngles = m_fTemp;
     g_ePets[g_iPets].iSlot = KvGetNum(kv, "slot");
+    g_ePets[g_iPets].iTeam = KvGetNum(kv, "team");
     g_ePets[g_iPets].fScale = KvGetFloat(kv, "scale", 1.0);
-    
+
     if(FileExists(g_ePets[g_iPets].model, true))
     {
         ++g_iPets;
@@ -306,6 +308,9 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
         return;
     
     int m_iData = Store_GetDataIndex(m_iEquipped);
+
+    if (!Store_IsGlobalTeam() && g_ePets[m_iData].iTeam > 0 && GetClientTeam(client) != g_ePets[m_iData].iTeam)
+        return;
 
     int entity = CreateEntityByName("prop_dynamic_override");
     if(entity == -1)

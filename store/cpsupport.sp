@@ -201,7 +201,7 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
 void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int rainbow)
 {
 #if defined USE_BF
-    #pragma unused g_hCPRForward
+    #pragma unused g_hCPRForward, type, rainbow
     strcopy(output, maxLen, input);
 #else
     int bytes, buffs;

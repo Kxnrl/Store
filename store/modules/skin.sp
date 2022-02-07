@@ -303,11 +303,7 @@ static void Store_SetClientModel(int client, int m_iData)
     SetEntityModel(client, skin_t);
 
     // check merged model ? skin? body?
-    if (body_t > 0)
-    {
-        // set?
-        SetEntProp(client, Prop_Send, "m_nBody", body_t);
-    }
+    SetEntProp(client, Prop_Send, "m_nBody", body_t > 0 ? body_t : 0);
 
     strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), skin_t);
 
@@ -773,9 +769,7 @@ void Store_CallDefaultSkin(int client)
         if (IsModelPrecached(skin_t))
         {
             SetEntityModel(client, skin_t);
-
-            if (body > 0)
-                SetEntProp(client, Prop_Send, "m_nBody", body);
+            SetEntProp(client, Prop_Send, "m_nBody", body > 0 ? body : 0);
         }
 
         if (Store_CallSetPlayerSkinArms(client, STRING(arms_t)))

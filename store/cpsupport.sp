@@ -4,6 +4,15 @@
     #define USE_BF
 #endif
 
+#if !defined CHAT_PROCESSOR_DEFINTION
+  #define CHAT_PROCESSOR_DEFINTION
+  #define CHAT_TYPE_NAME 0
+  #define CHAT_TYPE_TEXT 1
+  #define CHAT_C_NONE    0
+  #define CHAT_C_RAINBOW 1
+  #define CHAT_C_RANDOM  2
+#endif
+
 #define TEAM_SPEC 1
 static UserMsg g_umUMId;
 static Handle g_hCPAForward;
@@ -44,7 +53,7 @@ public void CPSupport_OnPluginStart()
 
     g_hCPAForward = CreateGlobalForward("CP_OnChatMessage",     ET_Hook,   Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
     g_hCPPForward = CreateGlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
-    g_hCPRForward = CreateGlobalForward("CP_OnChatRainbow",     ET_Hook,   Param_String, Param_Cell);
+    g_hCPRForward = CreateGlobalForward("CP_OnChatRainbow",     ET_Hook,   Param_String, Param_Cell, Param_Cell, Param_Cell);
 
     Store_RegisterHandler("nametag", CPSupport_OnMappStart, CPSupport_Reset, NameTags_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("namecolor", CPSupport_OnMappStart, CPSupport_Reset, NameColors_Config, CPSupport_Equip, CPSupport_Remove, true);
@@ -129,19 +138,21 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
     if(m_iEquippedNameTag >= 0)
         strcopy(STRING(m_szNameTag), g_szNameTags[Store_GetDataIndex(m_iEquippedNameTag)]);
 
-    bool rainbowname = false;
-    if(m_iEquippedNameColor >= 0)
+    int rainbowname = CHAT_C_NONE;
+    if (m_iEquippedNameColor >= 0)
     {
         int m_iData = Store_GetDataIndex(m_iEquippedNameColor);
         if(strcmp(g_szNameColors[m_iData], "rainbow") == 0)
-            rainbowname = true;
+            rainbowname = CHAT_C_RAINBOW;
+        else if(strcmp(g_szNameColors[m_iData], "random") == 0)
+            rainbowname = CHAT_C_RANDOM;
         else strcopy(STRING(m_szNameColor), g_szNameColors[m_iData]);
     }
 
-    if(rainbowname)
+    if (rainbowname)
     {
         char buffer[128];
-        String_Rainbow(name, STRING(buffer));
+        String_Rainbow(name, STRING(buffer), CHAT_TYPE_NAME, rainbowname);
         Format(STRING(name), "%s %s", m_szNameTag, buffer);
     }
     else Format(STRING(name), "%s%s %s", m_szNameTag, m_szNameColor, name);
@@ -149,10 +160,16 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
     if(m_iEquippedMsgColor >= 0)
     {
         int m_iData = Store_GetDataIndex(m_iEquippedMsgColor);
+        int rainbowmsg = CHAT_C_NONE;
         if(strcmp(g_szMessageColors[m_iData], "rainbow") == 0)
+            rainbowmsg = CHAT_C_RAINBOW;
+        else if(strcmp(g_szMessageColors[m_iData], "random") == 0)
+            rainbowmsg = CHAT_C_RANDOM;
+
+        if (rainbowmsg)
         {
             char buffer[256];
-            String_Rainbow(message, STRING(buffer));
+            String_Rainbow(message, STRING(buffer), CHAT_TYPE_TEXT, rainbowmsg);
             strcopy(STRING(message), buffer);
         }
         else Format(STRING(message), "%s%s", g_szMessageColors[m_iData], message);
@@ -181,7 +198,7 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
     return Plugin_Changed;
 }
 
-void String_Rainbow(const char[] input, char[] output, int maxLen)
+void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int rainbow)
 {
 #if defined USE_BF
     #pragma unused g_hCPRForward
@@ -195,6 +212,8 @@ void String_Rainbow(const char[] input, char[] output, int maxLen)
     Call_StartForward(g_hCPRForward);
     Call_PushStringEx(copy, maxLen, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(maxLen);
+    Call_PushCell(type);
+    Call_PushCell(rainbow);
     Call_Finish(res);
     if (res >= Plugin_Handled)
     {
@@ -204,6 +223,13 @@ void String_Rainbow(const char[] input, char[] output, int maxLen)
     if (res == Plugin_Changed)
     {
         strcopy(output, maxLen, copy);
+        return;
+    }
+
+    if (rainbow == CHAT_C_RANDOM)
+    {
+        output[0] = RandomColor();
+        strcopy(output[1], maxLen, input);
         return;
     }
 

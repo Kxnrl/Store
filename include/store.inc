@@ -25,6 +25,16 @@ public SharedPlugin __pl_store =
 #define STORE_MAX_PLANS     8
 #define STORE_MAX_SLOTS     6
 
+// Chat-Processor
+#if !defined CHAT_PROCESSOR_DEFINTION
+  #define CHAT_PROCESSOR_DEFINTION
+  #define CHAT_TYPE_NAME 0
+  #define CHAT_TYPE_TEXT 1
+  #define CHAT_C_NONE    0
+  #define CHAT_C_RAINBOW 1
+  #define CHAT_C_RANDOM  2
+#endif
+
 enum struct Store_Item
 {
     char szName[ITEM_NAME_LENGTH];
@@ -122,4 +132,4 @@ forward void   Store_OnClientSpray(int client);
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);
 forward void   CP_OnChatMessagePost(int client, ArrayList recipients, const char flags[32], const char name[128], const char message[256], bool processColors, bool removeColors);
-forward Action CP_OnChatRainbow(char[] chat, int maxLen);
+forward Action CP_OnChatRainbow(char[] chat, int maxLen, int type, int rainbow);

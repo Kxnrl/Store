@@ -146,6 +146,8 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
             rainbowname = CHAT_C_RAINBOW;
         else if(strcmp(g_szNameColors[m_iData], "random") == 0)
             rainbowname = CHAT_C_RANDOM;
+        else if(strcmp(g_szNameColors[m_iData], "shuffle") == 0)
+            rainbowname = CHAT_C_SHUFFLE;
         else strcopy(STRING(m_szNameColor), g_szNameColors[m_iData]);
     }
 
@@ -165,6 +167,8 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
             rainbowmsg = CHAT_C_RAINBOW;
         else if(strcmp(g_szMessageColors[m_iData], "random") == 0)
             rainbowmsg = CHAT_C_RANDOM;
+        else if(strcmp(g_szMessageColors[m_iData], "shuffle") == 0)
+            rainbowmsg = CHAT_C_SHUFFLE;
 
         if (rainbowmsg)
         {
@@ -226,7 +230,7 @@ void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int
         return;
     }
 
-    if (rainbow == CHAT_C_RANDOM)
+    if (rainbow == CHAT_C_RANDOM || rainbow == CHAT_C_SHUFFLE)
     {
         output[0] = RandomColor();
         strcopy(output[1], maxLen, input);

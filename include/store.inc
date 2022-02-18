@@ -33,6 +33,7 @@ public SharedPlugin __pl_store =
   #define CHAT_C_NONE    0
   #define CHAT_C_RAINBOW 1
   #define CHAT_C_RANDOM  2
+  #define CHAT_C_SHUFFLE 3
 #endif
 
 enum struct Store_Item

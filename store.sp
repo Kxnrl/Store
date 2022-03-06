@@ -272,6 +272,7 @@ public void OnPluginStart()
     // Register Commands
     RegConsoleCmd("sm_store",       Command_Store);
     RegConsoleCmd("buyammo1",       Command_Store);
+    RegConsoleCmd("primammo",       Command_Store);
     RegConsoleCmd("sm_shop",        Command_Store);
     RegConsoleCmd("sm_inv",         Command_Inventory);
     RegConsoleCmd("sm_inventory",   Command_Inventory);

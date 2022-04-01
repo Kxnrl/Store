@@ -260,11 +260,21 @@ void Store_PreSetClientModel(int client)
         return;
     }
 
+    CreateTimer(0.02, Timer_SetDefaultModel, client, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+static Action Timer_SetDefaultModel(Handle timer, int client)
+{
+    if (!IsClientInGame(client) || !IsPlayerAlive(client))
+        return Plugin_Stop;
+
     Store_CallDefaultSkin(client);
 
 #if defined Module_Hats
     Store_SetClientHat(client);
 #endif
+
+    return Plugin_Stop;
 }
 
 static void Store_SetClientModel(int client, int m_iData)
@@ -316,13 +326,6 @@ static void Store_SetClientModel(int client, int m_iData)
     }
 
     g_iSkinLevel[client] = g_ePlayerSkins[m_iData].iLevel;
-
-    Call_StartForward(g_hOnPlayerSetModelPost);
-    Call_PushCell(client);
-    Call_PushString(skin_t);
-    Call_PushString(arms_t);
-    Call_PushCell(body_t);
-    Call_Finish();
 
     Call_StartForward(g_hOnPlayerSetModelPost);
     Call_PushCell(client);

@@ -3684,7 +3684,7 @@ void UTIL_ReloadConfig()
         Call_Finish();
     }
 
-    g_hDatabase.Query(SQL_LoadParents, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `id` ASC;", 0, DBPrio_High);
+    g_hDatabase.Query(SQL_LoadParents, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `order` ASC;", 0, DBPrio_High);
 }
 
 public void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] error, any data)

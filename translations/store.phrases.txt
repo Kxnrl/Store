@@ -904,14 +904,14 @@
     "level 2"
     {
         "en"  "Lv.2"
-        "chi" "初级"
+        "chi" "高级"
         "da"  "Lv.2"
     }
 
     "level 3"
     {
         "en"  "Lv.3"
-        "chi" "高级"
+        "chi" "尊享"
         "da"  "Lv.3"
     }
     

@@ -337,12 +337,21 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float rem
     if(speaker == -1)
         return -1;
 
-    DispatchSpawn(speaker);
+    DispatchKeyValue(speaker, "spawnflags", "2");
 
     TeleportEntity(speaker, fPos, fAgl, NULL_VECTOR);
 
+    DispatchSpawn(speaker);
+    ActivateEntity(speaker);
+
     SetVariantString("!activator");
-    AcceptEntityInput(speaker, "SetParent", source, speaker, 0);
+    AcceptEntityInput(speaker, "SetParent", source);
+
+    if (source > 0 && source <= MaxClients)
+    {
+        SetVariantString("facemask");
+        AcceptEntityInput(speaker, "SetParentAttachment");
+    }
 
     if(removeDelay > 0.0)
     {

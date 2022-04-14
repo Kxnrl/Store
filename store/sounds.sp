@@ -54,7 +54,7 @@ public void Sound_OnMapStart()
         Format(STRING(szPath), "sound/%s", g_eSounds[i].szSound);
         if(FileExists(szPath, true))
         {
-            Format(STRING(szPathStar), "*%s", g_eSounds[i].szSound);
+            Format(STRING(szPathStar), ")%s", g_eSounds[i].szSound);
             AddToStringTable(FindStringTable("soundprecache"), szPathStar);
             AddFileToDownloadsTable(szPath);
         }
@@ -70,6 +70,10 @@ void Sound_OnClientDeath(int client, int attacker)
 public void Sound_Reset()
 {
     g_iSounds = 0;
+    for (int i = 0; i <= MAXPLAYERS; i++)
+    {
+        g_iSoundClient[i] = -1;
+    }
 }
 
 public bool Sound_Config(KeyValues kv, int itemid)
@@ -210,11 +214,13 @@ void StartSoundToAll(int client)
     float fAgl[3];
     GetClientEyeAngles(client, fAgl);
 
+    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 6.0);
+
     fPos[2] -= 3.0;
 
     char szPath[128];
-    Format(STRING(szPath), "*%s", sound);
-    EmitSound(targets, total, szPath, client, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]].fVolume, SNDPITCH_NORMAL, client, fPos, fAgl, true);
+    Format(STRING(szPath), ")%s", sound);
+    EmitSound(targets, total, szPath, speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, g_eSounds[g_iSoundClient[client]].fVolume, SNDPITCH_NORMAL, _, _, _, true);
 
     tPrintToChatAll("%t", "sound to all", client, name);
 }

@@ -218,8 +218,12 @@ void StartSoundToAll(int client)
 
     SetVariantString("!activator");
     AcceptEntityInput(speaker, "SetParent", client);
-    SetVariantString("facemask");
-    AcceptEntityInput(speaker, "SetParentAttachment");
+
+    if (IsPlayerAlive(client))
+    {
+        SetVariantString("facemask");
+        AcceptEntityInput(speaker, "SetParentAttachment");
+    }
 
     fPos[2] -= 3.0;
 

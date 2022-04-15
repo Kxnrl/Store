@@ -418,6 +418,8 @@ void Broadcast_DeathSound(int client)
     if (m_iRagdoll > MaxClients)
     {
         // make sound following ragdoll
+        SetVariantString("!activator");
+        AcceptEntityInput(speaker, "SetParent", m_iRagdoll);
         SetVariantString("facemask");
         AcceptEntityInput(speaker, "SetParentAttachment", speaker, speaker, 0);
     }

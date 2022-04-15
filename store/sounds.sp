@@ -214,7 +214,12 @@ void StartSoundToAll(int client)
     float fAgl[3];
     GetClientEyeAngles(client, fAgl);
 
-    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 6.0);
+    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 3.5);
+
+    SetVariantString("!activator");
+    AcceptEntityInput(speaker, "SetParent", client);
+    SetVariantString("facemask");
+    AcceptEntityInput(speaker, "SetParentAttachment");
 
     fPos[2] -= 3.0;
 

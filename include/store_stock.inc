@@ -347,22 +347,29 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float rem
     SetVariantString("!activator");
     AcceptEntityInput(speaker, "SetParent", source);
 
-    if (source > 0 && source <= MaxClients)
-    {
-        SetVariantString("facemask");
-        AcceptEntityInput(speaker, "SetParentAttachment");
-    }
-
     if(removeDelay > 0.0)
     {
+        /*
         char input[128];
         FormatEx(STRING(input), "OnUser4 !self:Kill::%.2f:1", removeDelay);
         SetVariantString(input);
         AcceptEntityInput(speaker, "AddOutput");
         AcceptEntityInput(speaker, "FireUser4");
+        */
+        // this for g_EventQueue.Clear() called in CCSGameRules::CleanupMap().
+        CreateTimer(removeDelay, Timer_RemoveSpeaker, EntIndexToEntRef(speaker), TIMER_FLAG_NO_MAPCHANGE);
     }
 
     return speaker;
+}
+
+static Action Timer_RemoveSpeaker(Handle timer, int ref)
+{
+    #pragma unused timer
+    int speaker = EntRefToEntIndex(ref);
+    if (speaker != INVALID_ENT_REFERENCE)
+        RemoveEntity(speaker);
+    return Plugin_Stop;
 }
 
 //https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4

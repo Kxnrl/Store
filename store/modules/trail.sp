@@ -24,6 +24,21 @@ public bool Trails_Config(KeyValues kv, int itemid)
         return true;
     }
 
+    #if defined LOG_NOT_FOUND
+    // missing model
+    char auth[32], name[32];
+    kv.GetString("auth", auth, 32);
+    kv.GetString("name", name, 32);
+    if (strcmp(auth, "STEAM_ID_INVALID") != 0)
+    {
+        LogError("Missing trail <%s> -> [%s]", name, g_eTrails[g_iTrails].szMaterial);
+    }
+    else
+    {
+        LogMessage("Skipped trail <%s> -> [%s]", name, g_eTrails[g_iTrails].szMaterial);
+    }
+    #endif
+
     return false;
 }
 

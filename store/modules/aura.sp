@@ -39,7 +39,23 @@ public bool Aura_Config(KeyValues kv, int itemid)
     kv.GetString("model",  g_szAuraFPcf[g_iAuras], PLATFORM_MAX_PATH);
 
     if(!FileExists(g_szAuraFPcf[g_iAuras], true))
+    {
+        #if defined LOG_NOT_FOUND
+        // missing model
+        char auth[32], name[32];
+        kv.GetString("auth", auth, 32);
+        kv.GetString("name", name, 32);
+        if (strcmp(auth, "STEAM_ID_INVALID") != 0)
+        {
+            LogError("Missing aura <%s> -> [%s]", name, g_szAuraFPcf[g_iAuras]);
+        }
+        else
+        {
+            LogMessage("Skipped aura <%s> -> [%s]", name, g_szAuraFPcf[g_iAuras]);
+        }
+        #endif
         return false;
+    }
 
     ++g_iAuras;
     return true; 

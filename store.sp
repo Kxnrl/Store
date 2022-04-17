@@ -64,6 +64,8 @@ public Plugin myinfo =
 // [CT] [TE] tag in player skin title -> enabled by default
 #define Skin_TeamTag
 
+//#define LOG_NOT_FOUND
+
 // Custom Module
 // skin does not match with team
 #if defined GM_TT || defined GM_ZE || defined GM_KZ || defined GM_BH || defined GM_SR || defined GM_JB

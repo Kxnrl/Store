@@ -80,6 +80,21 @@ public bool Sprays_Config(KeyValues kv, int itemid)
         return true;
     }
 
+    #if defined LOG_NOT_FOUND
+    // missing model
+    char auth[32], name[32];
+    kv.GetString("auth", auth, 32);
+    kv.GetString("name", name, 32);
+    if (strcmp(auth, "STEAM_ID_INVALID") != 0)
+    {
+        LogError("Missing spray <%s> -> [%s]", name, g_szSprays[g_iSprays]);
+    }
+    else
+    {
+        LogMessage("Skipped spray <%s> -> [%s]", name, g_szSprays[g_iSprays]);
+    }
+    #endif
+
     return false;
 }
 

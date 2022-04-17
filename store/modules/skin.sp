@@ -161,7 +161,20 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
 
     if(!FileExists(g_ePlayerSkins[g_iPlayerSkins].szModel, true))
     {
+        #if defined LOG_NOT_FOUND
         // missing model
+        char auth[32], name[32];
+        kv.GetString("auth", auth, 32);
+        kv.GetString("name", name, 32);
+        if (strcmp(auth, "STEAM_ID_INVALID") != 0)
+        {
+            LogError("Missing skin <%s> -> [%s]", name, g_ePlayerSkins[g_iPlayerSkins].szModel);
+        }
+        else
+        {
+            LogMessage("Skipped skin <%s> -> [%s]", name, g_ePlayerSkins[g_iPlayerSkins].szModel);
+        }
+        #endif
         return false;
     }
 

@@ -26,7 +26,23 @@ public bool Part_Config(KeyValues kv, int itemid)
     kv.GetString("model",  g_szPartFPcf[g_iParts], PLATFORM_MAX_PATH);
     
     if(!FileExists(g_szPartFPcf[g_iParts], true))
+    {
+        #if defined LOG_NOT_FOUND
+        // missing model
+        char auth[32], name[32];
+        kv.GetString("auth", auth, 32);
+        kv.GetString("name", name, 32);
+        if (strcmp(auth, "STEAM_ID_INVALID") != 0)
+        {
+            LogError("Missing aura <%s> -> [%s]", name, g_szPartFPcf[g_iParts]);
+        }
+        else
+        {
+            LogMessage("Skipped aura <%s> -> [%s]", name, g_szPartFPcf[g_iParts]);
+        }
+        #endif
         return false;
+    }
     
     ++g_iParts;
     return true;

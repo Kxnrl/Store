@@ -101,6 +101,21 @@ public bool Sound_Config(KeyValues kv, int itemid)
         return true;
     }
 
+    #if defined LOG_NOT_FOUND
+    // missing model
+    char auth[32], name[32];
+    kv.GetString("auth", auth, 32);
+    kv.GetString("name", name, 32);
+    if (strcmp(auth, "STEAM_ID_INVALID") != 0)
+    {
+        LogError("Missing sound <%s> -> [%s]", name, g_eSounds[g_iSounds].szSound);
+    }
+    else
+    {
+        LogMessage("Skipped sound <%s> -> [%s]", name, g_eSounds[g_iSounds].szSound);
+    }
+    #endif
+
     return false;
 }
 

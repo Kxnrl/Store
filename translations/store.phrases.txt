@@ -100,7 +100,7 @@
     "Open Case Available"
     {
         "en"  "Open skin case"
-        "chi" "开启皮肤箱"
+        "chi" "开启皮肤宝箱"
         "da" "Åben skin kasse"
     }
     

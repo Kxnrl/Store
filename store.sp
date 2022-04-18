@@ -131,6 +131,9 @@ bool g_bInterMission;
 // library
 bool g_pClientprefs;
 bool g_pfysOptions;
+bool g_pfysRect;
+bool g_pOpenCase;
+bool g_pRandomSkin;
 
 // Case Options
 static int   g_inCase[4] = {999999, 3888, 8888, 23888};
@@ -279,8 +282,7 @@ public void OnPluginStart()
     RegConsoleCmd("sm_inv",         Command_Inventory);
     RegConsoleCmd("sm_inventory",   Command_Inventory);
     RegConsoleCmd("sm_credits",     Command_Credits);
-    RegConsoleCmd("sm_case",        Command_Case);
-    RegConsoleCmd("sm_opencase",    Command_Case);
+    RegConsoleCmd("sm_storecase",   Command_Case);
 
     HookEvent("round_start",        OnRoundStart,   EventHookMode_Post);
     HookEvent("player_death",       OnPlayerDeath,  EventHookMode_Post);
@@ -312,6 +314,9 @@ public void OnAllPluginsLoaded()
 {
     g_pClientprefs = LibraryExists("clientprefs");
     g_pfysOptions = LibraryExists("fys-Opts");
+    g_pfysRect = LibraryExists("fys-Rect");
+    g_pOpenCase = LibraryExists("OpenCase");
+    g_pRandomSkin = LibraryExists("store-randomskin");
 
     if(g_pClientprefs)
     {
@@ -324,6 +329,9 @@ public void OnAllPluginsLoaded()
     {
 
     }
+
+    #pragma unused g_pfysRect, g_pOpenCase
+    //LogMessage("Rect: %s | Case: %s", g_pfysRect ? "loaded" : "fail", g_pOpenCase ? "loaded" : "fail");
 }
 
 public void OnPluginEnd()
@@ -347,6 +355,15 @@ public void OnLibraryAdded(const char[] name)
 
     if(strcmp(name, "fys-Opts") == 0)
         g_pfysOptions = true;
+
+    if(strcmp(name, "fys-Rect") == 0)
+        g_pfysRect = true;
+
+    if(strcmp(name, "OpenCase") == 0)
+        g_pOpenCase = true;
+
+    if(strcmp(name, "store-randomskin") == 0)
+        g_pRandomSkin = true;
 }
 
 public void OnLibraryRemoved(const char[] name)
@@ -362,6 +379,15 @@ public void OnLibraryRemoved(const char[] name)
 
     if(strcmp(name, "fys-Opts") == 0)
         g_pfysOptions = false;
+
+    if(strcmp(name, "fys-Rect") == 0)
+        g_pfysRect = false;
+
+    if(strcmp(name, "OpenCase") == 0)
+        g_pOpenCase = false;
+
+    if(strcmp(name, "store-randomskin") == 0)
+        g_pRandomSkin = false;
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -1656,7 +1682,7 @@ void DisplayPreviewMenu(int client, int itemid)
     UTIL_GetLevelType(client, itemid, STRING(leveltype));
     AddMenuItemEx(m_hMenu, (g_Items[itemid].iLevels <= 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%T", "Playerskins Level", client, g_Items[itemid].iLevels, leveltype);
 
-    AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "3", "%T", "Open Case Available", client);
+    AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0 || g_pfysRect || g_pOpenCase) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "3", "%T", "Open Case Available", client);
 
     if(g_Items[itemid].bCompose)  //合成
         AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "0", "%T", "Preview Compose Available", client);
@@ -1736,7 +1762,9 @@ public int MenuHandler_Preview(Menu menu, MenuAction action, int client, int par
         else if(selected == 3)
         {
 #if defined Module_Skin
-            if(g_ClientData[client].iCredits >= g_inCase[1])
+            if (g_pfysRect || g_pOpenCase)
+                FakeClientCommandEx(client, "sm_opencase");
+            else if (g_ClientData[client].iCredits >= g_inCase[1])
                 UTIL_OpenSkinCase(client);
             else
                 tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_inCase[1]);
@@ -1755,8 +1783,11 @@ public Action Command_Case(int client, int args)
     if(!IsClientInGame(client))
         return Plugin_Handled;
 
-    if(LibraryExists("OpenCase"))
+    if(g_pOpenCase || g_pfysRect)
+    {
+        FakeClientCommandEx(client, "sm_opencase");
         return Plugin_Handled;
+    }
 
     if(args > 0)
     {
@@ -1790,7 +1821,7 @@ public Action Command_Case(int client, int args)
 
 void UTIL_OpenSkinCase(int client)
 {
-    if(LibraryExists("OpenCase"))
+    if(g_pOpenCase || g_pfysRect)
         return;
 
     Menu menu = new Menu(MenuHandler_SelectCase);
@@ -2338,7 +2369,7 @@ void DisplayItemMenu(int client, int itemid)
             char leveltype[32];
             UTIL_GetLevelType(client, itemid, STRING(leveltype));
             AddMenuItemEx(m_hMenu, (g_Items[itemid].iLevels == 0) ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%T", "Playerskins Level", client, g_Items[itemid].iLevels, leveltype);
-            AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "4", "%T", "Open Case Available", client);
+            AddMenuItemEx(m_hMenu, (g_aCaseSkins[0].Length > 0 || g_pfysRect || g_pOpenCase) ? ITEMDRAW_DEFAULT : ITEMDRAW_SPACER, "4", "%T", "Open Case Available", client);
         }
 
         if(!m_bEquipped)
@@ -2346,7 +2377,7 @@ void DisplayItemMenu(int client, int itemid)
         else
             AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "3", "%T", "Item Unequip", client);
 
-        if(StrEqual(g_TypeHandlers[g_Items[itemid].iHandler].szType, "playerskin") && LibraryExists("store-randomskin"))
+        if(StrEqual(g_TypeHandlers[g_Items[itemid].iHandler].szType, "playerskin") && g_pRandomSkin)
         {
             AddMenuItemEx(m_hMenu, ITEMDRAW_DEFAULT, "5", "%T", "random skin", client);
         }
@@ -2652,7 +2683,9 @@ public int MenuHandler_Item(Menu menu, MenuAction action, int client, int param2
             else if(m_iId == 4)
             {
 #if defined Module_Skin
-                if(g_ClientData[client].iCredits >= g_inCase[1])
+                if (g_pfysRect || g_pOpenCase)
+                    FakeClientCommandEx(client, "sm_opencase");
+                else if (g_ClientData[client].iCredits >= g_inCase[1])
                     UTIL_OpenSkinCase(client);
                 else
                     tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_inCase[1]);

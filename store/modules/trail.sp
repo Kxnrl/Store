@@ -49,7 +49,12 @@ public void Trails_OnMapStart()
             g_iClientTrails[a][b] = INVALID_ENT_REFERENCE;
 
     for(int i = 0; i < g_iTrails; ++i)
-        AddFileToDownloadsTable(g_eTrails[i].szMaterial);
+    {
+        if (PrecacheModel(g_eTrails[i].szMaterial) > 0)
+        {
+            AddFileToDownloadsTable(g_eTrails[i].szMaterial);
+        }
+    }
 }
 
 public void Trails_Reset()

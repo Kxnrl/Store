@@ -11,7 +11,7 @@ static Trail g_eTrails[STORE_MAX_ITEMS];
 static int g_iTrails = 0;
 static int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
 
-public bool Trails_Config(KeyValues kv, int itemid)
+bool Trails_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iTrails);
     
@@ -42,7 +42,7 @@ public bool Trails_Config(KeyValues kv, int itemid)
     return false;
 }
 
-public void Trails_OnMapStart()
+void Trails_OnMapStart()
 {
     for(int a = 0; a <= MaxClients; ++a)
         for(int b = 0; b < STORE_MAX_SLOTS; ++b)
@@ -57,12 +57,12 @@ public void Trails_OnMapStart()
     }
 }
 
-public void Trails_Reset()
+void Trails_Reset()
 {
     g_iTrails = 0;
 }
 
-public int Trails_Equip(int client, int id)
+int Trails_Equip(int client, int id)
 {
     if(IsPlayerAlive(client))
         Store_SetClientTrail(client);
@@ -70,7 +70,7 @@ public int Trails_Equip(int client, int id)
     return g_eTrails[Store_GetDataIndex(id)].iSlot;
 }
 
-public int Trails_Remove(int client, int id)
+int Trails_Remove(int client, int id)
 {
     Store_SetClientTrail(client);
 

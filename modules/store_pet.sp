@@ -340,7 +340,7 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
     m_flClientOrigin[2] += m_fRight[2]*m_flPosition[0]+m_fForward[2]*m_flPosition[1]+m_fUp[2]*m_flPosition[2];
     m_flAngles[1] += m_flClientAngles[1];
 
-    DispatchKeyValue(entity, "targetname", "store_item_hat");
+    DispatchKeyValue(entity, "targetname", "store_item_pet");
     DispatchKeyValue(entity, "model", g_ePets[m_iData].model);
     DispatchKeyValue(entity, "spawnflags", "256");
     DispatchKeyValue(entity, "solid", "0");

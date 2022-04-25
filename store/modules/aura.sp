@@ -8,7 +8,7 @@ static char g_szAuraName[MAX_AURA][PLATFORM_MAX_PATH];
 static char g_szAuraFPcf[MAX_AURA][PLATFORM_MAX_PATH];
 static char g_szAuraClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 
-public void Aura_OnMapStart()
+void Aura_OnMapStart()
 {
     if(g_iAuras <= 0)
         return;
@@ -29,7 +29,7 @@ void Aura_OnClientDisconnect(int client)
     g_szAuraClient[client][0] = '\0';
 }
 
-public bool Aura_Config(KeyValues kv, int itemid) 
+bool Aura_Config(KeyValues kv, int itemid) 
 { 
     if(g_iAuras >= MAX_AURA)
         return false;
@@ -61,12 +61,12 @@ public bool Aura_Config(KeyValues kv, int itemid)
     return true; 
 }
 
-public void Aura_Reset() 
+void Aura_Reset() 
 { 
     g_iAuras = 0; 
 }
 
-public int Aura_Equip(int client, int id) 
+int Aura_Equip(int client, int id) 
 {
     g_szAuraClient[client] = g_szAuraName[Store_GetDataIndex(id)];
 
@@ -76,7 +76,7 @@ public int Aura_Equip(int client, int id)
     return 0; 
 }
 
-public int Aura_Remove(int client) 
+int Aura_Remove(int client, int id) 
 {
     Store_RemoveClientAura(client);
     g_szAuraClient[client][0] = '\0';

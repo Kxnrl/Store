@@ -45,7 +45,7 @@ void Sounds_OnClientprefs()
     }
 }
 
-public void Sound_OnMapStart()
+static void Sound_OnMapStart()
 {
     char szPath[256];
     char szPathStar[256];
@@ -67,7 +67,7 @@ void Sound_OnClientDeath(int client, int attacker)
     g_iSoundSpam[attacker] = -1;
 }
 
-public void Sound_Reset()
+static void Sound_Reset()
 {
     g_iSounds = 0;
     for (int i = 0; i <= MAXPLAYERS; i++)
@@ -76,7 +76,7 @@ public void Sound_Reset()
     }
 }
 
-public bool Sound_Config(KeyValues kv, int itemid)
+static bool Sound_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSounds);
     kv.GetString("sound", g_eSounds[g_iSounds].szSound, sizeof(Sound::szSound));
@@ -119,14 +119,14 @@ public bool Sound_Config(KeyValues kv, int itemid)
     return false;
 }
 
-public int Sound_Equip(int client, int id)
+static int Sound_Equip(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
     g_iSoundClient[client] = m_iData;
     return 0;
 }
 
-public int Sound_Remove(int client)
+static int Sound_Remove(int client, int id)
 {
     g_iSoundClient[client] = -1;
     return 0;

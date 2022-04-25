@@ -14,12 +14,12 @@ void Part_OnClientDisconnect(int client)
     g_szPartClient[client][0] = '\0';
 }
 
-public void Part_Reset() 
+void Part_Reset() 
 { 
     g_iParts = 0;
 }
 
-public bool Part_Config(KeyValues kv, int itemid) 
+bool Part_Config(KeyValues kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iParts); 
     kv.GetString("effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);
@@ -48,7 +48,7 @@ public bool Part_Config(KeyValues kv, int itemid)
     return true;
 }
 
-public int Part_Equip(int client, int id)
+int Part_Equip(int client, int id)
 {
     g_szPartClient[client] = g_szPartName[Store_GetDataIndex(id)];
 
@@ -58,7 +58,7 @@ public int Part_Equip(int client, int id)
     return 0;
 }
 
-public int Part_Remove(int client) 
+int Part_Remove(int client, int id) 
 {
     Store_RemoveClientPart(client);
     g_szPartClient[client][0] = '\0';
@@ -66,7 +66,7 @@ public int Part_Remove(int client)
     return 0; 
 }
 
-public void Part_OnMapStart()
+void Part_OnMapStart()
 {
     if(g_iParts <= 0)
         return;

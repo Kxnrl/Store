@@ -439,6 +439,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_LogOpencase",           Native_LogOpenCase);
     CreateNative("Store_IsInDeathCamera",       Native_InDeathCamera);
     CreateNative("Store_IsGlobalTeam",          Native_IsGlobalTeam);
+    CreateNative("Store_GetEquipPlayerSkin",    Native_GetEquippedSkin);
 
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
@@ -1137,6 +1138,29 @@ public any Native_ApplyPlayerSkin(Handle myself, int numParams)
     Store_ResetPlayerSkin(client);
     Store_PreSetClientModel(client);
     return true;
+#else
+    return false;
+#endif
+}
+
+public any Native_GetEquippedSkin(Handle myself, int numParams)
+{
+#if defined Module_Skin
+    int handler = UTIL_GetTypeHandler("playerskin");
+    if (handler == -1)
+        return false;
+    int client = GetNativeCell(1);
+    int itemId = Store_GetEquippedItem(client, "playerskin", GetNativeCell(2));
+    if (itemId == -1)
+        return false;
+
+    char m[128], a[128]; int b, t;
+    if (!GetSkinData(itemId, m, a, b, t))
+        return false;
+
+    SetNativeCellRef(7, b);
+    return  SetNativeString(3, m, GetNativeCell(4)) == SP_ERROR_NONE &&
+            SetNativeString(5, a, GetNativeCell(6)) == SP_ERROR_NONE;
 #else
     return false;
 #endif

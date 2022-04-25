@@ -33,7 +33,7 @@ public void Grenades_OnPluginStart()
     Store_RegisterHandler("nadeskin", GrenadeSkins_OnMapStart, GrenadeSkins_Reset, GrenadeSkins_Config, GrenadeSkins_Equip, GrenadeSkins_Remove, true);
 }
 
-public void GrenadeSkins_OnMapStart()
+static void GrenadeSkins_OnMapStart()
 {
     for(int i = 0; i< g_iGrenadeSkins; ++i)
     {
@@ -42,7 +42,7 @@ public void GrenadeSkins_OnMapStart()
     }
 }
 
-public void GrenadeTrails_OnMapStart()
+static void GrenadeTrails_OnMapStart()
 {
     for(int i = 0; i < g_iGrenadeTrails; ++i)
     {
@@ -51,17 +51,17 @@ public void GrenadeTrails_OnMapStart()
     }
 }
 
-public void GrenadeSkins_Reset()
+static void GrenadeSkins_Reset()
 {
     g_iGrenadeSkins = 0;
 }
 
-public void GrenadeTrails_Reset()
+static void GrenadeTrails_Reset()
 {
     g_iGrenadeTrails = 0;
 }
 
-public bool GrenadeSkins_Config(KeyValues kv, int itemid)
+static bool GrenadeSkins_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iGrenadeSkins);
     kv.GetString("model", g_eGrenadeSkins[g_iGrenadeSkins].szModel, PLATFORM_MAX_PATH);
@@ -77,7 +77,7 @@ public bool GrenadeSkins_Config(KeyValues kv, int itemid)
     return true;
 }
 
-public bool GrenadeTrails_Config(KeyValues kv, int itemid)
+static bool GrenadeTrails_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iGrenadeTrails);
     kv.GetString("material", g_eGrenadeTrails[g_iGrenadeTrails].szMaterial, PLATFORM_MAX_PATH, "materials/sprites/laserbeam.vmt");
@@ -96,27 +96,27 @@ public bool GrenadeTrails_Config(KeyValues kv, int itemid)
     return false;
 }
 
-public int GrenadeSkins_Equip(int client, int id)
+static int GrenadeSkins_Equip(int client, int id)
 {
     return g_eGrenadeSkins[Store_GetDataIndex(id)].iSlot;
 }
 
-public int GrenadeTrails_Equip(int client, int id)
+static int GrenadeTrails_Equip(int client, int id)
 {
     return 0;
 }
 
-public int GrenadeSkins_Remove(int client, int id)
+static int GrenadeSkins_Remove(int client, int id)
 {
     return g_eGrenadeSkins[Store_GetDataIndex(id)].iSlot;
 }
 
-public int GrenadeTrails_Remove(int client, int id)
+static int GrenadeTrails_Remove(int client, int id)
 {
     return 0;
 }
 
-public int GrenadeSkins_GetSlot(char[] weapon)
+static int GrenadeSkins_GetSlot(char[] weapon)
 {
     for(int i = 0; i < g_iSlots; ++i)
         if(strcmp(weapon, g_szSlots[i])==0)

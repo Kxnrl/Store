@@ -19,7 +19,7 @@ public void Sprays_OnPluginStart()
     RegConsoleCmd("sprays", Command_Spray);
 }
 
-public void Sprays_OnMapStart()
+static void Sprays_OnMapStart()
 {
     char m_szDecal[256];
 
@@ -44,7 +44,7 @@ public void Spray_OnClientDeath(int client)
     g_iSprayLimit[client] = -1;
 }
 
-public Action Command_Spray(int client, int args)
+static Action Command_Spray(int client, int args)
 {
     if(g_iSprayCache[client] == -1)
     {
@@ -63,12 +63,12 @@ public Action Command_Spray(int client, int args)
     return Plugin_Handled;
 }
 
-public int Sprays_Reset()
+static int Sprays_Reset()
 {
     g_iSprays = 0;
 }
 
-public bool Sprays_Config(KeyValues kv, int itemid)
+static bool Sprays_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSprays);
     kv.GetString("material", g_szSprays[g_iSprays], sizeof(g_szSprays[]));
@@ -98,14 +98,14 @@ public bool Sprays_Config(KeyValues kv, int itemid)
     return false;
 }
 
-public int Sprays_Equip(int client, int id)
+static int Sprays_Equip(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
     g_iSprayCache[client] = m_iData;
     return 0;
 }
 
-public int Sprays_Remove(int client)
+static int Sprays_Remove(int client, int id)
 {
     g_iSprayCache[client]=-1;
     return 0;

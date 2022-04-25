@@ -62,19 +62,19 @@ public void CPSupport_OnPluginStart()
     LogMessage("Init CP...");
 }
 
-public void CPSupport_OnMappStart()
+static void CPSupport_OnMappStart()
 {
     CheckCPandSCP();
 }
 
-public void CPSupport_Reset()
+static void CPSupport_Reset()
 {
     g_iNameTags = 0;
     g_iNameColors = 0;
     g_iMessageColors = 0;
 }
 
-public bool NameTags_Config(KeyValues kv, int itemid)
+static bool NameTags_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameTags);
     kv.GetString("tag", g_szNameTags[g_iNameTags], sizeof(g_szNameTags[]));
@@ -83,7 +83,7 @@ public bool NameTags_Config(KeyValues kv, int itemid)
     return true;
 }
 
-public bool NameColors_Config(KeyValues kv, int itemid)
+static bool NameColors_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNameColors);
     kv.GetString("color", g_szNameColors[g_iNameColors], sizeof(g_szNameColors[]));
@@ -92,7 +92,7 @@ public bool NameColors_Config(KeyValues kv, int itemid)
     return true;
 }
 
-public bool MsgColors_Config(KeyValues kv, int itemid)
+static bool MsgColors_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iMessageColors);
     kv.GetString("color", g_szMessageColors[g_iMessageColors], sizeof(g_szMessageColors[]));
@@ -101,12 +101,12 @@ public bool MsgColors_Config(KeyValues kv, int itemid)
     return true;
 }
 
-public int CPSupport_Equip(int client, int id)
+static int CPSupport_Equip(int client, int id)
 {
     return -1;
 }
 
-public int CPSupport_Remove(int client, int id)
+static int CPSupport_Remove(int client, int id)
 {
 
 }

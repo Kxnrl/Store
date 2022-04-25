@@ -12,7 +12,7 @@ static Neon g_eNeons[STORE_MAX_ITEMS];
 static int g_iNeons = 0;
 static int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 
-public bool Neon_Config(KeyValues kv, int itemid) 
+bool Neon_Config(KeyValues kv, int itemid) 
 { 
     Store_SetDataIndex(itemid, g_iNeons); 
     KvGetColor(kv, "color", g_eNeons[g_iNeons].iColor[0], g_eNeons[g_iNeons].iColor[1], g_eNeons[g_iNeons].iColor[2], g_eNeons[g_iNeons].iColor[3]); 
@@ -23,7 +23,7 @@ public bool Neon_Config(KeyValues kv, int itemid)
     return true; 
 }
 
-public void Neon_OnMapStart()
+void Neon_OnMapStart()
 {
     
 }
@@ -33,12 +33,12 @@ void Neon_OnClientDisconnect(int client)
     Store_RemoveClientNeon(client);
 }
 
-public void Neon_Reset()
+void Neon_Reset()
 {
     g_iNeons = 0;
 }
 
-public int Neon_Equip(int client, int id)
+int Neon_Equip(int client, int id)
 {
     RequestFrame(EquipNeon_Delay, client);
 
@@ -51,7 +51,7 @@ public void EquipNeon_Delay(int client)
         Store_SetClientNeon(client);
 }
 
-public int Neon_Remove(int client) 
+int Neon_Remove(int client, int id) 
 {
     Store_RemoveClientNeon(client);
     return 0; 

@@ -6,12 +6,12 @@
 
 public SharedPlugin __pl_store = 
 {
-	name = "store",
-	file = "store.smx",
+    name = "store",
+    file = "store.smx",
 #if defined REQUIRE_PLUGIN
-	required = 1
+    required = 1
 #else
-	required = 0
+    required = 0
 #endif
 };
 
@@ -27,13 +27,13 @@ public SharedPlugin __pl_store =
 
 // Chat-Processor
 #if !defined CHAT_PROCESSOR_DEFINTION
-  #define CHAT_PROCESSOR_DEFINTION
-  #define CHAT_TYPE_NAME 0
-  #define CHAT_TYPE_TEXT 1
-  #define CHAT_C_NONE    0
-  #define CHAT_C_RAINBOW 1
-  #define CHAT_C_RANDOM  2
-  #define CHAT_C_SHUFFLE 3
+    #define CHAT_PROCESSOR_DEFINTION
+    #define CHAT_TYPE_NAME 0
+    #define CHAT_TYPE_TEXT 1
+    #define CHAT_C_NONE    0
+    #define CHAT_C_RAINBOW 1
+    #define CHAT_C_RANDOM  2
+    #define CHAT_C_SHUFFLE 3
 #endif
 
 enum struct Store_Item
@@ -68,7 +68,13 @@ enum struct SkinData_t
     int m_Team;
 }
 
-native int Store_RegisterHandler(const char[] type, Function mapstart, Function reset, Function config, Function use, Function remove, bool equipable = true, bool raw = false, bool disposable = false);
+typedef StoreMapStartCallback = function void();
+typedef StoreOnResetCallback = function void();
+typedef StoreOnConfigCallback = function bool (KeyValues kv, int itemId);
+typedef StoreOnUseCallback = function int (int client, int itemId);
+typedef StoreOnRemoveCallback = function int (int client, int itemId);
+
+native int Store_RegisterHandler(const char[] type, StoreMapStartCallback mapstart, StoreOnResetCallback reset, StoreOnConfigCallback config, StoreOnUseCallback use, StoreOnRemoveCallback remove, bool equipable = true, bool raw = false, bool disposable = false);
 native int Store_RegisterMenuHandler(const char[] identifier, Function menu, Function handler);
 native int Store_SetDataIndex(int itemid, int index);
 native int Store_GetDataIndex(int itemid);
@@ -79,7 +85,7 @@ native int Store_GetClientCredits(int client);
 native int Store_SetClientCredits(int client, int credits, const char[] log = "未知");
 native int Store_DisplayConfirmMenu(int client, const char[] title, Function callback, any data);
 native int Store_GetTypeId(const char[] type);
-native int Store_GetItemId(const char uid[32]);
+native int Store_GetItemId(const char[] uid);
 native int Store_GetItemData(int itemid, const any[] local);
 native int Store_UseItem(int client, int itemid, bool synced = false, int slot = 0);
 native int Store_RemoveItem(int client, int itemid);
@@ -105,6 +111,7 @@ native bool Store_ApplyPlayerSkin(int client);
 native void Store_LogOpencase(int client, int item, int days, const char[] handle, int type);
 native void Store_IsInDeathCamera(int client);
 native bool Store_IsGlobalTeam();
+native bool Store_GetEquipPlayerSkin(int client, int team, char[] model, int modelLen, char[] arms, int armsLen, int &body);
 
 native ArrayList Store_GetItemList(); // List<Store_Item>
 

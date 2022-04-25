@@ -869,7 +869,7 @@ bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
     return false;
 }
 
-bool GetSkinData(int itemid, char skin[128], char arms[128], int &body, int &team)
+bool GetSkinData(int itemid, char skin[128], char arms[128], int &body, int &team = 0)
 {
     int m_iData = Store_GetDataIndex(itemid);
     if (m_iData == -1)

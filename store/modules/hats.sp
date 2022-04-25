@@ -18,7 +18,7 @@ static int g_iHats = 0;
 static int g_iSpecTarget[MAXPLAYERS+1];
 static int g_iHatsOwners[2048];
 
-public bool Hats_Config(KeyValues kv, int itemid)
+bool Hats_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iHats);
     float m_fTemp[3];
@@ -56,7 +56,7 @@ public bool Hats_Config(KeyValues kv, int itemid)
     return true;
 }
 
-public void Hats_OnMapStart()
+void Hats_OnMapStart()
 {
     for(int a = 1; a <= MaxClients; ++a)
         for(int b = 0; b < STORE_MAX_SLOTS; ++b)
@@ -71,7 +71,7 @@ public void Hats_OnMapStart()
     CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action Timer_Hats_Adjust(Handle timer)
+static Action Timer_Hats_Adjust(Handle timer)
 {
     for(int client = 1; client <= MaxClients; ++client)
         if(IsClientInGame(client) && !IsFakeClient(client))
@@ -93,12 +93,12 @@ public void OnEntityDestroyed(int entity)
     g_iHatsOwners[entity] = -1;
 }
 
-public void Hats_Reset()
+void Hats_Reset()
 {
     g_iHats = 0;
 }
 
-public int Hats_Equip(int client, int id)
+int Hats_Equip(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
     if(IsPlayerAlive(client))
@@ -109,7 +109,7 @@ public int Hats_Equip(int client, int id)
     return g_eHats[m_iData].iSlot;
 }
 
-public int Hats_Remove(int client, int id)
+int Hats_Remove(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
     Store_RemoveClientHats(client, g_eHats[m_iData].iSlot);

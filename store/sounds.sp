@@ -205,7 +205,7 @@ void StartSoundToAll(int client)
     Call_PushCell(client);
     Call_PushStringEx(STRING(sound), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushStringEx(STRING(name),  SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushCellRef(volume);
+    Call_PushFloatRef(volume);
     Call_Finish(res);
 
     if (res >= Plugin_Handled)

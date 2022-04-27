@@ -133,7 +133,7 @@ forward void   Store_OnPetsCreated(int client, int entity);
 forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
 forward Action Store_OnClientComposing(int client, int &probability, int itemid, const char uid[32], const char itemName[ITEM_NAME_LENGTH], const char itemParentName[ITEM_NAME_LENGTH]);
 forward void   Store_OnClientComposed(int client, bool success, int itemid, const char itemName[ITEM_NAME_LENGTH], const char itemParentName[ITEM_NAME_LENGTH]);
-forward Action Store_OnCheerSound(int client, char sound[256], char name[64]);
+forward Action Store_OnCheerSound(int client, char sound[256], char name[64], float &volume);
 forward Action Store_OnGiveClientItem(int client, const char uid[32], int purchase, int expiration, int price);
 forward void   Store_OnClientSpray(int client);
 

@@ -344,9 +344,6 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float rem
     DispatchSpawn(speaker);
     ActivateEntity(speaker);
 
-    SetVariantString("!activator");
-    AcceptEntityInput(speaker, "SetParent", source);
-
     if(removeDelay > 0.0)
     {
         /*

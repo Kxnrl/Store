@@ -219,36 +219,52 @@ void StartSoundToAll(int client)
         volume = g_eSounds[g_iSoundClient[client]].fVolume;
     }
 
-    int[] targets = new int[MaxClients];
-    int total = 0;
-    
-    for(int i=1; i <= MaxClients; i++)
-        if(IsClientInGame(i))
-            if(!g_bClientDisable[i] || i == client)
-                targets[total++] = i;
-            
+    char szPath[128];
+    Format(STRING(szPath), ")%s", sound);
+    EmitSoundToClient(client, szPath, SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, volume);
+
     float fPos[3];
-    GetClientEyePosition(client, fPos);
-    
+    GetClientEyePosition(client, fPos); fPos[2] -= 3.0;
+
     float fAgl[3];
     GetClientEyeAngles(client, fAgl);
 
     int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 3.5);
-
-    SetVariantString("!activator");
-    AcceptEntityInput(speaker, "SetParent", client);
+    if (g_pTransmit)
+    {
+        TransmitManager_AddEntityHooks(speaker);
+        TransmitManager_SetEntityOwner(speaker, client);
+    }
 
     if (IsPlayerAlive(client))
     {
+        SetVariantString("!activator");
+        AcceptEntityInput(speaker, "SetParent", client);
         SetVariantString("facemask");
         AcceptEntityInput(speaker, "SetParentAttachment");
     }
 
-    fPos[2] -= 3.0;
+    for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client)
+    {
+        // stoppable
+        if (!g_bClientDisable[i])
+        {
+            if (g_pTransmit)
+                TransmitManager_SetEntityState(speaker, i, false);
 
-    char szPath[128];
-    Format(STRING(szPath), ")%s", sound);
-    EmitSound(targets, total, szPath, speaker, SNDCHAN_VOICE, SNDLEVEL_NORMAL, SND_NOFLAGS, volume, SNDPITCH_NORMAL, _, _, _, true);
+            continue;
+        }
+
+        if (g_pTransmit && !TransmitManager_GetEntityState(client, i))
+        {
+            // don't transmit
+            TransmitManager_SetEntityState(speaker, i, false);
+            EmitSoundToClient(i, szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
+            continue;
+        }
+
+        EmitSoundToClient(i, szPath, speaker, SNDCHAN_VOICE, _, _, volume, _, speaker);
+    }
 
     tPrintToChatAll("%t", "sound to all", client, name);
 }

@@ -80,6 +80,7 @@ include/PTaH.inc
 include/armsfix.inc
 include/fys.opts.inc
 include/fys.pupd.inc
+include/TransmitManager.inc
 
 # VSCode
 # =========================

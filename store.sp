@@ -32,6 +32,7 @@ public Plugin myinfo =
 #undef REQUIRE_EXTENSIONS
 #undef AUTOLOAD_EXTENSIONS
 #undef REQUIRE_PLUGIN
+#include <TransmitManager>
 #include <clientprefs>
 #include <fys.opts>
 #include <fys.pupd>
@@ -134,6 +135,7 @@ bool g_pfysOptions;
 bool g_pfysRect;
 bool g_pOpenCase;
 bool g_pRandomSkin;
+bool g_pTransmit;
 
 // Case Options
 static int   g_inCase[4] = {999999, 3888, 8888, 23888};
@@ -317,6 +319,7 @@ public void OnAllPluginsLoaded()
     g_pfysRect = LibraryExists("fys-Rect");
     g_pOpenCase = LibraryExists("OpenCase");
     g_pRandomSkin = LibraryExists("store-randomskin");
+    g_pTransmit = LibraryExists("TransmitManager");
 
     if(g_pClientprefs)
     {
@@ -330,7 +333,7 @@ public void OnAllPluginsLoaded()
 
     }
 
-    #pragma unused g_pfysRect, g_pOpenCase
+    #pragma unused g_pfysRect, g_pOpenCase, g_pTransmit
     //LogMessage("Rect: %s | Case: %s", g_pfysRect ? "loaded" : "fail", g_pOpenCase ? "loaded" : "fail");
 }
 
@@ -364,6 +367,9 @@ public void OnLibraryAdded(const char[] name)
 
     if(strcmp(name, "store-randomskin") == 0)
         g_pRandomSkin = true;
+
+    if(strcmp(name, "TransmitManager") == 0)
+        g_pTransmit = true;
 }
 
 public void OnLibraryRemoved(const char[] name)
@@ -388,6 +394,9 @@ public void OnLibraryRemoved(const char[] name)
 
     if(strcmp(name, "store-randomskin") == 0)
         g_pRandomSkin = false;
+
+    if(strcmp(name, "TransmitManager") == 0)
+        g_pTransmit = false;
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -451,6 +460,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
     MarkNativeAsOptional("Pupd_CheckPlugin");
     MarkNativeAsOptional("Pupd_CheckTranslation");
+
+    MarkNativeAsOptional("TransmitManager_AddEntityHooks");
+    MarkNativeAsOptional("TransmitManager_SetEntityOwner");
+    MarkNativeAsOptional("TransmitManager_SetEntityState");
+    MarkNativeAsOptional("TransmitManager_GetEntityState");
+    MarkNativeAsOptional("TransmitManager_IsEntityHooked");
 
     g_bLateLoad = late;
 

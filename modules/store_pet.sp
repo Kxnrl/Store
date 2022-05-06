@@ -434,7 +434,7 @@ public void Hook_OnAnimationDone(const char[] output, int caller, int activator,
     AcceptEntityInput(caller, "Kill");
 }
 
-stock void Call_OnPetsCreated(int client, int entity)
+stock void Call_OnPetsCreated(int client, int entity, int slot)
 {
     static Handle gf = null;
     if (gf == null)

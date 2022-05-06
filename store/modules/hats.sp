@@ -190,7 +190,7 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
             SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
         }
 
-        Call_OnHatsCreated(client, m_iEnt);
+        Call_OnHatsCreated(client, m_iEnt, slot);
         
         TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR); 
         
@@ -241,17 +241,18 @@ static void Bonemerge(int ent)
     SetEntProp(ent, Prop_Send, "m_fEffects", m_iEntEffects); 
 }
 
-stock void Call_OnHatsCreated(int client, int entity)
+stock void Call_OnHatsCreated(int client, int entity, int slot)
 {
     static Handle gf = null;
     if (gf == null)
     {
         // create
-        gf = CreateGlobalForward("Store_OnHatsCreated", ET_Ignore, Param_Cell, Param_Cell);
+        gf = CreateGlobalForward("Store_OnHatsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);
     Call_PushCell(client);
     Call_PushCell(entity);
+    Call_PushCell(slot);
     Call_Finish();
 }

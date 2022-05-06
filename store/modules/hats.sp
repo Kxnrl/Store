@@ -190,8 +190,6 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
             SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
         }
 
-        Call_OnHatsCreated(client, m_iEnt, slot);
-        
         TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR); 
         
         SetVariantString("!activator");
@@ -199,6 +197,8 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
 
         SetVariantString(g_eHats[m_iData].szAttachment);
         AcceptEntityInput(m_iEnt, "SetParentAttachmentMaintainOffset", m_iEnt, m_iEnt, 0);
+
+        Call_OnHatsCreated(client, m_iEnt, slot);
     }
 }
 

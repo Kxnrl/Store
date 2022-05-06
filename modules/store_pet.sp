@@ -364,13 +364,13 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
 
     g_iOwner[entity] = client;
 
-    Call_OnPetsCreated(client, entity);
-
     if (g_ePets[m_iData].spawn[0])
     {
         SetVariantString(g_ePets[m_iData].spawn);
         AcceptEntityInput(entity, "SetAnimation");
     }
+
+    Call_OnPetsCreated(client, entity, slot);
 }
 
 void ResetPet(int client, int slot)
@@ -440,11 +440,12 @@ stock void Call_OnPetsCreated(int client, int entity)
     if (gf == null)
     {
         // create
-        gf = CreateGlobalForward("Store_OnPetsCreated", ET_Ignore, Param_Cell, Param_Cell);
+        gf = CreateGlobalForward("Store_OnPetsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);
     Call_PushCell(client);
     Call_PushCell(entity);
+    Call_PushCell(slot);
     Call_Finish();
 }

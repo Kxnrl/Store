@@ -129,7 +129,7 @@ forward void   Store_OnHatsCreated(int client, int entity, int slot);
 forward void   Store_OnTrailsCreated(int client, int entity);
 forward void   Store_OnParticlesCreated(int client, int entity);
 forward void   Store_OnNeonCreated(int client, int entity);
-forward void   Store_OnPetsCreated(int client, int entity);
+forward void   Store_OnPetsCreated(int client, int entity, int slot);
 forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
 forward Action Store_OnClientComposing(int client, int &probability, int itemid, const char uid[32], const char itemName[ITEM_NAME_LENGTH], const char itemParentName[ITEM_NAME_LENGTH]);
 forward void   Store_OnClientComposed(int client, bool success, int itemid, const char itemName[ITEM_NAME_LENGTH], const char itemParentName[ITEM_NAME_LENGTH]);

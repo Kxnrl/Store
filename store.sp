@@ -1166,7 +1166,7 @@ public any Native_GetEquippedSkin(Handle myself, int numParams)
         return false;
     int client = GetNativeCell(1);
     int itemId = Store_GetEquippedItem(client, "playerskin", GetNativeCell(2));
-    if (itemId == -1)
+    if (itemId < 0 || !Store_HasClientItem(client, itemId))
         return false;
 
     char m[128], a[128]; int b, t;

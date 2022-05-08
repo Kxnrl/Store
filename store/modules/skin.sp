@@ -587,19 +587,10 @@ public void FirstPersonDeathCamera(int client)
 
 static bool SpawnCamAndAttach(int client, int ragdoll)
 {
-    char m_szTargetName[32]; 
-    FormatEx(STRING(m_szTargetName), "ragdoll%d", client);
-    DispatchKeyValue(ragdoll, "targetname", m_szTargetName);
-
     int iEntity = CreateEntityByName("prop_dynamic");
     if(iEntity == -1)
         return false;
 
-    char m_szCamera[32]; 
-    FormatEx(STRING(m_szCamera), "ragdollCam%d", iEntity);
-
-    DispatchKeyValue(iEntity, "targetname", m_szCamera);
-    DispatchKeyValue(iEntity, "parentname", m_szTargetName);
     DispatchKeyValue(iEntity, "model",      "models/blackout.mdl");
     DispatchKeyValue(iEntity, "solid",      "0");
     DispatchKeyValue(iEntity, "rendermode", "10"); // dont render
@@ -607,17 +598,14 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
 
     float m_fAngles[3]; 
     GetClientEyeAngles(client, m_fAngles);
-    
-    char m_szCamAngles[64];
-    FormatEx(STRING(m_szCamAngles), "%f %f %f", m_fAngles[0], m_fAngles[1], m_fAngles[2]);
 
-    DispatchKeyValue(iEntity, "angles", m_szCamAngles);
+    DispatchKeyValueVector(iEntity, "angles", m_fAngles);
 
     SetEntityModel(iEntity, "models/blackout.mdl");
     DispatchSpawn(iEntity);
 
-    SetVariantString(m_szTargetName);
-    AcceptEntityInput(iEntity, "SetParent", iEntity, iEntity, 0);
+    SetVariantString("!activator");
+    AcceptEntityInput(iEntity, "SetParent", ragdoll, iEntity, 0);
 
     SetVariantString("facemask");
     AcceptEntityInput(iEntity, "SetParentAttachment", iEntity, iEntity, 0);
@@ -626,12 +614,10 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
 
     SetClientViewEntity(client, iEntity);
     g_iCameraRef[client] = EntIndexToEntRef(iEntity);
-    
+
     FadeScreenBlack(client);
 
     CreateTimer(7.0, Timer_ClearCamera, client);
-
-    //SetEntPropEnt(client, Prop_Send, "m_hRagdoll", iEntity);
 
     return true;
 }

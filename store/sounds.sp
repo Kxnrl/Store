@@ -247,7 +247,7 @@ void StartSoundToAll(int client)
     for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client)
     {
         // stoppable
-        if (!g_bClientDisable[i])
+        if (g_bClientDisable[i])
         {
             if (g_pTransmit)
                 TransmitManager_SetEntityState(speaker, i, false);

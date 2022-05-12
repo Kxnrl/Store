@@ -73,7 +73,10 @@ public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBro
     Store_RemoveClientGloves(client, -1);
     Store_ResetPlayerSkin(client);
     Store_PreSetClientModel(client);
-    CreateTimer(0.05, Timer_ClearCamera, client);
+    //  32tick ~ 0.032
+    //  64tick ~ 0.016
+    // 128tick ~ 0.008
+    CreateTimer(0.015, Timer_ClearCamera, client);
     if(g_tKillPreview[client] != null) TriggerTimer(g_tKillPreview[client], false);
 #endif
 

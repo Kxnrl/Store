@@ -124,7 +124,7 @@ void Skin_OnClientDisconnect(int client)
         TriggerTimer(g_tKillPreview[client], false);
 
     if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
-        CreateTimer(0.0, Timer_ClearCamera, client);
+        Timer_ClearCamera(null, client);
 }
 
 public Action Command_Arms(int client, int args)

@@ -1,6 +1,7 @@
 addons:
   apt_packages:
     - lib32z1
+    - gcc-4.9
     - lib32stdc++6
     - p7zip-full
     - rsync

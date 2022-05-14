@@ -76,7 +76,7 @@ public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBro
     //  32tick ~ 0.032
     //  64tick ~ 0.016
     // 128tick ~ 0.008
-    CreateTimer(0.015, Timer_ClearCamera, client);
+    CreateTimer(0.0, Timer_ClearCamera, client);
     if(g_tKillPreview[client] != null) TriggerTimer(g_tKillPreview[client], false);
 #endif
 

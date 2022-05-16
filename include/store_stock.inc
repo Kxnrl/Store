@@ -330,7 +330,7 @@ stock void RemoveAllColors(char[] message, int maxLen)
     ReplaceString(message, maxLen, "\x07CF6A32", "", false);
 }
 
-stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], int source, float removeDelay = 0.1)
+stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], float removeDelay = 0.1)
 {
     int speaker = CreateEntityByName("info_target");
     

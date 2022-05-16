@@ -424,7 +424,7 @@ void Broadcast_DeathSound(int client)
 
     fPos[2] -= 3.0;
 
-    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 3.0);
+    int speaker = SpawnSpeakerEntity(fPos, fAgl, 3.0);
 
     int m_iRagdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
 
@@ -435,6 +435,11 @@ void Broadcast_DeathSound(int client)
         AcceptEntityInput(speaker, "SetParent", client);
         SetVariantString("facemask");
         AcceptEntityInput(speaker, "SetParentAttachment");
+    }
+    else
+    {
+        // fallback to client
+        speaker = client;
     }
 
     EmitSoundToClient(client, sound, SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, 1.0);
@@ -456,7 +461,7 @@ void Broadcast_DeathSound(int client)
     }
 
     if (counts > 0)
-        EmitSound(clients, counts, sound, speaker, SNDCHAN_VOICE, _, _, 1.0);
+        EmitSound(clients, counts, sound, speaker, SNDCHAN_VOICE, _, _, 1.0, _, speaker);
 
 }
 

@@ -223,17 +223,26 @@ void StartSoundToAll(int client)
     Format(STRING(szPath), ")%s", sound);
     EmitSoundToClient(client, szPath, SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, volume);
 
+#if defined GM_ZE
+    EmitSoundToAll(szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
+#else
     float fPos[3];
     GetClientEyePosition(client, fPos); fPos[2] -= 3.0;
 
     float fAgl[3];
     GetClientEyeAngles(client, fAgl);
 
-    int speaker = SpawnSpeakerEntity(fPos, fAgl, client, 3.5);
+    int speaker = SpawnSpeakerEntity(fPos, fAgl, 3.5);
     if (g_pTransmit)
     {
         TransmitManager_AddEntityHooks(speaker);
         TransmitManager_SetEntityOwner(speaker, client);
+        //PrintToChatAll("transmit speaker %d :: %N", speaker, client);
+
+        for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client)
+        {
+            TransmitManager_SetEntityState(speaker, i, false);
+        }
     }
 
     if (IsPlayerAlive(client))
@@ -242,29 +251,38 @@ void StartSoundToAll(int client)
         AcceptEntityInput(speaker, "SetParent", client);
         SetVariantString("facemask");
         AcceptEntityInput(speaker, "SetParentAttachment");
+
+        //PrintToChatAll("attach speaker %d :: %N", speaker, client);
     }
 
-    for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client)
+    for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client && !IsFakeClient(i))
     {
         // stoppable
         if (g_bClientDisable[i])
         {
-            if (g_pTransmit)
-                TransmitManager_SetEntityState(speaker, i, false);
-
+            //PrintToChatAll("stop speaker %N -> %N", client, i);
             continue;
         }
 
-        if (g_pTransmit && !TransmitManager_GetEntityState(client, i))
+        if (g_pTransmit)
         {
-            // don't transmit
-            TransmitManager_SetEntityState(speaker, i, false);
-            EmitSoundToClient(i, szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
-            continue;
+            if (TransmitManager_GetEntityState(client, i))
+            {
+                // don't transmit
+                TransmitManager_SetEntityState(speaker, i, true);
+            }
+            else
+            {
+                EmitSoundToClient(i, szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
+                //PrintToChatAll("emit self speaker %N -> %N", client, i);
+                continue;
+            }
         }
 
+        //PrintToChatAll("emit global speaker %N -> %N", client, i);
         EmitSoundToClient(i, szPath, speaker, SNDCHAN_VOICE, _, _, volume, _, speaker);
     }
+#endif
 
     tPrintToChatAll("%t", "sound to all", client, name);
 }

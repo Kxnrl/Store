@@ -4372,7 +4372,7 @@ public void OnGameOver(Event e, const char[] name, bool dB)
         if(IsClientInGame(client))
             g_iDataProtect[client] = GetTime() + 99999999;
 
-    CreateTimer(3.0, Timer_InterMission, _, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(10.0, Timer_InterMission, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_InterMission(Handle timer)

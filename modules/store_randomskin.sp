@@ -141,7 +141,7 @@ public void OnLibraryRemoved(const char[] name)
 public void Event_RoundInit(Event e, const char[] n, bool b)
 {
     for (int i = 0; i < MAXPLAYERS; i++)
-        for (int j = 0; j < 5; i++)
+        for (int j = 0; j < 5; j++)
             g_nRoundAck[i][j] = -1;
 }
 

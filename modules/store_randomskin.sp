@@ -29,7 +29,7 @@ public Plugin myinfo =
 #include <clientprefs>
 #define REQUIRE_EXTENSIONS
 
-#define MAX_SKINS   32
+#define MAX_SKINS           32
 #define TYPE_NAME_STATUS    "Store.RandomSkins.Status"
 #define TYPE_NAME_PREVAL    "Store.RandomSkins.PrevAL"
 
@@ -55,9 +55,11 @@ Handle g_hCookies[5];
 
 ArrayList g_aSkins;
 bool g_bLateLoad;
+ConVar store_randomskin_same_model_in_round;
 
 char g_sPrevious[MAXPLAYERS][5][32];
 int  g_iSelected[MAXPLAYERS];
+int  g_nRoundAck[MAXPLAYERS][5];
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -76,6 +78,10 @@ public void OnPluginStart()
 
     RegConsoleCmd("sm_rs", Command_RandomSkin);
     RegConsoleCmd("sm_randomskin", Command_RandomSkin);
+
+    HookEvent("round_prestart", Event_RoundInit);
+
+    store_randomskin_same_model_in_round = CreateConVar("store_randomskin_same_model_in_round", "1", "If enabled, random to same model in the same round.", _, true, 0.0, true, 1.0);
 
     // Load the translations file
     LoadTranslations("store.phrases");
@@ -132,6 +138,13 @@ public void OnLibraryRemoved(const char[] name)
     }
 }
 
+public void Event_RoundInit(Event e, const char[] n, bool b)
+{
+    for (int i = 0; i < MAXPLAYERS; i++)
+        for (int j = 0; j < 5; i++)
+            g_nRoundAck[i][j] = -1;
+}
+
 public void Pupd_OnCheckAllPlugins()
 {
     Pupd_CheckPlugin(false, "https://build.kxnrl.com/updater/Store/Modules/");
@@ -156,6 +169,12 @@ void DisplayMainMenu(int client)
 {
     g_iSelected[client] = GetClientTeam(client);
     bool global = Store_IsGlobalTeam();
+
+    if (!global && g_iSelected[client] <= 1)
+    {
+        tPrintToChat(client, "%T", "Spec not allow", client);
+        return;
+    }
 
     char options[512], buffer[64], skin[MAX_SKINS][32];
     GetPlayerEquips(client, options);
@@ -290,7 +309,7 @@ void DisplaySkinMenu(int client, int position = -1)
         SkinData_t skin;
         array.GetArray(i, skin, sizeof(SkinData_t));
 
-        FormatEx(xkey,   33, "%s;", skin.m_UId);
+        FormatEx(STRING(xkey), "%s;", skin.m_UId);
         FormatEx(STRING(buffer), "[%s] %s", StrContains(options, xkey) > -1 ? "*" : "x", skin.m_Name);
         menu.AddItem(xkey, buffer);
     }
@@ -350,9 +369,32 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     if (!GetPlayerStatus(client))
         return Plugin_Continue;
 
+    bool global = Store_IsGlobalTeam();
+
     int origin = g_iSelected[client];
     int teamEx = GetClientTeam(client);
     g_iSelected[client] = teamEx;
+
+    if (store_randomskin_same_model_in_round.BoolValue)
+    {
+        if (g_nRoundAck[client][teamEx] > -1 && g_nRoundAck[client][teamEx] < g_aSkins.Length)
+        {
+            SkinData_t s;
+            g_aSkins.GetArray(g_nRoundAck[client][teamEx], s, sizeof(SkinData_t));
+
+            // need to check again
+            int itemId = Store_GetItemId(s.m_UId);
+            if (itemId > -1 && Store_HasClientItem(client, itemId))
+            {
+                strcopy(STRING(_skin), s.m_Skin);
+                strcopy(STRING(_arms), s.m_Arms);
+                _body = s.m_Body;
+
+                tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);
+                return Plugin_Changed;
+            }
+        }
+    }
 
     char options[512], skin[MAX_SKINS][32], item[32];
     GetPlayerEquips(client, options);
@@ -365,7 +407,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         if (strlen(skin[i]) > 0) 
         {
             int itemid = Store_GetItemId(skin[i]);
-            if (itemid >= 0)
+            if (itemid > -1)
             {
                 if (Store_HasClientItem(client, itemid))
                 {
@@ -407,8 +449,6 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     list.GetString(UTIL_GetRandomInt(0, list.Length - 1), STRING(item));
     delete list;
 
-    bool global = Store_IsGlobalTeam();
-
     for (int i = 0; i < g_aSkins.Length; i++)
     {
         SkinData_t s;
@@ -423,7 +463,10 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         strcopy(STRING(_skin), s.m_Skin);
         strcopy(STRING(_arms), s.m_Arms);
         _body = s.m_Body;
-        
+
+        // store for this round
+        g_nRoundAck[client][teamEx] = i;
+
         tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);
         return Plugin_Changed;
     }

@@ -949,4 +949,10 @@
         "chi" "商店里面好像什么都没有上架呢"
         "da" "Butikken er tom"
     }
+
+    "Spec not allow"
+    {
+        "en" "Spec is not allow"
+        "chi" "观察者无法使用随机皮肤功能, 请先选择队伍"
+    }
 }

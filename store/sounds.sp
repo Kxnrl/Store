@@ -224,7 +224,16 @@ void StartSoundToAll(int client)
     EmitSoundToClient(client, szPath, SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, volume);
 
 #if defined GM_ZE
-    EmitSoundToAll(szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
+    int players[MAXPLAYERS], total;
+    for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && !IsFakeClient(i) && i != client)
+    {
+        if (g_bClientDisable[i])
+            continue;
+
+        players[total++] = i;
+    }
+
+    EmitSound(players, total, szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
 #else
     float fPos[3];
     GetClientEyePosition(client, fPos); fPos[2] -= 3.0;

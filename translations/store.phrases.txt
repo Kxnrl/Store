@@ -516,6 +516,12 @@
         "chi" "武器模型"
         "da" "Våben model"
     }
+
+    "wsaccess"
+    {
+        "en" "Weapon Skin Access pass"
+        "chi" ".ws使用权限"
+    }
     
     "weaponskin"
     {

@@ -29,9 +29,13 @@ public Plugin myinfo =
 #include <clientprefs>
 #define REQUIRE_EXTENSIONS
 
-#define MAX_SKINS           32
+#define MAX_SKINS           24
 #define TYPE_NAME_STATUS    "Store.RandomSkins.Status"
 #define TYPE_NAME_PREVAL    "Store.RandomSkins.PrevAL"
+
+// copy from fys.opts
+#define MAX_OPTS_KEY_LENGTH 32
+#define MAX_OPTS_VAL_LENGTH 256
 
 static char g_sOptionTeamName[][] = {
     "", "",
@@ -57,7 +61,7 @@ ArrayList g_aSkins;
 bool g_bLateLoad;
 ConVar store_randomskin_same_model_in_round;
 
-char g_sPrevious[MAXPLAYERS][5][32];
+char g_sPrevious[MAXPLAYERS][5][MAX_OPTS_KEY_LENGTH];
 int  g_iSelected[MAXPLAYERS];
 int  g_nRoundAck[MAXPLAYERS][5];
 
@@ -176,7 +180,7 @@ void DisplayMainMenu(int client)
         return;
     }
 
-    char options[512], buffer[64], skin[MAX_SKINS][32];
+    char options[MAX_OPTS_VAL_LENGTH], buffer[64], skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH];
     GetPlayerEquips(client, options);
     ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
     bool changed = false;
@@ -229,7 +233,7 @@ void DisplayMainMenu(int client)
     menu.AddItem("Lilia",  buffer);
 
     menu.ExitBackButton = false;
-    menu.Display(client, 10);
+    menu.Display(client, 15);
 }
 
 public int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
@@ -290,7 +294,7 @@ void DisplaySkinMenu(int client, int position = -1)
         return;
     }
 
-    char xkey[33], buffer[64], options[512];
+    char xkey[MAX_OPTS_KEY_LENGTH+1], buffer[64], options[MAX_OPTS_VAL_LENGTH];
     GetPlayerEquips(client, options);
 
     Menu menu = new Menu(MenuHandler_Skin);
@@ -337,7 +341,7 @@ public int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
             return;
         }
 
-        char xkey[33], options[512];
+        char xkey[MAX_OPTS_KEY_LENGTH], options[MAX_OPTS_VAL_LENGTH];
         menu.GetItem(slot, STRING(xkey));
         GetPlayerEquips(client, options);
 
@@ -396,12 +400,12 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         }
     }
 
-    char options[512], skin[MAX_SKINS][32], item[32];
+    char options[MAX_OPTS_VAL_LENGTH], skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH], item[MAX_OPTS_KEY_LENGTH];
     GetPlayerEquips(client, options);
     int skip = ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
     bool prev = GetPlayerPrevious(client), changed;
 
-    ArrayList list = new ArrayList(ByteCountToCells(32));
+    ArrayList list = new ArrayList(ByteCountToCells(MAX_OPTS_KEY_LENGTH));
     for(int i = 0; i < skip; i++)
     {
         if (strlen(skin[i]) > 0) 
@@ -556,7 +560,7 @@ void SetPlayerPrevious(int client, bool allowPrevious)
     }
 }
 
-void GetPlayerEquips(int client, char options[512])
+void GetPlayerEquips(int client, char options[MAX_OPTS_VAL_LENGTH])
 {
     int team = GetTeamIndex(client);
     if (team < TEAM_TE || team > TEAM_GX)
@@ -564,11 +568,11 @@ void GetPlayerEquips(int client, char options[512])
 
     if (g_pOptions)
     {
-        Opts_GetOptString(client, g_sOptionTeamName[team], options, 512, NULL_STRING);
+        Opts_GetOptString(client, g_sOptionTeamName[team], options, MAX_OPTS_VAL_LENGTH, NULL_STRING);
     }
     else if (g_pCookies)
     {
-        GetClientCookie(client, g_hCookies[team], options, 512);
+        GetClientCookie(client, g_hCookies[team], options, MAX_OPTS_VAL_LENGTH);
     }
 }
 

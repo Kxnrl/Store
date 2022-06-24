@@ -434,7 +434,7 @@ echo ""
 echo "Move configs and translations to build folder ..."
 mv configs/* build/addons/sourcemod/configs
 mv translations/* build/addons/sourcemod/translations
-mv utils build
+mv scripts build
 mv README.md build
 
 
@@ -447,13 +447,13 @@ mv -f include build/addons/sourcemod/scripting
 #打包
 echo "Compress file ..."
 cd build
-7z a $FILE   -t7z -mx9 README.md addons utils >nul
+7z a $FILE   -t7z -mx9 README.md addons scripts >nul
 if [ "$2" = "master" ]; then
-  7z a $LATEST -t7z -mx9 README.md addons utils >nul
+  7z a $LATEST -t7z -mx9 README.md addons scripts >nul
 elif [ "$2" = "stable" ]; then
-  7z a $STABLE -t7z -mx9 README.md addons utils >nul
+  7z a $STABLE -t7z -mx9 README.md addons scripts >nul
 else
-  7z a $OTHERS -t7z -mx9 README.md addons utils >nul
+  7z a $OTHERS -t7z -mx9 README.md addons scripts >nul
 fi
 
 

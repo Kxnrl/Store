@@ -1869,14 +1869,16 @@ static Action Command_Case(int client, int args)
         tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_inCase[1]);
 #else
     tPrintToChat(client, "%T", "Open Case not available", client);
+    UTIL_OpenSkinCase(client, true);
 #endif
 
     return Plugin_Handled;
 }
 
-void UTIL_OpenSkinCase(int client)
+// HACK FIX SM 1.10 Build
+void UTIL_OpenSkinCase(int client, bool hack = false)
 {
-    if(g_pOpenCase || g_pfysRect)
+    if(g_pOpenCase || g_pfysRect || hack)
         return;
 
     Menu menu = new Menu(MenuHandler_SelectCase);

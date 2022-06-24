@@ -204,11 +204,6 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
 
 void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int rainbow)
 {
-#if defined USE_BF
-    #pragma unused g_hCPRForward, type, rainbow
-    strcopy(output, maxLen, input);
-#else
-    int bytes, buffs;
     char[] copy = new char [maxLen];
     strcopy(copy, maxLen, input);
 
@@ -230,12 +225,18 @@ void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int
         return;
     }
 
+#if defined USE_BF
+    strcopy(output, maxLen, input);
+#else
+
     if (rainbow == CHAT_C_RANDOM || rainbow == CHAT_C_SHUFFLE)
     {
         output[0] = RandomColor();
         strcopy(output[1], maxLen, input);
         return;
     }
+
+    int bytes, buffs;
 
     for(int x = 0; x < maxLen; ++x)
     {

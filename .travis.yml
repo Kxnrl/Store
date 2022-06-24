@@ -12,9 +12,5 @@ env:
   - SOURCEMOD=1.10
   - SOURCEMOD=1.11
 
-matrix:
-  allow_failures:
-    - env: SOURCEMOD=1.11
-
 script:
     - 'if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then bash ci/build.sh $SOURCEMOD $TRAVIS_BRANCH ${TRAVIS_COMMIT::7}; else bash ci/test.sh $SOURCEMOD $TRAVIS_BRANCH ${TRAVIS_COMMIT::7}; fi'

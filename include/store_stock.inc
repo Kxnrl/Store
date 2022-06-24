@@ -93,7 +93,7 @@ stock void LogStoreError(const char[] buffer, any ...)
     LogToFileEx(path, error);
 }
 
-public void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack pack)
+static void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack pack)
 {
     float time = GetEngineTime() - pack.ReadFloat();
     char query[1024];
@@ -362,7 +362,6 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], float removeDelay = 0
 
 static Action Timer_RemoveSpeaker(Handle timer, int ref)
 {
-    #pragma unused timer
     int speaker = EntRefToEntIndex(ref);
     if (speaker != INVALID_ENT_REFERENCE)
         RemoveEntity(speaker);

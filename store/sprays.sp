@@ -63,7 +63,7 @@ static Action Command_Spray(int client, int args)
     return Plugin_Handled;
 }
 
-static int Sprays_Reset()
+static void Sprays_Reset()
 {
     g_iSprays = 0;
 }

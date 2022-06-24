@@ -103,12 +103,12 @@ static bool MsgColors_Config(KeyValues kv, int itemid)
 
 static int CPSupport_Equip(int client, int id)
 {
-    return -1;
+    return 0;
 }
 
 static int CPSupport_Remove(int client, int id)
 {
-
+    return 0;
 }
 
 void CPP_Forward(int client, const char flagstring[32], const char name[128], const char message[256], ArrayList hRecipients, bool removedColor, bool processColor)

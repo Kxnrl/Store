@@ -500,7 +500,7 @@ public void OnMapEnd()
 //////////////////////////////
 //         NATIVES          //
 //////////////////////////////
-public int Native_GetItemId(Handle myself, int numParams)
+static any Native_GetItemId(Handle myself, int numParams)
 {
     char uid[256];
     if(GetNativeString(1, STRING(uid)) != SP_ERROR_NONE)
@@ -509,7 +509,7 @@ public int Native_GetItemId(Handle myself, int numParams)
     return UTIL_GetItemId(uid, -1);
 }
 
-public int Native_GetTypeId(Handle myself, int numParams)
+static any Native_GetTypeId(Handle myself, int numParams)
 {
     char type[32];
     if(GetNativeString(1, STRING(type)) != SP_ERROR_NONE)
@@ -518,7 +518,7 @@ public int Native_GetTypeId(Handle myself, int numParams)
     return UTIL_GetTypeHandler(type);
 }
 
-public int Native_GetItemData(Handle myself, int numParams)
+static any Native_GetItemData(Handle myself, int numParams)
 {
     int itemid = GetNativeCell(1);
     if(itemid < 0 || itemid > STORE_MAX_ITEMS)
@@ -527,30 +527,32 @@ public int Native_GetItemData(Handle myself, int numParams)
     return true;
 }
 
-public int Native_SaveClientAll(Handle myself, int numParams)
+static any Native_SaveClientAll(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     UTIL_SaveClientData(client, false);
     UTIL_SaveClientInventory(client);
     UTIL_SaveClientEquipment(client);
+    return true;
 }
 
-public int Native_GetClientID(Handle myself, int numParams)
+static any Native_GetClientID(Handle myself, int numParams)
 {
     return g_ClientData[GetNativeCell(1)].iId;
 }
 
-public int Native_IsClientBanned(Handle myself, int numParams)
+static any Native_IsClientBanned(Handle myself, int numParams)
 {
     return g_ClientData[GetNativeCell(1)].bBan;
 }
 
-public int Native_SetClientBanState(Handle myself, int numParams)
+static any Native_SetClientBanState(Handle myself, int numParams)
 {
     g_ClientData[GetNativeCell(1)].bBan = GetNativeCell(2);
+    return true;
 }
 
-public int Native_RegisterHandler(Handle plugin, int numParams)
+static any Native_RegisterHandler(Handle plugin, int numParams)
 {
     if(g_iTypeHandlers == STORE_MAX_HANDLERS)
         return -1;
@@ -583,7 +585,7 @@ public int Native_RegisterHandler(Handle plugin, int numParams)
     return m_iId;
 }
 
-public int Native_RegisterMenuHandler(Handle plugin, int numParams)
+static any Native_RegisterMenuHandler(Handle plugin, int numParams)
 {
     if(g_iMenuHandlers == STORE_MAX_HANDLERS)
         return -1;
@@ -610,17 +612,19 @@ public int Native_RegisterMenuHandler(Handle plugin, int numParams)
     return m_iId;
 }
 
-public int Native_SetDataIndex(Handle myself, int numParams)
+static any Native_SetDataIndex(Handle myself, int numParams)
 {
-    g_Items[GetNativeCell(1)].iData = GetNativeCell(2);
+    int index = GetNativeCell(1);
+    g_Items[index].iData = GetNativeCell(2);
+    return g_Items[index].iData;
 }
 
-public int Native_GetDataIndex(Handle myself, int numParams)
+static any Native_GetDataIndex(Handle myself, int numParams)
 {
     return g_Items[GetNativeCell(1)].iData;
 }
 
-public int Native_GetEquippedItem(Handle myself, int numParams)
+static any Native_GetEquippedItem(Handle myself, int numParams)
 {
     char m_szType[16];
     GetNativeString(2, STRING(m_szType));
@@ -632,12 +636,12 @@ public int Native_GetEquippedItem(Handle myself, int numParams)
     return UTIL_GetEquippedItemFromHandler(GetNativeCell(1), m_iHandler, GetNativeCell(3));
 }
 
-public int Native_IsClientLoaded(Handle myself, int numParams)
+static any Native_IsClientLoaded(Handle myself, int numParams)
 {
     return g_ClientData[GetNativeCell(1)].bLoaded;
 }
 
-public int Native_DisplayPreviousMenu(Handle myself, int numParams)
+static any Native_DisplayPreviousMenu(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     switch(g_iMenuNum[client])
@@ -648,14 +652,16 @@ public int Native_DisplayPreviousMenu(Handle myself, int numParams)
         case 4: DisplayPlanMenu   (client, g_iSelectedItem[client]);
         case 5: DisplayComposeMenu(client, false);
     }
+    return true;
 }
 
-public int Native_SetClientMenu(Handle myself, int numParams)
+static any Native_SetClientMenu(Handle myself, int numParams)
 {
     g_iMenuNum[GetNativeCell(1)] = GetNativeCell(2);
+    return 0;
 }
 
-public int Native_GetClientCredits(Handle myself, int numParams)
+static any Native_GetClientCredits(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
 
@@ -665,7 +671,7 @@ public int Native_GetClientCredits(Handle myself, int numParams)
     return g_ClientData[client].iCredits;
 }
 
-public int Native_SetClientCredits(Handle myself, int numParams)
+static any Native_SetClientCredits(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     if(IsFakeClient(client) || !g_ClientData[client].bLoaded || g_ClientData[client].bBan)
@@ -726,7 +732,7 @@ public int Native_SetClientCredits(Handle myself, int numParams)
     return true;
 }
 
-public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
+static Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
 {
     pack.Reset();
     int client = pack.ReadCell();
@@ -767,7 +773,7 @@ public Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
     return Plugin_Stop;
 } 
 
-public int Native_IsItemInBoughtPackage(Handle myself, int numParams)
+static any Native_IsItemInBoughtPackage(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
@@ -788,7 +794,7 @@ public int Native_IsItemInBoughtPackage(Handle myself, int numParams)
     return false;
 }
 
-public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
+static any Native_DisplayConfirmMenu(Handle plugin, int numParams)
 {
     int client = GetNativeCell(1);
     char title[255], m_szCallback[32], m_szData[11];
@@ -816,9 +822,11 @@ public int Native_DisplayConfirmMenu(Handle plugin, int numParams)
 
     m_hMenu.ExitButton = false;
     m_hMenu.Display(client, 0);
+
+    return 0;
 }
 
-public int Native_UseItem(Handle plugin, int numParams)
+static any Native_UseItem(Handle plugin, int numParams)
 {
     int  client = GetNativeCell(1);
     int  itemid = GetNativeCell(2);
@@ -831,7 +839,7 @@ public int Native_UseItem(Handle plugin, int numParams)
     return UTIL_UseItem(client, itemid, synced, slot);
 }
 
-public int Native_GiveItem(Handle plugin, int numParams)
+static any Native_GiveItem(Handle plugin, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
@@ -901,7 +909,7 @@ public int Native_GiveItem(Handle plugin, int numParams)
     return true;
 }
 
-public int Native_RemoveItem(Handle myself, int numParams)
+static any Native_RemoveItem(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
@@ -919,9 +927,11 @@ public int Native_RemoveItem(Handle myself, int numParams)
     int m_iId = UTIL_GetClientItemId(client, itemid);
     if(m_iId != -1)
         g_ClientItem[client][m_iId].bDeleted = true;
+
+    return 0;
 }
 
-public int Native_GetItemExpiration(Handle myself, int numParams)
+static any Native_GetItemExpiration(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
@@ -951,7 +961,7 @@ public int Native_GetItemExpiration(Handle myself, int numParams)
     return -1;
 }
 
-public int Native_HasClientItem(Handle myself, int numParams)
+static any Native_HasClientItem(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
@@ -984,7 +994,7 @@ public int Native_HasClientItem(Handle myself, int numParams)
     return false;
 }
 
-public int Native_ExtClientItem(Handle myself, int numParams)
+static any Native_ExtClientItem(Handle myself, int numParams)
 {
     int client = GetNativeCell(1);
     int itemid = GetNativeCell(2);
@@ -1018,7 +1028,7 @@ public int Native_ExtClientItem(Handle myself, int numParams)
     return false;
 }
 
-public int Native_GetSkinLevel(Handle myself, int numParams)
+static any Native_GetSkinLevel(Handle myself, int numParams)
 {
 #if defined Module_Skin
     return Store_GetPlayerSkinLevel(GetNativeCell(1));
@@ -1027,7 +1037,7 @@ public int Native_GetSkinLevel(Handle myself, int numParams)
 #endif
 }
 
-public any Native_GetItemList(Handle myself, int numParams)
+static any Native_GetItemList(Handle myself, int numParams)
 {
     ArrayList items = new ArrayList(sizeof(Store_Item));
 
@@ -1041,7 +1051,7 @@ public any Native_GetItemList(Handle myself, int numParams)
     return result;
 }
 
-public int Native_HasPlayerSkin(Handle myself, int numParams)
+static any Native_HasPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
@@ -1056,7 +1066,7 @@ public int Native_HasPlayerSkin(Handle myself, int numParams)
 #endif
 }
 
-public int Native_GetPlayerSkin(Handle myself, int numParams)
+static any Native_GetPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
@@ -1074,7 +1084,7 @@ public int Native_GetPlayerSkin(Handle myself, int numParams)
     return false;
 }
 
-public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
+static any Native_GetClientPlayerSkins(Handle myself, int numParmas)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
@@ -1110,7 +1120,7 @@ public any Native_GetClientPlayerSkins(Handle myself, int numParmas)
 #endif
 }
 
-public any Native_GetAllPlayerSkins(Handle myself, int numParams)
+static any Native_GetAllPlayerSkins(Handle myself, int numParams)
 {
 #if defined Module_Skin
     ArrayList array = view_as<ArrayList>(GetNativeCell(1));
@@ -1145,7 +1155,7 @@ public any Native_GetAllPlayerSkins(Handle myself, int numParams)
 #endif
 }
 
-public any Native_ApplyPlayerSkin(Handle myself, int numParams)
+static any Native_ApplyPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
@@ -1158,7 +1168,7 @@ public any Native_ApplyPlayerSkin(Handle myself, int numParams)
 #endif
 }
 
-public any Native_GetEquippedSkin(Handle myself, int numParams)
+static any Native_GetEquippedSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int handler = UTIL_GetTypeHandler("playerskin");
@@ -1181,17 +1191,17 @@ public any Native_GetEquippedSkin(Handle myself, int numParams)
 #endif
 }
 
-public int Native_IsPlayerTP(Handle plugin, int numParams)
+static any Native_IsPlayerTP(Handle plugin, int numParams)
 {
     return IsPlayerTP(GetNativeCell(1));
 }
 
-public int Native_IsPlayerHide(Handle plugin, int numParams)
+static any Native_IsPlayerHide(Handle plugin, int numParams)
 {
     return false;
 }
 
-public int Native_IsStoreSpray(Handle plugin, int numParams)
+static any Native_IsStoreSpray(Handle plugin, int numParams)
 {
 #if defined Module_Spray
     return Spray_IsSpray(GetNativeCell(1));
@@ -1200,7 +1210,7 @@ public int Native_IsStoreSpray(Handle plugin, int numParams)
 #endif
 }
 
-public int Native_LogOpenCase(Handle plugin, int numParams)
+static any Native_LogOpenCase(Handle plugin, int numParams)
 {
     int client = GetNativeCell(1);
     if (!g_ClientData[client].bLoaded)
@@ -1214,9 +1224,11 @@ public int Native_LogOpenCase(Handle plugin, int numParams)
     GetNativeString(4, STRING(handle));
 
     UTIL_LogOpencase(client, itemid, length, handle, caseid);
+
+    return 0;
 }
 
-public int Native_InDeathCamera(Handle plugin, int numParams)
+static any Native_InDeathCamera(Handle plugin, int numParams)
 {
 #if defined Module_Skin
     return IsInDeathCamera(GetNativeCell(1));
@@ -1225,7 +1237,7 @@ public int Native_InDeathCamera(Handle plugin, int numParams)
 #endif
 }
 
-public int Native_IsGlobalTeam(Handle plugin, int numParams)
+static any Native_IsGlobalTeam(Handle plugin, int numParams)
 {
 #if defined Global_Skin
     return true;
@@ -1315,7 +1327,7 @@ public void Opts_OnClientLoad(int client)
 //////////////////////////////
 //         COMMAND          //
 //////////////////////////////
-public Action Command_Store(int client, int args)
+static Action Command_Store(int client, int args)
 {
     if(!IsClientInGame(client))
         return Plugin_Handled;
@@ -1344,7 +1356,7 @@ public Action Command_Store(int client, int args)
     return Plugin_Handled;
 }
 
-public Action Command_Inventory(int client, int args)
+static Action Command_Inventory(int client, int args)
 {    
     if(args > 0)
     {
@@ -1370,7 +1382,7 @@ public Action Command_Inventory(int client, int args)
     return Plugin_Handled;
 }
 
-public Action Command_Credits(int client, int args)
+static Action Command_Credits(int client, int args)
 {    
     if(args > 0)
     {
@@ -1552,7 +1564,7 @@ static char[] FormatSkinTag(int client, int itemid, bool equip)
     return buffer;
 }
 
-public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_Store(Menu menu, MenuAction action, int client, int param2)
 {
     if(action == MenuAction_End)
         delete menu;
@@ -1589,7 +1601,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                 char m_szTitle[128];
                 FormatEx(STRING(m_szTitle), "%T", "Confirm_Sell", client, g_Items[g_iSelectedItem[client]].szName, g_TypeHandlers[g_Items[g_iSelectedItem[client]].iHandler].szType, RoundToFloor(g_Items[g_iSelectedItem[client]].iPrice*0.6));
                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 1);
-                return;
+                return 0;
             }
             // We are gifting a package
             else if(strcmp(m_szId, "gift_package")==0)
@@ -1629,7 +1641,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                     if(StrEqual(g_TypeHandlers[g_Items[m_iId].iHandler].szType, "playerskin"))
                     {
                         DisplayPreviewMenu(client, m_iId);
-                        return;
+                        return 0;
                     }
 
                     if(g_Items[m_iId].bCompose)
@@ -1643,7 +1655,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                         }
                         else
                             tPrintToChat(client, "%T", "Chat Not Enough Handing Fee", client, g_inCase[1]);
-                        return;
+                        return 0;
                     }
                     else
                     {
@@ -1657,7 +1669,7 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
                                 FormatEx(STRING(m_szTitle), "%T", "Confirm_Buy", client, g_Items[m_iId].szName, g_TypeHandlers[g_Items[m_iId].iHandler].szType);
                                 Store_DisplayConfirmMenu(client, m_szTitle, MenuHandler_Store, 0);
                             }
-                            return;
+                            return 0;
                         }
                     }
                 }
@@ -1687,6 +1699,8 @@ public int MenuHandler_Store(Menu menu, MenuAction action, int client, int param
     else if(action==MenuAction_Cancel)
         if(param2 == MenuCancel_ExitBack)
             Store_DisplayPreviousMenu(client);
+
+    return 0;
 }
 
 void UTIL_GetLevelType(int client, int itemid, char[] buffer, int maxLen)
@@ -1751,7 +1765,7 @@ void DisplayPreviewMenu(int client, int itemid)
     m_hMenu.Display(client, 0);
 }
 
-public int MenuHandler_Preview(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_Preview(Menu menu, MenuAction action, int client, int param2)
 {
     if(action == MenuAction_End)
         delete menu;
@@ -1815,9 +1829,11 @@ public int MenuHandler_Preview(Menu menu, MenuAction action, int client, int par
     else if(action==MenuAction_Cancel)
         if(param2 == MenuCancel_ExitBack)
             Store_DisplayPreviousMenu(client);
+
+    return 0;
 }
 
-public Action Command_Case(int client, int args)
+static Action Command_Case(int client, int args)
 {
     if(!IsClientInGame(client))
         return Plugin_Handled;
@@ -1876,7 +1892,7 @@ void UTIL_OpenSkinCase(int client)
     menu.Display(client, 0);
 }
 
-public int MenuHandler_SelectCase(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_SelectCase(Menu menu, MenuAction action, int client, int param2)
 {
     switch(action)
     {
@@ -1887,7 +1903,7 @@ public int MenuHandler_SelectCase(Menu menu, MenuAction action, int client, int 
             {
                 tPrintToChat(client, "%T", "data protect", client, g_iDataProtect[client]-GetTime());
                 UTIL_OpenSkinCase(client);
-                return;
+                return 0;
             }
 
             char info[32];
@@ -1916,9 +1932,11 @@ public int MenuHandler_SelectCase(Menu menu, MenuAction action, int client, int 
                 DisplayItemMenu(client, g_iSelectedItem[client]);
         }
     }
+
+    return 0;
 }
 
-public void SQLCallback_OpenCase(Database db, DBResultSet results, const char[] error, int userid)
+static void SQLCallback_OpenCase(Database db, DBResultSet results, const char[] error, int userid)
 {
     int client = GetClientOfUserId(userid);
     if(!client)
@@ -1959,7 +1977,7 @@ public void SQLCallback_OpenCase(Database db, DBResultSet results, const char[] 
     CreateTimer(0.1, Timer_OpeningCase, userid);
 }
 
-public Action Timer_OpeningCase(Handle timer, int userid)
+static Action Timer_OpeningCase(Handle timer, int userid)
 {
     int client = GetClientOfUserId(userid);
 
@@ -2151,9 +2169,10 @@ void OpeningCaseMenu(int client, int days, const char[] name)
     m_hCasePanel.Send(client, MenuHandler_OpeningCase, 5);
 }
 
-public int MenuHandler_OpeningCase(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_OpeningCase(Menu menu, MenuAction action, int client, int param2)
 {
     // Do nothing...
+    return 0;
 }
 
 int UTIL_GetSkinSellPrice(int client, int itemid, int days)
@@ -2174,7 +2193,7 @@ int UTIL_GetSkinSellPrice(int client, int itemid, int days)
     return RoundToCeil(float(g_Items[itemid].iPrice) / 180.0 * days * 0.85);
 }
 
-public Action Timer_ReEndingCase(Handle timer, DataPack pack)
+static Action Timer_ReEndingCase(Handle timer, DataPack pack)
 {
     int client = GetClientOfUserId(pack.ReadCell());
     int itemid = pack.ReadCell();
@@ -2248,7 +2267,7 @@ void EndingCaseMenu(int client, int days, int itemid, bool sound = true)
     ClientCommand(client, "playgamesound ui/item_drop3_rare.wav");
 }
 
-public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, int param2)
 {
     switch(action)
     {
@@ -2258,23 +2277,23 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
             if(g_bInterMission)
             {
                 LogMessage("Stop MenuHandler_OpenSuccessful in g_bInterMission");
-                return;
+                return 0;
             }
 
             if(!g_ClientData[client].bLoaded)
             {
                 tPrintToChat(client, "%T", "Inventory hasnt been fetched", client);
-                return;
+                return 0;
             }
 
             if(g_ClientData[client].bBan)
             {
                 tPrintToChat(client,"[{red}CAT{white}]  %T", "cat banned", client);
-                return;
+                return 0;
             }
 
             if(g_ClientData[client].iCredits < g_inCase[g_iClientCase[client]] || g_iClientCase[client] < 0 || g_iClientCase[client] > 3)
-                return;
+                return 0;
 
             char info[32];
             menu.GetItem(param2, STRING(info));
@@ -2358,6 +2377,8 @@ public int MenuHandler_OpenSuccessful(Menu menu, MenuAction action, int client, 
             }
         }
     }
+
+    return 0;
 }
 
 void DisplayItemMenu(int client, int itemid)
@@ -2566,7 +2587,7 @@ void DisplayComposeMenu(int client, bool last)
     Store_DisplayPreviousMenu(client);
 }
 
-public int MenuHandler_Compose(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_Compose(Menu menu, MenuAction action, int client, int param2)
 {
     if(action == MenuAction_End)
         delete menu;
@@ -2613,9 +2634,11 @@ public int MenuHandler_Compose(Menu menu, MenuAction action, int client, int par
             g_Compose[client].types = -1;
             Store_DisplayPreviousMenu(client);
         }
+
+    return 0;
 }
 
-public int MenuHandler_Plan(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_Plan(Menu menu, MenuAction action, int client, int param2)
 {
     if(action == MenuAction_End)
         delete menu;
@@ -2638,9 +2661,11 @@ public int MenuHandler_Plan(Menu menu, MenuAction action, int client, int param2
     else if(action==MenuAction_Cancel)
         if(param2 == MenuCancel_ExitBack)
             Store_DisplayPreviousMenu(client);
+
+    return 0;
 }
 
-public int MenuHandler_Item(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_Item(Menu menu, MenuAction action, int client, int param2)
 {
     if(action == MenuAction_End)
         delete menu;
@@ -2742,6 +2767,8 @@ public int MenuHandler_Item(Menu menu, MenuAction action, int client, int param2
     else if(action==MenuAction_Cancel)
         if(param2 == MenuCancel_ExitBack)
             Store_DisplayPreviousMenu(client);
+
+    return 0;
 }
 
 void DisplayPlayerMenu(int client)
@@ -2779,7 +2806,7 @@ void DisplayPlayerMenu(int client)
     m_hMenu.Display(client, 0);
 }
 
-public int MenuHandler_Gift(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_Gift(Menu menu, MenuAction action, int client, int param2)
 {
     if(action == MenuAction_End)
         delete menu;
@@ -2795,7 +2822,7 @@ public int MenuHandler_Gift(Menu menu, MenuAction action, int client, int param2
             if(!m_iReceiver)
             {
                 tPrintToChat(client, "%T", "Gift Player Left", client);
-                return;
+                return 0;
             }
             UTIL_GiftItem(client, m_iReceiver, m_iItem);
             g_iMenuNum[client] = 1;
@@ -2811,7 +2838,7 @@ public int MenuHandler_Gift(Menu menu, MenuAction action, int client, int param2
             if(!m_iReceiver)
             {
                 tPrintToChat(client, "%T", "Gift Player Left", client);
-                return;
+                return 0;
             }
 
             m_iItem = UTIL_GetClientItemId(client, g_iSelectedItem[client]);
@@ -2830,9 +2857,11 @@ public int MenuHandler_Gift(Menu menu, MenuAction action, int client, int param2
     else if(action==MenuAction_Cancel)
         if(param2 == MenuCancel_ExitBack)
             DisplayItemMenu(client, g_iSelectedItem[client]);
+
+    return 0;
 }
 
-public int MenuHandler_Confirm(Menu menu, MenuAction action, int client, int param2)
+static int MenuHandler_Confirm(Menu menu, MenuAction action, int client, int param2)
 {
     if(action == MenuAction_End)
         delete menu;
@@ -2863,12 +2892,14 @@ public int MenuHandler_Confirm(Menu menu, MenuAction action, int client, int par
         }
         else Store_DisplayPreviousMenu(client);
     }
+
+    return 0;
 }
 
 //////////////////////////////
 //          TIMER           //
 //////////////////////////////
-public Action Timer_DababaseRetry(Handle timer, int retry)
+static Action Timer_DababaseRetry(Handle timer, int retry)
 {
     // Database is connected successfully
     if(g_hDatabase != null)
@@ -2888,7 +2919,7 @@ public Action Timer_DababaseRetry(Handle timer, int retry)
 //////////////////////////////
 //       SQL CALLBACK       //
 //////////////////////////////
-public void SQLCallback_Connection(Database db, const char[] error, int retry)
+static void SQLCallback_Connection(Database db, const char[] error, int retry)
 {
     retry++;
 
@@ -2940,7 +2971,7 @@ public void SQLCallback_Connection(Database db, const char[] error, int retry)
     }
 }
 
-public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet results, const char[] error, int userid)
+static void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet results, const char[] error, int userid)
 {
     if(results == null || error[0])
     {
@@ -2992,7 +3023,7 @@ public void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
     }
 }
 
-public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet results, const char[] error, int userid)
+static void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet results, const char[] error, int userid)
 {
     if(results == null || error[0])
     {
@@ -3074,7 +3105,7 @@ public void SQLCallback_LoadClientInventory_Items(Database db, DBResultSet resul
 }
 
 #if defined DATA_VERIFY
-public void SQLCallback_LoadClientInventory_DATAVERIFY(Database db, DBResultSet results, const char[] error, int userid)
+static void SQLCallback_LoadClientInventory_DATAVERIFY(Database db, DBResultSet results, const char[] error, int userid)
 {
     if(results == null || error[0])
     {
@@ -3118,7 +3149,7 @@ public void SQLCallback_LoadClientInventory_DATAVERIFY(Database db, DBResultSet 
 }
 #endif
 
-public void SQLCallback_LoadClientInventory_Equipment(Database db, DBResultSet results, const char[] error, int userid)
+static void SQLCallback_LoadClientInventory_Equipment(Database db, DBResultSet results, const char[] error, int userid)
 {
     if(results == null || error[0])
     {
@@ -3164,7 +3195,7 @@ public void SQLCallback_LoadClientInventory_Equipment(Database db, DBResultSet r
     Call_OnClientLoaded(client);
 }
 
-public void SQLCallback_InsertClient(Database db, DBResultSet results, const char[] error, int userid)
+static void SQLCallback_InsertClient(Database db, DBResultSet results, const char[] error, int userid)
 {
     int client = GetClientOfUserId(userid);
     if(!client || g_bInterMission)
@@ -3324,7 +3355,7 @@ void UTIL_SaveClientData(int client, bool disconnect)
     }
 }
 
-public void SQLCallback_RefreshCredits(Database db, DBResultSet results, const char[] error, int userid)
+static void SQLCallback_RefreshCredits(Database db, DBResultSet results, const char[] error, int userid)
 {
     int client = GetClientOfUserId(userid);
     if(!client)
@@ -3363,7 +3394,7 @@ int UTIL_GetItemId(const char[] uid, int start = -1)
     return -1;
 }
 
-public void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] error, int userid)
+static void SQLCallback_BuyItem(Database db, DBResultSet results, const char[] error, int userid)
 {
     int client = GetClientOfUserId(userid);
     if(!client)
@@ -3761,7 +3792,7 @@ void UTIL_ReloadConfig()
     g_hDatabase.Query(SQL_LoadParents, "SELECT * FROM store_item_parent ORDER BY `parent` ASC, `order` ASC;", 0, DBPrio_High);
 }
 
-public void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] error, any data)
+static void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] error, any data)
 {
     if(item_parent == null)
         SetFailState("Can not retrieve item.parent from database: %s", error);
@@ -3814,7 +3845,7 @@ public void SQL_LoadParents(Database db, DBResultSet item_parent, const char[] e
 #endif
 }
 
-public void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] error, any data)
+static void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] error, any data)
 {
     if(item_child == null)
         SetFailState("Can not retrieve item.child from database: %s", error);
@@ -4123,7 +4154,7 @@ int UTIL_UseItem(int client, int itemid, bool synced = false, int slot = 0)
     return 0;
 }
 
-int UTIL_UnequipItem(int client, int itemid, bool fn = true)
+void UTIL_UnequipItem(int client, int itemid, bool fn = true)
 {
     int m_iSlot = 0;
     if(fn && itemid > 0 && g_TypeHandlers[g_Items[itemid].iHandler].fnRemove != INVALID_FUNCTION && IsPluginRunning(g_TypeHandlers[g_Items[itemid].iHandler].hPlugin, g_TypeHandlers[g_Items[itemid].iHandler].szPlFile))
@@ -4317,7 +4348,7 @@ void UTIL_CheckModules()
 #endif
 }
 
-public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
+static void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
     for(int client = 1; client <= MaxClients; ++client)
     {
@@ -4331,7 +4362,7 @@ public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
     }
 }
 
-public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
+static void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
     int client = GetClientOfUserId(event.GetInt("userid"));
     
@@ -4362,7 +4393,7 @@ stock bool IsPlayerTP(int client)
     return false;
 }
 
-public void OnGameOver(Event e, const char[] name, bool dB)
+static void OnGameOver(Event e, const char[] name, bool dB)
 {
     g_bInterMission = true;
 
@@ -4375,7 +4406,7 @@ public void OnGameOver(Event e, const char[] name, bool dB)
     CreateTimer(10.0, Timer_InterMission, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action Timer_InterMission(Handle timer)
+static Action Timer_InterMission(Handle timer)
 {
     for(int client = 1; client <= MaxClients; ++client)
         if(IsClientInGame(client) && g_ClientData[client].bLoaded)
@@ -4388,7 +4419,7 @@ public Action Timer_InterMission(Handle timer)
     return Plugin_Stop;
 }
 
-public Action Timer_OnlineCredit(Handle timer, int client)
+static Action Timer_OnlineCredit(Handle timer, int client)
 {
     if(!IsClientInGame(client))
     {
@@ -4433,7 +4464,7 @@ void Call_OnClientLoaded(int client)
     g_ClientData[client].hTimer = CreateTimer(g_fCreditsTimerInterval, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
 
-public void InterMissionLock(ConVar convar, const char[] oldValue, const char[] newValue)
+static void InterMissionLock(ConVar convar, const char[] oldValue, const char[] newValue)
 {
     convar.SetFloat(20.0, true, true);
     LogMessage("Lock Convar [mp_match_restart_delay] to 20.0, from [%s] to [%s].", oldValue, newValue);

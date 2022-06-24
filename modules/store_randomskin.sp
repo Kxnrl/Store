@@ -236,7 +236,7 @@ void DisplayMainMenu(int client)
     menu.Display(client, 15);
 }
 
-public int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
+static int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
 {
     if (action == MenuAction_End)
         delete menu;
@@ -265,6 +265,8 @@ public int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
             }
         }
     }
+
+    return 0;
 }
 
 void DisplaySkinMenu(int client, int position = -1)
@@ -329,7 +331,7 @@ void DisplaySkinMenu(int client, int position = -1)
     delete array;
 }
 
-public int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
+static int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
 {
     if (action == MenuAction_End)
         delete menu;
@@ -338,7 +340,7 @@ public int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
         if (!Store_IsGlobalTeam() && GetClientTeam(client) != g_iSelected[client])
         {
             DisplaySkinMenu(client, slot);
-            return;
+            return 0;
         }
 
         char xkey[MAX_OPTS_KEY_LENGTH], options[MAX_OPTS_VAL_LENGTH];
@@ -360,6 +362,8 @@ public int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
     }
     else if (action == MenuAction_Cancel && slot == MenuCancel_ExitBack)
         DisplayMainMenu(client);
+
+    return 0;
 }
 
 public void OnClientConnected(int client)

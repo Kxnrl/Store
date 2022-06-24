@@ -152,7 +152,7 @@ public void Grenades_OnEntitySpawnedPost(int entity)
             break;
         }
 
-    int m_iSlot = m_iSlot = GrenadeSkins_GetSlot(m_szClassname);
+    int m_iSlot = GrenadeSkins_GetSlot(m_szClassname);
     
     int m_iEquipped;
     int m_iData;

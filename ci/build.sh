@@ -474,7 +474,7 @@ fi
 
 
 #RAW
-if [ "$1" = "1.10" ] && [ "$2" = "master" ]; then
+if [ "$1" = "1.11" ] && [ "$2" = "master" ]; then
   echo "Upload RAW [core] RSYNC ..."
   RSYNC_PASSWORD=$RSYNC_PSWD rsync -avz --port $RSYNC_PORT ./addons/sourcemod/plugins/*.smx $RSYNC_USER@$RSYNC_HOST::TravisCI/_Raw/
   echo "Upload RAW [modules] RSYNC ..."

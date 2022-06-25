@@ -235,61 +235,75 @@ void StartSoundToAll(int client)
 
     EmitSound(players, total, szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
 #else
-    float fPos[3];
-    GetClientEyePosition(client, fPos); fPos[2] -= 3.0;
-
-    float fAgl[3];
-    GetClientEyeAngles(client, fAgl);
-
-    int speaker = SpawnSpeakerEntity(fPos, fAgl, 3.5);
-    if (g_pTransmit)
-    {
-        TransmitManager_AddEntityHooks(speaker);
-        TransmitManager_SetEntityOwner(speaker, client);
-        //PrintToChatAll("transmit speaker %d :: %N", speaker, client);
-
-        for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client)
-        {
-            TransmitManager_SetEntityState(speaker, i, false);
-        }
-    }
-
     if (IsPlayerAlive(client))
     {
+        float fPos[3];
+        GetClientEyePosition(client, fPos); fPos[2] -= 3.0;
+
+        float fAgl[3];
+        GetClientEyeAngles(client, fAgl);
+
+        int speaker = SpawnSpeakerEntity(fPos, fAgl, 3.5);
+        if (g_pTransmit)
+        {
+            TransmitManager_AddEntityHooks(speaker);
+            TransmitManager_SetEntityOwner(speaker, client);
+            //PrintToChatAll("transmit speaker %d :: %N", speaker, client);
+
+            for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client)
+            {
+                TransmitManager_SetEntityState(speaker, i, false);
+            }
+        }
+
         SetVariantString("!activator");
         AcceptEntityInput(speaker, "SetParent", client);
         SetVariantString("facemask");
         AcceptEntityInput(speaker, "SetParentAttachment");
 
         //PrintToChatAll("attach speaker %d :: %N", speaker, client);
-    }
 
-    for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client && !IsFakeClient(i))
-    {
-        // stoppable
-        if (g_bClientDisable[i])
+        for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client && !IsFakeClient(i))
         {
-            //PrintToChatAll("stop speaker %N -> %N", client, i);
-            continue;
-        }
-
-        if (g_pTransmit)
-        {
-            if (TransmitManager_GetEntityState(client, i))
+            // stoppable
+            if (g_bClientDisable[i])
             {
-                // don't transmit
-                TransmitManager_SetEntityState(speaker, i, true);
-            }
-            else
-            {
-                EmitSoundToClient(i, szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
-                //PrintToChatAll("emit self speaker %N -> %N", client, i);
+                //PrintToChatAll("stop speaker %N -> %N", client, i);
                 continue;
             }
-        }
 
-        //PrintToChatAll("emit global speaker %N -> %N", client, i);
-        EmitSoundToClient(i, szPath, speaker, SNDCHAN_VOICE, _, _, volume, _, speaker);
+            if (g_pTransmit)
+            {
+                if (TransmitManager_GetEntityState(client, i))
+                {
+                    // don't transmit
+                    TransmitManager_SetEntityState(speaker, i, true);
+                }
+                else
+                {
+                    EmitSoundToClient(i, szPath, client, SNDCHAN_VOICE, _, _, volume, _, client);
+                    //PrintToChatAll("emit self speaker %N -> %N", client, i);
+                    continue;
+                }
+            }
+
+            //PrintToChatAll("emit global speaker %N -> %N", client, i);
+            EmitSoundToClient(i, szPath, speaker, SNDCHAN_VOICE, _, _, volume, _, speaker);
+        }
+    }
+    else
+    {
+        for (int i=1; i <= MaxClients; i++) if (IsClientInGame(i) && i != client && !IsFakeClient(i))
+        {
+            // stoppable
+            if (g_bClientDisable[i])
+            {
+                //PrintToChatAll("stop speaker %N -> %N", client, i);
+                continue;
+            }
+
+            EmitSoundToClient(i, szPath, SOUND_FROM_WORLD, SNDCHAN_VOICE, _, _, volume);
+        }
     }
 #endif
 

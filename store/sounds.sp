@@ -183,8 +183,8 @@ public Action Command_Cheer(int client, int args)
 
     if(g_iSoundClient[client] < 0)
     {
-        tPrintToChat(client, "%T", "sound no equip", client);
-        StartNullSound(client);
+        if (!StartNullSound(client))
+            tPrintToChat(client, "%T", "sound no equip", client);
         return Plugin_Handled;
     }
 
@@ -193,7 +193,7 @@ public Action Command_Cheer(int client, int args)
     return Plugin_Handled;
 }
 
-void StartNullSound(int client)
+bool StartNullSound(int client)
 {
     bool res = false;
     int cooldown = 30;
@@ -207,6 +207,8 @@ void StartNullSound(int client)
     {
         g_iSoundSpam[client] = GetTime() + cooldown;
     }
+
+    return res;
 }
 
 void StartSoundToAll(int client)

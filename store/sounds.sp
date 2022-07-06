@@ -19,12 +19,14 @@ static Sound g_eSounds[STORE_MAX_ITEMS];
 
 static Handle g_hCookieSounds;
 static Handle g_hOnCheerSound;
+static Handle g_hOnCheerCommand;
 
 public void Sounds_OnPluginStart()
 {
     Store_RegisterHandler("sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
 
-    g_hOnCheerSound = CreateGlobalForward("Store_OnCheerSound", ET_Hook, Param_Cell, Param_String, Param_String, Param_FloatByRef);
+    g_hOnCheerSound   = CreateGlobalForward("Store_OnCheerSound",   ET_Hook, Param_Cell, Param_String, Param_String, Param_FloatByRef, Param_CellByRef);
+    g_hOnCheerCommand = CreateGlobalForward("Store_OnCheerCommand", ET_Hook, Param_Cell, Param_CellByRef);
 
     RegConsoleCmd("cheer", Command_Cheer);
     RegConsoleCmd("sm_cheer", Command_Cheer);
@@ -182,14 +184,29 @@ public Action Command_Cheer(int client, int args)
     if(g_iSoundClient[client] < 0)
     {
         tPrintToChat(client, "%T", "sound no equip", client);
+        StartNullSound(client);
         return Plugin_Handled;
     }
-
-    g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]].iCooldown;
 
     StartSoundToAll(client);
 
     return Plugin_Handled;
+}
+
+void StartNullSound(int client)
+{
+    bool res = false;
+    int cooldown = 30;
+
+    Call_StartForward(g_hOnCheerCommand);
+    Call_PushCell(client);
+    Call_PushCellRef(cooldown);
+    Call_Finish(res);
+
+    if (res)
+    {
+        g_iSoundSpam[client] = GetTime() + cooldown;
+    }
 }
 
 void StartSoundToAll(int client)
@@ -199,6 +216,7 @@ void StartSoundToAll(int client)
     strcopy(STRING(name),  g_eSounds[g_iSoundClient[client]].szName);
 
     float volume = g_eSounds[g_iSoundClient[client]].fVolume;
+    int cooldown = g_eSounds[g_iSoundClient[client]].iCooldown;
 
     Action res = Plugin_Continue;
     Call_StartForward(g_hOnCheerSound);
@@ -206,10 +224,14 @@ void StartSoundToAll(int client)
     Call_PushStringEx(STRING(sound), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushStringEx(STRING(name),  SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushFloatRef(volume);
+    Call_PushCellRef(cooldown);
     Call_Finish(res);
 
     if (res >= Plugin_Handled)
+    {
+        g_iSoundSpam[client] = GetTime() + cooldown;
         return;
+    }
 
     if (res == Plugin_Continue)
     {
@@ -218,6 +240,8 @@ void StartSoundToAll(int client)
         strcopy(STRING(name),  g_eSounds[g_iSoundClient[client]].szName);
         volume = g_eSounds[g_iSoundClient[client]].fVolume;
     }
+
+    g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]].iCooldown;
 
     char szPath[128];
     Format(STRING(szPath), ")%s", sound);

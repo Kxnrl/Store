@@ -142,7 +142,7 @@ public void OnLibraryRemoved(const char[] name)
     }
 }
 
-public void Event_RoundInit(Event e, const char[] n, bool b)
+static void Event_RoundInit(Event e, const char[] n, bool b)
 {
     for (int i = 0; i < MAXPLAYERS; i++)
         for (int j = 0; j < 5; j++)
@@ -157,9 +157,11 @@ public void Pupd_OnCheckAllPlugins()
 public void Store_OnStoreAvailable(ArrayList items)
 {
     Store_GetAllPlayerSkins(g_aSkins);
+    for (int i = 0; i < MAXPLAYERS; i++)
+        OnClientConnected(i);
 }
 
-public Action Command_RandomSkin(int client, int args)
+static Action Command_RandomSkin(int client, int args)
 {
     if (!client)
         return Plugin_Handled;
@@ -180,12 +182,13 @@ void DisplayMainMenu(int client)
         return;
     }
 
-    char options[MAX_OPTS_VAL_LENGTH], buffer[64], skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH];
-    GetPlayerEquips(client, options);
-    ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
     bool changed = false;
-    int nums = 0;
-    for (int i = 0; i < MAX_SKINS; i++)
+
+    char options[MAX_OPTS_VAL_LENGTH], skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH];
+    GetPlayerEquips(client, options);
+
+    int equipments = 0, count = ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
+    for (int i = 0; i < count; i++)
     {
         if (strlen(skin[i]) > 0)
         {
@@ -194,43 +197,58 @@ void DisplayMainMenu(int client)
             {
                 if (!Store_HasClientItem(client, itemid))
                 {
-                    Format(skin[i], sizeof(skin[]), "%s;", skin[i]);
-                    ReplaceString(STRING(options), skin[i], "");
+                    char item[MAX_OPTS_KEY_LENGTH];
+                    FormatEx(STRING(item), "%s;", skin[i]);
+                    ReplaceString(STRING(options), item, "");
                     changed = true;
+                    continue;
                 }
-                else
+
+                if (!global)
                 {
-                    if (!global && GetSkinTeamById(skin[i]) != g_iSelected[client])
+                    int skinTeam = GetSkinTeamById(skin[i]);
+                    if (skinTeam != g_iSelected[client])
                     {
+                        if (skinTeam == TEAM_GX)
+                            PrintToServer("[RS] <%s> mismatch team at %d", skin[i], skinTeam);
+
                         // skip if not match team
+                        char item[MAX_OPTS_KEY_LENGTH];
+                        FormatEx(STRING(item), "%s;", skin[i]);
+                        ReplaceString(STRING(options), item, "");
+                        changed = true;
                         continue;
                     }
-                    
-                    nums++;
                 }
+
+                equipments++;
             }
         }
     }
+
     if (changed)
     {
         SetPlayerEquips(client, options);
     }
 
+    char buffer[64]; char key[16];
+    IntToString(g_iSelected[client], STRING(key));
+
     Menu menu = new Menu(MenuHandler_Main);
 
-    menu.SetTitle("[Store]  %T\nE: %d ", "random skin", client, nums);
+    menu.SetTitle("[Store]  %T\nE: %d ", "random skin", client, equipments);
 
     FormatEx(STRING(buffer), "%T: %T", "feature status", client, GetPlayerStatus(client) ? "On" : "Off", client);
-    menu.AddItem("Lilia",  buffer);
+    menu.AddItem(key,  buffer);
 
     FormatEx(STRING(buffer), "%T: %T", "allow previous", client, GetPlayerPrevious(client) ? "On" : "Off", client);
-    menu.AddItem("Lilia",  buffer);
+    menu.AddItem(key,  buffer);
 
     FormatEx(STRING(buffer), "%T", "select skin", client);
-    menu.AddItem("Lilia",  buffer, !global && g_iSelected[client] <= TEAM_OB ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
+    menu.AddItem(key,  buffer, !global && g_iSelected[client] <= TEAM_OB ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
 
     FormatEx(STRING(buffer), "%T", "clear all", client);
-    menu.AddItem("Lilia",  buffer);
+    menu.AddItem(key,  buffer);
 
     menu.ExitBackButton = false;
     menu.Display(client, 15);
@@ -242,6 +260,20 @@ static int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
         delete menu;
     else if (action == MenuAction_Select)
     {
+        // check only not global team
+        if (!Store_IsGlobalTeam())
+        {
+            char key[16];
+            menu.GetItem(slot, STRING(key));
+
+            if (StringToInt(key) != GetClientTeam(client))
+            {
+                //PrintToServer("[RS] %N changed team since menu opened!", client);
+                DisplayMainMenu(client);
+                return 0;
+            }
+        }
+
         switch (slot)
         {
             case 0:
@@ -272,11 +304,12 @@ static int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
 void DisplaySkinMenu(int client, int position = -1)
 {
     g_iSelected[client] = GetClientTeam(client);
+    bool global = Store_IsGlobalTeam();
 
     ArrayList array = new ArrayList(sizeof(SkinData_t));
     Store_GetClientPlayerSkins(client, array);
 
-    if (!Store_IsGlobalTeam())
+    if (!global)
     {
         for (int i = 0; i < array.Length; i++)
         {
@@ -296,12 +329,13 @@ void DisplaySkinMenu(int client, int position = -1)
         return;
     }
 
-    char xkey[MAX_OPTS_KEY_LENGTH+1], buffer[64], options[MAX_OPTS_VAL_LENGTH];
+    // HACK xkey should include current team
+    char xkey[MAX_OPTS_KEY_LENGTH+1+16], options[MAX_OPTS_VAL_LENGTH];
     GetPlayerEquips(client, options);
 
     Menu menu = new Menu(MenuHandler_Skin);
 
-    if (!Store_IsGlobalTeam())
+    if (!global)
     {
         menu.SetTitle("[Store]  %T (%s)", "select skin", client, g_iSelected[client] == TEAM_CT ? "CT" : "TE");
     }
@@ -310,6 +344,7 @@ void DisplaySkinMenu(int client, int position = -1)
         menu.SetTitle("[Store]  %T", "select skin", client);
     }
 
+    char buffer[64];
     for (int i = array.Length - 1; i >= 0; i--)
     {
         SkinData_t skin;
@@ -317,6 +352,7 @@ void DisplaySkinMenu(int client, int position = -1)
 
         FormatEx(STRING(xkey), "%s;", skin.m_UId);
         FormatEx(STRING(buffer), "[%s] %s", StrContains(options, xkey) > -1 ? "*" : "x", skin.m_Name);
+        FormatEx(STRING(xkey), "%d^%s;", g_iSelected[client], skin.m_UId);
         menu.AddItem(xkey, buffer);
     }
 
@@ -337,27 +373,41 @@ static int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
         delete menu;
     else if (action == MenuAction_Select)
     {
-        if (!Store_IsGlobalTeam() && GetClientTeam(client) != g_iSelected[client])
+        char data[64];
+        menu.GetItem(slot, data, 64);
+        char explode[2][MAX_OPTS_KEY_LENGTH];
+        if (FindCharInString(data, '^', false) != 1)
         {
-            DisplaySkinMenu(client, slot);
+            //PrintToServer("[RS] invalid key from MenuHandler_Skin -> [%s]", data);
+            DisplayMainMenu(client);
+            return 0;
+        }
+        ExplodeString(data, "^", explode, 2, sizeof(explode[]), false);
+
+        if (!Store_IsGlobalTeam() && StringToInt(explode[0]) != GetClientTeam(client))
+        {
+            //PrintToServer("[RS] %N changed team since menu opened!", client);
+            DisplayMainMenu(client);
             return 0;
         }
 
         char xkey[MAX_OPTS_KEY_LENGTH], options[MAX_OPTS_VAL_LENGTH];
-        menu.GetItem(slot, STRING(xkey));
+        strcopy(STRING(xkey), explode[1]);
         GetPlayerEquips(client, options);
 
         if (StrContains(options, xkey) > -1)
         {
             ReplaceString(STRING(options), xkey, "");
+            PrintToChat(client, "REPLACE %s", xkey);
         }
         else
         {
             StrCat(STRING(options), xkey);
+            PrintToChat(client, "Cat %s", xkey);
         }
 
         SetPlayerEquips(client, options);
-
+        PrintToChat(client, "options -=> [%s]", options);
         DisplaySkinMenu(client, slot);
     }
     else if (action == MenuAction_Cancel && slot == MenuCancel_ExitBack)
@@ -369,7 +419,10 @@ static int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
 public void OnClientConnected(int client)
 {
     for (int i = TEAM_OB; i <= TEAM_GX; i++)
-        g_sPrevious[client][i][0] = '\0';
+    {
+        g_nRoundAck[client][i]    = -1;
+        g_sPrevious[client][i][0] = 0;
+    }
 }
 
 public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128], int &_body)
@@ -378,10 +431,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         return Plugin_Continue;
 
     bool global = Store_IsGlobalTeam();
-
-    int origin = g_iSelected[client];
-    int teamEx = GetClientTeam(client);
-    g_iSelected[client] = teamEx;
+    int  teamEx = GetClientTeam(client);
 
     if (store_randomskin_same_model_in_round.BoolValue)
     {
@@ -398,21 +448,26 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
                 strcopy(STRING(_arms), s.m_Arms);
                 _body = s.m_Body;
 
-                tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s", "rs override skin", client, s.m_Name);
+                // NOTE * meaning fix on same round
+                tPrintToChat(client, "\x0A[\x0CR\x04S\x0A] \x05%T\x0A : \x07 %s*", "rs override skin", client, s.m_Name);
                 return Plugin_Changed;
             }
         }
     }
 
-    char options[MAX_OPTS_VAL_LENGTH], skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH], item[MAX_OPTS_KEY_LENGTH];
+    int origin = g_iSelected[client];
+    g_iSelected[client] = teamEx;
+
+    char options[MAX_OPTS_VAL_LENGTH], skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH];
     GetPlayerEquips(client, options);
-    int skip = ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
+
+    int  skip = ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
     bool prev = GetPlayerPrevious(client), changed;
 
     ArrayList list = new ArrayList(ByteCountToCells(MAX_OPTS_KEY_LENGTH));
     for(int i = 0; i < skip; i++)
     {
-        if (strlen(skin[i]) > 0) 
+        if (strlen(skin[i]) > 0)
         {
             int itemid = Store_GetItemId(skin[i]);
             if (itemid > -1)
@@ -423,8 +478,8 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
                 }
                 else
                 {
-                    Format(skin[i], sizeof(skin[]), "%s;", skin[i]);
                     ReplaceString(STRING(options), skin[i], "");
+                    ReplaceString(STRING(options), ";;", ";");
                     changed = true;
                 }
             }
@@ -435,7 +490,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         SetPlayerEquips(client, options);
     }
 
-    if (!prev && list.Length >= 2)
+    if (!prev && list.Length >= 2 && g_sPrevious[client][teamEx][0])
     {
         int find = list.FindString(g_sPrevious[client][teamEx]);
         if (find > -1)
@@ -447,14 +502,18 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     // restore
     g_iSelected[client] = origin;
 
-    if (list.Length == 0)
+    int skins = list.Length;
+
+    if (skins == 0)
     {
         delete list;
-        g_sPrevious[client][teamEx][0] = '\0';
+        g_sPrevious[client][teamEx][0] = 0;
+        //PrintToServer("[RS] %N has not found any usable skin.", client);
         return Plugin_Continue;
     }
 
-    list.GetString(UTIL_GetRandomInt(0, list.Length - 1), STRING(item));
+    char item[MAX_OPTS_KEY_LENGTH];
+    list.GetString(UTIL_GetRandomInt(0, skins - 1), STRING(item));
     delete list;
 
     for (int i = 0; i < g_aSkins.Length; i++)
@@ -463,7 +522,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         g_aSkins.GetArray(i, s, sizeof(SkinData_t));
         if (strcmp(item, s.m_UId) != 0)
             continue;
-        
+
         if (!global && s.m_Team != teamEx)
             continue;
 
@@ -479,7 +538,8 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         return Plugin_Changed;
     }
 
-    g_sPrevious[client][teamEx][0] = '\0';
+    g_sPrevious[client][teamEx][0] = 0;
+    //PrintToServer("[RS] %N has not found any usable skin in %d skins", client, skins);
     return Plugin_Continue;
 }
 

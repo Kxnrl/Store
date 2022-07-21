@@ -398,16 +398,16 @@ static int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
         if (StrContains(options, xkey) > -1)
         {
             ReplaceString(STRING(options), xkey, "");
-            PrintToChat(client, "REPLACE %s", xkey);
+            //PrintToChat(client, "REPLACE %s", xkey);
         }
         else
         {
             StrCat(STRING(options), xkey);
-            PrintToChat(client, "Cat %s", xkey);
+            //PrintToChat(client, "Cat %s", xkey);
         }
 
         SetPlayerEquips(client, options);
-        PrintToChat(client, "options -=> [%s]", options);
+        //PrintToChat(client, "options -=> [%s]", options);
         DisplaySkinMenu(client, slot);
     }
     else if (action == MenuAction_Cancel && slot == MenuCancel_ExitBack)

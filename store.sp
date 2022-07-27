@@ -442,6 +442,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_GetSkinLevel",          Native_GetSkinLevel);
     CreateNative("Store_GetItemList",           Native_GetItemList);
     CreateNative("Store_IsPlayerTP",            Native_IsPlayerTP);
+    CreateNative("Store_SetPlayerTP",           Native_SetPlayerTP);
     CreateNative("Store_IsPlayerHide",          Native_IsPlayerHide);
     CreateNative("Store_IsStoreSpray",          Native_IsStoreSpray);
     CreateNative("Store_ApplyPlayerSkin",       Native_ApplyPlayerSkin);
@@ -1194,6 +1195,11 @@ static any Native_GetEquippedSkin(Handle myself, int numParams)
 static any Native_IsPlayerTP(Handle plugin, int numParams)
 {
     return IsPlayerTP(GetNativeCell(1));
+}
+
+static any Native_SetPlayerTP(Handle plugin, int numParams)
+{
+    return SetPlayerTP(GetNativeCell(1), !!GetNativeCell(2));
 }
 
 static any Native_IsPlayerHide(Handle plugin, int numParams)
@@ -4393,6 +4399,12 @@ stock bool IsPlayerTP(int client)
         return true;
 
     return false;
+}
+
+stock bool SetPlayerTP(int client, bool state)
+{
+    CheckMirror(client);
+    return ToggleTp(client, state);
 }
 
 static void OnGameOver(Event e, const char[] name, bool dB)

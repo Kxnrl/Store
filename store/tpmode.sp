@@ -6,28 +6,37 @@ bool g_bMirror[MAXPLAYERS+1];
 bool g_bThirdperson[MAXPLAYERS+1];
 
 static ConVar store_thirdperson_enabled = null;
+static ConVar store_thirdperson_enforce = null;
 static ConVar mp_forcecamera = null;
 
 void TPMode_OnPluginStart()
 {
+    store_thirdperson_enabled = CreateConVar("store_thirdperson_enabled", "1", "Enabled or not third person.", _, true, 0.0, true, 1.0);
+    store_thirdperson_enforce = CreateConVar("store_thirdperson_enforce", "1", "Enforce player third person.", _, true, 0.0, true, 1.0);
+    
+
 #if !defined GM_IS
-    store_thirdperson_enabled = CreateConVar("store_thirdperson_enabled", "1", "Enable or not third person.", _, true, 0.0, true, 1.0);
-    store_thirdperson_enabled.AddChangeHook(ConVar_store_thirdperson_enabled);
-
-    mp_forcecamera = FindConVar("mp_forcecamera");
-
     ConVar sv_allow_thirdperson = FindConVar("sv_allow_thirdperson");
     sv_allow_thirdperson.IntValue = 1;
     sv_allow_thirdperson.AddChangeHook(ConVar_sv_allow_thirdperson);
+
+    mp_forcecamera = FindConVar("mp_forcecamera");
+#else
+    store_thirdperson_enabled.BoolValue = false;
+    store_thirdperson_enforce.BoolValue = false;
+#endif
+
+    store_thirdperson_enabled.AddChangeHook(ConVar_store_thirdperson_enabled);
 
     RegConsoleCmd("sm_tp", Command_TP, "Toggle TP Mode");
     RegConsoleCmd("sm_seeme", Command_Mirror, "Toggle Mirror Mode");
 
     HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
-#endif
+
+    CreateTimer(0.5, EnforceCamera, _, TIMER_REPEAT);
 }
 
-public void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValue, const char[] newValue)
+static void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValue, const char[] newValue)
 {
     if (!convar.BoolValue || StringToInt(newValue) == 0)
     {
@@ -40,10 +49,12 @@ public void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValu
     }
 }
 
-public void ConVar_sv_allow_thirdperson(ConVar convar, const char[] oldValue, const char[] newValue)
+#if !defined GM_IS
+static void ConVar_sv_allow_thirdperson(ConVar convar, const char[] oldValue, const char[] newValue)
 {
     convar.IntValue = 1;
 }
+#endif
 
 void TPMode_OnClientConnected(int client)
 {
@@ -51,7 +62,7 @@ void TPMode_OnClientConnected(int client)
     g_bMirror[client] = false;
 }
 
-public Action Command_TP(int client, int args)
+static Action Command_TP(int client, int args)
 {
     if(!client || !IsClientInGame(client))
         return Plugin_Handled;
@@ -93,7 +104,7 @@ public Action Command_TP(int client, int args)
     return Plugin_Handled;
 }
 
-public Action Command_Mirror(int client, int args)
+static Action Command_Mirror(int client, int args)
 {
     if(!client || !IsClientInGame(client))
         return Plugin_Handled;
@@ -141,12 +152,12 @@ public Action Command_Mirror(int client, int args)
     return Plugin_Handled;
 }
 
-public void Event_PlayerSpawn(Event e, const char[] name, bool dontBroadcast)
+static void Event_PlayerSpawn(Event e, const char[] name, bool dontBroadcast)
 {
     CreateTimer(0.3, Timer_TPSpawnPost, e.GetInt("userid"));
 }
 
-public Action Timer_TPSpawnPost(Handle timer, int userid)
+static Action Timer_TPSpawnPost(Handle timer, int userid)
 {
     int client = GetClientOfUserId(userid);
     if (!client || !IsClientInGame(client) || !IsPlayerAlive(client) || IsFakeClient(client))
@@ -158,13 +169,14 @@ public Action Timer_TPSpawnPost(Handle timer, int userid)
     return Plugin_Stop;
 }
 
-void ToggleTp(int client, bool state)
+bool ToggleTp(int client, bool state)
 {
-    ClientCommand(client, state ? "thirdperson" : "firstperson");
+    ClientCommand(client, state ? "cam_collision 0; cam_idealpitch 0; cam_idealdist 150; cam_idealdistright 0; cam_idealdistup 0; thirdperson;" : "firstperson");
     g_bThirdperson[client] = state;
+    return g_bThirdperson[client];
 }
 
-void ToggleMirror(int client, bool state)
+static void ToggleMirror(int client, bool state)
 {
     if(state)
     {
@@ -192,11 +204,11 @@ void CheckMirror(int client)
 {
     if (IsFakeClient(client) || !g_bMirror[client])
         return;
-    
+
     ToggleMirror(client, false);
 }
 
-bool IsImmunityClient(int client)
+static bool IsImmunityClient(int client)
 {
     AdminId admin = GetUserAdmin(client);
     if (admin == INVALID_ADMIN_ID || admin.ImmunityLevel <= 80)
@@ -205,10 +217,31 @@ bool IsImmunityClient(int client)
     return true;
 }
 
-bool AllowTP()
+static bool AllowTP()
 {
     if (store_thirdperson_enabled == null)
         return false;
 
     return store_thirdperson_enabled.BoolValue;
+}
+
+static Action EnforceCamera(Handle timer)
+{
+    if (!store_thirdperson_enforce.BoolValue)
+        return Plugin_Continue;
+
+    for(int i = 1; i <= MaxClients; i++)
+    {
+        if (!IsClientInGame(i) || IsFakeClient(i))
+            continue;
+        
+        // in state -> skipped
+        if (g_bThirdperson[i] || g_bMirror[i])
+            continue;
+
+        // every think we enforce to firstperson
+        ToggleTp(i, false);
+    }
+
+    return Plugin_Continue;
 }

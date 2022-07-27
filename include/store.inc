@@ -103,6 +103,7 @@ native bool Store_HasPlayerSkin(int client);
 native bool Store_GetPlayerSkin(int client, char[] skin, int maxLen);
 native void Store_SaveClientAll(int client);
 native bool Store_IsPlayerTP(int client);
+native bool Store_SetPlayerTP(int client, bool state);
 native bool Store_IsPlayerHide(int client);
 native bool Store_IsStoreSpray(int client);
 native bool Store_GetClientPlayerSkins(int client, ArrayList array);

@@ -410,7 +410,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_hOnClientComposing = CreateGlobalForward("Store_OnClientComposing", ET_Hook,   Param_Cell, Param_CellByRef, Param_Cell,   Param_String, Param_String, Param_String);
     g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,      Param_Cell,   Param_String, Param_String);
     g_hOnGiveClientItem  = CreateGlobalForward("Store_OnGiveClientItem",  ET_Hook,   Param_Cell, Param_String,    Param_Cell,   Param_Cell,   Param_Cell);
-    g_hShouldDrawItem    = CreateGlobalForward("Store_ShouldDisplayItem", ET_Hook,   Param_Cell, Param_String,    Param_String, Param_Cell,   Param_CellByRef);
+    g_hShouldDrawItem    = CreateGlobalForward("Store_ShouldDisplayItem", ET_Hook,   Param_Cell, Param_Cell,      Param_String, Param_String, Param_Cell,   Param_CellByRef);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -1515,6 +1515,7 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                     {
                         bool changed = false;
                         Call_StartForward(g_hShouldDrawItem);
+                        Call_PushCell(client);
                         Call_PushCell(i);
                         Call_PushString(g_Items[i].szUniqueId);
                         Call_PushString(g_TypeHandlers[g_Items[i].iHandler].szType);

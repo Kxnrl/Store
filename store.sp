@@ -88,14 +88,15 @@ public Plugin myinfo =
 //     GLOBAL VARIABLES     //
 //////////////////////////////
 Database g_hDatabase = null;
-Handle g_hOnStoreAvailable = null;
-Handle g_hOnStoreInit = null;
-Handle g_hOnClientLoaded = null;
-Handle g_hOnClientBuyItem = null;
-Handle g_hOnClientPurchased = null;
-Handle g_hOnClientComposed = null;
-Handle g_hOnClientComposing = null;
-Handle g_hOnGiveClientItem = null;
+GlobalForward g_hOnStoreAvailable = null;
+GlobalForward g_hOnStoreInit = null;
+GlobalForward g_hOnClientLoaded = null;
+GlobalForward g_hOnClientBuyItem = null;
+GlobalForward g_hOnClientPurchased = null;
+GlobalForward g_hOnClientComposed = null;
+GlobalForward g_hOnClientComposing = null;
+GlobalForward g_hOnGiveClientItem = null;
+GlobalForward g_hShouldDrawItem = null;
 
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
@@ -404,11 +405,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_hOnStoreAvailable  = CreateGlobalForward("Store_OnStoreAvailable",  ET_Ignore, Param_Cell);
     g_hOnStoreInit       = CreateGlobalForward("Store_OnStoreInit",       ET_Ignore, Param_Cell);
     g_hOnClientLoaded    = CreateGlobalForward("Store_OnClientLoaded",    ET_Ignore, Param_Cell);
-    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String,    Param_Cell, Param_Cell);
-    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String,    Param_Cell, Param_Cell);
-    g_hOnClientComposing = CreateGlobalForward("Store_OnClientComposing", ET_Hook,   Param_Cell, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String);
-    g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,      Param_Cell, Param_String, Param_String);
-    g_hOnGiveClientItem  = CreateGlobalForward("Store_OnGiveClientItem",  ET_Hook,   Param_Cell, Param_String,    Param_Cell, Param_Cell,   Param_Cell);
+    g_hOnClientBuyItem   = CreateGlobalForward("Store_OnClientBuyItem",   ET_Event,  Param_Cell, Param_String,    Param_Cell,   Param_Cell);
+    g_hOnClientPurchased = CreateGlobalForward("Store_OnClientPurchased", ET_Ignore, Param_Cell, Param_String,    Param_Cell,   Param_Cell);
+    g_hOnClientComposing = CreateGlobalForward("Store_OnClientComposing", ET_Hook,   Param_Cell, Param_CellByRef, Param_Cell,   Param_String, Param_String, Param_String);
+    g_hOnClientComposed  = CreateGlobalForward("Store_OnClientComposed",  ET_Ignore, Param_Cell, Param_Cell,      Param_Cell,   Param_String, Param_String);
+    g_hOnGiveClientItem  = CreateGlobalForward("Store_OnGiveClientItem",  ET_Hook,   Param_Cell, Param_String,    Param_Cell,   Param_Cell,   Param_Cell);
+    g_hShouldDrawItem    = CreateGlobalForward("Store_ShouldDisplayItem", ET_Hook,   Param_Cell, Param_String,    Param_String, Param_Cell,   Param_CellByRef);
 
     CreateNative("Store_RegisterHandler",       Native_RegisterHandler);
     CreateNative("Store_RegisterMenuHandler",   Native_RegisterMenuHandler);
@@ -1508,8 +1510,20 @@ void DisplayStoreMenu(int client, int parent = -1, int last = -1)
                 else if(!g_bInvMode[client])
                 {
                     // use display setting instead
-                    if (!g_Items[i].bDisplay)
-                        continue;
+                    bool display = g_Items[i].bDisplay;
+                    if (!display)
+                    {
+                        bool changed = false;
+                        Call_StartForward(g_hShouldDrawItem);
+                        Call_PushCell(i);
+                        Call_PushString(g_Items[i].szUniqueId);
+                        Call_PushString(g_TypeHandlers[g_Items[i].iHandler].szType);
+                        Call_PushCell(g_Items[i].iLevels);
+                        Call_PushCellRef(display);
+                        Call_Finish(changed);
+                        if (!changed || !display)
+                            continue;
+                    }
 
                     if(strcmp(g_TypeHandlers[g_Items[i].iHandler].szType, "playerskin") == 0)
                     {

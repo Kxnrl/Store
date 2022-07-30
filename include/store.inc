@@ -138,6 +138,7 @@ forward Action Store_OnCheerSound(int client, char sound[256], char name[64], fl
 forward Action Store_OnGiveClientItem(int client, const char uid[32], int purchase, int expiration, int price);
 forward void   Store_OnClientSpray(int client);
 forward bool   Store_OnCheerCommand(int client, int &cooldown);
+forward bool   Store_ShouldDisplayItem(int itemId, const char[] uid, const char[] type, int level, bool &display);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

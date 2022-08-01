@@ -414,6 +414,11 @@ void DeathPet(int client, int slot)
     AcceptEntityInput(entity, "SetAnimation");
     g_sPetRef[client][slot].m_iLastAnimation = 3;
     HookSingleEntityOutput(entity, "OnAnimationDone", Hook_OnAnimationDone, true);
+
+    // Fix some pets deadlock
+    SetVariantString("OnUser4 !self:Kill::3.0:1");
+    if (!AcceptEntityInput(entity, "AddOutput") || !AcceptEntityInput(entity, "FireUser4"))
+        ResetPet(client, slot);
 }
 
 public void Hook_OnAnimationDone(const char[] output, int caller, int activator, float delay)

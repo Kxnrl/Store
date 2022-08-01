@@ -622,7 +622,7 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
 
     FadeScreenBlack(client);
 
-    CreateTimer(7.0, Timer_ClearCamera, client);
+    CreateTimer(6.0, Timer_ClearCamera, client);
 
     return true;
 }
@@ -659,7 +659,7 @@ public Action Timer_ClearCamera(Handle timer, int client)
 static void FadeScreenBlack(int client)
 {
     Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
-    pb.SetInt("duration", 3072);
+    pb.SetInt("duration", 2560); //3072
     pb.SetInt("hold_time", 0);
     pb.SetInt("flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
     pb.SetColor("clr", {0, 0, 0, 255});

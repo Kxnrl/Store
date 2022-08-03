@@ -47,11 +47,6 @@ void Skin_OnPluginStart()
 
     RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
 
-    //DEATH CAMERA CCVAR
-    store_firstperson_death_camera = CreateConVar("store_firstperson_death_camera", "1", "Camera for firstperson death view.", _, true, 0.0, true, 1.0);
-    store_firstperson_death_camera.AddChangeHook(FPD_OnConVarChanged);
-    store_firstperson_death_camera.SetBool(true, true, true);
-
     spec_freeze_time = FindConVar("spec_freeze_time");
     sv_disablefreezecam = FindConVar("sv_disablefreezecam");
     mp_round_restart_delay = FindConVar("mp_round_restart_delay");
@@ -66,6 +61,11 @@ void Skin_OnPluginStart()
     sv_disablefreezecam.SetBool(true, true, true);
     mp_round_restart_delay.SetFloat(8.0, true, true);
     spec_replay_enable.SetBool(false, true, true);
+
+    //DEATH CAMERA CCVAR
+    store_firstperson_death_camera = CreateConVar("store_firstperson_death_camera", "1", "Camera for firstperson death view.", _, true, 0.0, true, 1.0);
+    store_firstperson_death_camera.SetBool(true, true, true);
+    store_firstperson_death_camera.AddChangeHook(FPD_OnConVarChanged);
 }
 
 public void FPD_OnConVarChanged(ConVar convar, const char[] oldValue, const char[] newValue)

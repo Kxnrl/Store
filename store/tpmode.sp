@@ -9,12 +9,14 @@ static ConVar store_thirdperson_enabled = null;
 static ConVar store_thirdperson_enforce = null;
 static ConVar mp_forcecamera = null;
 
-void TPMode_OnPluginStart()
+void TPMode_InitConVar()
 {
     store_thirdperson_enabled = CreateConVar("store_thirdperson_enabled", "1", "Enabled or not third person.", _, true, 0.0, true, 1.0);
     store_thirdperson_enforce = CreateConVar("store_thirdperson_enforce", "1", "Enforce player third person.", _, true, 0.0, true, 1.0);
-    
+}
 
+void TPMode_OnPluginStart()
+{
 #if !defined GM_IS
     ConVar sv_allow_thirdperson = FindConVar("sv_allow_thirdperson");
     sv_allow_thirdperson.IntValue = 1;

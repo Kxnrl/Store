@@ -35,6 +35,11 @@ Handle g_hOnPlayerSetModelPost = null;
 Handle g_hOnFPDeathCamera = null;
 Handle g_hOnPlayerDeathVoice = null;
 
+void Skin_InitConVar()
+{
+    store_firstperson_death_camera = CreateConVar("store_firstperson_death_camera", "1", "Camera for firstperson death view.", _, true, 0.0, true, 1.0);
+}
+
 void Skin_OnPluginStart()
 {
     g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
@@ -63,7 +68,6 @@ void Skin_OnPluginStart()
     spec_replay_enable.SetBool(false, true, true);
 
     //DEATH CAMERA CCVAR
-    store_firstperson_death_camera = CreateConVar("store_firstperson_death_camera", "1", "Camera for firstperson death view.", _, true, 0.0, true, 1.0);
     store_firstperson_death_camera.SetBool(true, true, true);
     store_firstperson_death_camera.AddChangeHook(FPD_OnConVarChanged);
 }

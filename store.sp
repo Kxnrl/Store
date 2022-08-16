@@ -311,6 +311,12 @@ public void OnPluginStart()
         mp_match_restart_delay.SetFloat(20.0, true, true);
         mp_match_restart_delay.AddChangeHook(InterMissionLock);
     }
+
+#if defined Module_Skin
+    Skin_InitConVar();
+#endif
+
+    TPMode_InitConVar();
 }
 
 public void OnAllPluginsLoaded()

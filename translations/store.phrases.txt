@@ -275,9 +275,9 @@
     "Compose successfully"
     {
         "#format" "{1:s}"
-        "en" "{green}Compose success! You get new skin {orange}{1}"
-        "chi" "{green}合成成功! 你获得了新皮肤{orange}{1}"
-        "da" "{green}Komponering vellykket! Du fik et nyt skin {orange}{1}"
+        "en" "{green}Compose success! You get new skin {gold}{1}"
+        "chi" "{green}合成成功! 你获得了新皮肤{gold}{1}"
+        "da" "{green}Komponering vellykket! Du fik et nyt skin {gold}{1}"
     }
 
     "Gift Player Left"
@@ -789,9 +789,9 @@
     "Compose successfully broadcast"
     {
         "#format" "{1:N},{2:s}"
-        "en" "{blue}{1}{green} composed a skin {normal}[{orange}{2}{normal}]"
-        "chi" "{blue}{1}{green}成功合成了皮肤{orange}{2}"
-        "da" "{blue}{1}{green} komponerede et skin {normal}[{orange}{2}{normal}]"
+        "en" "{blue}{1}{green} composed a skin {normal}[{gold}{2}{normal}]"
+        "chi" "{blue}{1}{green}成功合成了皮肤{gold}{2}"
+        "da" "{blue}{1}{green} komponerede et skin {normal}[{gold}{2}{normal}]"
     }
     
     "select case"

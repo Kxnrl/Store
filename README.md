@@ -5,9 +5,9 @@
 |[![Build Status](https://travis-ci.com/Kxnrl/Store.svg?branch=master)](https://travis-ci.com/Kxnrl/Store) |[![Download](https://static.kxnrl.com/images/web/buttons/download.png)](https://build.kxnrl.com/Store/)  
   
   
-Store system for CS:GO.  
-Current status: inactive, bug fix only  
-If you want to maintain this project, contact me.  
+Store system for CS:GO, L4D2, Insurgency.  
+Current status: inactive, bug fix only.  
+**NOTE:** This plugin made for **BIG** community and **SENIOR** developer, if you are a junior developer or small community, try [this version](https://github.com/nuclearsilo583/zephyrus-store-preview-new-syntax) .
   
   
   

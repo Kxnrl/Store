@@ -197,7 +197,7 @@ public void PlayerSkins_OnMapStart()
     char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
     for(int i = 0; i < g_iPlayerSkins; ++i)
     {
-        PrecacheModel(g_ePlayerSkins[i].szModel, true);
+        PrecacheModel(g_ePlayerSkins[i].szModel, false);
         AddFileToDownloadsTable(g_ePlayerSkins[i].szModel);
 
         // prevent double call

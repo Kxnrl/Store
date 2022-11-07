@@ -135,9 +135,11 @@ forward Action Store_OnSetPlayerSkinArms(int client, char[] arms, int len);
 forward Action Store_OnClientComposing(int client, int &probability, int itemid, const char uid[32], const char itemName[ITEM_NAME_LENGTH], const char itemParentName[ITEM_NAME_LENGTH]);
 forward void   Store_OnClientComposed(int client, bool success, int itemid, const char itemName[ITEM_NAME_LENGTH], const char itemParentName[ITEM_NAME_LENGTH]);
 forward Action Store_OnCheerSound(int client, char sound[256], char name[64], float &volume, int &cooldown);
+forward Action Store_OnSprayModel(int client, char model[256], char name[64], int &precache, int &cooldown);
 forward Action Store_OnGiveClientItem(int client, const char uid[32], int purchase, int expiration, int price);
 forward void   Store_OnClientSpray(int client);
 forward bool   Store_OnCheerCommand(int client, int &cooldown);
+forward bool   Store_OnSprayCommand(int client, int &cooldown);
 forward bool   Store_ShouldDisplayItem(int client, int itemId, const char[] uid, const char[] type, int level, bool &display);
 
 // CP Support

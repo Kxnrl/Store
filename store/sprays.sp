@@ -2,18 +2,23 @@
 
 // options
 static char g_szSprays[STORE_MAX_ITEMS][256];
+static char g_szSprayName[STORE_MAX_ITEMS][256];
 static int g_iSprayCooldown[STORE_MAX_ITEMS] = {30,...};
 static int g_iSprayPrecache[STORE_MAX_ITEMS] = {-1,...};
 static int g_iSprayCache[MAXPLAYERS+1] = {-1,...};
 static int g_iSprayLimit[MAXPLAYERS+1] = {0,...};
 static int g_iSprays = 0;
 static Handle g_fwdOnClientSpray;
+static Handle g_hOnSprayCommand;
+static Handle g_hOnSprayModel;
 
 public void Sprays_OnPluginStart()
 {
     Store_RegisterHandler("spray", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
 
     g_fwdOnClientSpray = CreateGlobalForward("Store_OnClientSpray", ET_Ignore, Param_Cell);
+    g_hOnSprayCommand = CreateGlobalForward("Store_OnSprayCommand", ET_Hook, Param_Cell, Param_CellByRef);
+    g_hOnSprayModel = CreateGlobalForward("Store_OnSprayModel",     ET_Hook, Param_Cell, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
 
     RegConsoleCmd("spray", Command_Spray);
     RegConsoleCmd("sprays", Command_Spray);
@@ -32,6 +37,8 @@ static void Sprays_OnMapStart()
         g_iSprayPrecache[i] = PrecacheDecal(m_szDecal, true);
         AddFileToDownloadsTable(g_szSprays[i]);
     }
+
+    PrecacheSound("items/spraycan_spray.wav", false);
 }
 
 public void Sprays_OnClientConnected(int client)
@@ -46,21 +53,40 @@ public void Spray_OnClientDeath(int client)
 
 static Action Command_Spray(int client, int args)
 {
-    if(g_iSprayCache[client] == -1)
-    {
-        tPrintToChat(client, "%T", "spray no equip", client);
-        return Plugin_Handled;
-    }
-
     if(g_iSprayLimit[client] > GetTime())
     {
         tPrintToChat(client, "%T", "spray cooldown", client);
         return Plugin_Handled;
     }
 
+    if(g_iSprayCache[client] < 0)
+    {
+        if (!StartNullSpray(client))
+            tPrintToChat(client, "%T", "spray no equip", client);
+        return Plugin_Handled;
+    }
+
     Sprays_Create(client);
     
     return Plugin_Handled;
+}
+
+bool StartNullSpray(int client)
+{
+    bool res = false;
+    int cooldown = 60;
+
+    Call_StartForward(g_hOnSprayCommand);
+    Call_PushCell(client);
+    Call_PushCellRef(cooldown);
+    Call_Finish(res);
+
+    if (res)
+    {
+        g_iSprayLimit[client] = GetTime() + cooldown;
+    }
+
+    return res;
 }
 
 static void Sprays_Reset()
@@ -72,6 +98,7 @@ static bool Sprays_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iSprays);
     kv.GetString("material", g_szSprays[g_iSprays], sizeof(g_szSprays[]));
+    kv.GetString("name", g_szSprayName[g_iSprays], sizeof(g_szSprayName[]));
     g_iSprayCooldown[g_iSprays] = kv.GetNum("cooldown", 30);
 
     if(FileExists(g_szSprays[g_iSprays], true))
@@ -130,16 +157,54 @@ void Sprays_Create(int client)
         return;    
     }
 
-    g_iSprayLimit[client] = GetTime() + g_iSprayCooldown[g_iSprayCache[client]];
-
-    TE_Start("World Decal");
-    TE_WriteVector("m_vecOrigin",m_flView);
-    TE_WriteNum("m_nIndex", g_iSprayPrecache[g_iSprayCache[client]]);
-    TE_SendToAll();
+    StartSprayToAll(client, m_flView);
 
     Call_StartForward(g_fwdOnClientSpray);
     Call_PushCell(client);
     Call_Finish();
+}
+
+void StartSprayToAll(int client, const float vPos[3])
+{
+    char model[256], name[64];
+    strcopy(STRING(model), g_szSprays[g_iSprayCache[client]]);
+    strcopy(STRING(name),  g_szSprayName[g_iSprayCache[client]]);
+
+    int precache = g_iSprayPrecache[g_iSprayCache[client]];
+    int cooldown = g_iSprayCooldown[g_iSprayCache[client]];
+
+    Action res = Plugin_Continue;
+    Call_StartForward(g_hOnSprayModel);
+    Call_PushCell(client);
+    Call_PushStringEx(STRING(model), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(name),  SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCellRef(precache);
+    Call_PushCellRef(cooldown);
+    Call_Finish(res);
+
+    if (res >= Plugin_Handled)
+    {
+        g_iSprayLimit[client] = GetTime() + cooldown;
+        return;
+    }
+
+    if (res == Plugin_Continue)
+    {
+        // copy again
+        precache = g_iSprayPrecache[g_iSprayCache[client]];
+        cooldown = g_iSprayCooldown[g_iSprayCache[client]];
+    }
+
+    TE_Start("World Decal");
+    TE_WriteVector("m_vecOrigin", vPos);
+    TE_WriteNum("m_nIndex", precache);
+    TE_SendToAll();
+
+    EmitSoundToAll("items/spraycan_spray.wav", client);
+
+    g_iSprayLimit[client] = GetTime() + cooldown;
+
+    tPrintToChatAll("%t", "spray to all", client, name);
 }
 
 void GetPlayerEyeViewPoint(int client, float m_fPosition[3])

@@ -961,4 +961,11 @@
         "en" "Spec is not allow"
         "chi" "观察者无法使用随机皮肤功能, 请先选择队伍"
     }
+
+    "spray to all"
+    {
+        "#format" "{1:N},{2:s}"
+        "en" "{green}{1}{normal} used [{blue}{2}{normal}]"
+        "chi" "{green}{1}{normal} 使用喷漆 [{blue}{2}{normal}]"
+    }
 }

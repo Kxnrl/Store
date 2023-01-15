@@ -238,19 +238,17 @@ public void Pets_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
     }
 }
 
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
 {
-    if(!IsClientInGame(client) || !IsPlayerAlive(client) || tickcount % 5 != 0)
-        return Plugin_Continue;
-    
+    if(tickcount % 6 != 0 || !IsClientInGame(client) || !IsPlayerAlive(client))
+        return;
+
     float CurVec[3];
     GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", CurVec);
     float CurDist = GetVectorLength(CurVec);
-    
+
     for(int i = 0; i < STORE_MAX_SLOTS; ++i)
         AdjustPet(client, i, CurDist);
-
-    return Plugin_Continue;
 }
 
 void AdjustPet(int client, int slot, const float fDist)

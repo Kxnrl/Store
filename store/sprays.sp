@@ -12,6 +12,10 @@ static Handle g_fwdOnClientSpray;
 static Handle g_hOnSprayCommand;
 static Handle g_hOnSprayModel;
 
+static bool g_bFallbackSprayerSound;
+
+#define FALLBACK_SPARYER_SOUND "maoling/sprayer.mp3"
+
 public void Sprays_OnPluginStart()
 {
     Store_RegisterHandler("spray", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
@@ -26,6 +30,8 @@ public void Sprays_OnPluginStart()
 
 static void Sprays_OnMapStart()
 {
+    g_bFallbackSprayerSound = false;
+
     char m_szDecal[256];
 
     for(int i = 0; i < g_iSprays; ++i)
@@ -39,6 +45,13 @@ static void Sprays_OnMapStart()
     }
 
     PrecacheSound("items/spraycan_spray.wav", false);
+
+    if (FileExists("sound/" ... FALLBACK_SPARYER_SOUND, false))
+    {
+        g_bFallbackSprayerSound = true;
+        AddToStringTable(FindStringTable("soundprecache"), ")"...FALLBACK_SPARYER_SOUND);
+        AddFileToDownloadsTable("sound/" ... FALLBACK_SPARYER_SOUND);
+    }
 }
 
 public void Sprays_OnClientConnected(int client)
@@ -200,7 +213,14 @@ void StartSprayToAll(int client, const float vPos[3])
     TE_WriteNum("m_nIndex", precache);
     TE_SendToAll();
 
-    EmitSoundToAll("items/spraycan_spray.wav", client);
+    if (g_bFallbackSprayerSound)
+    {
+        EmitSoundToAll(")"...FALLBACK_SPARYER_SOUND, client);
+    }
+    else
+    {
+        EmitSoundToAll("items/spraycan_spray.wav", client);
+    }
 
     g_iSprayLimit[client] = GetTime() + cooldown;
 

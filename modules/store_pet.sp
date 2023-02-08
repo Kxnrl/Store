@@ -235,7 +235,7 @@ public void Pets_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
 
 public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
 {
-    if(tickcount % 6 != 0 || !IsClientInGame(client) || !IsPlayerAlive(client))
+    if(tickcount % 8 != 0 || !IsClientInGame(client) || !IsPlayerAlive(client))
         return;
 
     float CurVec[3];

@@ -80,7 +80,7 @@ public void Pupd_OnCheckAllPlugins()
 public void OnEntityDestroyed(int entity)
 {
     if (MaxClients < entity < 2048)
-        g_iOwner[entity] = -1;
+        g_iOwner[entity] = INVALID_ENT_REFERENCE;
 }
 
 public void Store_OnStoreInit(Handle store_plugin)
@@ -193,10 +193,10 @@ public void Pets_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast
     // I don't know why player_spwan called twice...
 
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    if (IsFakeClient(client))
+        return;
 
-    if (g_hDelay[client] != null)
-        delete g_hDelay[client];
-
+    delete g_hDelay[client];
     g_hDelay[client] = CreateTimer(UTIL_GetRandomInt(1, 10) * 0.1, Timer_DelaySpawn, client);
 }
 
@@ -214,6 +214,8 @@ Action Timer_DelaySpawn(Handle timer, int client)
 public void Pets_PlayerDeath(Handle event, const char[] name, bool dontBroadcast)
 {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    if (IsFakeClient(client))
+        return;
 
     delete g_hDelay[client];
     Store_ClientDeathPet(client);
@@ -223,7 +225,7 @@ public void Pets_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
 {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
-    if(!client || !IsClientInGame(client))
+    if(IsFakeClient(client))
         return;
 
     if (GetEventInt(event, "team") <= 1)
@@ -235,7 +237,7 @@ public void Pets_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)
 
 public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float vel[3], const float angles[3], int weapon, int subtype, int cmdnum, int tickcount, int seed, const int mouse[2])
 {
-    if(tickcount % 8 != 0 || !IsClientInGame(client) || !IsPlayerAlive(client))
+    if(tickcount % 8 != 0 || !IsPlayerAlive(client) || IsFakeClient(client))
         return;
 
     float CurVec[3];

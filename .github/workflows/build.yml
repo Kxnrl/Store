@@ -1,0 +1,232 @@
+name: GitHub Action
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    continue-on-error: false
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 9999
+
+    - name: Setup SourcePawn
+      uses: rumblefrog/setup-sp@master
+      with:
+        version: 1.11
+
+    #https://github.com/GuillaumeFalourd/setup-rsync
+    #https://github.com/up9cloud/action-rsync
+    - name: Setup Rsync
+      uses: GuillaumeFalourd/setup-rsync@main
+
+    - name: Create auto version
+      shell: bash
+      run: |
+        COMMIT_VERSION=$(git rev-list --count HEAD)
+        echo "GITCOMMIT=$COMMIT_VERSION" >> $GITHUB_ENV
+        echo "#if defined _Store_Version_Include_" > store.version.inc
+        echo "  #endinput" >> store.version.inc
+        echo "#endif" >> store.version.inc
+        echo "" >> store.version.inc
+        echo "#define _Store_Version_Include_" >> store.version.inc
+        echo "" >> store.version.inc
+        echo "#define STORE_AUTO_VERSION \"$COMMIT_VERSION\"" >> store.version.inc
+        cat store.version.inc
+        mv store.version.inc include/store.version.inc
+        COMMIT_HASH=${GITHUB_SHA::7}
+        echo "GITHASH=$COMMIT_VERSION" >> $GITHUB_ENV
+        PACKAGE_FILE=$COMMIT_VERSION-master-$COMMIT_HASH.zip
+        echo "GITFILE=$PACKAGE_FILE" >> $GITHUB_ENV
+        mkdir $GITHUB_WORKSPACE/plugins
+
+    - name: Build Core - TTT
+      shell: bash
+      run: |
+        cp store.sp store_tt.sp
+        for file in store_tt.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core TTT..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_tt.smx"
+
+    - name: Build Core - ZE
+      shell: bash
+      run: |
+        cp store.sp store_ze.sp
+        for file in store_ze.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_ZE%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core ZE..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_ze.smx"
+
+    - name: Build Core - MG
+      shell: bash
+      run: |
+        cp store.sp store_mg.sp
+        for file in store_mg.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_MG%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core MG..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_mg.smx"
+
+    - name: Build Core - JB
+      shell: bash
+      run: |
+        cp store.sp store_jb.sp
+        for file in store_jb.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_JB%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core JB..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_jb.smx"
+
+    - name: Build Core - KZ
+      shell: bash
+      run: |
+        cp store.sp store_kz.sp
+        for file in store_kz.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_KZ%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core KZ..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_kz.smx"
+
+    - name: Build Core - Pure
+      shell: bash
+      run: |
+        cp store.sp store_pr.sp
+        for file in store_pr.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_PR%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core Pure..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_pr.smx"
+
+    - name: Build Core - HG
+      shell: bash
+      run: |
+        cp store.sp store_hg.sp
+        for file in store_hg.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_HG%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core HG..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_hg.smx"
+
+    - name: Build Core - Surf
+      shell: bash
+      run: |
+        cp store.sp store_sr.sp
+        for file in store_sr.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_SR%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core Surf..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_sr.smx"
+
+    - name: Build Core - Warcraft
+      shell: bash
+      run: |
+        cp store.sp store_hz.sp
+        for file in store_hz.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_HZ%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core Warcraft..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_hz.smx"
+
+    - name: Build Core - BHOP
+      shell: bash
+      run: |
+        cp store.sp store_bh.sp
+        for file in store_bh.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_BH%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core BHOP..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_bh.smx"
+
+    - name: Build Core - Insurgency
+      shell: bash
+      run: |
+        cp store.sp store_is.sp
+        for file in store_is.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_IS%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core Insurgency"
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_is.smx"
+
+    - name: Build Core - Left 4 Dead(2)
+      shell: bash
+      run: |
+        cp store.sp store_ef.sp
+        for file in store_ef.sp
+        do
+          sed -i "s%<Compile_Environment>%GM_EF%g" $file > output.txt
+          rm output.txt
+        done
+        echo -e "\nCompiling Core Left 4 Dead(2)..."
+        spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/store_ef.smx"
+
+    - name: Build Modules
+      shell: bash
+      run: |
+        mkdir $GITHUB_WORKSPACE/plugins/modules
+        for file in modules/*.sp
+        do
+          echo -e "\nCompiling $file..."
+          spcomp $file -O2 -v2 -h -i $GITHUB_WORKSPACE/include -o"./plugins/$file"
+        done
+
+    - name: Package
+      shell: bash
+      run: |
+        mkdir build
+        mkdir build/scripts
+        cp -r *.sp         ./build/scripts
+        cp -r include      ./build/scripts/include
+        cp -r plugins      ./build/plugins
+        cp -r translations ./build/translations
+        cp -r configs      ./build/configs
+        cp -r scripts      ./build/scripts
+        cp -r website      ./build/website
+        cp -r README.md    ./build
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Build.${{ env.GITCOMMIT }}
+        path: build
+
+    - name: Zip artifact
+      uses: montudor/action-zip@v1
+      with:
+        args: zip -qq -9 -r ${{ env.GITFILE }} build
+
+    - name: Upload build package
+      run: |
+        RSYNC_PASSWORD=${{secrets.RSYNC_PSWD}} rsync -avz ./${{ env.GITFILE }} rsync://${{secrets.RSYNC_USER}}@${{secrets.RSYNC_HOST}}:${{secrets.RSYNC_PORT}}/${{secrets.RSYNC_PATH}}/Store/1.11/
+        RSYNC_PASSWORD=${{secrets.RSYNC_PSWD}} rsync -avz ./build/plugins/*.smx rsync://${{secrets.RSYNC_USER}}@${{secrets.RSYNC_HOST}}:${{secrets.RSYNC_PORT}}/${{secrets.RSYNC_PATH}}/_Raw/
+        RSYNC_PASSWORD=${{secrets.RSYNC_PSWD}} rsync -avz ./build/plugins/modules/*.smx rsync://${{secrets.RSYNC_USER}}@${{secrets.RSYNC_HOST}}:${{secrets.RSYNC_PORT}}/${{secrets.RSYNC_PATH}}/_Raw/
+        RSYNC_PASSWORD=${{secrets.RSYNC_PSWD}} rsync -avz ./build/translations/store.phrases.txt rsync://${{secrets.RSYNC_USER}}@${{secrets.RSYNC_HOST}}:${{secrets.RSYNC_PORT}}/${{secrets.RSYNC_PATH}}/_Raw/translations/
+        

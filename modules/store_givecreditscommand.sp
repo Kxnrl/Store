@@ -1,22 +1,17 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_NAME         "Store - Give credits command"
-#define PLUGIN_AUTHOR       "Kyle"
-#define PLUGIN_DESCRIPTION  "store module default player skins"
-#define PLUGIN_VERSION      "2.6.0.<commit_count>"
-#define PLUGIN_URL          "https://kxnrl.com"
-
+#include <sourcemod>
 #include <store>
 #include <store_stock>
 
 public Plugin myinfo = 
 {
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_DESCRIPTION,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_URL
+    name        = "Store - Give credits command",
+    author      = STORE_AUTHOR,
+    description = "store module default player skins",
+    version     = STORE_VERSION,
+    url         = STORE_URL
 };
 
 public void OnPluginStart()

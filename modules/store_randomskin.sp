@@ -1,21 +1,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_NAME         "Store - Random player skins"
-#define PLUGIN_AUTHOR       "Kyle"
-#define PLUGIN_DESCRIPTION  "store module random player skins"
-#define PLUGIN_VERSION      "2.6.0.<commit_count>"
-#define PLUGIN_URL          "https://kxnrl.com"
-
-public Plugin myinfo = 
-{
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_DESCRIPTION,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_URL
-};
-
+#include <sourcemod>
 #include <store>
 #include <store_stock>
 
@@ -28,6 +14,15 @@ public Plugin myinfo =
 #undef AUTOLOAD_EXTENSIONS
 #include <clientprefs>
 #define REQUIRE_EXTENSIONS
+
+public Plugin myinfo = 
+{
+    name        = "Store - Random player skins",
+    author      = STORE_AUTHOR,
+    description = "store module random player skins",
+    version     = STORE_VERSION,
+    url         = STORE_URL
+};
 
 #define MAX_SKINS           24
 #define TYPE_NAME_STATUS    "Store.RandomSkins.Status"

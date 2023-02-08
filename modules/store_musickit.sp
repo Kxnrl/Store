@@ -1,23 +1,18 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_NAME         "Store - Music Kit"
-#define PLUGIN_AUTHOR       "Kyle"
-#define PLUGIN_DESCRIPTION  "store module music kit for csgo"
-#define PLUGIN_VERSION      "2.6.0.<commit_count>"
-#define PLUGIN_URL          "https://kxnrl.com"
+#include <sourcemod>
+#include <store>
+#include <sdktools>
 
 public Plugin myinfo = 
 {
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_DESCRIPTION,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_URL
+    name        = "Store - Music Kit",
+    author      = STORE_AUTHOR,
+    description = "store module music kit for csgo",
+    version     = STORE_VERSION,
+    url         = STORE_URL
 };
-
-#include <sdktools>
-#include <store>
 
 #define MAX_MUSIC_ID 40
 

@@ -4,6 +4,16 @@
 
 #define _Store_INCLUDED
 
+#tryinclude <store.version>
+
+#if !defined _Store_Version_Include_
+    #define STORE_AUTO_VERSION "000"
+#endif
+
+#define STORE_AUTHOR  "Kyle"
+#define STORE_VERSION "2.6.0" ... "." ... STORE_AUTO_VERSION
+#define STORE_URL     "https://www.kxnrl.com"
+
 public SharedPlugin __pl_store = 
 {
     name = "store",

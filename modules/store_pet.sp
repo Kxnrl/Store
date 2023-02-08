@@ -1,21 +1,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_NAME         "Store - Pets"
-#define PLUGIN_AUTHOR       "Kyle"
-#define PLUGIN_DESCRIPTION  "store module pets"
-#define PLUGIN_VERSION      "2.6.0.<commit_count>"
-#define PLUGIN_URL          "https://www.kxnrl.com"
-
-public Plugin myinfo = 
-{
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_DESCRIPTION,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_URL
-};
-
+#include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 #include <store>
@@ -24,6 +10,15 @@ public Plugin myinfo =
 #undef REQUIRE_PLUGIN
 #include <fys.pupd>
 #define REQUIRE_PLUGIN
+
+public Plugin myinfo = 
+{
+    name        = "Store - Pets",
+    author      = STORE_AUTHOR,
+    description = "store module pets",
+    version     = STORE_VERSION,
+    url         = STORE_URL
+};
 
 enum struct Pet
 {

@@ -2,25 +2,6 @@
 #pragma newdecls required
 
 //////////////////////////////
-//    PLUGIN DEFINITION     //
-//////////////////////////////
-#define PLUGIN_NAME         "Store - The Resurrection"
-#define PLUGIN_AUTHOR       "Kyle"
-#define PLUGIN_DESCRIPTION  "a sourcemod store system"
-#define PLUGIN_VERSION      "2.6.0.<commit_count>"
-#define PLUGIN_URL          "https://kxnrl.com"
-
-public Plugin myinfo = 
-{
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_DESCRIPTION,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_URL
-};
-
-
-//////////////////////////////
 //          INCLUDES        //
 //////////////////////////////
 #include <sourcemod>
@@ -39,6 +20,18 @@ public Plugin myinfo =
 #define AUTOLOAD_EXTENSIONS
 #define REQUIRE_EXTENSIONS
 #define REQUIRE_PLUGIN
+
+//////////////////////////////
+//    PLUGIN DEFINITION     //
+//////////////////////////////
+public Plugin myinfo = 
+{
+    name        = "Store - The Resurrection",
+    author      = STORE_AUTHOR,
+    description = "a sourcemod store system",
+    version     = STORE_VERSION,
+    url         = STORE_URL
+};
 
 //////////////////////////////
 //        DEFINITIONS       //

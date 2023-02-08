@@ -1,25 +1,20 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_NAME         "Store - Weapon Skin"
-#define PLUGIN_AUTHOR       "Kyle"
-#define PLUGIN_DESCRIPTION  "store module weapon skin"
-#define PLUGIN_VERSION      "2.6.0.<commit_count>"
-#define PLUGIN_URL          "https://kxnrl.com"
-
-public Plugin myinfo = 
-{
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_DESCRIPTION,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_URL
-};
-
+#include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 #include <store>
 #include <store_stock>
+
+public Plugin myinfo = 
+{
+    name        = "Store - Weapon Skin",
+    author      = STORE_AUTHOR,
+    description = "store module weapon skin",
+    version     = STORE_VERSION,
+    url         = STORE_URL
+};
 
 static int g_iRefPVM[MAXPLAYERS+1];
 static int g_iOldSequence[MAXPLAYERS+1];

@@ -1,12 +1,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_NAME         "Store - Simple Hide"
-#define PLUGIN_AUTHOR       "Kyle"
-#define PLUGIN_DESCRIPTION  "store module simple hide"
-#define PLUGIN_VERSION      "2.6.0.<commit_count>"
-#define PLUGIN_URL          "https://kxnrl.com"
-
 #include <sourcemod>
 #include <TransmitManager>
 #include <sdkhooks>
@@ -15,11 +9,11 @@
 
 public Plugin myinfo = 
 {
-    name        = PLUGIN_NAME,
-    author      = PLUGIN_AUTHOR,
-    description = PLUGIN_DESCRIPTION,
-    version     = PLUGIN_VERSION,
-    url         = PLUGIN_URL
+    name        = "Store - Simple Hide",
+    author      = STORE_AUTHOR,
+    description = "store module simple hide",
+    version     = STORE_VERSION,
+    url         = STORE_URL
 };
 
 int  g_Edict[2048];

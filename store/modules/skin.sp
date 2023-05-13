@@ -136,7 +136,7 @@ public Action Command_Arms(int client, int args)
     if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
         return Plugin_Handled;
 
-#if defined GM_ZE    
+#if defined GM_ZE
     if(g_iClientTeam[client] == 2)
         return Plugin_Handled;
 #endif
@@ -149,11 +149,11 @@ public Action Command_Arms(int client, int args)
 public bool PlayerSkins_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPlayerSkins);
-    
+
     kv.GetString("model", g_ePlayerSkins[g_iPlayerSkins].szModel, PLATFORM_MAX_PATH);
     kv.GetString("arms",  g_ePlayerSkins[g_iPlayerSkins].szArms,  PLATFORM_MAX_PATH);
     kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins].szSound, PLATFORM_MAX_PATH);
-    
+
     g_ePlayerSkins[g_iPlayerSkins].iLevel = kv.GetNum("lvls", 0);
     g_ePlayerSkins[g_iPlayerSkins].nBody  = kv.GetNum("skin", 0);
 
@@ -298,7 +298,7 @@ static void Store_SetClientModel(int client, int m_iData)
 {
     if(!IsClientInGame(client) || !IsPlayerAlive(client))
         return;
-    
+
 #if defined GM_ZE
     if(g_iClientTeam[client] == 2)
     {
@@ -485,7 +485,7 @@ void Store_PreviewSkin(int client, int itemid)
     DispatchKeyValue(m_iViewModel, "rendercolor", "255 255 255");
     DispatchKeyValue(m_iViewModel, "renderamt", "255");
     DispatchKeyValue(m_iViewModel, "solid", "0");
-    
+
     DispatchSpawn(m_iViewModel);
 
     if (g_ePlayerSkins[g_Items[itemid].iData].nBody > 0)
@@ -493,7 +493,7 @@ void Store_PreviewSkin(int client, int itemid)
         // set?
         SetEntProp(m_iViewModel, Prop_Send, "m_nBody", g_ePlayerSkins[g_Items[itemid].iData].nBody);
     }
-    
+
     SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
 
     AcceptEntityInput(m_iViewModel, "Enable");
@@ -520,12 +520,12 @@ void Store_PreviewSkin(int client, int itemid)
     m_fPosition[0] = m_fOrigin[0] + 64 * Cosine(m_fRadians[0]) * Cosine(m_fRadians[1]);
     m_fPosition[1] = m_fOrigin[1] + 64 * Cosine(m_fRadians[0]) * Sine(m_fRadians[1]);
     m_fPosition[2] = m_fOrigin[2] + 4 * Sine(m_fRadians[0]);
-    
+
     m_fAngles[0] *= -1.0;
     m_fAngles[1] *= -1.0;
 
     TeleportEntity(m_iViewModel, m_fPosition, m_fAngles, NULL_VECTOR);
-    
+
     g_iPreviewTimes[client] = GetTime()+90;
     g_iPreviewModel[client] = EntIndexToEntRef(m_iViewModel);
 
@@ -540,7 +540,7 @@ public Action Hook_SetTransmit_Preview(int ent, int client)
 {
     if(g_iPreviewModel[client] == INVALID_ENT_REFERENCE)
         return Plugin_Handled;
-    
+
     if(ent == EntRefToEntIndex(g_iPreviewModel[client]))
         return Plugin_Continue;
 
@@ -575,11 +575,11 @@ public void FirstPersonDeathCamera(int client)
         return;
 
     Action ret = Plugin_Continue;
-    
+
     Call_StartForward(g_hOnFPDeathCamera);
     Call_PushCell(client);
     Call_Finish(ret);
-    
+
     if(ret >= Plugin_Handled)
     {
         g_iCameraRef[client] = INVALID_ENT_REFERENCE;
@@ -605,7 +605,7 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
     DispatchKeyValue(iEntity, "rendermode", "10"); // dont render
     DispatchKeyValue(iEntity, "disableshadows", "1"); // no shadows
 
-    float m_fAngles[3]; 
+    float m_fAngles[3];
     GetClientEyeAngles(client, m_fAngles);
 
     DispatchKeyValueVector(iEntity, "angles", m_fAngles);
@@ -705,7 +705,7 @@ static int GetEquippedSkin(int client)
 public void ZR_OnClientHumanPost(int client, bool respawn, bool protect)
 {
     // If client has been respawned.
-    if(respawn) 
+    if(respawn)
         return;
 
     // Dead Player.

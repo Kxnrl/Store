@@ -14,7 +14,7 @@ static int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
 bool Trails_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iTrails);
-    
+
     kv.GetString("material", g_eTrails[g_iTrails].szMaterial, PLATFORM_MAX_PATH);
     g_eTrails[g_iTrails].iSlot = kv.GetNum("slot");
 
@@ -125,9 +125,9 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
 
     if(m_iEquipped < 0)
         return;
-    
+
     int m_iData = Store_GetDataIndex(m_iEquipped);
-    
+
     int m_aEquipped[STORE_MAX_SLOTS] = {-1,...};
     int m_iNumEquipped = 0;
 
@@ -142,7 +142,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
             ++m_iNumEquipped;
         }
     }
-    
+
     int entity = g_iClientTrails[client][slot] == INVALID_ENT_REFERENCE ? -1 : EntRefToEntIndex( g_iClientTrails[client][slot]);
 
     if(IsValidEdict(entity))
@@ -159,7 +159,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
     DispatchKeyValue(entity, "endwidth", "10.0");
     SetEntPropFloat(entity, Prop_Send, "m_flTextureRes", 0.05);
     DispatchSpawn(entity);
-    AttachTrail(entity, client, m_iCurrent, m_iNumEquipped);    
+    AttachTrail(entity, client, m_iCurrent, m_iNumEquipped);
 
     g_iClientTrails[client][slot] = EntIndexToEntRef(entity);
 
@@ -184,7 +184,7 @@ void AttachTrail(int ent, int client, int current, int num)
     SetVariantString("!activator");
     AcceptEntityInput(ent, "SetParent", client, ent);
     SetEntPropVector(client, Prop_Data, "m_angAbsRotation", m_fAngle);
-    
+
     SetVariantString("OnUser1 !self:SetScale:1:0.5:-1");
     AcceptEntityInput(ent, "AddOutput");
     AcceptEntityInput(ent, "FireUser1");

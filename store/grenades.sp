@@ -69,10 +69,10 @@ static bool GrenadeSkins_Config(KeyValues kv, int itemid)
 
     g_eGrenadeSkins[g_iGrenadeSkins].iSlot = GrenadeSkins_GetSlot(g_eGrenadeSkins[g_iGrenadeSkins].szWeapon);
     g_eGrenadeSkins[g_iGrenadeSkins].iLength = strlen(g_eGrenadeSkins[g_iGrenadeSkins].szWeapon);
-    
+
     if(!(FileExists(g_eGrenadeSkins[g_iGrenadeSkins].szModel, true)))
         return false;
-        
+
     ++g_iGrenadeSkins;
     return true;
 }
@@ -86,13 +86,13 @@ static bool GrenadeTrails_Config(KeyValues kv, int itemid)
     kv.GetString("color", g_eGrenadeTrails[g_iGrenadeTrails].szColor, sizeof(GrenadeTrail::szColor), "255 255 255 255");
     KvGetColor(kv, "color", g_eGrenadeTrails[g_iGrenadeTrails].iColor[0], g_eGrenadeTrails[g_iGrenadeTrails].iColor[1], g_eGrenadeTrails[g_iGrenadeTrails].iColor[2], g_eGrenadeTrails[g_iGrenadeTrails].iColor[3]);
     g_eGrenadeTrails[g_iGrenadeTrails].iSlot = kv.GetNum("slot");
-    
+
     if(FileExists(g_eGrenadeTrails[g_iGrenadeTrails].szMaterial, true))
     {
         ++g_iGrenadeTrails;
         return true;
     }
-    
+
     return false;
 }
 
@@ -121,7 +121,7 @@ static int GrenadeSkins_GetSlot(char[] weapon)
     for(int i = 0; i < g_iSlots; ++i)
         if(strcmp(weapon, g_szSlots[i])==0)
             return i;
-    
+
     strcopy(g_szSlots[g_iSlots], sizeof(g_szSlots[]), weapon);
     return g_iSlots++;
 }
@@ -132,13 +132,13 @@ public void OnEntityCreated(int entity, const char[] classname)
         return;
 
     if(StrContains(classname, "_projectile") > 0)
-        SDKHook(entity, SDKHook_SpawnPost, Grenades_OnEntitySpawnedPost);        
+        SDKHook(entity, SDKHook_SpawnPost, Grenades_OnEntitySpawnedPost);
 }
 
 public void Grenades_OnEntitySpawnedPost(int entity)
 {
     int client = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-    
+
     if(!(0 < client <= MaxClients))
         return;
 
@@ -153,12 +153,12 @@ public void Grenades_OnEntitySpawnedPost(int entity)
         }
 
     int m_iSlot = GrenadeSkins_GetSlot(m_szClassname);
-    
+
     int m_iEquipped;
     int m_iData;
 
     m_iEquipped = Store_GetEquippedItem(client, "nadeskin", m_iSlot);
-    
+
     if(m_iEquipped >= 0)
     {
         m_iData = Store_GetDataIndex(m_iEquipped);
@@ -168,7 +168,7 @@ public void Grenades_OnEntitySpawnedPost(int entity)
     m_iEquipped = 0;
     m_iData = 0;
     m_iEquipped = Store_GetEquippedItem(client, "nadetrail", 0);
-    
+
     if(m_iEquipped >= 0)
     {
         m_iData = Store_GetDataIndex(m_iEquipped);

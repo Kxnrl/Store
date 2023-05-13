@@ -2,7 +2,7 @@
 
 #define MAX_PART 128
 
-static int g_iParts = 0; 
+static int g_iParts = 0;
 static int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
 static char g_szPartName[MAX_PART][PLATFORM_MAX_PATH];
 static char g_szPartFPcf[MAX_PART][PLATFORM_MAX_PATH];
@@ -14,17 +14,17 @@ void Part_OnClientDisconnect(int client)
     g_szPartClient[client][0] = '\0';
 }
 
-void Part_Reset() 
-{ 
+void Part_Reset()
+{
     g_iParts = 0;
 }
 
-bool Part_Config(KeyValues kv, int itemid) 
-{ 
-    Store_SetDataIndex(itemid, g_iParts); 
+bool Part_Config(KeyValues kv, int itemid)
+{
+    Store_SetDataIndex(itemid, g_iParts);
     kv.GetString("effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);
     kv.GetString("model",  g_szPartFPcf[g_iParts], PLATFORM_MAX_PATH);
-    
+
     if(!FileExists(g_szPartFPcf[g_iParts], true))
     {
         #if defined LOG_NOT_FOUND
@@ -43,7 +43,7 @@ bool Part_Config(KeyValues kv, int itemid)
         #endif
         return false;
     }
-    
+
     ++g_iParts;
     return true;
 }
@@ -58,12 +58,12 @@ int Part_Equip(int client, int id)
     return 0;
 }
 
-int Part_Remove(int client, int id) 
+int Part_Remove(int client, int id)
 {
     Store_RemoveClientPart(client);
     g_szPartClient[client][0] = '\0';
 
-    return 0; 
+    return 0;
 }
 
 void Part_OnMapStart()
@@ -126,12 +126,12 @@ void Store_SetClientPart(int client)
         DispatchSpawn(iEnt);
 
         TeleportEntity(iEnt, clientOrigin, clientAngles, NULL_VECTOR);
- 
+
         SetVariantString("!activator");
         AcceptEntityInput(iEnt, "SetParent", client, iEnt);
 
         ActivateEntity(iEnt);
-        
+
         g_iClientPart[client] = EntIndexToEntRef(iEnt);
 
         Call_OnParticlesCreated(client, iEnt);

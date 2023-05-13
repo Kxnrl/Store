@@ -187,7 +187,7 @@ stock void tPrintToChatAll(const char[] szMessage, any ...)
             VFormat(STRING(szBuffer), szMessage, 2);
             Format(STRING(szBuffer), "[{green}Store{white}]  %s", szBuffer);
             ReplaceColorsCode(STRING(szBuffer));
-            SayText2(client, szBuffer); 
+            SayText2(client, szBuffer);
         }
     }
 }
@@ -333,7 +333,7 @@ stock void RemoveAllColors(char[] message, int maxLen)
 stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], float removeDelay = 0.1)
 {
     int speaker = CreateEntityByName("info_target");
-    
+
     if(speaker == -1)
         return -1;
 
@@ -372,10 +372,10 @@ static Action Timer_RemoveSpeaker(Handle timer, int ref)
 stock void PrecacheParticleEffect(const char[] effect)
 {
     static int table = INVALID_STRING_TABLE;
-    
+
     if (table == INVALID_STRING_TABLE)
         table = FindStringTable("ParticleEffectNames");
-    
+
     bool save = LockStringTables(false);
     AddToStringTable(table, effect);
     LockStringTables(save);
@@ -397,7 +397,7 @@ stock void PrecacheEffect(const char[] name)
 stock int UTIL_GetRandomInt(int min, int max)
 {
     int random = GetURandomInt();
-    
+
     if(random == 0)
         random++;
 

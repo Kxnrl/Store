@@ -7,7 +7,7 @@
 #include <PTaH>
 #include <clientprefs>
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
     name        = "Store - Weapon Skin",
     author      = STORE_AUTHOR,
@@ -50,7 +50,7 @@ public void OnPluginStart()
     g_iOffsetName = FindSendPropInfo("CBaseAttributableItem", "m_szCustomName");
     if(g_iOffsetName == -1)
         SetFailState("Offset 'CBaseAttributableItem' -> 'm_szCustomName' was not found.");
-    
+
     g_iOffsetMyWP = FindSendPropInfo("CBasePlayer", "m_hMyWeapons");
     if(g_iOffsetMyWP == -1)
         SetFailState("Offset 'CBasePlayer' -> 'm_hMyWeapons' was not found.");
@@ -59,7 +59,7 @@ public void OnPluginStart()
     PTaH(PTaH_GiveNamedItemPost, Hook, Event_GiveNamedItemPost);
 
     g_hCookieNamed = RegClientCookie("store_ws_name", "", CookieAccess_Protected);
-    
+
     RegConsoleCmd("ws_name", Command_Named);
 }
 
@@ -72,22 +72,22 @@ public Action Command_Named(int client, int args)
 {
     if(!client)
         return Plugin_Handled;
-    
+
     if(!(GetUserFlagBits(client) & ADMFLAG_CUSTOM1))
     {
         PrintToChat(client, "[\x04Store\x01]   \x05You do not have permission to use this function.");
         return Plugin_Handled;
     }
-    
+
     if(args != 1)
     {
         PrintToChat(client, "[\x04Store\x01]   \x05Usage: ws_name <name>");
         return Plugin_Handled;
     }
-    
+
     char name[32];
     GetCmdArg(1, name, sizeof(name));
-    
+
     if(strlen(name) < 4)
     {
         PrintToChat(client, "[\x04Store\x01]   strlen(name) must be >= 4");
@@ -117,7 +117,7 @@ public bool WeaponSkin_Config(Handle kv, int itemid)
     g_eWeaponSkin[g_iWeaponSkin].iPaint = KvGetNum(kv, "paint");
     g_eWeaponSkin[g_iWeaponSkin].iWearT = KvGetNum(kv, "weart", -1);
     g_eWeaponSkin[g_iWeaponSkin].fWearF = KvGetFloat(kv, "wearf", 0.0416);
-    
+
     //LogMessage("Weapon Skin -> %s -> Paint[%d] Seed[%d] Slot[%d] WearT[%d] WearF[%f]", g_eWeaponSkin[g_iWeaponSkin].szUnique, g_eWeaponSkin[g_iWeaponSkin].iPaint, g_eWeaponSkin[g_iWeaponSkin].iSeed, g_eWeaponSkin[g_iWeaponSkin].iSlot, g_eWeaponSkin[g_iWeaponSkin].iWearT, g_eWeaponSkin[g_iWeaponSkin].fWearF);
 
     g_iWeaponSkin++;
@@ -176,7 +176,7 @@ public void Event_GiveNamedItemPost(int client, const char[] classname, const CE
 {
     if(IsFakeClient(client) || !IsPlayerAlive(client) || !IsValidEdict(entity))
         return;
-    
+
     if(StrContains(classname, "weapon_") != 0)
         return;
 
@@ -199,7 +199,7 @@ void SetWeaponEconmoney(int client, int data, int weapon)
     static int IDHigh = 16384;
     SetEntProp(weapon, Prop_Send, "m_iItemIDLow", -1);
     SetEntProp(weapon, Prop_Send, "m_iItemIDHigh", IDHigh++);
-    
+
     if(g_eWeaponSkin[data].iSlot == SLOT_3)
     {
         EquipPlayerWeapon(client, weapon);
@@ -232,7 +232,7 @@ void SetWeaponEconmoney(int client, int data, int weapon)
 
     SetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity", client);
     SetEntPropEnt(weapon, Prop_Send, "m_hPrevOwner", -1);
-    
+
     SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
 }
 
@@ -292,7 +292,7 @@ void CheckClientWeapon(DataPack dp)
     }
 
     weapon = GivePlayerItem(client, g_eWeaponSkin[data].szWeapon);
-    
+
 
     if(!IsValidEdict(weapon))
         return;
@@ -318,7 +318,7 @@ public Action Timer_GiveTaser(Handle timer, DataPack pack)
         EquipPlayerWeapon(client, weapon);
     else
         AcceptEntityInput(weapon, "Kill");
-    
+
     return Plugin_Stop;
 }
 

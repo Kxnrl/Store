@@ -7,7 +7,7 @@
 #include <store>
 #include <store_stock>
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
     name        = "Store - Weapon Skin",
     author      = STORE_AUTHOR,
@@ -44,10 +44,10 @@ public void OnPluginStart()
 
 public void Store_OnStoreInit(Handle store_plugin)
 {
-    Store_RegisterHandler("vwmodel", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true); 
+    Store_RegisterHandler("vwmodel", Models_OnMapStart, Models_Reset, Models_Config, Models_Equip, Models_Remove, true);
 }
 
-public void Models_OnMapStart() 
+public void Models_OnMapStart()
 {
     for(int i = 0; i < g_iCustomModels; ++i)
     {
@@ -58,11 +58,11 @@ public void Models_OnMapStart()
         {
             g_eCustomModel[i].iCacheIdW = PrecacheModel(g_eCustomModel[i].szModelW, false);
             AddFileToDownloadsTable(g_eCustomModel[i].szModelW);
-            
+
             if(g_eCustomModel[i].iCacheIdW == 0)
                 g_eCustomModel[i].iCacheIdW = -1;
         }
-        
+
         if(!StrEqual(g_eCustomModel[i].szModelD, "none", false))
         {
             if(!IsModelPrecached(g_eCustomModel[i].szModelD))
@@ -74,12 +74,12 @@ public void Models_OnMapStart()
     }
 }
 
-public void Models_Reset() 
-{ 
-    g_iCustomModels = 0; 
+public void Models_Reset()
+{
+    g_iCustomModels = 0;
 }
 
-public bool Models_Config(KeyValues kv, int itemid) 
+public bool Models_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iCustomModels);
     kv.GetString("model", g_eCustomModel[g_iCustomModels].szModelV, PLATFORM_MAX_PATH);
@@ -87,10 +87,10 @@ public bool Models_Config(KeyValues kv, int itemid)
     kv.GetString("dropmodel", g_eCustomModel[g_iCustomModels].szModelD, PLATFORM_MAX_PATH, "none");
     kv.GetString("weapon", g_eCustomModel[g_iCustomModels].szEntity, sizeof(CustomModel::szEntity));
     g_eCustomModel[g_iCustomModels].iSlot = kv.GetNum("slot");
-    
+
     if(FileExists(g_eCustomModel[g_iCustomModels].szModelV, true))
     {
-        ++g_iCustomModels;    
+        ++g_iCustomModels;
         return true;
     }
     return false;
@@ -106,7 +106,7 @@ public int Models_Equip(int client, int id)
     return g_eCustomModel[m_iData].iSlot;
 }
 
-public int Models_Remove(int client, int id) 
+public int Models_Remove(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
 
@@ -136,8 +136,8 @@ public void OnClientDisconnect(int client)
     {
         if(g_smClientWeapon[client].Size > 0)
         {
-            SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
-            SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
+            SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models);
+            SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models);
             SDKUnhook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
             SDKUnhook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
         }
@@ -158,48 +158,48 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
     g_bHooked[client] = false;
 }
 
-public void Hook_WeaponSwitchPost_Models(int client, int weapon) 
-{ 
+public void Hook_WeaponSwitchPost_Models(int client, int weapon)
+{
     if(!IsValidEdict(weapon))
         return;
-    
+
     char classname[32];
     if(!GetWeaponClassname(weapon, STRING(classname)))
         return;
 
     if(StrContains(classname, "item", false) == 0)
         return;
-    
+
     char m_szGlobalName[256];
     GetEntPropString(weapon, Prop_Data, "m_iGlobalname", STRING(m_szGlobalName));
     if(StrContains(m_szGlobalName, "custom", false) != 0)
         return;
-    
+
     ReplaceString(STRING(m_szGlobalName), "custom", "");
 
     char m_szData[2][192];
     ExplodeString(m_szGlobalName, ";", m_szData, 2, 192);
 
     int model_index = StringToInt(m_szData[0]);
-    
+
     int m_iPVM = EntRefToEntIndex(g_iRefPVM[client]);
     if(m_iPVM == INVALID_ENT_REFERENCE)
     {
-        g_iRefPVM[client] = GetViewModelReference(client, -1); 
+        g_iRefPVM[client] = GetViewModelReference(client, -1);
         m_iPVM = EntRefToEntIndex(g_iRefPVM[client]);
-        if(m_iPVM == INVALID_ENT_REFERENCE) 
+        if(m_iPVM == INVALID_ENT_REFERENCE)
             return;
     }
 
-    SetEntProp(weapon, Prop_Send, "m_nModelIndex", 0); 
+    SetEntProp(weapon, Prop_Send, "m_nModelIndex", 0);
     SetEntProp(m_iPVM, Prop_Send, "m_nModelIndex", model_index);
 
     strcopy(g_szCurWpn[client], sizeof(g_szCurWpn[]), classname);
     g_bHooked[client] = SDKHookEx(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
 }
 
-public Action Hook_WeaponSwitch_Models(int client, int weapon) 
-{ 
+public Action Hook_WeaponSwitch_Models(int client, int weapon)
+{
     if(g_bHooked[client])
     {
         SDKUnhook(client, SDKHook_PostThinkPost, Hook_PostThinkPost_Models);
@@ -232,7 +232,7 @@ public Action Hook_WeaponEquip_Models(int client, int weapon)
     int model_world;
     if(g_smClientWeapon[client].GetValue(classname_world, model_world) && model_world != -1)
     {
-        int iWorldModel = GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel"); 
+        int iWorldModel = GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel");
         if(IsValidEdict(iWorldModel))
             SetEntProp(iWorldModel, Prop_Send, "m_nModelIndex", model_world);
     }
@@ -250,7 +250,7 @@ public Action Hook_WeaponEquip_Models(int client, int weapon)
 
     FormatEx(STRING(m_szGlobalName), "custom%i;%s", model_index, model_drop);
     DispatchKeyValue(weapon, "globalname", m_szGlobalName);
-    
+
     return Plugin_Continue;
 }
 
@@ -289,7 +289,7 @@ public void Hook_PostThinkPost_Models(int client)
                 case  7: SetEntProp(model, Prop_Send, "m_nSequence", 8);
                 case  8: SetEntProp(model, Prop_Send, "m_nSequence", 7);
                 case  9: SetEntProp(model, Prop_Send, "m_nSequence", 10);
-                case 10: SetEntProp(model, Prop_Send, "m_nSequence", 11); 
+                case 10: SetEntProp(model, Prop_Send, "m_nSequence", 11);
                 case 11: SetEntProp(model, Prop_Send, "m_nSequence", 10);
             }
         }
@@ -299,7 +299,7 @@ public void Hook_PostThinkPost_Models(int client)
             {
                 case 3: SetEntProp(model, Prop_Send, "m_nSequence", 2);
                 case 2: SetEntProp(model, Prop_Send, "m_nSequence", 1);
-                case 1: SetEntProp(model, Prop_Send, "m_nSequence", 3);            
+                case 1: SetEntProp(model, Prop_Send, "m_nSequence", 3);
             }
         }
         else if(StrEqual(g_szCurWpn[client], "weapon_mp7"))
@@ -310,7 +310,7 @@ public void Hook_PostThinkPost_Models(int client)
         else if(StrEqual(g_szCurWpn[client], "weapon_awp"))
         {
             if(m_iSequence == 1)
-                SetEntProp(model, Prop_Send, "m_nSequence", -1);    
+                SetEntProp(model, Prop_Send, "m_nSequence", -1);
         }
         else if(StrEqual(g_szCurWpn[client], "weapon_deagle"))
         {
@@ -318,7 +318,7 @@ public void Hook_PostThinkPost_Models(int client)
             {
                 case 3: SetEntProp(model, Prop_Send, "m_nSequence", 2);
                 case 2: SetEntProp(model, Prop_Send, "m_nSequence", 1);
-                case 1: SetEntProp(model, Prop_Send, "m_nSequence", 3);    
+                case 1: SetEntProp(model, Prop_Send, "m_nSequence", 3);
             }
         }
     }
@@ -335,7 +335,7 @@ public Action Hook_WeaponCanUse(int client, int weapon)
 void SetWorldModel(int iRef)
 {
     int weapon = EntRefToEntIndex(iRef);
-    
+
     if(!IsValidEdict(weapon))
         return;
 
@@ -360,11 +360,11 @@ bool Models_AddModels(int client, const char[] classname, int model_view, int mo
 {
     if(!IsClientInGame(client) || g_smClientWeapon[client] == INVALID_HANDLE)
         return false;
-    
+
     if(GetTrieSize(g_smClientWeapon[client]) == 0)
     {
-        SDKHook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
-        SDKHook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
+        SDKHook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models);
+        SDKHook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models);
         SDKHook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
         SDKHook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
     }
@@ -378,7 +378,7 @@ bool Models_AddModels(int client, const char[] classname, int model_view, int mo
     SetTrieString(g_smClientWeapon[client], drop_name,  model_drop);
 
     RefreshWeapon(client, classname);
-    
+
     return true;
 }
 
@@ -397,8 +397,8 @@ bool Models_RemoveModels(int client, const char[] classname)
 
     if(GetTrieSize(g_smClientWeapon[client]) == 0)
     {
-        SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models); 
-        SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models); 
+        SDKUnhook(client, SDKHook_WeaponSwitchPost, Hook_WeaponSwitchPost_Models);
+        SDKUnhook(client, SDKHook_WeaponSwitch,     Hook_WeaponSwitch_Models);
         SDKUnhook(client, SDKHook_WeaponEquip,      Hook_WeaponEquip_Models);
         SDKUnhook(client, SDKHook_WeaponDropPost,   Hook_WeaponDropPost_Models);
     }
@@ -414,7 +414,7 @@ void RefreshWeapon(int client, const char[] classname)
         return;
 
     int weapon = GetClientWeaponIndexByClassname(client, classname);
-    
+
     if(weapon == -1)
         return;
 
@@ -457,9 +457,9 @@ public Action Timer_GiveBackWeapon(Handle timer, DataPack pack)
 
     if(!IsClientInGame(client))
         return Plugin_Stop;
-    
+
     SDKUnhook(client, SDKHook_WeaponCanUse, Hook_WeaponCanUse);
-    
+
     if(!IsPlayerAlive(client))
         return Plugin_Stop;
 
@@ -472,48 +472,48 @@ public Action Timer_GiveBackWeapon(Handle timer, DataPack pack)
     if(m_iSecondaryAmmoCount > -1) SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", m_iSecondaryAmmoCount);
     if(m_iClip1 > -1) SetEntProp(weapon, Prop_Data, "m_iClip1", m_iClip1);
     if(m_iClip2 > -1) SetEntProp(weapon, Prop_Data, "m_iClip2", m_iClip2);
-    
+
     return Plugin_Stop;
 }
 
 public Action Timer_RemoveDummyWeapon(Handle timer, int weapon)
 {
     if(IsValidEdict(weapon))
-        AcceptEntityInput(weapon, "Kill");  
+        AcceptEntityInput(weapon, "Kill");
     return Plugin_Stop;
 }
 
-int GetViewModelReference(int client, int entity) 
-{ 
+int GetViewModelReference(int client, int entity)
+{
     int owner;
 
-    while ((entity = FindEntityByClassname2(entity, "predicted_viewmodel")) != -1) 
-    { 
-        owner = GetEntPropEnt(entity, Prop_Send, "m_hOwner"); 
+    while ((entity = FindEntityByClassname2(entity, "predicted_viewmodel")) != -1)
+    {
+        owner = GetEntPropEnt(entity, Prop_Send, "m_hOwner");
 
-        if(owner == client) 
-            return EntIndexToEntRef(entity); 
+        if(owner == client)
+            return EntIndexToEntRef(entity);
     }
 
-    return INVALID_ENT_REFERENCE; 
+    return INVALID_ENT_REFERENCE;
 }
 
-int FindEntityByClassname2(int start, const char[] classname) 
-{ 
+int FindEntityByClassname2(int start, const char[] classname)
+{
     while(start > MaxClients && !IsValidEntity(start))
-        start--; 
+        start--;
 
-    return FindEntityByClassname(start, classname); 
+    return FindEntityByClassname(start, classname);
 }
 
 stock bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
 {
     if(!GetEdictClassname(weapon, classname, maxLen))
         return false;
-    
+
     if(!HasEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
         return false;
-    
+
     switch(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"))
     {
         case 60: strcopy(classname, maxLen, "weapon_m4a1_silencer");
@@ -521,7 +521,7 @@ stock bool GetWeaponClassname(int weapon, char[] classname, int maxLen)
         case 63: strcopy(classname, maxLen, "weapon_cz75a");
         case 64: strcopy(classname, maxLen, "weapon_revolver");
     }
-    
+
     return true;
 }
 

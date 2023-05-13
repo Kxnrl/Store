@@ -80,7 +80,7 @@ static Action Command_Spray(int client, int args)
     }
 
     Sprays_Create(client);
-    
+
     return Plugin_Handled;
 }
 
@@ -161,13 +161,13 @@ void Sprays_Create(int client)
 
     float m_flView[3];
     GetPlayerEyeViewPoint(client, m_flView);
-    
+
     float distance = GetVectorDistance(m_flEye, m_flView);
 
     if(distance > 115.0)
     {
         tPrintToChat(client, "%T", "spray distance", client);
-        return;    
+        return;
     }
 
     StartSprayToAll(client, m_flView);

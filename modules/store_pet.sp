@@ -11,7 +11,7 @@
 #include <fys.pupd>
 #define REQUIRE_PLUGIN
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
     name        = "Store - Pets",
     author      = STORE_AUTHOR,
@@ -105,7 +105,7 @@ public void Pets_Reset()
 public bool Pets_Config(Handle kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPets);
-    
+
     float m_fTemp[3];
     KvGetString(kv, "model", g_ePets[g_iPets].model, sizeof(Pet::model));
     KvGetString(kv, "idle", g_ePets[g_iPets].idle, sizeof(Pet::idle));
@@ -133,7 +133,7 @@ public bool Pets_Config(Handle kv, int itemid)
 public int Pets_Equip(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
-    
+
     ResetPet(client, g_ePets[m_iData].iSlot);
 
     if(IsPlayerAlive(client))
@@ -301,7 +301,7 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
 
     if(m_iEquipped < 0)
         return;
-    
+
     int m_iData = Store_GetDataIndex(m_iEquipped);
 
     if (!Store_IsGlobalTeam() && g_ePets[m_iData].iTeam > 0 && GetClientTeam(client) != g_ePets[m_iData].iTeam)
@@ -342,13 +342,13 @@ void CreatePet(int client, int itemid = -1, int slot = 0)
     SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", client);
 
     // scale
-    SetEntPropFloat(entity, Prop_Send, "m_flModelScale", g_ePets[m_iData].fScale); 
+    SetEntPropFloat(entity, Prop_Send, "m_flModelScale", g_ePets[m_iData].fScale);
 
-    DispatchSpawn(entity);    
+    DispatchSpawn(entity);
     AcceptEntityInput(entity, "TurnOn", entity, entity, 0);
-    
-    TeleportEntity(entity, m_flClientOrigin, m_flAngles, NULL_VECTOR); 
-    
+
+    TeleportEntity(entity, m_flClientOrigin, m_flAngles, NULL_VECTOR);
+
     SetVariantString("!activator");
     AcceptEntityInput(entity, "SetParent", client, entity, 0);
 
@@ -394,17 +394,17 @@ void DeathPet(int client, int slot)
 
     if(!IsValidEdict(entity))
         return;
-    
+
     int m_iData = g_sPetRef[client][slot].m_iDataIndex;
     if (m_iData < 0)
         return;
-    
+
     if(g_ePets[m_iData].death[0] == '\0')
     {
         ResetPet(client, slot);
         return;
     }
-    
+
     SetVariantString(g_ePets[m_iData].death);
     AcceptEntityInput(entity, "SetAnimation");
     g_sPetRef[client][slot].m_iLastAnimation = 3;

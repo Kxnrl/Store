@@ -128,11 +128,11 @@ void Store_SetClientHat(int client)
 static void CreateHat(int client, int itemid = -1, int slot = 0)
 {
     int m_iEquipped = (itemid == -1 ? Store_GetEquippedItem(client, "hat", slot) : itemid);
-    
+
     if(m_iEquipped >= 0)
     {
         int m_iData = Store_GetDataIndex(m_iEquipped);
-        
+
 #if defined GM_ZE
         if(g_iClientTeam[client] == 2)
             return;
@@ -151,7 +151,7 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         float m_fUp[3];
         GetClientAbsOrigin(client,m_fHatOrigin);
         GetClientAbsAngles(client,m_fHatAngles);
-        
+
         m_fHatAngles[0] += g_eHats[m_iData].fAngles[0];
         m_fHatAngles[1] += g_eHats[m_iData].fAngles[1];
         m_fHatAngles[2] += g_eHats[m_iData].fAngles[2];
@@ -179,19 +179,19 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         if(g_eHats[m_iData].bBonemerge)
             Bonemerge(m_iEnt);
 
-        DispatchSpawn(m_iEnt);    
+        DispatchSpawn(m_iEnt);
         AcceptEntityInput(m_iEnt, "TurnOn", m_iEnt, m_iEnt, 0);
 
         g_iClientHats[client][g_eHats[m_iData].iSlot] = EntIndexToEntRef(m_iEnt);
-        
+
         if (g_eHats[m_iData].bHide)
         {
             // hook transmit
             SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
         }
 
-        TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR); 
-        
+        TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR);
+
         SetVariantString("!activator");
         AcceptEntityInput(m_iEnt, "SetParent", client, m_iEnt, 0);
 
@@ -234,11 +234,11 @@ public Action Hook_SetTransmit_Hat(int ent, int client)
 
 static void Bonemerge(int ent)
 {
-    int m_iEntEffects = GetEntProp(ent, Prop_Send, "m_fEffects"); 
+    int m_iEntEffects = GetEntProp(ent, Prop_Send, "m_fEffects");
     m_iEntEffects &= ~32;
     m_iEntEffects |= 1;
     m_iEntEffects |= 128;
-    SetEntProp(ent, Prop_Send, "m_fEffects", m_iEntEffects); 
+    SetEntProp(ent, Prop_Send, "m_fEffects", m_iEntEffects);
 }
 
 stock void Call_OnHatsCreated(int client, int entity, int slot)

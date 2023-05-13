@@ -242,7 +242,7 @@ void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int
     {
         if(input[x] == '\0')
             break;
-        
+
         if(buffs == 2)
         {
             strcopy(copy, maxLen, input);
@@ -276,7 +276,7 @@ bool IsChar(char c)
 {
     if(0 <= c <= 126)
         return true;
-    
+
     return false;
 }
 

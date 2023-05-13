@@ -6,14 +6,14 @@
         "chi" "你的库存正在载入中,请稍后."
         "da" "Vent venligst. Dit inventar er ikke blevet hentet endnu."
     }
-    
+
     "Inventory has been loaded"
     {
         "en" "Inventory loaded. Type {green}!store {default} to open store menu."
         "chi" "你的库存已加载,输入{green}!store{default}即可打开商店!"
         "da" "Inventar loadet. Skriv {green}!store{default} for at åbne store menu."
     }
-    
+
     "Item Bought"
     {
         "#format" "{1:s}"
@@ -21,21 +21,21 @@
         "chi" "{1}"
         "da" "{1}"
     }
-    
+
     "Item not in case"
     {
         "en" "Skin not contain in case"
         "chi" "皮肤箱中不包含当前浏览的皮肤"
         "da" "Skin er ikke i denne kasse"
     }
-    
+
     "Open case successful"
     {
         "en" "Case successfully opened"
         "chi" "开箱成功"
         "da" "Kassen blev åbnet"
     }
-    
+
     "Item Available"
     {
         "#format" "{1:s},{2:d}"
@@ -43,7 +43,7 @@
         "chi" "{1} ({2}积分)"
         "da" "{1} ({2}Credits)"
     }
-    
+
     "credits"
     {
         "en" "Credits"
@@ -58,7 +58,7 @@
         "chi" "{1}  (选择购买时长)"
         "da" "{1}  (Vælg Plan)"
     }
-    
+
     "Item Preview Available"
     {
         "#format" "{1:s}"
@@ -66,7 +66,7 @@
         "chi" "{1}"
         "da" "{1} (Se detaljer)"
     }
-    
+
     "Item not Buyable"
     {
         "en" "Non-sale products"
@@ -81,14 +81,14 @@
         "chi" "{1} (需要合成)"
         "da" "{1} (Komponering krævet for dette skin)"
     }
-    
+
     "Preview Compose Available"
     {
         "en"  "Compose Skin"
         "chi" "合成皮肤"
         "da" "Komponer Skin"
     }
-    
+
     "Playerskins Level"
     {
         "#format" "{1:d},{2:s}"
@@ -96,14 +96,14 @@
         "chi" "皮肤等级: {1}  -  {2}"
         "da" "Skin Level: {1} - {2}"
     }
-    
+
     "Open Case Available"
     {
         "en"  "Open skin case"
         "chi" "跳转至砸金蛋"
         "da" "Åben skin kasse"
     }
-    
+
     "Open Case not available"
     {
         "en"  "Skin case unavailable"
@@ -118,7 +118,7 @@
         "chi" "购买这个皮肤 ({1}积分)"
         "da" "Køb ({1}Credits)
     }
-    
+
     "Preview Plan Available"
     {
         "en" "Choose purchase plan"
@@ -132,14 +132,14 @@
         "chi" "预览这个皮肤"
         "da" "Forhåndsvisning af Skin"
     }
-    
+
     "Chat Preview"
     {
         "en" "Preview model will disappear in 30 seconds"
         "chi" "30秒后预览模型将消失"
         "da" "Forhåndsvisning af model vil forsvinde om 30 sekunder."
     }
-    
+
     "Chat Preview Cooldown"
     {
         "en" "Preview on cooldown..."
@@ -154,28 +154,28 @@
         "chi" "{1} [已装备]"
         "da" "{1} [MONTERET]"
     }
-    
+
     "Item Equip"
     {
         "en" "Equip this item"
         "chi" "装备该物品"
         "da" "Monter denne vare"
     }
-    
+
     "Item Unequip"
     {
         "en" "Unequip"
         "chi" "卸下该物品"
         "da" "Afmonter"
     }
-    
+
     "Item Use"
     {
         "en" "Use this item"
         "chi" "使用该物品"
         "da" "Benyt denne vare"
     }
-    
+
     "Item Sell"
     {
         "#format" "{1:d}"
@@ -183,7 +183,7 @@
         "chi" "以 {1} Credits的价格出售该物品"
         "da" "Sælg for {1}"
     }
-    
+
     "Item Gift"
     {
         "en" "Gift this item"
@@ -197,7 +197,7 @@
         "chi" "商店菜单"
         "da" "Store Menu"
     }
-    
+
     "Title Credits"
     {
         "#format" "{1:d}"
@@ -205,7 +205,7 @@
         "chi" "积分: {1}"
         "da" "Credits: {1}"
     }
-    
+
     "Title Expiration"
     {
         "#format" "{1:d},{2:d}"
@@ -213,7 +213,7 @@
         "chi" "剩余时间: {1}天{2}小时"
         "da" "Udløber om {1}d {2}h"
     }
-    
+
     "Title Expiration PM"
     {
         "en" "No expiration limit."
@@ -227,7 +227,7 @@
         "chi" "选择欲赠送物品的玩家"
         "da" "Vælg en spiller at sende din gave til"
     }
-    
+
     "Title Compose"
     {
         "#format" "{1:s},{2:s},{3:s}"
@@ -235,14 +235,14 @@
         "chi" "合成 {1} \n物品①: {2}\n物品②: {3}"
         "da" "Komponer {1} \n item①: {2}\n item②: {3}"
     }
-    
+
     "unselect"
     {
         "en" "Unselect"
         "chi" "未选择"
         "da" "Fravælg"
     }
-    
+
     "Confirm_Compose"
     {
         "#format" "{1:s},{2:s},{3:s},{4:s}"
@@ -250,14 +250,14 @@
         "chi" "你确定要合成 {1}\n消耗:\n{2}\n{3}\n{4}积分"
         "da" "Er du sikker på du vil komponere {1}\nexpend: \n{2}\n{3}\n{4}Credits"
     }
-    
+
     "Compose no material"
     {
         "en" "{red}Not enough compost material(s)!"
         "chi" "{red}没有足够的合成材料"
         "da" "{red}Ikke nok materialer!"
     }
-    
+
     "Compose Failed"
     {
         "en" "{red}Compose failed! You lost your material and credits..."
@@ -286,14 +286,14 @@
         "chi" "你选择的玩家已离开游戏."
         "da" "Valgte spiller har allerede forladt spillet."
     }
-    
+
     "Gift No Players"
     {
         "en" "There's no one you can gift this item to."
         "chi" "没有可赠送物品的玩家."
         "da" "Der er ingen at give dette skin som gave til."
     }
-    
+
     "Chat Bought Item"
     {
         "#format" "{1:s},{2:t}"
@@ -301,7 +301,7 @@
         "chi" "你购买了 {green}{1} {2}{white}, 你需要选择已购买的物品来装备."
         "da" "Du har købt en {green}{1} {2}{white}, du mangler at tage varen på."
     }
-    
+
     "Chat Sold Item"
     {
         "#format" "{1:s},{2:t}"
@@ -309,7 +309,7 @@
         "chi" "你卖掉了 {green}{1} {2}{white}."
         "da" "Du har sold en {green}{1} {2}{white}."
     }
-    
+
     "Chat Gift Item Sent"
     {
         "#format" "{1:N},{2:s},{3:t}"
@@ -317,7 +317,7 @@
         "chi" "你赠送了物品 {green}{2} {3}{white} 给玩家 {green}{1}{white}."
         "da" "Du har sendt {green}{1}{white} en {green}{2} {3}{white} som en gave."
     }
-    
+
     "Chat Gift Item Received"
     {
         "#format" "{1:N},{2:s},{3:t}"
@@ -325,14 +325,14 @@
         "chi" "玩家 {green}{1}{white} 给你赠送了物品 {green}{2} {3}{white}."
         "da" "{green}{1}{white} har sendt {green}{2} {3}{white} som en gave."
     }
-    
+
     "Credit Gift Disabled"
     {
         "en" "Credit gifting is disabled on this server."
         "chi" "赠送物品功能已被禁用."
         "da" "At give credits som gave er deaktiveret på denne server."
     }
-    
+
     "Package Sell"
     {
         "#format" "{1:d}"
@@ -340,35 +340,35 @@
         "chi" "以 {1} Credits的价格出售该套装"
         "da" "Sælg denne pakke for {1}"
     }
-    
+
     "Package Gift"
     {
         "en" "Gift this package"
         "chi" "赠送该套装"
         "da" "Giv denne pakke som gave"
     }
-    
+
     "PlayerSkins Settings Changed"
     {
         "en" "Your new settings will be applied on next spawn."
         "chi" "你的设置将在下次重生时生效."
         "da" "De nye indstillinger bliver anvendt ved næste spawn."
     }
-    
+
     "Confirm_Yes"
     {
         "en" "Yes"
         "chi" "是"
         "da" "Ja"
     }
-    
+
     "Confirm_No"
     {
         "en" "No"
         "chi" "否"
         "da" "Nej"
     }
-    
+
     "Confirm_Buy"
     {
         "#format" "{1:s},{2:t}"
@@ -376,7 +376,7 @@
         "chi" "你是否要购买物品 {1} {2}?"
         "da" "Er du sikker på du vil kæbe {1} {2}?"
     }
-    
+
     "Confirm_Sell"
     {
         "#format" "{1:s},{2:t},{3:d}"
@@ -384,7 +384,7 @@
         "chi" "你是否要卖掉物品 {1} {2}?"
         "da" "Er du sikker på du vil sælge {1} {2} for {3}?"
     }
-    
+
     "Confirm_Gift"
     {
         "#format" "{1:s},{2:t},{3:N}"
@@ -392,7 +392,7 @@
         "chi" "你确定送物品 {1} {2} 给玩家 {3}?"
         "da" "Er du sikker? Gave {1} {2} for {3}?"
     }
-    
+
     "Gift_Handing"
     {
         "#format" "{1:d}"
@@ -400,7 +400,7 @@
         "chi" "手续费: {1} 积分"
         "da" "Ekspiditionsgebyr: {1} Credits"
     }
-    
+
     "Chat Not Enough Handing Fee"
     {
         "#format" "{1:d}"
@@ -418,21 +418,21 @@
     }
 
     // Item type names for chat messages
-    
+
     "hat"
     {
         "en" "Hat"
         "chi" "人物装饰品"
         "da" "Hat"
     }
-    
+
     "playerskin"
     {
         "en" "Player skin"
         "chi" "人物皮肤"
         "da" "Spiller skin"
     }
-    
+
     "trail"
     {
         "en" "Trail"
@@ -446,7 +446,7 @@
         "chi" "手雷模型"
         "da" "Granat skin"
     }
-    
+
     "nadetrail"
     {
         "en" "Grenade trail"
@@ -474,14 +474,14 @@
         "chi" "聊天消息颜色"
         "da" "Besked farve"
     }
-    
+
     "sound"
     {
         "en" "Sound"
         "chi" "音效"
         "da" "Lyd"
     }
-    
+
     "neon"
     {
         "en" "Neon"
@@ -509,7 +509,7 @@
         "chi" "喷漆"
         "da" "Spray"
     }
-    
+
     "vwmodel"
     {
         "en" "Weapon model"
@@ -522,14 +522,14 @@
         "en" "Weapon Skin Access pass"
         "chi" ".ws使用权限"
     }
-    
+
     "weaponskin"
     {
         "en" "Weapon skin"
         "chi" "武器皮肤"
         "da" "Våben skin"
     }
-    
+
     "pet"
     {
         "en" "Pet"
@@ -543,56 +543,56 @@
         "chi" "VIP"
         "da" "VIP"
     }
-    
+
     "cat banned"
     {
         "en" "{darkred}You got a CAT ban..."
         "chi" "你的Store信用为{darkred}不可信{normal}或{red}积分为负{normal}!"
         "da" "{darkred}Du fik et CAT ban..."
     }
-    
+
     "spray auto equip"
     {
         "en" "You have no equipped spray. Auto-Equip default Spray."
         "chi" "你没有装备喷漆,当前为你装备默认喷漆"
         "da" "Du har ingen sprays tilknyttet. Auto-Equip standard Spray."
     }
-    
+
     "spray no equip"
     {
         "en" "You have no spray equipped."
         "chi" "你没有装备喷漆"
         "da" "Du har ikke nogle spray tilknyttet."
     }
-    
+
     "spray cooldown"
     {
         "en" "Spray is on cooldown..."
         "chi" "喷漆功能正在冷却"
         "da" "Spray er på nedkøling..."
     }
-    
+
     "spray distance"
     {
         "en" "Invalid spray distance"
         "chi" "喷漆距离太远"
         "da" "Ugyldig spray distance"
     }
-    
+
     "sound cooldown"
     {
         "en" "Sound effects is cooling down..."
         "chi" "音效功能正在冷却"
         "da" "Lydeffekter er på nedkøling..."
     }
-    
+
     "sound no equip"
     {
         "en" "You haven't equiped sound effects."
         "chi" "你还没有打开音效功能,请在Store装备"
         "da" "Du har ikke nogle lydeffekter tilknyttet."
     }
-    
+
     "sound to all"
     {
         "#format" "{1:N},{2:s}"
@@ -600,21 +600,21 @@
         "chi" "{green}{1}{normal} 使用音效 [{blue}{2}{normal}]"
         "da" "{green}{1}{normal} benyttede [{blue}{2}{normal}] (!sspb til at mute)"
     }
-    
+
     "on"
     {
         "en" "{green}ON{normal}"
         "chi" "{green}开启{normal}"
         "da" "{green}TÆND{normal}"
     }
-    
+
     "off"
     {
         "en" "{red}OFF{normal}"
         "chi" "{red}关闭{normal}"
         "da" "{red}SLUK{normal}"
     }
-    
+
     "sound setting"
     {
         "#format" "{1:t}"
@@ -622,7 +622,7 @@
         "chi" "你已经{1}屏蔽音效功能"
         "da" "Bloker lydeffekter {1} nu"
     }
-    
+
     "hide setting"
     {
         "#format" "{1:t}"
@@ -630,35 +630,35 @@
         "chi" "你已{1}屏蔽足迹/霓虹/光环"
         "da" "Skjul haler / neon / aura {1} nu"
     }
-    
+
     "tp not allow"
     {
         "en" "Third person unavaliable in current mode"
         "chi" "当前模式不允许使用TP"
         "da" "Tredje person utilgængelig i det nuværende mode"
     }
-    
+
     "tp dead"
     {
         "en" "Third person unavaliable when you were deceased"
         "chi" "你已经嗝屁了,还想开TP?"
         "da" "Tredje person utilgængelig når du er død"
     }
-    
+
     "tp seeme"
     {
         "en" "Third person unavaliable"
         "chi" "你已经开了SeeMe,还想开TP?"
         "da" "Tredje person utilgængelig"
     }
-    
+
     "seeme tp"
     {
         "en" "You are in TP mode, SeeMe mode is unavailable!"
         "chi" "你已经开了TP,还想开SeeMe?"
         "da" "Du er i TP mode, SeeMe mode er utilgængeligt!"
     }
-    
+
     "data protect"
     {
         "#format" "{1:d}"
@@ -666,28 +666,28 @@
         "chi" "数据保护已开启,请等待{green}{1}秒{normal}后再试..."
         "da" "Data beskyttelse aktiveret. Prøv igen efter {green}{1} sekunder{normal}!"
     }
-    
+
     "unknown error"
     {
         "en" "Unknown error occurred, please contact admin..."
         "chi" "发生未知错误,请联系管理员..."
         "da" "Ukendt fejl opstået, venligst kontakt admin..."
     }
-    
+
     "time limit"
     {
         "en" "Time remaining"
         "chi" "时限"
         "da" "Tid tilbage"
     }
-    
+
     "permanent"
     {
         "en" "Permanent"
         "chi" "永久"
         "da" "Permanent"
     }
-    
+
     "opencase earned day"
     {
         "#format" "{1:N},{2:t},{3:s},{4:d}"
@@ -695,7 +695,7 @@
         "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}{4}天{normal})"
         "en"  "{purple}{1} {normal}åbnede en(n) {blue}{2}{normal}, tjente [{green}{3}{normal}]({yellow}{4}dage(s){normal})"
     }
-    
+
     "opencase earned perm"
     {
         "#format" "{1:N},{2:t},{3:s}"
@@ -703,21 +703,21 @@
         "chi" "{purple}{1}{normal}在{blue}{2}{normal}中获得了[{green}{3}{normal}]({yellow}永久{normal})"
         "da" "{purple}{1} {normal}åbnede en {blue}{2}{normal}, tjente [{green}{3}{normal}]({yellow}permanent{normal})"
     }
-    
+
     "quickly sell"
     {
         "en" "Instant Sell"
         "chi" "快速卖出该皮肤"
         "da" "Øjeblikkeligt Salg"
     }
-    
+
     "income"
     {
         "en" "Income"
         "chi" "添加到我的库存"
         "da" "Indtjening"
     }
-    
+
     "open case and quickly sell"
     {
         "en" "Open case and quick-sell it"
@@ -756,21 +756,21 @@
         "chi" "你打开[{green}{1}{normal}]获得了[{green}{2}{normal}]({yellow}永久{normal})"
         "da" "Du åbnede {blue}{1}{normal} og modtog [{green}{2}{normal}]({yellow}permanent{normal})"
     }
-    
+
     "open and cancel"
     {
         "en" "Open case and cancel menu"
         "chi" "开启皮肤箱后因选择退出而快速卖出皮肤"
         "da" "Åbnede kasse og afbryd menu"
     }
-    
+
     "online earn credits"
     {
         "en" "Earn credits by Online"
         "chi" "游戏在线获得积分"
         "da" "Optjen credit ved at være online"
     }
-    
+
     "earn credits chat"
     {
         "#format" "{1:d}"
@@ -778,14 +778,14 @@
         "chi" "你获得了{green} {1} 积分"
         "da" "Du optjente {green} {1} credits"
     }
-    
+
     "earn credits from chat"
     {
         "en" "By "
         "chi" "积分来自"
         "da" "Fra "
     }
-    
+
     "Compose successfully broadcast"
     {
         "#format" "{1:N},{2:s}"
@@ -793,21 +793,21 @@
         "chi" "{blue}{1}{green}成功合成了皮肤{gold}{2}"
         "da" "{blue}{1}{green} komponerede et skin {normal}[{gold}{2}{normal}]"
     }
-    
+
     "select case"
     {
         "en" "Select case"
         "chi" "选择你要开的箱子"
         "da" "Vælg kasse"
     }
-    
+
     "receiver BOT"
     {
         "en" "{red}You can not gift an item to BOT."
         "chi" "{red}你不能给BOT送东西."
         "da" "{red}Du kan ikke sende gaver til en BOT."
     }
-    
+
     "give command"
     {
         "#format" "{1:N},{2:d}"
@@ -920,7 +920,7 @@
         "chi" "尊享"
         "da"  "Lv.3"
     }
-    
+
     "level 4"
     {
         "en"  "Lv.4"

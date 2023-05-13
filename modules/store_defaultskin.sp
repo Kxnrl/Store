@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <store>
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
     name        = "Store - Default player skins",
     author      = STORE_AUTHOR,
@@ -14,14 +14,14 @@ public Plugin myinfo =
     url         = STORE_URL
 };
 
-char g_szDefaultSkin[2][192] = 
+char g_szDefaultSkin[2][192] =
 {
     "models/player/custom_player/legacy/tm_leet_variant_classic.mdl",
     "models/player/custom_player/legacy/ctm_sas_variant_classic.mdl"
 };
 bool g_bSkinLoaded[2];
 
-char g_szDefaultArms[2][192] = 
+char g_szDefaultArms[2][192] =
 {
     "models/weapons/t_arms.mdl",
     "models/weapons/ct_arms.mdl"

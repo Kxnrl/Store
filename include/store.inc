@@ -14,7 +14,7 @@
 #define STORE_VERSION "2.6.1" ... "." ... STORE_AUTO_VERSION
 #define STORE_URL     "https://www.kxnrl.com"
 
-public SharedPlugin __pl_store = 
+public SharedPlugin __pl_store =
 {
     name = "store",
     file = "store.smx",

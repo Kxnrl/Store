@@ -74,7 +74,7 @@ static Action Command_TP(int client, int args)
         tPrintToChat(client, "Invalid parameter.");
         return Plugin_Handled;
     }
-    
+
 #if !defined Module_TPMode
     if(!IsImmunityClient(client))
     {
@@ -182,7 +182,7 @@ static void ToggleMirror(int client, bool state)
 {
     if(state)
     {
-        SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", 0); 
+        SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", 0);
         SetEntProp(client, Prop_Send, "m_iObserverMode", 1);
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 0);
         SetEntProp(client, Prop_Send, "m_iFOV", 120);
@@ -236,7 +236,7 @@ static Action EnforceCamera(Handle timer)
     {
         if (!IsClientInGame(i) || IsFakeClient(i))
             continue;
-        
+
         // in state -> skipped
         if (g_bThirdperson[i] || g_bMirror[i])
             continue;

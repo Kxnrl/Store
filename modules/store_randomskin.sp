@@ -15,7 +15,7 @@
 #include <clientprefs>
 #define REQUIRE_EXTENSIONS
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
     name        = "Store - Random player skins",
     author      = STORE_AUTHOR,

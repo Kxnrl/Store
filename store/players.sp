@@ -17,7 +17,7 @@ void Players_OnPluginStart()
 #if defined Module_Neon
     //  neon id -> color
     //  modify in dev1.92
-    Store_RegisterHandler("neon", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true); 
+    Store_RegisterHandler("neon", Neon_OnMapStart, Neon_Reset, Neon_Config, Neon_Equip, Neon_Remove, true);
 #endif
 
 #if defined Module_Aura
@@ -87,7 +87,7 @@ public void OnClientSpawnPost(int client)
 {
     if(!IsClientInGame(client) || !IsPlayerAlive(client))
         return;
-    
+
 #if defined Module_Skin
     Store_RemoveClientGloves(client, -1);
 #endif
@@ -200,13 +200,13 @@ public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroa
     int oldteam = event.GetInt("oldteam");
 
     g_iClientTeam[client] = newteam;
-    
+
     if(oldteam > 1 && newteam <= 1)
     {
 #if defined Module_Aura
         Store_RemoveClientAura(client);
 #endif
-        
+
 #if defined Module_Neon
         Store_RemoveClientNeon(client);
 #endif

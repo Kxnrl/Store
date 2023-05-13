@@ -5,7 +5,7 @@
 #include <store>
 #include <store_stock>
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
     name        = "Store - Give credits command",
     author      = STORE_AUTHOR,
@@ -27,12 +27,12 @@ public Action CommandCredits(int client, int args)
     if(args < 2)
     {
         ReplyToCommand(client, "[Store] Usage: sm_givecredits <target> <amount>");
-        return Plugin_Handled;    
+        return Plugin_Handled;
     }
 
     char arg[32];
     GetCmdArg(2, STRING(arg));
-    
+
     int credits = 0;
     if(StringToIntEx(arg, credits) == 0 || credits <= 0)
     {
@@ -58,7 +58,7 @@ public Action CommandCredits(int client, int args)
         ReplyToTargetError(client, target_count);
         return Plugin_Handled;
     }
-    
+
     char reason[128];
     FormatEx(STRING(reason), "Give command by \"%L\"", client);
 

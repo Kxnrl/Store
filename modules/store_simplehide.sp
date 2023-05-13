@@ -7,7 +7,7 @@
 #include <store>
 #include <store_stock>
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
     name        = "Store - Simple Hide",
     author      = STORE_AUTHOR,

@@ -5,7 +5,7 @@
 #include <store>
 #include <sdktools>
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
     name        = "Store - Music Kit",
     author      = STORE_AUTHOR,
@@ -29,7 +29,7 @@ public void Store_OnStoreInit(Handle store_plugin)
 
 public void MK_OnMapStart()
 {
-    
+
 }
 
 public void MK_Reset()

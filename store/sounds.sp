@@ -88,13 +88,13 @@ static bool Sound_Config(KeyValues kv, int itemid)
 
     if(g_eSounds[g_iSounds].iCooldown < 30)
         g_eSounds[g_iSounds].iCooldown = 30;
-    
+
     if(g_eSounds[g_iSounds].fVolume > 1.0)
         g_eSounds[g_iSounds].fVolume = 1.0;
-    
+
     if(g_eSounds[g_iSounds].fVolume <= 0.0)
         g_eSounds[g_iSounds].fVolume = 0.05;
-    
+
     char szPath[256];
     FormatEx(STRING(szPath), "sound/%s", g_eSounds[g_iSounds].szSound);
     if(FileExists(szPath, true))
@@ -144,20 +144,20 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 {
     if(client <= 0)
         return;
-    
+
     if(!IsClientInGame(client))
         return;
-    
+
     if(g_iSoundClient[client] < 0)
         return;
-    
+
     if(sArgs[0] == '!' || sArgs[0] == '/' || sArgs[0] == '@')
         return;
-    
+
     if(g_iSoundSpam[client] > GetTime())
             return;
-    
-    if  ( 
+
+    if  (
             StrContains(sArgs, "cheer", false) != -1 ||
             StrContains(sArgs, "lol", false) != -1 ||
             StrContains(sArgs, "233", false) != -1 ||
@@ -174,7 +174,7 @@ public Action Command_Cheer(int client, int args)
 {
     if(!IsValidClient(client))
         return Plugin_Handled;
-    
+
     if(g_iSoundSpam[client] > GetTime())
     {
         tPrintToChat(client, "%T", "sound cooldown", client);
@@ -348,7 +348,7 @@ public void Sounds_OnLoadOptions(int client)
     {
         char buff[4];
         GetClientCookie(client, g_hCookieSounds, STRING(buff));
-        
+
         if(buff[0] != 0)
             g_bClientDisable[client] = (StringToInt(buff) == 1 ? true : false);
     }

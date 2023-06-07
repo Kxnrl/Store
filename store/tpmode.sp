@@ -143,11 +143,13 @@ static Action Command_Mirror(int client, int args)
         return Plugin_Handled;
     }
 
+    #if !defined GM_IS
     if(mp_forcecamera == null)
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
     }
+    #endif
 
     ToggleMirror(client, !g_bMirror[client]);
 
@@ -186,7 +188,10 @@ static void ToggleMirror(int client, bool state)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 1);
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 0);
         SetEntProp(client, Prop_Send, "m_iFOV", 120);
+
+        #if !defined GM_IS
         mp_forcecamera.ReplicateToClient(client, "1");
+        #endif
     }
     else
     {
@@ -194,9 +199,12 @@ static void ToggleMirror(int client, bool state)
         SetEntProp(client, Prop_Send, "m_iObserverMode", 0);
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
         SetEntProp(client, Prop_Send, "m_iFOV", 90);
+
+        #if !defined GM_IS
         char value[6];
         mp_forcecamera.GetString(value, 6);
         mp_forcecamera.ReplicateToClient(client, value);
+        #endif
     }
 
     g_bMirror[client] = state;

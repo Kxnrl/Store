@@ -2446,7 +2446,7 @@ void DisplayItemMenu(int client, int itemid)
     {
         if(StrEqual(g_TypeHandlers[g_Items[itemid].iHandler].szType, "playerskin"))
         {
-            AddMenuItemEx(m_hMenu, (g_Items[g_iItems].szDesc[0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "", "%s", g_Items[itemid].szDesc);
+            AddMenuItemEx(m_hMenu, (g_Items[itemid].szDesc[0] == '\0') ? ITEMDRAW_SPACER : ITEMDRAW_DISABLED, "3", "%s", g_Items[itemid].szDesc);
 
             char leveltype[32];
             UTIL_GetLevelType(client, itemid, STRING(leveltype));

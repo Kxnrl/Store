@@ -63,7 +63,7 @@
     {
         "#format" "{1:s}"
         "en" "{1} (View details)"
-        "chi" "{1}"
+        "chi" "{1}*"
         "da" "{1} (Se detaljer)"
     }
 

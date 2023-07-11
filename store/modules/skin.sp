@@ -471,13 +471,16 @@ void Broadcast_DeathSound(int client)
 
 void Store_PreviewSkin(int client, int itemid)
 {
-    if(g_tKillPreview[client] != null)
+    if (g_tKillPreview[client] != null)
         TriggerTimer(g_tKillPreview[client], false);
 
+    if (g_iPreviewTimes[client] > GetTime())
+    {
+        tPrintToChat(client, "%T", "too many commands", client);
+        return;
+    }
+
     int m_iViewModel = CreateEntityByName("prop_dynamic_override"); //prop_physics_multiplayer
-    char m_szTargetName[32];
-    FormatEx(STRING(m_szTargetName), "Store_Preview_%d", m_iViewModel);
-    DispatchKeyValue(m_iViewModel, "targetname", m_szTargetName);
     DispatchKeyValue(m_iViewModel, "spawnflags", "64");
     DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_Items[itemid].iData].szModel);
     DispatchKeyValue(m_iViewModel, "rendermode", "0");
@@ -500,7 +503,7 @@ void Store_PreviewSkin(int client, int itemid)
 
     int offset = GetEntSendPropOffs(m_iViewModel, "m_clrGlow");
     SetEntProp(m_iViewModel, Prop_Send, "m_bShouldGlow", true, true);
-    SetEntProp(m_iViewModel, Prop_Send, "m_nGlowStyle", 0);
+    SetEntProp(m_iViewModel, Prop_Send, "m_nGlowStyle", 2);
     SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 2000.0);
 
     //Miku Green
@@ -526,25 +529,51 @@ void Store_PreviewSkin(int client, int itemid)
 
     TeleportEntity(m_iViewModel, m_fPosition, m_fAngles, NULL_VECTOR);
 
-    g_iPreviewTimes[client] = GetTime()+90;
+    g_iPreviewTimes[client] = GetTime()+18;
     g_iPreviewModel[client] = EntIndexToEntRef(m_iViewModel);
 
     SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
 
-    g_tKillPreview[client] = CreateTimer(45.0, Timer_KillPreview, client);
+    g_tKillPreview[client] = CreateTimer(15.0, Timer_KillPreview, client);
 
     tPrintToChat(client, "%T", "Chat Preview", client);
 }
 
-public Action Hook_SetTransmit_Preview(int ent, int client)
+static Action Hook_SetTransmit_Preview(int entity, int client)
 {
-    if(g_iPreviewModel[client] == INVALID_ENT_REFERENCE)
+    if (g_iPreviewModel[client] == INVALID_ENT_REFERENCE)
         return Plugin_Handled;
 
-    if(ent == EntRefToEntIndex(g_iPreviewModel[client]))
-        return Plugin_Continue;
+    if (entity != EntRefToEntIndex(g_iPreviewModel[client]))
+        return Plugin_Handled;
 
-    return Plugin_Handled;
+    float vPosEntity[3], vPosClient[3];
+    GetClientAbsOrigin(client, vPosClient);
+    GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosEntity);
+    if (vPosClient[2] < vPosEntity[2] - 40.0)
+    {
+        SafeKillPreview(client, entity);
+        return Plugin_Handled;
+    }
+    vPosClient[2] = 0.0;
+    vPosEntity[2] = 0.0;
+    if (GetVectorDistance(vPosEntity, vPosClient) < 32.0)
+    {
+        SafeKillPreview(client, entity);
+        return Plugin_Handled;
+    }
+    return Plugin_Continue;
+}
+
+static void SafeKillPreview(int client, int entity)
+{
+    RemoveEntity(entity);
+    g_iPreviewModel[client] = INVALID_ENT_REFERENCE;
+    delete g_tKillPreview[client];
+
+    tPrintToChat(client, "%T", "anti collision", client);
+
+    g_iPreviewTimes[client] = GetTime() + 3;
 }
 
 public Action Timer_KillPreview(Handle timer, int client)

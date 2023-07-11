@@ -135,9 +135,9 @@
 
     "Chat Preview"
     {
-        "en" "Preview model will disappear in 30 seconds"
-        "chi" "30秒后预览模型将消失"
-        "da" "Forhåndsvisning af model vil forsvinde om 30 sekunder."
+        "en" "Preview model will disappear in 15 seconds"
+        "chi" "15秒后预览模型将消失"
+        "da" "Forhåndsvisning af model vil forsvinde om 15 sekunder."
     }
 
     "Chat Preview Cooldown"
@@ -967,5 +967,17 @@
         "#format" "{1:N},{2:s}"
         "en" "{green}{1}{normal} used [{blue}{2}{normal}]"
         "chi" "{green}{1}{normal} 使用喷漆 [{blue}{2}{normal}]"
+    }
+
+    "too many commands"
+    {
+        "en" "Too many commands, please wait..."
+        "chi" "请勿频繁使用指令, 请稍后再试..."
+    }
+
+    "anti collision"
+    {
+        "en" "Anti Collision..."
+        "chi" "反和谐, 请使用正常视角进行预览..."
     }
 }

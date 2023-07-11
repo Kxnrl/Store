@@ -62,9 +62,9 @@ void Store_RemoveClientNeon(int client)
     if(g_iClientNeon[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientNeon[client]);
-        if(IsValidEdict(entity))
+        if (entity > 0 && IsValidEdict(entity))
         {
-            AcceptEntityInput(entity, "Kill");
+            RemoveEntity(entity);
         }
         g_iClientNeon[client] = INVALID_ENT_REFERENCE;
     }

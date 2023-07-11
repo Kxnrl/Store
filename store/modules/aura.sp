@@ -89,9 +89,9 @@ void Store_RemoveClientAura(int client)
     if(g_iClientAura[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientAura[client]);
-        if(IsValidEdict(entity))
+        if (entity > 0 && IsValidEdict(entity))
         {
-            AcceptEntityInput(entity, "Kill");
+            RemoveEntity(entity);
         }
         g_iClientAura[client] = INVALID_ENT_REFERENCE;
     }

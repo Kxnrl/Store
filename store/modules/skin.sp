@@ -583,11 +583,9 @@ public Action Timer_KillPreview(Handle timer, int client)
     if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iPreviewModel[client]);
-
-        if(IsValidEdict(entity))
+        if (entity > 0 && IsValidEdict(entity))
         {
-            SDKUnhook(entity, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
-            AcceptEntityInput(entity, "Kill");
+            RemoveEntity(entity);
         }
     }
     g_iPreviewModel[client] = INVALID_ENT_REFERENCE;
@@ -666,15 +664,15 @@ public Action Timer_ClearCamera(Handle timer, int client)
     {
         int entity = EntRefToEntIndex(g_iCameraRef[client]);
 
-        if(IsValidEdict(entity))
+        if (entity > 0 && IsValidEdict(entity))
         {
-            AcceptEntityInput(entity, "Kill");
+            RemoveEntity(entity);
         }
 
         g_iCameraRef[client] = INVALID_ENT_REFERENCE;
     }
 
-    if(IsClientInGame(client))
+    if (IsClientInGame(client))
     {
         SetClientViewEntity(client, client);
         FadeScreenWhite(client);

@@ -222,7 +222,7 @@ public void PlayerSkins_OnMapStart()
 
     PrecacheModel("models/blackout.mdl", false);
 
-    if (deathsounds > 0)
+    if (deathsounds > 0 && !g_bSoundHooked)
     {
         AddNormalSoundHook(Hook_NormalSound);
         g_bSoundHooked = true;

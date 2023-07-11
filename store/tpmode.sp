@@ -2,23 +2,26 @@
     #define Module_TPMode
 #endif
 
-bool g_bMirror[MAXPLAYERS+1];
-bool g_bThirdperson[MAXPLAYERS+1];
+bool g_bMirror[MAXPLAYERS + 1];
+bool g_bThirdperson[MAXPLAYERS + 1];
 
-static ConVar store_thirdperson_enabled = null;
-static ConVar store_thirdperson_enforce = null;
-static ConVar mp_forcecamera = null;
+static ConVar        store_thirdperson_enabled = null;
+static ConVar        store_thirdperson_enforce = null;
+static ConVar        mp_forcecamera            = null;
+static GlobalForward g_pOnClientTPCommand      = null;
 
 void TPMode_InitConVar()
 {
     store_thirdperson_enabled = CreateConVar("store_thirdperson_enabled", "1", "Enabled or not third person.", _, true, 0.0, true, 1.0);
     store_thirdperson_enforce = CreateConVar("store_thirdperson_enforce", "1", "Enforce player third person.", _, true, 0.0, true, 1.0);
+
+    g_pOnClientTPCommand = new GlobalForward("Store_OnClientTPCommand", ET_Hook, Param_Cell, Param_Cell, Param_Cell);
 }
 
 void TPMode_OnPluginStart()
 {
 #if !defined GM_IS
-    ConVar sv_allow_thirdperson = FindConVar("sv_allow_thirdperson");
+    ConVar sv_allow_thirdperson   = FindConVar("sv_allow_thirdperson");
     sv_allow_thirdperson.IntValue = 1;
     sv_allow_thirdperson.AddChangeHook(ConVar_sv_allow_thirdperson);
 
@@ -35,7 +38,7 @@ void TPMode_OnPluginStart()
 
     HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
 
-    CreateTimer(0.5, EnforceCamera, _, TIMER_REPEAT);
+    CreateTimer(0.2, EnforceCamera, _, TIMER_REPEAT);
 }
 
 static void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValue, const char[] newValue)
@@ -43,16 +46,16 @@ static void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValu
     if (!convar.BoolValue || StringToInt(newValue) == 0)
     {
         for (int client = 1; client <= MaxClients; client++)
-        if (IsClientInGame(client) && !IsFakeClient(client))
-        {
-            ToggleTp(client, false);
-            ToggleMirror(client, false);
-        }
+            if (IsClientInGame(client) && !IsFakeClient(client))
+            {
+                ToggleTp(client, false);
+                ToggleMirror(client, false);
+            }
     }
 }
 
 #if !defined GM_IS
-static void ConVar_sv_allow_thirdperson(ConVar convar, const char[] oldValue, const char[] newValue)
+static void  ConVar_sv_allow_thirdperson(ConVar convar, const char[] oldValue, const char[] newValue)
 {
     convar.IntValue = 1;
 }
@@ -61,22 +64,22 @@ static void ConVar_sv_allow_thirdperson(ConVar convar, const char[] oldValue, co
 void TPMode_OnClientConnected(int client)
 {
     g_bThirdperson[client] = false;
-    g_bMirror[client] = false;
+    g_bMirror[client]      = false;
 }
 
 static Action Command_TP(int client, int args)
 {
-    if(!client || !IsClientInGame(client))
+    if (!client || !IsClientInGame(client))
         return Plugin_Handled;
 
-    if(args > 0)
+    if (args > 0)
     {
         tPrintToChat(client, "Invalid parameter.");
         return Plugin_Handled;
     }
 
 #if !defined Module_TPMode
-    if(!IsImmunityClient(client))
+    if (!IsImmunityClient(client))
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
@@ -89,17 +92,26 @@ static Action Command_TP(int client, int args)
         return Plugin_Handled;
     }
 
-    if(!IsPlayerAlive(client))
+    if (!IsPlayerAlive(client))
     {
         tPrintToChat(client, "%T", "tp dead", client);
         return Plugin_Handled;
     }
 
-    if(g_bMirror[client])
+    if (g_bMirror[client])
     {
         tPrintToChat(client, "%T", "tp seeme", client);
         return Plugin_Handled;
     }
+
+    Action res = Plugin_Continue;
+    Call_StartForward(g_pOnClientTPCommand);
+    Call_PushCell(client);
+    Call_PushCell(false);
+    Call_PushCell(!g_bThirdperson[client]);
+    Call_Finish(res);
+    if (res >= Plugin_Handled)
+        return Plugin_Handled;
 
     ToggleTp(client, !g_bThirdperson[client]);
 
@@ -108,17 +120,17 @@ static Action Command_TP(int client, int args)
 
 static Action Command_Mirror(int client, int args)
 {
-    if(!client || !IsClientInGame(client))
+    if (!client || !IsClientInGame(client))
         return Plugin_Handled;
 
-    if(args > 0)
+    if (args > 0)
     {
         tPrintToChat(client, "Invalid parameter.");
         return Plugin_Handled;
     }
 
 #if !defined Module_TPMode
-    if(!IsImmunityClient(client))
+    if (!IsImmunityClient(client))
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
@@ -131,25 +143,34 @@ static Action Command_Mirror(int client, int args)
         return Plugin_Handled;
     }
 
-    if(!IsPlayerAlive(client))
+    if (!IsPlayerAlive(client))
     {
         tPrintToChat(client, "%T", "tp dead", client);
         return Plugin_Handled;
     }
 
-    if(g_bThirdperson[client])
+    if (g_bThirdperson[client])
     {
         tPrintToChat(client, "%T", "seeme tp", client);
         return Plugin_Handled;
     }
 
-    #if !defined GM_IS
-    if(mp_forcecamera == null)
+#if !defined GM_IS
+    if (mp_forcecamera == null)
     {
         tPrintToChat(client, "%T", "tp not allow", client);
         return Plugin_Handled;
     }
-    #endif
+#endif
+
+    Action res = Plugin_Continue;
+    Call_StartForward(g_pOnClientTPCommand);
+    Call_PushCell(client);
+    Call_PushCell(true);
+    Call_PushCell(!g_bMirror[client]);
+    Call_Finish(res);
+    if (res >= Plugin_Handled)
+        return Plugin_Handled;
 
     ToggleMirror(client, !g_bMirror[client]);
 
@@ -158,7 +179,7 @@ static Action Command_Mirror(int client, int args)
 
 static void Event_PlayerSpawn(Event e, const char[] name, bool dontBroadcast)
 {
-    CreateTimer(0.3, Timer_TPSpawnPost, e.GetInt("userid"));
+    CreateTimer(0.2, Timer_TPSpawnPost, e.GetInt("userid"));
 }
 
 static Action Timer_TPSpawnPost(Handle timer, int userid)
@@ -175,23 +196,23 @@ static Action Timer_TPSpawnPost(Handle timer, int userid)
 
 bool ToggleTp(int client, bool state)
 {
-    ClientCommand(client, state ? "cam_collision 0; cam_idealpitch 0; cam_idealdist 150; cam_idealdistright 0; cam_idealdistup 0; thirdperson;" : "firstperson");
+    ClientCommand(client, state ? "cam_collision 0; cam_idealpitch 0; cam_idealdist 128; cam_idealdistright 0; cam_idealdistup 0; thirdperson;" : "firstperson");
     g_bThirdperson[client] = state;
     return g_bThirdperson[client];
 }
 
 static void ToggleMirror(int client, bool state)
 {
-    if(state)
+    if (state)
     {
         SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", 0);
         SetEntProp(client, Prop_Send, "m_iObserverMode", 1);
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 0);
         SetEntProp(client, Prop_Send, "m_iFOV", 120);
 
-        #if !defined GM_IS
+#if !defined GM_IS
         mp_forcecamera.ReplicateToClient(client, "1");
-        #endif
+#endif
     }
     else
     {
@@ -200,11 +221,11 @@ static void ToggleMirror(int client, bool state)
         SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
         SetEntProp(client, Prop_Send, "m_iFOV", 90);
 
-        #if !defined GM_IS
+#if !defined GM_IS
         char value[6];
         mp_forcecamera.GetString(value, 6);
         mp_forcecamera.ReplicateToClient(client, value);
-        #endif
+#endif
     }
 
     g_bMirror[client] = state;
@@ -240,9 +261,12 @@ static Action EnforceCamera(Handle timer)
     if (!store_thirdperson_enforce.BoolValue)
         return Plugin_Continue;
 
-    for(int i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
     {
         if (!IsClientInGame(i) || IsFakeClient(i))
+            continue;
+
+        if (!IsPlayerAlive(i))
             continue;
 
         // in state -> skipped

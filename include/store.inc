@@ -151,6 +151,7 @@ forward void   Store_OnClientSpray(int client);
 forward bool   Store_OnCheerCommand(int client, int &cooldown);
 forward bool   Store_OnSprayCommand(int client, int &cooldown);
 forward bool   Store_ShouldDisplayItem(int client, int itemId, const char[] uid, const char[] type, int level, bool &display);
+forward Action Store_OnClientTPCommand(int client, bool isMirror, bool toggleOn);
 
 // CP Support
 forward Action CP_OnChatMessage(int& client, ArrayList recipients, char[] flagstring, char[] name, char[] message, bool& processcolors, bool& removecolors);

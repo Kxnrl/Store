@@ -28,9 +28,9 @@ bool Hats_Config(KeyValues kv, int itemid)
     Store_SetDataIndex(itemid, g_iHats);
     float m_fTemp[3];
     kv.GetString("model", g_eHats[g_iHats].szModel, PLATFORM_MAX_PATH);
-    KvGetVector(kv, "position", m_fTemp);
+    kv.GetVector("position", m_fTemp);
     g_eHats[g_iHats].fPosition = m_fTemp;
-    KvGetVector(kv, "angles", m_fTemp);
+    kv.GetVector("angles", m_fTemp);
     g_eHats[g_iHats].fAngles    = m_fTemp;
     g_eHats[g_iHats].bBonemerge = (kv.GetNum("bonemerge", 0) ? true : false);
     g_eHats[g_iHats].iSlot      = kv.GetNum("slot");
@@ -242,11 +242,11 @@ static void Bonemerge(int ent)
 
 stock void Call_OnHatsCreated(int client, int entity, int slot)
 {
-    static Handle gf = null;
+    static GlobalForward gf = null;
     if (gf == null)
     {
         // create
-        gf = CreateGlobalForward("Store_OnHatsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+        gf = new GlobalForward("Store_OnHatsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);

@@ -18,11 +18,11 @@
     #define CHAT_C_RANDOM  2
 #endif
 
-static UserMsg   g_umUMId;
-static Handle    g_hCPAForward;
-static Handle    g_hCPPForward;
-static Handle    g_hCPRForward;
-static StringMap g_tMsgFmt;
+static UserMsg       g_umUMId;
+static GlobalForward g_hCPAForward;
+static GlobalForward g_hCPPForward;
+static GlobalForward g_hCPRForward;
+static StringMap     g_tMsgFmt;
 
 static char g_szNameTags[STORE_MAX_ITEMS][128];
 static char g_szNameColors[STORE_MAX_ITEMS][32];
@@ -55,9 +55,9 @@ void CPSupport_OnPluginStart()
         return;
     }
 
-    g_hCPAForward = CreateGlobalForward("CP_OnChatMessage", ET_Hook, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
-    g_hCPPForward = CreateGlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
-    g_hCPRForward = CreateGlobalForward("CP_OnChatRainbow", ET_Hook, Param_String, Param_Cell, Param_Cell, Param_Cell);
+    g_hCPAForward = new GlobalForward("CP_OnChatMessage", ET_Hook, Param_CellByRef, Param_Cell, Param_String, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
+    g_hCPPForward = new GlobalForward("CP_OnChatMessagePost", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell);
+    g_hCPRForward = new GlobalForward("CP_OnChatRainbow", ET_Hook, Param_String, Param_Cell, Param_Cell, Param_Cell);
 
     Store_RegisterHandler("nametag", CPSupport_OnMappStart, CPSupport_Reset, NameTags_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("namecolor", CPSupport_OnMappStart, CPSupport_Reset, NameColors_Config, CPSupport_Equip, CPSupport_Remove, true);

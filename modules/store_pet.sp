@@ -102,24 +102,24 @@ static void Pets_Reset()
     g_iPets = 0;
 }
 
-static bool Pets_Config(Handle kv, int itemid)
+static bool Pets_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iPets);
 
     float m_fTemp[3];
-    KvGetString(kv, "model", g_ePets[g_iPets].model, sizeof(Pet::model));
-    KvGetString(kv, "idle", g_ePets[g_iPets].idle, sizeof(Pet::idle));
-    KvGetString(kv, "idle2", g_ePets[g_iPets].idle2, sizeof(Pet::idle2));
-    KvGetString(kv, "run", g_ePets[g_iPets].run, sizeof(Pet::run));
-    KvGetString(kv, "spawn", g_ePets[g_iPets].spawn, sizeof(Pet::spawn));
-    KvGetString(kv, "death", g_ePets[g_iPets].death, sizeof(Pet::death));
-    KvGetVector(kv, "position", m_fTemp);
+    kv.GetString("model", g_ePets[g_iPets].model, sizeof(Pet::model));
+    kv.GetString("idle", g_ePets[g_iPets].idle, sizeof(Pet::idle));
+    kv.GetString("idle2", g_ePets[g_iPets].idle2, sizeof(Pet::idle2));
+    kv.GetString("run", g_ePets[g_iPets].run, sizeof(Pet::run));
+    kv.GetString("spawn", g_ePets[g_iPets].spawn, sizeof(Pet::spawn));
+    kv.GetString("death", g_ePets[g_iPets].death, sizeof(Pet::death));
+    kv.GetVector("position", m_fTemp);
     g_ePets[g_iPets].fPosition = m_fTemp;
-    KvGetVector(kv, "angles", m_fTemp);
+    kv.GetVector("angles", m_fTemp);
     g_ePets[g_iPets].fAngles = m_fTemp;
-    g_ePets[g_iPets].iSlot   = KvGetNum(kv, "slot");
-    g_ePets[g_iPets].iTeam   = KvGetNum(kv, "team");
-    g_ePets[g_iPets].fScale  = KvGetFloat(kv, "scale", 1.0);
+    g_ePets[g_iPets].iSlot   = kv.GetNum("slot");
+    g_ePets[g_iPets].iTeam   = kv.GetNum("team");
+    g_ePets[g_iPets].fScale  = kv.GetFloat("scale", 1.0);
 
     if (FileExists(g_ePets[g_iPets].model, true))
     {
@@ -436,11 +436,11 @@ static void Hook_OnAnimationDone(const char[] output, int caller, int activator,
 
 stock void Call_OnPetsCreated(int client, int entity, int slot)
 {
-    static Handle gf = null;
+    static GlobalForward gf = null;
     if (gf == null)
     {
         // create
-        gf = CreateGlobalForward("Store_OnPetsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+        gf = new GlobalForward("Store_OnPetsCreated", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);

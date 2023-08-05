@@ -32,7 +32,7 @@ static int        g_iWeaponSkin = 0;
 static int        g_iOffsetName = -1;
 static int        g_iOffsetMyWP = -1;
 
-static Handle g_hCookieNamed;
+static Cookie g_hCookieNamed;
 
 #define SLOT_0 "!!!!WE START AT 1!!!!"
 #define SLOT_1 1
@@ -58,7 +58,7 @@ public void OnPluginStart()
     PTaH(PTaH_GiveNamedItemPre, Hook, Event_GiveNamedItemPre);
     PTaH(PTaH_GiveNamedItemPost, Hook, Event_GiveNamedItemPost);
 
-    g_hCookieNamed = RegClientCookie("store_ws_name", "", CookieAccess_Protected);
+    g_hCookieNamed = new Cookie("store_ws_name", "", CookieAccess_Protected);
 
     RegConsoleCmd("ws_name", Command_Named);
 }
@@ -94,7 +94,7 @@ public Action Command_Named(int client, int args)
         return Plugin_Handled;
     }
 
-    SetClientCookie(client, g_hCookieNamed, name);
+    g_hCookieNamed.Set(client, name);
     PrintToChat(client, "[\x04Store\x01]   Set your skin named \x04%s", name);
 
     return Plugin_Handled;
@@ -105,18 +105,18 @@ public void WeaponSkin_Reset()
     g_iWeaponSkin = 0;
 }
 
-public bool WeaponSkin_Config(Handle kv, int itemid)
+public bool WeaponSkin_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iWeaponSkin);
 
-    KvGetString(kv, "uid", g_eWeaponSkin[g_iWeaponSkin].szUnique, sizeof(WeaponSkin::szUnique));
-    KvGetString(kv, "weapon", g_eWeaponSkin[g_iWeaponSkin].szWeapon, sizeof(WeaponSkin::szWeapon));
+    kv.GetString("uid", g_eWeaponSkin[g_iWeaponSkin].szUnique, sizeof(WeaponSkin::szUnique));
+    kv.GetString("weapon", g_eWeaponSkin[g_iWeaponSkin].szWeapon, sizeof(WeaponSkin::szWeapon));
 
-    g_eWeaponSkin[g_iWeaponSkin].iSlot  = KvGetNum(kv, "slot", SLOT_1);
-    g_eWeaponSkin[g_iWeaponSkin].iSeed  = KvGetNum(kv, "seed");
-    g_eWeaponSkin[g_iWeaponSkin].iPaint = KvGetNum(kv, "paint");
-    g_eWeaponSkin[g_iWeaponSkin].iWearT = KvGetNum(kv, "weart", -1);
-    g_eWeaponSkin[g_iWeaponSkin].fWearF = KvGetFloat(kv, "wearf", 0.0416);
+    g_eWeaponSkin[g_iWeaponSkin].iSlot  = kv.GetNum("slot", SLOT_1);
+    g_eWeaponSkin[g_iWeaponSkin].iSeed  = kv.GetNum("seed");
+    g_eWeaponSkin[g_iWeaponSkin].iPaint = kv.GetNum("paint");
+    g_eWeaponSkin[g_iWeaponSkin].iWearT = kv.GetNum("weart", -1);
+    g_eWeaponSkin[g_iWeaponSkin].fWearF = kv.GetFloat("wearf", 0.0416);
 
     // LogMessage("Weapon Skin -> %s -> Paint[%d] Seed[%d] Slot[%d] WearT[%d] WearF[%f]", g_eWeaponSkin[g_iWeaponSkin].szUnique, g_eWeaponSkin[g_iWeaponSkin].iPaint, g_eWeaponSkin[g_iWeaponSkin].iSeed, g_eWeaponSkin[g_iWeaponSkin].iSlot, g_eWeaponSkin[g_iWeaponSkin].iWearT, g_eWeaponSkin[g_iWeaponSkin].fWearF);
 
@@ -222,7 +222,7 @@ void SetWeaponEconmoney(int client, int data, int weapon)
     if (GetUserFlagBits(client) & ADMFLAG_CUSTOM1)
     {
         char name[32];
-        GetClientCookie(client, g_hCookieNamed, name, sizeof(name));
+        g_hCookieNamed.Get(client, name, sizeof(name));
         if (strlen(name) >= 4)
         {
             SetEntDataString(weapon, g_iOffsetName, name, sizeof(name));

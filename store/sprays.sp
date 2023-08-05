@@ -6,16 +6,16 @@
 #define Module_Spray
 
 // options
-static char   g_szSprays[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];
-static char   g_szSprayName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];
-static int    g_iSprayCooldown[STORE_MAX_ITEMS] = { 30, ... };
-static int    g_iSprayPrecache[STORE_MAX_ITEMS] = { -1, ... };
-static int    g_iSprayCache[MAXPLAYERS + 1]     = { -1, ... };
-static int    g_iSprayLimit[MAXPLAYERS + 1]     = { 0, ... };
-static int    g_iSprays                         = 0;
-static Handle g_fwdOnClientSpray;
-static Handle g_hOnSprayCommand;
-static Handle g_hOnSprayModel;
+static char          g_szSprays[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];
+static char          g_szSprayName[STORE_MAX_ITEMS][PLATFORM_MAX_PATH];
+static int           g_iSprayCooldown[STORE_MAX_ITEMS] = { 30, ... };
+static int           g_iSprayPrecache[STORE_MAX_ITEMS] = { -1, ... };
+static int           g_iSprayCache[MAXPLAYERS + 1]     = { -1, ... };
+static int           g_iSprayLimit[MAXPLAYERS + 1]     = { 0, ... };
+static int           g_iSprays                         = 0;
+static GlobalForward g_fwdOnClientSpray;
+static GlobalForward g_hOnSprayCommand;
+static GlobalForward g_hOnSprayModel;
 
 static bool g_bFallbackSprayerSound;
 
@@ -25,9 +25,9 @@ void Sprays_OnPluginStart()
 {
     Store_RegisterHandler("spray", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
 
-    g_fwdOnClientSpray = CreateGlobalForward("Store_OnClientSpray", ET_Ignore, Param_Cell);
-    g_hOnSprayCommand  = CreateGlobalForward("Store_OnSprayCommand", ET_Hook, Param_Cell, Param_CellByRef);
-    g_hOnSprayModel    = CreateGlobalForward("Store_OnSprayModel", ET_Hook, Param_Cell, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
+    g_fwdOnClientSpray = new GlobalForward("Store_OnClientSpray", ET_Ignore, Param_Cell);
+    g_hOnSprayCommand  = new GlobalForward("Store_OnSprayCommand", ET_Hook, Param_Cell, Param_CellByRef);
+    g_hOnSprayModel    = new GlobalForward("Store_OnSprayModel", ET_Hook, Param_Cell, Param_String, Param_String, Param_CellByRef, Param_CellByRef);
 
     RegConsoleCmd("spray", Command_Spray);
     RegConsoleCmd("sprays", Command_Spray);

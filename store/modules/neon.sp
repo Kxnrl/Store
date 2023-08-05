@@ -20,7 +20,7 @@ static int  g_iClientNeon[MAXPLAYERS + 1] = { INVALID_ENT_REFERENCE, ... };
 bool Neon_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNeons);
-    KvGetColor(kv, "color", g_eNeons[g_iNeons].iColor[0], g_eNeons[g_iNeons].iColor[1], g_eNeons[g_iNeons].iColor[2], g_eNeons[g_iNeons].iColor[3]);
+    kv.GetColor("color", g_eNeons[g_iNeons].iColor[0], g_eNeons[g_iNeons].iColor[1], g_eNeons[g_iNeons].iColor[2], g_eNeons[g_iNeons].iColor[3]);
     g_eNeons[g_iNeons].iBright   = kv.GetNum("brightness");
     g_eNeons[g_iNeons].iDistance = kv.GetNum("distance");
     g_eNeons[g_iNeons].iFade     = kv.GetNum("distancefade");
@@ -131,11 +131,11 @@ void Neon_SetClientNeon(int client)
 
 stock void Call_OnNeonCreated(int client, int entity)
 {
-    static Handle gf = null;
+    static GlobalForward gf = null;
     if (gf == null)
     {
         // create
-        gf = CreateGlobalForward("Store_OnNeonCreated", ET_Ignore, Param_Cell, Param_Cell);
+        gf = new GlobalForward("Store_OnNeonCreated", ET_Ignore, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);

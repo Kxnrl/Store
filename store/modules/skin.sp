@@ -35,11 +35,11 @@ static ConVar store_firstperson_death_camera;
 Handle g_tKillPreview[MAXPLAYERS + 1];
 Handle g_tResetCamera[MAXPLAYERS + 1];
 
-Handle g_hOnPlayerSkinDefault  = null;
-Handle g_hOnPlayerSetModel     = null;
-Handle g_hOnPlayerSetModelPost = null;
-Handle g_hOnFPDeathCamera      = null;
-Handle g_hOnPlayerDeathVoice   = null;
+GlobalForward g_hOnPlayerSkinDefault  = null;
+GlobalForward g_hOnPlayerSetModel     = null;
+GlobalForward g_hOnPlayerSetModelPost = null;
+GlobalForward g_hOnFPDeathCamera      = null;
+GlobalForward g_hOnPlayerDeathVoice   = null;
 
 void Skin_InitConVar()
 {
@@ -48,11 +48,11 @@ void Skin_InitConVar()
 
 void Skin_OnPluginStart()
 {
-    g_hOnPlayerSkinDefault  = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
-    g_hOnFPDeathCamera      = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
-    g_hOnPlayerSetModel     = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
-    g_hOnPlayerSetModelPost = CreateGlobalForward("Store_OnSetPlayerSkinPost", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
-    g_hOnPlayerDeathVoice   = CreateGlobalForward("Store_OnPlayerDeathVoice", ET_Event, Param_Cell, Param_String);
+    g_hOnPlayerSkinDefault  = new GlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
+    g_hOnFPDeathCamera      = new GlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
+    g_hOnPlayerSetModel     = new GlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
+    g_hOnPlayerSetModelPost = new GlobalForward("Store_OnSetPlayerSkinPost", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
+    g_hOnPlayerDeathVoice   = new GlobalForward("Store_OnPlayerDeathVoice", ET_Event, Param_Cell, Param_String);
 
     Store_RegisterHandler("playerskin", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
 
@@ -891,10 +891,10 @@ static Action CallPreSetModel(int client, char skin[128], char arms[128], int &b
 
 static bool CallAllowSetPlayerSkinArms(int client, char[] arms, int len)
 {
-    static Handle gf = null;
+    static GlobalForward gf = null;
     if (gf == null)
     {
-        gf = CreateGlobalForward("Store_OnSetPlayerSkinArms", ET_Hook, Param_Cell, Param_String, Param_Cell);
+        gf = new GlobalForward("Store_OnSetPlayerSkinArms", ET_Hook, Param_Cell, Param_String, Param_Cell);
     }
 
     char buff[128];

@@ -277,11 +277,11 @@ void OnClientTeamPost(int client)
 
 stock void Call_OnParticlesCreated(int client, int entity)
 {
-    static Handle gf = null;
+    static GlobalForward gf = null;
     if (gf == null)
     {
         // create
-        gf = CreateGlobalForward("Store_OnParticlesCreated", ET_Ignore, Param_Cell, Param_Cell);
+        gf = new GlobalForward("Store_OnParticlesCreated", ET_Ignore, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);

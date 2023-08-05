@@ -15,23 +15,22 @@ abstract_struct Sound
     int   iCooldown;
 }
 
-static int  g_iSounds = 0;
-static int  g_iSoundClient[MAXPLAYERS + 1];
-static int  g_iSoundSpam[MAXPLAYERS + 1];
-static bool g_bClientDisable[MAXPLAYERS + 1];
-
+static int   g_iSounds = 0;
+static int   g_iSoundClient[MAXPLAYERS + 1];
+static int   g_iSoundSpam[MAXPLAYERS + 1];
+static bool  g_bClientDisable[MAXPLAYERS + 1];
 static Sound g_eSounds[STORE_MAX_ITEMS];
 
-static Handle g_hCookieSounds;
-static Handle g_hOnCheerSound;
-static Handle g_hOnCheerCommand;
+static Cookie        g_hCookieSounds;
+static GlobalForward g_hOnCheerSound;
+static GlobalForward g_hOnCheerCommand;
 
 void Sounds_OnPluginStart()
 {
     Store_RegisterHandler("sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
 
-    g_hOnCheerSound   = CreateGlobalForward("Store_OnCheerSound", ET_Hook, Param_Cell, Param_String, Param_String, Param_FloatByRef, Param_CellByRef);
-    g_hOnCheerCommand = CreateGlobalForward("Store_OnCheerCommand", ET_Hook, Param_Cell, Param_CellByRef);
+    g_hOnCheerSound   = new GlobalForward("Store_OnCheerSound", ET_Hook, Param_Cell, Param_String, Param_String, Param_FloatByRef, Param_CellByRef);
+    g_hOnCheerCommand = new GlobalForward("Store_OnCheerCommand", ET_Hook, Param_Cell, Param_CellByRef);
 
     RegConsoleCmd("cheer", Command_Cheer);
     RegConsoleCmd("sm_cheer", Command_Cheer);
@@ -44,7 +43,7 @@ void Sounds_OnClientprefs()
 {
     if (g_pClientprefs)
     {
-        g_hCookieSounds = RegClientCookie(SOUND_COOKIE_NAME, "", CookieAccess_Protected);
+        g_hCookieSounds = new Cookie(SOUND_COOKIE_NAME, "", CookieAccess_Protected);
     }
     else
     {
@@ -342,7 +341,7 @@ void Sounds_OnLoadOptions(int client)
     if (g_pClientprefs)
     {
         char buff[4];
-        GetClientCookie(client, g_hCookieSounds, STRING(buff));
+        g_hCookieSounds.Get(client, STRING(buff));
 
         if (buff[0] != 0)
             g_bClientDisable[client] = (StringToInt(buff) == 1 ? true : false);
@@ -369,6 +368,6 @@ static void SetSoundState(int client, bool state)
     }
     else if (g_pClientprefs)
     {
-        SetClientCookie(client, g_hCookieSounds, state ? "1" : "0");
+        g_hCookieSounds.Set(client, state ? "1" : "0");
     }
 }

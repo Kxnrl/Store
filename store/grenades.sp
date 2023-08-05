@@ -88,7 +88,7 @@ static bool GrenadeTrails_Config(KeyValues kv, int itemid)
     kv.GetString("width", g_eGrenadeTrails[g_iGrenadeTrails].szWidth, sizeof(GrenadeTrail::szWidth), "10.0");
     g_eGrenadeTrails[g_iGrenadeTrails].fWidth = kv.GetFloat("width", 10.0);
     kv.GetString("color", g_eGrenadeTrails[g_iGrenadeTrails].szColor, sizeof(GrenadeTrail::szColor), "255 255 255 255");
-    KvGetColor(kv, "color", g_eGrenadeTrails[g_iGrenadeTrails].iColor[0], g_eGrenadeTrails[g_iGrenadeTrails].iColor[1], g_eGrenadeTrails[g_iGrenadeTrails].iColor[2], g_eGrenadeTrails[g_iGrenadeTrails].iColor[3]);
+    kv.GetColor("color", g_eGrenadeTrails[g_iGrenadeTrails].iColor[0], g_eGrenadeTrails[g_iGrenadeTrails].iColor[1], g_eGrenadeTrails[g_iGrenadeTrails].iColor[2], g_eGrenadeTrails[g_iGrenadeTrails].iColor[3]);
     g_eGrenadeTrails[g_iGrenadeTrails].iSlot = kv.GetNum("slot");
 
     if (FileExists(g_eGrenadeTrails[g_iGrenadeTrails].szMaterial, true))

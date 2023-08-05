@@ -102,12 +102,12 @@ static void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const 
     float time = GetEngineTime() - pack.ReadFloat();
     char  query[1024];
     pack.ReadString(STRING(query));
-    if (time > 20.0)
-        LogMessage("Store SQL slow query: %f -> %s", time, query);
-    if (results == null || error[0])
-        LogStoreError("SQL error happened.\nQuery: %s\nError: %s", query, error);
-
     delete pack;
+
+    if (results == null || error[0])
+        LogStoreError("SQL error happened.\nError: %s\nQuery: %s", error, query);
+    else if (time >= 15.0)
+        LogMessage("Store SQL slow query.\nTime : %fs\nQuery: %s", time, query);
 }
 
 stock void SQL_TVoid(Database db, char[] query, DBPriority dbp = DBPrio_Normal)

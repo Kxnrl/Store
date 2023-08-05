@@ -3005,11 +3005,14 @@ static void SQLCallback_LoadClientInventory_Credits(Database db, DBResultSet res
     if(!client || g_bInterMission)
         return;
 
-    char m_szQuery[512], m_szSteamID[32];
+    char m_szSteamID[32];
+    if (!GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), true))
+        return;
+
+    char m_szQuery[512];
     int m_iTime = GetTime();
     g_ClientData[client].iUserId = userid;
     g_ClientData[client].iItems = 0;
-    GetClientAuthId(client, AuthId_Steam2, STRING(m_szSteamID), true);
     strcopy(g_ClientData[client].szAuthId, sizeof(Client_Data::szAuthId), m_szSteamID[8]);
 
     if(results.FetchRow() && results.RowCount > 0)
@@ -3247,7 +3250,7 @@ static void SQLCallback_InsertClient(Database db, DBResultSet results, const cha
 //////////////////////////////
 void UTIL_LoadClientInventory(int client)
 {
-    if(g_hDatabase == null)
+    if (g_hDatabase == null)
     {
         LogStoreError("Database connection is lost or not yet initialized.");
         return;
@@ -3255,9 +3258,7 @@ void UTIL_LoadClientInventory(int client)
 
     char m_szQuery[512];
     char m_szAuthId[32];
-
-    GetClientAuthId(client, AuthId_Steam2, STRING(m_szAuthId), true);
-    if(m_szAuthId[0] == 0 || g_bInterMission)
+    if (!GetClientAuthId(client, AuthId_Steam2, STRING(m_szAuthId), true) || m_szAuthId[0] == 0 || g_bInterMission)
         return;
 
     FormatEx(STRING(m_szQuery), "SELECT `id`, `authid`, `name`, `credits`, UNIX_TIMESTAMP(date_of_join) as `date_of_join`, UNIX_TIMESTAMP(date_of_last_join) as `date_of_last_join`, `ban` FROM store_players WHERE `authid`=\"%s\"", m_szAuthId[8]);

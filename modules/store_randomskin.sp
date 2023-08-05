@@ -24,9 +24,9 @@ public Plugin myinfo =
     url         = STORE_URL
 };
 
-#define MAX_SKINS           24
-#define TYPE_NAME_STATUS    "Store.RandomSkins.Status"
-#define TYPE_NAME_PREVAL    "Store.RandomSkins.PrevAL"
+#define MAX_SKINS        24
+#define TYPE_NAME_STATUS "Store.RandomSkins.Status"
+#define TYPE_NAME_PREVAL "Store.RandomSkins.PrevAL"
 
 // copy from fys.opts
 #define MAX_OPTS_KEY_LENGTH 32
@@ -50,11 +50,11 @@ static char g_sOptionTeamName[][] = {
 bool g_pOptions;
 bool g_pCookies;
 
-Handle g_hCookies[5];
+Cookie g_hCookies[5];
 
 ArrayList g_aSkins;
-bool g_bLateLoad;
-ConVar store_randomskin_same_model_in_round;
+bool      g_bLateLoad;
+ConVar    store_randomskin_same_model_in_round;
 
 char g_sPrevious[MAXPLAYERS][5][MAX_OPTS_KEY_LENGTH];
 int  g_iSelected[MAXPLAYERS];
@@ -105,12 +105,12 @@ public void OnLibraryAdded(const char[] name)
 {
     if (strcmp(name, "clientprefs") == 0)
     {
-        g_pCookies = true;
-        g_hCookies[TYPE_INDEX_STATUS] = RegClientCookie(TYPE_NAME_STATUS,           "Random skin feature stats",   CookieAccess_Protected);
-        g_hCookies[TYPE_INDEX_PREVAL] = RegClientCookie(TYPE_NAME_PREVAL,           "Random skin allow previouse", CookieAccess_Protected);
-        g_hCookies[TEAM_TE]           = RegClientCookie(g_sOptionTeamName[TEAM_TE], "Random skin equipments te",   CookieAccess_Protected);
-        g_hCookies[TEAM_CT]           = RegClientCookie(g_sOptionTeamName[TEAM_CT], "Random skin equipments ct",   CookieAccess_Protected);
-        g_hCookies[TEAM_GX]           = RegClientCookie(g_sOptionTeamName[TEAM_GX], "Random skin equipments gx",   CookieAccess_Protected);
+        g_pCookies                    = true;
+        g_hCookies[TYPE_INDEX_STATUS] = new Cookie(TYPE_NAME_STATUS, "Random skin feature stats", CookieAccess_Protected);
+        g_hCookies[TYPE_INDEX_PREVAL] = new Cookie(TYPE_NAME_PREVAL, "Random skin allow previouse", CookieAccess_Protected);
+        g_hCookies[TEAM_TE]           = new Cookie(g_sOptionTeamName[TEAM_TE], "Random skin equipments te", CookieAccess_Protected);
+        g_hCookies[TEAM_CT]           = new Cookie(g_sOptionTeamName[TEAM_CT], "Random skin equipments ct", CookieAccess_Protected);
+        g_hCookies[TEAM_GX]           = new Cookie(g_sOptionTeamName[TEAM_GX], "Random skin equipments gx", CookieAccess_Protected);
     }
 
     if (strcmp(name, "fys-Opts") == 0)
@@ -151,6 +151,7 @@ public void Pupd_OnCheckAllPlugins()
 
 public void Store_OnStoreAvailable(ArrayList items)
 {
+    g_aSkins.Clear();
     Store_GetAllPlayerSkins(g_aSkins);
     for (int i = 0; i < MAXPLAYERS; i++)
         OnClientConnected(i);
@@ -166,10 +167,10 @@ static Action Command_RandomSkin(int client, int args)
     return Plugin_Handled;
 }
 
-void DisplayMainMenu(int client)
+static void DisplayMainMenu(int client)
 {
     g_iSelected[client] = GetClientTeam(client);
-    bool global = Store_IsGlobalTeam();
+    bool global         = Store_IsGlobalTeam();
 
     if (!global && g_iSelected[client] <= 1)
     {
@@ -179,13 +180,15 @@ void DisplayMainMenu(int client)
 
     bool changed = false;
 
-    char options[MAX_OPTS_VAL_LENGTH], skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH];
+    char options[MAX_OPTS_VAL_LENGTH];
+    char skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH];
     GetPlayerEquips(client, options);
 
-    int equipments = 0, count = ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
+    int equipments = 0;
+    int count      = ExplodeString(options, ";", skin, MAX_SKINS, sizeof(skin[]), false);
     for (int i = 0; i < count; i++)
     {
-        if (strlen(skin[i]) > 0)
+        if (skin[i][0])
         {
             int itemid = Store_GetItemId(skin[i]);
             if (itemid > -1)
@@ -204,8 +207,8 @@ void DisplayMainMenu(int client)
                     int skinTeam = GetSkinTeamById(skin[i]);
                     if (skinTeam != g_iSelected[client])
                     {
-                        if (skinTeam == TEAM_GX)
-                            PrintToServer("[RS] <%s> mismatch team at %d", skin[i], skinTeam);
+                        // if (skinTeam == TEAM_GX)
+                        //     PrintToServer("[RS] <%s> mismatch team at %d", skin[i], skinTeam);
 
                         // skip if not match team
                         char item[MAX_OPTS_KEY_LENGTH];
@@ -226,7 +229,8 @@ void DisplayMainMenu(int client)
         SetPlayerEquips(client, options);
     }
 
-    char buffer[64]; char key[16];
+    char buffer[64];
+    char key[16];
     IntToString(g_iSelected[client], STRING(key));
 
     Menu menu = new Menu(MenuHandler_Main);
@@ -234,16 +238,16 @@ void DisplayMainMenu(int client)
     menu.SetTitle("[Store]  %T\nE: %d ", "random skin", client, equipments);
 
     FormatEx(STRING(buffer), "%T: %T", "feature status", client, GetPlayerStatus(client) ? "On" : "Off", client);
-    menu.AddItem(key,  buffer);
+    menu.AddItem(key, buffer);
 
     FormatEx(STRING(buffer), "%T: %T", "allow previous", client, GetPlayerPrevious(client) ? "On" : "Off", client);
-    menu.AddItem(key,  buffer);
+    menu.AddItem(key, buffer);
 
     FormatEx(STRING(buffer), "%T", "select skin", client);
-    menu.AddItem(key,  buffer, !global && g_iSelected[client] <= TEAM_OB ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
+    menu.AddItem(key, buffer, !global && g_iSelected[client] <= TEAM_OB ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
 
     FormatEx(STRING(buffer), "%T", "clear all", client);
-    menu.AddItem(key,  buffer);
+    menu.AddItem(key, buffer);
 
     menu.ExitBackButton = false;
     menu.Display(client, 15);
@@ -263,7 +267,7 @@ static int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
 
             if (StringToInt(key) != GetClientTeam(client))
             {
-                //PrintToServer("[RS] %N changed team since menu opened!", client);
+                // PrintToServer("[RS] %N changed team since menu opened!", client);
                 DisplayMainMenu(client);
                 return 0;
             }
@@ -296,10 +300,10 @@ static int MenuHandler_Main(Menu menu, MenuAction action, int client, int slot)
     return 0;
 }
 
-void DisplaySkinMenu(int client, int position = -1)
+static void DisplaySkinMenu(int client, int position = -1)
 {
     g_iSelected[client] = GetClientTeam(client);
-    bool global = Store_IsGlobalTeam();
+    bool global         = Store_IsGlobalTeam();
 
     ArrayList array = new ArrayList(sizeof(SkinData_t));
     Store_GetClientPlayerSkins(client, array);
@@ -325,7 +329,7 @@ void DisplaySkinMenu(int client, int position = -1)
     }
 
     // HACK xkey should include current team
-    char xkey[MAX_OPTS_KEY_LENGTH+1+16], options[MAX_OPTS_VAL_LENGTH];
+    char xkey[MAX_OPTS_KEY_LENGTH + 1 + 16], options[MAX_OPTS_VAL_LENGTH];
     GetPlayerEquips(client, options);
 
     Menu menu = new Menu(MenuHandler_Skin);
@@ -352,12 +356,12 @@ void DisplaySkinMenu(int client, int position = -1)
     }
 
     menu.ExitBackButton = true;
-    menu.ExitButton = true;
+    menu.ExitButton     = true;
 
     if (position == -1)
         menu.Display(client, 60);
     else
-        menu.DisplayAt(client, (position/menu.Pagination)*menu.Pagination, 60);
+        menu.DisplayAt(client, (position / menu.Pagination) * menu.Pagination, 60);
 
     delete array;
 }
@@ -373,7 +377,7 @@ static int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
         char explode[2][MAX_OPTS_KEY_LENGTH];
         if (FindCharInString(data, '^', false) != 1)
         {
-            //PrintToServer("[RS] invalid key from MenuHandler_Skin -> [%s]", data);
+            // PrintToServer("[RS] invalid key from MenuHandler_Skin -> [%s]", data);
             DisplayMainMenu(client);
             return 0;
         }
@@ -381,7 +385,7 @@ static int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
 
         if (!Store_IsGlobalTeam() && StringToInt(explode[0]) != GetClientTeam(client))
         {
-            //PrintToServer("[RS] %N changed team since menu opened!", client);
+            // PrintToServer("[RS] %N changed team since menu opened!", client);
             DisplayMainMenu(client);
             return 0;
         }
@@ -393,16 +397,16 @@ static int MenuHandler_Skin(Menu menu, MenuAction action, int client, int slot)
         if (StrContains(options, xkey) > -1)
         {
             ReplaceString(STRING(options), xkey, "");
-            //PrintToChat(client, "REPLACE %s", xkey);
+            // PrintToChat(client, "REPLACE %s", xkey);
         }
         else
         {
             StrCat(STRING(options), xkey);
-            //PrintToChat(client, "Cat %s", xkey);
+            // PrintToChat(client, "Cat %s", xkey);
         }
 
         SetPlayerEquips(client, options);
-        //PrintToChat(client, "options -=> [%s]", options);
+        // PrintToChat(client, "options -=> [%s]", options);
         DisplaySkinMenu(client, slot);
     }
     else if (action == MenuAction_Cancel && slot == MenuCancel_ExitBack)
@@ -450,7 +454,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
         }
     }
 
-    int origin = g_iSelected[client];
+    int origin          = g_iSelected[client];
     g_iSelected[client] = teamEx;
 
     char options[MAX_OPTS_VAL_LENGTH], skin[MAX_SKINS][MAX_OPTS_KEY_LENGTH];
@@ -460,7 +464,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     bool prev = GetPlayerPrevious(client), changed;
 
     ArrayList list = new ArrayList(ByteCountToCells(MAX_OPTS_KEY_LENGTH));
-    for(int i = 0; i < skip; i++)
+    for (int i = 0; i < skip; i++)
     {
         if (strlen(skin[i]) > 0)
         {
@@ -503,7 +507,7 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     {
         delete list;
         g_sPrevious[client][teamEx][0] = 0;
-        //PrintToServer("[RS] %N has not found any usable skin.", client);
+        // PrintToServer("[RS] %N has not found any usable skin.", client);
         return Plugin_Continue;
     }
 
@@ -534,11 +538,11 @@ public Action Store_OnSetPlayerSkin(int client, char _skin[128], char _arms[128]
     }
 
     g_sPrevious[client][teamEx][0] = 0;
-    //PrintToServer("[RS] %N has not found any usable skin in %d skins", client, skins);
+    // PrintToServer("[RS] %N has not found any usable skin in %d skins", client, skins);
     return Plugin_Continue;
 }
 
-int GetTeamIndex(int client)
+static int GetTeamIndex(int client)
 {
     if (Store_IsGlobalTeam())
         return TEAM_GX;
@@ -546,7 +550,7 @@ int GetTeamIndex(int client)
     return g_iSelected[client];
 }
 
-int GetSkinTeamById(const char[] uid)
+static int GetSkinTeamById(const char[] uid)
 {
     for (int i = 0; i < g_aSkins.Length; i++)
     {
@@ -561,7 +565,7 @@ int GetSkinTeamById(const char[] uid)
 ///////////////////
 ///   COOKIES   ///
 ///////////////////
-bool GetPlayerStatus(int client)
+static bool GetPlayerStatus(int client)
 {
     if (g_pOptions)
     {
@@ -578,7 +582,7 @@ bool GetPlayerStatus(int client)
     return false;
 }
 
-void SetPlayerStatus(int client, bool status)
+static void SetPlayerStatus(int client, bool status)
 {
     if (g_pOptions)
     {
@@ -586,11 +590,11 @@ void SetPlayerStatus(int client, bool status)
     }
     else if (g_pCookies)
     {
-        SetClientCookie(client, g_hCookies[TYPE_INDEX_STATUS], status ? "true" : "false");
+        g_hCookies[TYPE_INDEX_STATUS].Set(client, status ? "true" : "false");
     }
 }
 
-bool GetPlayerPrevious(int client)
+static bool GetPlayerPrevious(int client)
 {
     if (g_pOptions)
     {
@@ -599,7 +603,7 @@ bool GetPlayerPrevious(int client)
     else if (g_pCookies)
     {
         char buffer[8];
-        GetClientCookie(client, g_hCookies[TYPE_INDEX_PREVAL], STRING(buffer));
+        g_hCookies[TYPE_INDEX_PREVAL].Get(client, STRING(buffer));
         return strcmp(buffer, "true") == 0;
     }
 
@@ -607,7 +611,7 @@ bool GetPlayerPrevious(int client)
     return false;
 }
 
-void SetPlayerPrevious(int client, bool allowPrevious)
+static void SetPlayerPrevious(int client, bool allowPrevious)
 {
     if (g_pOptions)
     {
@@ -615,7 +619,7 @@ void SetPlayerPrevious(int client, bool allowPrevious)
     }
     else if (g_pCookies)
     {
-        SetClientCookie(client, g_hCookies[TYPE_INDEX_PREVAL], allowPrevious ? "true" : "false");
+        g_hCookies[TYPE_INDEX_PREVAL].Set(client, allowPrevious ? "true" : "false");
     }
 }
 
@@ -631,7 +635,7 @@ void GetPlayerEquips(int client, char options[MAX_OPTS_VAL_LENGTH])
     }
     else if (g_pCookies)
     {
-        GetClientCookie(client, g_hCookies[team], options, MAX_OPTS_VAL_LENGTH);
+        g_hCookies[team].Get(client, options, MAX_OPTS_VAL_LENGTH);
     }
 }
 
@@ -647,6 +651,6 @@ void SetPlayerEquips(int client, const char[] options)
     }
     else if (g_pCookies)
     {
-        SetClientCookie(client, g_hCookies[team], options);
+        g_hCookies[team].Set(client, options);
     }
 }

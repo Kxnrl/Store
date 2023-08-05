@@ -16,12 +16,11 @@ public Plugin myinfo =
 
 #define MAX_MUSIC_ID 40
 
-int c_unMusicID[MAXPLAYERS+1];
+int c_unMusicID[MAXPLAYERS + 1];
 int g_unMusicID[MAX_MUSIC_ID];
 int g_iMusicKit = -1;
 
 // data `music id` store in filed 'sound'
-
 public void Store_OnStoreInit(Handle store_plugin)
 {
     Store_RegisterHandler("musickit", MK_OnMapStart, MK_Reset, MK_Config, MK_Equip, MK_Remove, true);
@@ -29,7 +28,6 @@ public void Store_OnStoreInit(Handle store_plugin)
 
 public void MK_OnMapStart()
 {
-
 }
 
 public void MK_Reset()

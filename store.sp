@@ -56,10 +56,6 @@ enum
     NUM_OBSERVER_MODES,
 };
 
-#if !defined abstract_struct
-    #define abstract_struct enum struct
-#endif
-
 #define TEAM_CT 3
 #define TEAM_TE 2
 #define TEAM_ZM 2

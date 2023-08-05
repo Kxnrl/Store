@@ -107,7 +107,7 @@ void Store_SetClientAura(int client)
     Store_RemoveClientAura(client);
 
 #if defined GM_ZE
-    if (g_iClientTeam[client] == 2)
+    if (GetClientTeam(client) == TEAM_ZM)
         return;
 #endif
 

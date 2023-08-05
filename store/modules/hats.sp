@@ -121,7 +121,7 @@ int Hats_Remove(int client, int id)
     return g_eHats[m_iData].iSlot;
 }
 
-void Store_SetClientHat(int client)
+void Hat_SetClientHat(int client)
 {
     for (int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
@@ -139,13 +139,13 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         int m_iData = Store_GetDataIndex(m_iEquipped);
 
 #if defined GM_ZE
-        if (g_iClientTeam[client] == 2)
+        if (GetClientTeam(client) == TEAM_ZM)
             return;
 #endif
 
 #if !defined Global_Skin
         // if not in global team mode, we chose team
-        if (g_eHats[m_iData].iTeam > 0 && g_iClientTeam[client] != g_eHats[m_iData].iTeam)
+        if (g_eHats[m_iData].iTeam > TEAM_US && GetClientTeam(client) != g_eHats[m_iData].iTeam)
             return;
 #endif
 

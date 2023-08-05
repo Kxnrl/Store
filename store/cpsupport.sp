@@ -433,10 +433,10 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
 #if !defined USE_BF
     if (strcmp(m_szNameCopy, m_szName) == 0)
     {
-        switch (g_iClientTeam[m_iSender])
+        switch (GetClientTeam(m_iSender))
         {
-            case 3: Format(STRING(m_szName), "\x0B%s", m_szName);
-            case 2: Format(STRING(m_szName), "\x05%s", m_szName);
+            case TEAM_CT: Format(STRING(m_szName), "\x0B%s", m_szName);
+            case TEAM_TE: Format(STRING(m_szName), "\x05%s", m_szName);
             default: Format(STRING(m_szName), "\x01%s", m_szName);
         }
     }
@@ -508,7 +508,7 @@ void Frame_OnChatMessage_SayText2(DataPack data)
 
     if (processColor)
     {
-        ReplaceColorsCode(STRING(m_szBuffer), g_iClientTeam[m_iSender]);
+        ReplaceColorsCode(STRING(m_szBuffer), GetClientTeam(m_iSender));
     }
 
 #if defined USE_BF

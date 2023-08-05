@@ -104,7 +104,7 @@ void Store_SetClientPart(int client)
     Store_RemoveClientPart(client);
 
 #if defined GM_ZE
-    if (g_iClientTeam[client] == 2)
+    if (GetClientTeam(client) == TEAM_ZM)
         return;
 #endif
 

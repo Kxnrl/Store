@@ -79,7 +79,7 @@ void Store_SetClientNeon(int client)
     Store_RemoveClientNeon(client);
 
 #if defined GM_ZE
-    if (g_iClientTeam[client] == 2)
+    if (GetClientTeam(client) == TEAM_ZM)
         return;
 #endif
 

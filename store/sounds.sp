@@ -68,10 +68,10 @@ static void Sound_OnMapStart()
     }
 }
 
-void Sound_OnClientDeath(int client, int attacker)
+void Sound_OnClientDeath(int client, int killer)
 {
-    g_iSoundSpam[client]   = -1;
-    g_iSoundSpam[attacker] = -1;
+    g_iSoundSpam[client] = -1;
+    g_iSoundSpam[killer] = -1;
 }
 
 static void Sound_Reset()

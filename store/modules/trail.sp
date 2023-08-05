@@ -122,7 +122,7 @@ public void Store_PreSetTrail(int client)
 void CreateTrail(int client, int itemid = -1, int slot = 0)
 {
 #if defined GM_ZE
-    if (g_iClientTeam[client] == 2)
+    if (GetClientTeam(client) == TEAM_ZM)
         return;
 #endif
 

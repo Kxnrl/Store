@@ -60,10 +60,12 @@ static void ConVar_store_thirdperson_enabled(ConVar convar, const char[] oldValu
 }
 
 #if !defined GM_IS
-static void  ConVar_sv_allow_thirdperson(ConVar convar, const char[] oldValue, const char[] newValue)
+
+static void ConVar_sv_allow_thirdperson(ConVar convar, const char[] oldValue, const char[] newValue)
 {
     convar.IntValue = 1;
 }
+
 #endif
 
 void TPMode_OnClientConnected(int client)

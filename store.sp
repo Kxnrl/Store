@@ -5,10 +5,13 @@
 //          INCLUDES        //
 //////////////////////////////
 #include <sourcemod>
-#include <sdkhooks>
-#include <sdktools>
+
 #include <store>
 #include <store_stock>
+
+#include <sdkhooks>
+#include <sdktools>
+#include <dhooks>
 
 #undef REQUIRE_EXTENSIONS
 #undef AUTOLOAD_EXTENSIONS
@@ -23,6 +26,7 @@
 
 // local build compile environment
 #tryinclude <store_env>
+
 //////////////////////////////
 //    PLUGIN DEFINITION     //
 //////////////////////////////
@@ -43,8 +47,13 @@ public Plugin myinfo =
     #define abstract_struct enum struct
 #endif
 
+#define TEAM_CT 3
+#define TEAM_TE 2
+#define TEAM_ZM 2
+#define TEAM_OB 1
+#define TEAM_US 0
+
 // Server
-#define <Compile_Environment>
 #define COMPILE_ENVIRONMENT
 // GM_TT -> ttt server
 // GM_ZE -> zombie escape server
@@ -122,7 +131,6 @@ int g_iSelectedPlan[MAXPLAYERS + 1];
 int g_iMenuNum[MAXPLAYERS + 1];
 int g_iSpam[MAXPLAYERS + 1];
 int g_iDataProtect[MAXPLAYERS + 1];
-int g_iClientTeam[MAXPLAYERS + 1];
 
 bool g_bInvMode[MAXPLAYERS + 1];
 
@@ -1037,7 +1045,7 @@ static any Native_ExtClientItem(Handle myself, int numParams)
 static any Native_GetSkinLevel(Handle myself, int numParams)
 {
 #if defined Module_Skin
-    return Store_GetPlayerSkinLevel(GetNativeCell(1));
+    return Skin_GetPlayerSkinLevel(GetNativeCell(1));
 #else
     return 0;
 #endif
@@ -1062,9 +1070,9 @@ static any Native_HasPlayerSkin(Handle myself, int numParams)
 #if defined Module_Skin
     int client = GetNativeCell(1);
 
-    char model[2][192];
-    Store_GetClientSkinModel(client, model[0], 192);
-    Store_GetPlayerSkinModel(client, model[1], 192);
+    char model[2][PLATFORM_MAX_PATH];
+    Skin_GetClientSkinModel(client, model[0], sizeof(model[]));
+    Skin_GetPlayerSkinModel(client, model[1], sizeof(model[]));
 
     return (StrContains(model[1], "#default") == -1 && StrContains(model[1], "#zombie") == -1 && StrContains(model[0], "models/player/custom_player/legacy/") == -1);
 #else
@@ -1078,8 +1086,8 @@ static any Native_GetPlayerSkin(Handle myself, int numParams)
     int client = GetNativeCell(1);
 
     char model[2][192];
-    Store_GetClientSkinModel(client, model[0], 192);
-    Store_GetPlayerSkinModel(client, model[1], 192);
+    Skin_GetClientSkinModel(client, model[0], 192);
+    Skin_GetPlayerSkinModel(client, model[1], 192);
 
     if (StrContains(model[1], "#default") != -1 || StrContains(model[1], "#zombie") != -1 || StrContains(model[0], "models/player/custom_player/legacy/") != -1)
         return false;
@@ -1108,7 +1116,7 @@ static any Native_GetClientPlayerSkins(Handle myself, int numParmas)
     {
         char m[128], a[128];
         int  b, t;
-        if (g_Items[i].iHandler == handler && Store_HasClientItem(client, i) && GetSkinData(i, m, a, b, t))
+        if (g_Items[i].iHandler == handler && Store_HasClientItem(client, i) && Skin_GetSkinData(i, m, a, b, t))
         {
             SkinData_t s;
             strcopy(s.m_Name, sizeof(SkinData_t::m_Name), g_Items[i].szName);
@@ -1144,7 +1152,7 @@ static any Native_GetAllPlayerSkins(Handle myself, int numParams)
     {
         char m[128], a[128];
         int  b, t;
-        if (g_Items[i].iHandler == handler && GetSkinData(i, m, a, b, t))
+        if (g_Items[i].iHandler == handler && Skin_GetSkinData(i, m, a, b, t))
         {
             SkinData_t s;
             strcopy(s.m_Name, sizeof(SkinData_t::m_Name), g_Items[i].szName);
@@ -1167,9 +1175,9 @@ static any Native_ApplyPlayerSkin(Handle myself, int numParams)
 {
 #if defined Module_Skin
     int client = GetNativeCell(1);
-    Store_RemoveClientGloves(client, -1);
-    Store_ResetPlayerSkin(client);
-    Store_PreSetClientModel(client);
+    Skin_RemoveClientGloves(client, -1);
+    Skin_ResetPlayerSkin(client);
+    Skin_SetClientSkin(client);
     return true;
 #else
     return false;
@@ -1189,7 +1197,7 @@ static any Native_GetEquippedSkin(Handle myself, int numParams)
 
     char m[128], a[128];
     int  b, t;
-    if (!GetSkinData(itemId, m, a, b, t))
+    if (!Skin_GetSkinData(itemId, m, a, b, t))
         return false;
 
     SetNativeCellRef(7, b);
@@ -1244,7 +1252,7 @@ static any Native_LogOpenCase(Handle plugin, int numParams)
 static any Native_InDeathCamera(Handle plugin, int numParams)
 {
 #if defined Module_Skin
-    return IsInDeathCamera(GetNativeCell(1));
+    return Skin_IsInDeathCamera(GetNativeCell(1));
 #else
     return false;
 #endif
@@ -1265,7 +1273,6 @@ static any Native_IsGlobalTeam(Handle plugin, int numParams)
 public void OnClientConnected(int client)
 {
     g_iSpam[client]        = 0;
-    g_iClientTeam[client]  = 0;
     g_iClientCase[client]  = 1;
     g_iDataProtect[client] = GetTime() + 300;
 
@@ -1296,6 +1303,13 @@ public void OnClientConnected(int client)
 #endif
 
     TPMode_OnClientConnected(client);
+}
+
+public void OnClientPutInServer(int client)
+{
+#if defined Module_Player
+    Players_OnClientPutInServer(client);
+#endif
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -1835,7 +1849,7 @@ static int MenuHandler_Preview(Menu menu, MenuAction action, int client, int par
         else if (selected == 2)
         {
 #if defined Module_Skin
-            Store_PreviewSkin(client, m_iId);
+            Skin_PreviewSkin(client, m_iId);
             DisplayPreviewMenu(client, m_iId);
 #else
             DisplayPreviewMenu(client, m_iId);
@@ -3021,7 +3035,12 @@ static void SQLCallback_Connection(Database db, const char[] error, int retry)
 
             OnClientConnected(client);
 
-            if (!IsClientInGame(client) || !IsClientAuthorized(client))
+            if (!IsClientInGame(client))
+                continue;
+
+            OnClientPutInServer(client);
+
+            if (!IsClientAuthorized(client))
                 continue;
 
             OnClientPostAdminCheck(client);
@@ -4428,18 +4447,18 @@ static void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
     int client = GetClientOfUserId(event.GetInt("userid"));
 
 #if defined Module_Spray || defined Module_Sound
-    int attacker = GetClientOfUserId(event.GetInt("attacker"));
+    int killer = GetClientOfUserId(event.GetInt("attacker"));
 #endif
 
     ToggleTp(client, false);
     CheckMirror(client);
 
 #if defined Module_Spray
-    Spray_OnClientDeath(attacker);
+    Spray_OnClientDeath(killer);
 #endif
 
 #if defined Module_Sound
-    Sound_OnClientDeath(client, attacker);
+    Sound_OnClientDeath(client, killer);
 #endif
 }
 

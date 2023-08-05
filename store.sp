@@ -21,6 +21,8 @@
 #define REQUIRE_EXTENSIONS
 #define REQUIRE_PLUGIN
 
+// local build compile environment
+#tryinclude <store_env>
 //////////////////////////////
 //    PLUGIN DEFINITION     //
 //////////////////////////////
@@ -43,6 +45,7 @@ public Plugin myinfo =
 
 // Server
 #define <Compile_Environment>
+#define COMPILE_ENVIRONMENT
 // GM_TT -> ttt server
 // GM_ZE -> zombie escape server
 // GM_MG -> mini games server

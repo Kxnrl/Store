@@ -30,8 +30,8 @@ void Aura_OnMapStart()
 
 void Aura_OnClientDisconnect(int client)
 {
-    Store_RemoveClientAura(client);
-    g_szAuraClient[client][0] = '\0';
+    Aura_RemoveClientAura(client);
+    g_szAuraClient[client][0] = 0;
 }
 
 bool Aura_Config(KeyValues kv, int itemid)
@@ -76,25 +76,25 @@ int Aura_Equip(int client, int id)
     g_szAuraClient[client] = g_szAuraName[Store_GetDataIndex(id)];
 
     if (IsPlayerAlive(client))
-        Store_SetClientAura(client);
+        Aura_SetClientAura(client);
 
     return 0;
 }
 
 int Aura_Remove(int client, int id)
 {
-    Store_RemoveClientAura(client);
-    g_szAuraClient[client][0] = '\0';
+    Aura_RemoveClientAura(client);
+    g_szAuraClient[client][0] = 0;
 
     return 0;
 }
 
-void Store_RemoveClientAura(int client)
+void Aura_RemoveClientAura(int client)
 {
     if (g_iClientAura[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientAura[client]);
-        if (entity > 0 && IsValidEdict(entity))
+        if (entity > MaxClients)
         {
             RemoveEntity(entity);
         }
@@ -102,16 +102,16 @@ void Store_RemoveClientAura(int client)
     }
 }
 
-void Store_SetClientAura(int client)
+void Aura_SetClientAura(int client)
 {
-    Store_RemoveClientAura(client);
+    Aura_RemoveClientAura(client);
 
 #if defined GM_ZE
     if (GetClientTeam(client) == TEAM_ZM)
         return;
 #endif
 
-    if (strlen(g_szAuraClient[client]) > 0)
+    if (g_szAuraClient[client][0])
     {
         float clientOrigin[3], clientAngles[3];
         GetClientAbsOrigin(client, clientOrigin);

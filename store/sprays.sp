@@ -21,7 +21,7 @@ static bool g_bFallbackSprayerSound;
 
 #define FALLBACK_SPARYER_SOUND "maoling/sprayer.mp3"
 
-public void Sprays_OnPluginStart()
+void Sprays_OnPluginStart()
 {
     Store_RegisterHandler("spray", Sprays_OnMapStart, Sprays_Reset, Sprays_Config, Sprays_Equip, Sprays_Remove, true);
 
@@ -59,12 +59,12 @@ static void Sprays_OnMapStart()
     }
 }
 
-public void Sprays_OnClientConnected(int client)
+void Sprays_OnClientConnected(int client)
 {
     g_iSprayCache[client] = -1;
 }
 
-public void Spray_OnClientDeath(int client)
+void Spray_OnClientDeath(int client)
 {
     g_iSprayLimit[client] = -1;
 }
@@ -84,12 +84,12 @@ static Action Command_Spray(int client, int args)
         return Plugin_Handled;
     }
 
-    Sprays_Create(client);
+    CreateSpray(client);
 
     return Plugin_Handled;
 }
 
-bool StartNullSpray(int client)
+static bool StartNullSpray(int client)
 {
     bool res      = false;
     int  cooldown = 60;
@@ -156,7 +156,7 @@ static int Sprays_Remove(int client, int id)
     return 0;
 }
 
-void Sprays_Create(int client)
+static void CreateSpray(int client)
 {
     if (!IsPlayerAlive(client))
         return;
@@ -182,7 +182,7 @@ void Sprays_Create(int client)
     Call_Finish();
 }
 
-void StartSprayToAll(int client, const float vPos[3])
+static void StartSprayToAll(int client, const float vPos[3])
 {
     char model[PLATFORM_MAX_PATH], name[64];
     strcopy(STRING(model), g_szSprays[g_iSprayCache[client]]);
@@ -232,7 +232,7 @@ void StartSprayToAll(int client, const float vPos[3])
     tPrintToChatAll("%t", "spray to all", client, name);
 }
 
-void GetPlayerEyeViewPoint(int client, float m_fPosition[3])
+static void GetPlayerEyeViewPoint(int client, float m_fPosition[3])
 {
     float m_flRotation[3];
     float m_flPosition[3];

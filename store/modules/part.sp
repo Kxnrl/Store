@@ -15,8 +15,8 @@ static char g_szPartClient[MAXPLAYERS + 1][PLATFORM_MAX_PATH];
 
 void Part_OnClientDisconnect(int client)
 {
-    Store_RemoveClientPart(client);
-    g_szPartClient[client][0] = '\0';
+    Part_RemoveClientPart(client);
+    g_szPartClient[client][0] = 0;
 }
 
 void Part_Reset()
@@ -58,15 +58,15 @@ int Part_Equip(int client, int id)
     g_szPartClient[client] = g_szPartName[Store_GetDataIndex(id)];
 
     if (IsPlayerAlive(client))
-        Store_SetClientPart(client);
+        Part_SetClientPart(client);
 
     return 0;
 }
 
 int Part_Remove(int client, int id)
 {
-    Store_RemoveClientPart(client);
-    g_szPartClient[client][0] = '\0';
+    Part_RemoveClientPart(client);
+    g_szPartClient[client][0] = 0;
 
     return 0;
 }
@@ -86,12 +86,12 @@ void Part_OnMapStart()
     }
 }
 
-void Store_RemoveClientPart(int client)
+void Part_RemoveClientPart(int client)
 {
     if (g_iClientPart[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientPart[client]);
-        if (entity > 0 && IsValidEdict(entity))
+        if (entity > MaxClients)
         {
             RemoveEntity(entity);
         }
@@ -99,16 +99,16 @@ void Store_RemoveClientPart(int client)
     }
 }
 
-void Store_SetClientPart(int client)
+void Part_SetClientPart(int client)
 {
-    Store_RemoveClientPart(client);
+    Part_RemoveClientPart(client);
 
 #if defined GM_ZE
     if (GetClientTeam(client) == TEAM_ZM)
         return;
 #endif
 
-    if (!(strcmp(g_szPartClient[client], "", false) == 0))
+    if (g_szPartClient[client][0])
     {
         float clientOrigin[3], clientAngles[3];
         GetClientAbsOrigin(client, clientOrigin);

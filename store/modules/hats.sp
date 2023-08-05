@@ -82,7 +82,7 @@ static Action Timer_Hats_Adjust(Handle timer)
         if (IsClientInGame(client) && !IsFakeClient(client))
         {
             if (IsClientObserver(client))
-                g_iSpecTarget[client] = (GetEntProp(client, Prop_Send, "m_iObserverMode") == 4) ? GetEntPropEnt(client, Prop_Send, "m_hObserverTarget") : -1;
+                g_iSpecTarget[client] = (GetEntProp(client, Prop_Send, "m_iObserverMode") == OBS_MODE_IN_EYE) ? GetEntPropEnt(client, Prop_Send, "m_hObserverTarget") : -1;
             else
                 g_iSpecTarget[client] = client;
         }
@@ -92,10 +92,10 @@ static Action Timer_Hats_Adjust(Handle timer)
 
 public void OnEntityDestroyed(int entity)
 {
-    if (entity > 2048 || entity < MaxClients)
+    if (entity >= 2048 || entity < MaxClients)
         return;
 
-    g_iHatsOwners[entity] = -1;
+    g_iHatsOwners[entity] = INVALID_ENT_REFERENCE;
 }
 
 void Hats_Reset()
@@ -108,7 +108,7 @@ int Hats_Equip(int client, int id)
     int m_iData = Store_GetDataIndex(id);
     if (IsPlayerAlive(client))
     {
-        Store_RemoveClientHats(client, g_eHats[m_iData].iSlot);
+        Hats_RemoveClientHats(client, g_eHats[m_iData].iSlot);
         CreateHat(client, id);
     }
     return g_eHats[m_iData].iSlot;
@@ -117,15 +117,15 @@ int Hats_Equip(int client, int id)
 int Hats_Remove(int client, int id)
 {
     int m_iData = Store_GetDataIndex(id);
-    Store_RemoveClientHats(client, g_eHats[m_iData].iSlot);
+    Hats_RemoveClientHats(client, g_eHats[m_iData].iSlot);
     return g_eHats[m_iData].iSlot;
 }
 
-void Hat_SetClientHat(int client)
+void Hats_SetClientHat(int client)
 {
     for (int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
-        Store_RemoveClientHats(client, i);
+        Hats_RemoveClientHats(client, i);
         CreateHat(client, -1, i);
     }
 }
@@ -207,12 +207,12 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
     }
 }
 
-void Store_RemoveClientHats(int client, int slot)
+void Hats_RemoveClientHats(int client, int slot)
 {
     if (g_iClientHats[client][slot] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientHats[client][slot]);
-        if (entity > 0 && IsValidEdict(entity))
+        if (entity > MaxClients)
         {
             RemoveEntity(entity);
         }
@@ -220,16 +220,12 @@ void Store_RemoveClientHats(int client, int slot)
     }
 }
 
-public Action Hook_SetTransmit_Hat(int ent, int client)
+static Action Hook_SetTransmit_Hat(int ent, int client)
 {
     if (client == g_iHatsOwners[ent])
         return IsPlayerTP(client) ? Plugin_Continue : Plugin_Handled;
 
     if (g_iSpecTarget[client] == g_iHatsOwners[ent])
-        return Plugin_Handled;
-
-    // for gotv
-    if (IsClientSourceTV(client))
         return Plugin_Handled;
 
     return Plugin_Continue;

@@ -26,7 +26,7 @@ static Handle g_hCookieSounds;
 static Handle g_hOnCheerSound;
 static Handle g_hOnCheerCommand;
 
-public void Sounds_OnPluginStart()
+void Sounds_OnPluginStart()
 {
     Store_RegisterHandler("sound", Sound_OnMapStart, Sound_Reset, Sound_Config, Sound_Equip, Sound_Remove, true);
 
@@ -147,30 +147,20 @@ void Sound_OnClientConnected(int client)
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
 {
-    if (client <= 0)
+    if (!IsValidClient(client) || g_iSoundClient[client] < 0)
         return;
 
-    if (!IsClientInGame(client))
-        return;
-
-    if (g_iSoundClient[client] < 0)
-        return;
-
-    if (sArgs[0] == '!' || sArgs[0] == '/' || sArgs[0] == '@')
+    if (sArgs[0] == '!' || sArgs[0] == '/' || sArgs[0] == '@' || sArgs[0] == '.' || sArgs[0] == '#' || sArgs[0] == '$')
         return;
 
     if (g_iSoundSpam[client] > GetTime())
         return;
 
-    if (
-        StrContains(sArgs, "cheer", false) != -1 || StrContains(sArgs, "lol", false) != -1 || StrContains(sArgs, "233", false) != -1 || StrContains(sArgs, "hah", false) != -1 || StrContains(sArgs, "hhh", false) != -1)
-    {
-        g_iSoundSpam[client] = GetTime() + g_eSounds[g_iSoundClient[client]].iCooldown;
+    if (StrContains(sArgs, "cheer", false) != -1 || StrContains(sArgs, "lol", false) != -1 || StrContains(sArgs, "233", false) != -1 || StrContains(sArgs, "hah", false) != -1 || StrContains(sArgs, "hhh", false) != -1)
         StartSoundToAll(client);
-    }
 }
 
-public Action Command_Cheer(int client, int args)
+static Action Command_Cheer(int client, int args)
 {
     if (!IsValidClient(client))
         return Plugin_Handled;
@@ -193,7 +183,7 @@ public Action Command_Cheer(int client, int args)
     return Plugin_Handled;
 }
 
-bool StartNullSound(int client)
+static bool StartNullSound(int client)
 {
     bool res      = false;
     int  cooldown = 30;
@@ -211,7 +201,7 @@ bool StartNullSound(int client)
     return res;
 }
 
-void StartSoundToAll(int client)
+static void StartSoundToAll(int client)
 {
     char sound[256], name[64];
     strcopy(STRING(sound), g_eSounds[g_iSoundClient[client]].szSound);
@@ -341,7 +331,7 @@ void StartSoundToAll(int client)
     tPrintToChatAll("%t", "sound to all", client, name);
 }
 
-public void Sounds_OnLoadOptions(int client)
+void Sounds_OnLoadOptions(int client)
 {
     if (g_pfysOptions)
     {
@@ -359,7 +349,7 @@ public void Sounds_OnLoadOptions(int client)
     }
 }
 
-public Action Command_Silence(int client, int args)
+static Action Command_Silence(int client, int args)
 {
     if (!client)
         return Plugin_Handled;

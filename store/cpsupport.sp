@@ -18,7 +18,6 @@
     #define CHAT_C_RANDOM  2
 #endif
 
-#define TEAM_SPEC 1
 static UserMsg   g_umUMId;
 static Handle    g_hCPAForward;
 static Handle    g_hCPPForward;
@@ -33,7 +32,7 @@ static int g_iNameTags      = 0;
 static int g_iNameColors    = 0;
 static int g_iMessageColors = 0;
 
-public void CPSupport_OnPluginStart()
+void CPSupport_OnPluginStart()
 {
     CheckCPandSCP();
 
@@ -63,8 +62,6 @@ public void CPSupport_OnPluginStart()
     Store_RegisterHandler("nametag", CPSupport_OnMappStart, CPSupport_Reset, NameTags_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("namecolor", CPSupport_OnMappStart, CPSupport_Reset, NameColors_Config, CPSupport_Equip, CPSupport_Remove, true);
     Store_RegisterHandler("msgcolor", CPSupport_OnMappStart, CPSupport_Reset, MsgColors_Config, CPSupport_Equip, CPSupport_Remove, true);
-
-    LogMessage("Init CP...");
 }
 
 static void CPSupport_OnMappStart()
@@ -116,7 +113,7 @@ static int CPSupport_Remove(int client, int id)
     return 0;
 }
 
-void CPP_Forward(int client, const char flagstring[32], const char name[128], const char message[256], ArrayList hRecipients, bool removedColor, bool processColor)
+static void CPP_Forward(int client, const char flagstring[32], const char name[128], const char message[256], ArrayList hRecipients, bool removedColor, bool processColor)
 {
     Call_StartForward(g_hCPPForward);
     Call_PushCell(client);
@@ -129,7 +126,7 @@ void CPP_Forward(int client, const char flagstring[32], const char name[128], co
     Call_Finish();
 }
 
-Action CPA_Forward(int &client, char flagstring[32], char name[128], char message[256], ArrayList hRecipients, bool &removedColor, bool &processColor)
+static Action CPA_Forward(int &client, char flagstring[32], char name[128], char message[256], ArrayList hRecipients, bool &removedColor, bool &processColor)
 {
     int m_iEquippedNameTag   = Store_GetEquippedItem(client, "nametag");
     int m_iEquippedNameColor = Store_GetEquippedItem(client, "namecolor");
@@ -210,7 +207,7 @@ Action CPA_Forward(int &client, char flagstring[32], char name[128], char messag
     return Plugin_Changed;
 }
 
-void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int rainbow)
+static void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int rainbow)
 {
     char[] copy = new char[maxLen];
     strcopy(copy, maxLen, input);
@@ -280,7 +277,8 @@ void String_Rainbow(const char[] input, char[] output, int maxLen, int type, int
 }
 
 #if !defined USE_BF
-bool         IsChar(char c)
+
+static bool IsChar(char c)
 {
     if (0 <= c <= 126)
         return true;
@@ -288,7 +286,7 @@ bool         IsChar(char c)
     return false;
 }
 
-int RandomColor()
+static int RandomColor()
 {
     switch (UTIL_GetRandomInt(1, 16))
     {
@@ -314,7 +312,7 @@ int RandomColor()
 }
 #endif
 
-bool GenerateMessageFormats()
+static bool GenerateMessageFormats()
 {
     switch (GetEngineVersion())
     {
@@ -361,10 +359,12 @@ bool GenerateMessageFormats()
 
 #if defined USE_BF
 
-public Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int playersNum, bool reliable, bool init)
+static Action OnSayText2(UserMsg msg_id, BfRead msg, const int[] players, int playersNum, bool reliable, bool init)
+
 #else
 
-public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int playersNum, bool reliable, bool init)
+static Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int playersNum, bool reliable, bool init)
+
 #endif
 {
 #if defined USE_BF
@@ -459,7 +459,7 @@ public Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
     return Plugin_Handled;
 }
 
-void Frame_OnChatMessage_SayText2(DataPack data)
+static void Frame_OnChatMessage_SayText2(DataPack data)
 {
     int  m_iSender = data.ReadCell();
     bool m_bChat   = data.ReadCell();

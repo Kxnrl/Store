@@ -140,23 +140,23 @@ static Action Timer_DelaySpawn(Handle timer, int userid)
         return Plugin_Stop;
 
 #if defined Module_Trail
-    Store_SetClientTrail(client);
+    Trails_SetClientTrail(client);
 #endif
 
 #if defined Module_Hats
-    Hat_SetClientHat(client);
+    Hats_SetClientHat(client);
 #endif
 
 #if defined Module_Aura
-    Store_SetClientAura(client);
+    Aura_SetClientAura(client);
 #endif
 
 #if defined Module_Neon
-    Store_SetClientNeon(client);
+    Neon_SetClientNeon(client);
 #endif
 
 #if defined Module_Part
-    Store_SetClientPart(client);
+    Part_SetClientPart(client);
 #endif
 
     return Plugin_Stop;
@@ -202,25 +202,25 @@ void DeathReset(int client)
 #pragma unused client
 
 #if defined Module_Aura
-    Store_RemoveClientAura(client);
+    Aura_RemoveClientAura(client);
 #endif
 
 #if defined Module_Neon
-    Store_RemoveClientNeon(client);
+    Neon_RemoveClientNeon(client);
 #endif
 
 #if defined Module_Part
-    Store_RemoveClientPart(client);
+    Part_RemoveClientPart(client);
 #endif
 
     for (int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
 #if defined Module_Hats
-        Store_RemoveClientHats(client, i);
+        Hats_RemoveClientHats(client, i);
 #endif
 
 #if defined Module_Trail
-        Store_RemoveClientTrail(client, i);
+        Trails_RemoveClientTrail(client, i);
 #endif
     }
 }
@@ -234,25 +234,25 @@ static Action Event_PlayerTeam(Event event, const char[] name, bool dontBroadcas
     if (oldteam > TEAM_OB && newteam <= TEAM_OB)
     {
 #if defined Module_Aura
-        Store_RemoveClientAura(client);
+        Aura_RemoveClientAura(client);
 #endif
 
 #if defined Module_Neon
-        Store_RemoveClientNeon(client);
+        Neon_RemoveClientNeon(client);
 #endif
 
 #if defined Module_Part
-        Store_RemoveClientPart(client);
+        Part_RemoveClientPart(client);
 #endif
 
 #if defined Module_Trail
         for (int i = 0; i < STORE_MAX_SLOTS; ++i)
-            Store_RemoveClientTrail(client, i);
+            Trails_RemoveClientTrail(client, i);
 #endif
 
 #if defined Module_Hats
         for (int i = 0; i < STORE_MAX_SLOTS; ++i)
-            Store_RemoveClientHats(client, i);
+            Hats_RemoveClientHats(client, i);
 #endif
     }
 

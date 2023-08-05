@@ -31,7 +31,7 @@ static int          g_iSlots         = 0;
 static int          g_iGrenadeTrails = 0;
 static char         g_szSlots[6][64];
 
-public void Grenades_OnPluginStart()
+void Grenades_OnPluginStart()
 {
     Store_RegisterHandler("nadetrail", GrenadeTrails_OnMapStart, GrenadeTrails_Reset, GrenadeTrails_Config, GrenadeTrails_Equip, GrenadeTrails_Remove, true);
     Store_RegisterHandler("nadeskin", GrenadeSkins_OnMapStart, GrenadeSkins_Reset, GrenadeSkins_Config, GrenadeSkins_Equip, GrenadeSkins_Remove, true);
@@ -136,46 +136,58 @@ public void OnEntityCreated(int entity, const char[] classname)
         return;
 
     if (StrContains(classname, "_projectile") > 0)
-        SDKHook(entity, SDKHook_SpawnPost, Grenades_OnEntitySpawnedPost);
+        SDKHook(entity, SDKHook_SpawnPost, Grenades_OnEntitySpawned);
 }
 
-public void Grenades_OnEntitySpawnedPost(int entity)
+static void Grenades_OnEntitySpawned(int entity)
 {
-    int client = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+    SDKUnhook(entity, SDKHook_SpawnPost, Grenades_OnEntitySpawned);
 
-    if (!(0 < client <= MaxClients))
+    RequestFrame(Grenades_OnEntitySpawnedPost, EntIndexToEntRef(entity));
+}
+
+static void Grenades_OnEntitySpawnedPost(int ref)
+{
+    int entity = EntRefToEntIndex(ref);
+    if (entity < MaxClients)
+        return;
+
+    int client = GetEntPropEnt(entity, Prop_Send, "m_hThrower");
+    if (client == -1)
         return;
 
     char m_szClassname[64];
     GetEdictClassname(entity, STRING(m_szClassname));
 
-    for (int i = 0; i < strlen(m_szClassname); ++i)
-        if (m_szClassname[i] == '_')
-        {
-            m_szClassname[i] = 0;
-            break;
-        }
+    int char = FindCharInString(m_szClassname, '_');
+    if (char == -1)
+        return;
 
-    int m_iSlot = GrenadeSkins_GetSlot(m_szClassname);
+    m_szClassname[char] = 0;
 
-    int m_iEquipped;
-    int m_iData;
+    OnGrenadeModel(client, entity, m_szClassname);
 
-    m_iEquipped = Store_GetEquippedItem(client, "nadeskin", m_iSlot);
+    OnGrenadeTrail(client, entity, m_szClassname);
+}
+
+static void OnGrenadeModel(int client, int entity, const char[] classname)
+{
+    int m_iSlot     = GrenadeSkins_GetSlot(classname);
+    int m_iEquipped = Store_GetEquippedItem(client, "nadeskin", m_iSlot);
 
     if (m_iEquipped >= 0)
     {
-        m_iData = Store_GetDataIndex(m_iEquipped);
+        int m_iData = Store_GetDataIndex(m_iEquipped);
         SetEntityModel(entity, g_eGrenadeSkins[m_iData].szModel);
     }
+}
 
-    m_iEquipped = 0;
-    m_iData     = 0;
-    m_iEquipped = Store_GetEquippedItem(client, "nadetrail", 0);
-
+static void OnGrenadeTrail(int client, int entity, const char[] classname)
+{
+    int m_iEquipped = Store_GetEquippedItem(client, "nadetrail", 0);
     if (m_iEquipped >= 0)
     {
-        m_iData = Store_GetDataIndex(m_iEquipped);
+        int m_iData = Store_GetDataIndex(m_iEquipped);
 
         // Ugh...
         int m_iColor[4];

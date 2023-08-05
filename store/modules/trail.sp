@@ -70,24 +70,24 @@ void Trails_Reset()
 int Trails_Equip(int client, int id)
 {
     if (IsPlayerAlive(client))
-        Store_SetClientTrail(client);
+        Trails_SetClientTrail(client);
 
     return g_eTrails[Store_GetDataIndex(id)].iSlot;
 }
 
 int Trails_Remove(int client, int id)
 {
-    Store_SetClientTrail(client);
+    Trails_SetClientTrail(client);
 
     return g_eTrails[Store_GetDataIndex(id)].iSlot;
 }
 
-void Store_RemoveClientTrail(int client, int slot)
+void Trails_RemoveClientTrail(int client, int slot)
 {
     if (g_iClientTrails[client][slot] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientTrails[client][slot]);
-        if (entity > 0 && IsValidEdict(entity))
+        if (entity > MaxClients)
         {
             RemoveEntity(entity);
         }
@@ -99,27 +99,27 @@ void Store_RemoveClientTrail(int client, int slot)
 void Trails_OnClientDisconnect(int client)
 {
     for (int i = 0; i < STORE_MAX_SLOTS; ++i)
-        Store_RemoveClientTrail(client, i);
+        Trails_RemoveClientTrail(client, i);
 }
 
-void Store_SetClientTrail(int client)
+void Trails_SetClientTrail(int client)
 {
-    RequestFrame(Store_PreSetTrail, client);
+    RequestFrame(PreSetTrail, client);
 }
 
-public void Store_PreSetTrail(int client)
+static void PreSetTrail(int client)
 {
-    if (!IsClientInGame(client))
+    if (!IsClientInGame(client) || !IsPlayerAlive(client))
         return;
 
     for (int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
-        Store_RemoveClientTrail(client, i);
+        Trails_RemoveClientTrail(client, i);
         CreateTrail(client, -1, i);
     }
 }
 
-void CreateTrail(int client, int itemid = -1, int slot = 0)
+static void CreateTrail(int client, int itemid = -1, int slot = 0)
 {
 #if defined GM_ZE
     if (GetClientTeam(client) == TEAM_ZM)
@@ -150,7 +150,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
 
     int entity = g_iClientTrails[client][slot] == INVALID_ENT_REFERENCE ? -1 : EntRefToEntIndex(g_iClientTrails[client][slot]);
 
-    if (IsValidEdict(entity))
+    if (entity < MaxClients)
         return;
 
     entity = CreateEntityByName("env_spritetrail");
@@ -171,7 +171,7 @@ void CreateTrail(int client, int itemid = -1, int slot = 0)
     Call_OnTrailsCreated(client, entity, slot);
 }
 
-void AttachTrail(int ent, int client, int current, int num)
+static void AttachTrail(int ent, int client, int current, int num)
 {
     float m_fOrigin[3];
     float m_fAngle[3];

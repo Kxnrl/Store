@@ -34,7 +34,7 @@ void Neon_OnMapStart()
 
 void Neon_OnClientDisconnect(int client)
 {
-    Store_RemoveClientNeon(client);
+    Neon_RemoveClientNeon(client);
 }
 
 void Neon_Reset()
@@ -44,29 +44,29 @@ void Neon_Reset()
 
 int Neon_Equip(int client, int id)
 {
-    RequestFrame(EquipNeon_Delay, client);
+    RequestFrame(DelayEquipNeon, client);
 
     return 0;
 }
 
-public void EquipNeon_Delay(int client)
+static void DelayEquipNeon(int client)
 {
     if (IsClientInGame(client) && IsPlayerAlive(client))
-        Store_SetClientNeon(client);
+        Neon_SetClientNeon(client);
 }
 
 int Neon_Remove(int client, int id)
 {
-    Store_RemoveClientNeon(client);
+    Neon_RemoveClientNeon(client);
     return 0;
 }
 
-void Store_RemoveClientNeon(int client)
+void Neon_RemoveClientNeon(int client)
 {
     if (g_iClientNeon[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientNeon[client]);
-        if (entity > 0 && IsValidEdict(entity))
+        if (entity > MaxClients)
         {
             RemoveEntity(entity);
         }
@@ -74,9 +74,9 @@ void Store_RemoveClientNeon(int client)
     }
 }
 
-void Store_SetClientNeon(int client)
+void Neon_SetClientNeon(int client)
 {
-    Store_RemoveClientNeon(client);
+    Neon_RemoveClientNeon(client);
 
 #if defined GM_ZE
     if (GetClientTeam(client) == TEAM_ZM)
@@ -89,7 +89,7 @@ void Store_SetClientNeon(int client)
 
     int m_iData = Store_GetDataIndex(m_iEquipped);
 
-    if (g_eNeons[m_iData].iColor[3] != 0)
+    if (g_eNeons[m_iData].iColor[3] > 0)
     {
         float clientOrigin[3];
         GetClientAbsOrigin(client, clientOrigin);

@@ -1,39 +1,44 @@
+// MAIN_FILE ../../store.sp
+
+#pragma semicolon 1
+#pragma newdecls required
+
 #define Module_Skin
 
-enum struct PlayerSkin
+abstract_struct PlayerSkin
 {
     char szModel[PLATFORM_MAX_PATH];
     char szArms[PLATFORM_MAX_PATH];
     char szSound[PLATFORM_MAX_PATH];
-    int iLevel;
-    int iTeam;
-    int nBody;
+    int  iLevel;
+    int  iTeam;
+    int  nBody;
 }
 
 static PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS];
 
 static bool   g_bSoundHooked;
 static int    g_iPlayerSkins = 0;
-static int    g_iSkinLevel[MAXPLAYERS+1];
-static int    g_iPreviewTimes[MAXPLAYERS+1];
-static int    g_iPreviewModel[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-static int    g_iCameraRef[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
-static char   g_szDeathVoice[MAXPLAYERS+1][PLATFORM_MAX_PATH];
-static char   g_szSkinModel[MAXPLAYERS+1][PLATFORM_MAX_PATH];
-static bool   g_bShouldFireEvent[MAXPLAYERS+1];
+static int    g_iSkinLevel[MAXPLAYERS + 1];
+static int    g_iPreviewTimes[MAXPLAYERS + 1];
+static int    g_iPreviewModel[MAXPLAYERS + 1] = { INVALID_ENT_REFERENCE, ... };
+static int    g_iCameraRef[MAXPLAYERS + 1]    = { INVALID_ENT_REFERENCE, ... };
+static char   g_szDeathVoice[MAXPLAYERS + 1][PLATFORM_MAX_PATH];
+static char   g_szSkinModel[MAXPLAYERS + 1][PLATFORM_MAX_PATH];
+static bool   g_bShouldFireEvent[MAXPLAYERS + 1];
 static ConVar spec_freeze_time;
 static ConVar mp_round_restart_delay;
 static ConVar sv_disablefreezecam;
 static ConVar spec_replay_enable;
 static ConVar store_firstperson_death_camera;
 
-Handle g_tKillPreview[MAXPLAYERS+1];
+Handle g_tKillPreview[MAXPLAYERS + 1];
 
-Handle g_hOnPlayerSkinDefault = null;
-Handle g_hOnPlayerSetModel = null;
+Handle g_hOnPlayerSkinDefault  = null;
+Handle g_hOnPlayerSetModel     = null;
 Handle g_hOnPlayerSetModelPost = null;
-Handle g_hOnFPDeathCamera = null;
-Handle g_hOnPlayerDeathVoice = null;
+Handle g_hOnFPDeathCamera      = null;
+Handle g_hOnPlayerDeathVoice   = null;
 
 void Skin_InitConVar()
 {
@@ -42,20 +47,20 @@ void Skin_InitConVar()
 
 void Skin_OnPluginStart()
 {
-    g_hOnPlayerSkinDefault = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
-    g_hOnFPDeathCamera = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
-    g_hOnPlayerSetModel = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
+    g_hOnPlayerSkinDefault  = CreateGlobalForward("Store_OnPlayerSkinDefault", ET_Event, Param_Cell, Param_Cell, Param_String, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
+    g_hOnFPDeathCamera      = CreateGlobalForward("Store_OnFPDeathCamera", ET_Hook, Param_Cell);
+    g_hOnPlayerSetModel     = CreateGlobalForward("Store_OnSetPlayerSkin", ET_Event, Param_Cell, Param_String, Param_String, Param_CellByRef);
     g_hOnPlayerSetModelPost = CreateGlobalForward("Store_OnSetPlayerSkinPost", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
-    g_hOnPlayerDeathVoice = CreateGlobalForward("Store_OnPlayerDeathVoice", ET_Event, Param_Cell, Param_String);
+    g_hOnPlayerDeathVoice   = CreateGlobalForward("Store_OnPlayerDeathVoice", ET_Event, Param_Cell, Param_String);
 
     Store_RegisterHandler("playerskin", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
 
     RegAdminCmd("sm_arms", Command_Arms, ADMFLAG_ROOT, "Fixed Player Arms");
 
-    spec_freeze_time = FindConVar("spec_freeze_time");
-    sv_disablefreezecam = FindConVar("sv_disablefreezecam");
+    spec_freeze_time       = FindConVar("spec_freeze_time");
+    sv_disablefreezecam    = FindConVar("sv_disablefreezecam");
     mp_round_restart_delay = FindConVar("mp_round_restart_delay");
-    spec_replay_enable = FindConVar("spec_replay_enable");
+    spec_replay_enable     = FindConVar("spec_replay_enable");
 
     spec_freeze_time.AddChangeHook(Skin_OnConVarChanged);
     sv_disablefreezecam.AddChangeHook(Skin_OnConVarChanged);
@@ -67,7 +72,7 @@ void Skin_OnPluginStart()
     mp_round_restart_delay.SetFloat(8.0, true, true);
     spec_replay_enable.SetBool(false, true, true);
 
-    //DEATH CAMERA CCVAR
+    // DEATH CAMERA CCVAR
     store_firstperson_death_camera.SetBool(true, true, true);
     store_firstperson_death_camera.AddChangeHook(FPD_OnConVarChanged);
 }
@@ -94,50 +99,50 @@ public void Skin_OnConVarChanged(ConVar convar, const char[] oldValue, const cha
 {
     if (store_firstperson_death_camera.BoolValue)
     {
-        if(convar == spec_freeze_time)
+        if (convar == spec_freeze_time)
             spec_freeze_time.SetFloat(-1.0, true, true);
 
-        if(convar == sv_disablefreezecam)
+        if (convar == sv_disablefreezecam)
             sv_disablefreezecam.SetBool(true, true, true);
 
-        if(convar == mp_round_restart_delay)
+        if (convar == mp_round_restart_delay)
             mp_round_restart_delay.SetFloat(8.0, true, true);
 
-        if(convar == spec_replay_enable)
+        if (convar == spec_replay_enable)
             spec_replay_enable.SetBool(false, true, true);
     }
     else
     {
-        if(convar == spec_freeze_time)
+        if (convar == spec_freeze_time)
             spec_freeze_time.RestoreDefault(true, true);
 
-        if(convar == sv_disablefreezecam)
+        if (convar == sv_disablefreezecam)
             sv_disablefreezecam.RestoreDefault(true, true);
 
-        if(convar == mp_round_restart_delay)
+        if (convar == mp_round_restart_delay)
             mp_round_restart_delay.RestoreDefault(true, true);
 
-        if(convar == spec_replay_enable)
+        if (convar == spec_replay_enable)
             spec_replay_enable.RestoreDefault(true, true);
     }
 }
 
 void Skin_OnClientDisconnect(int client)
 {
-    if(g_tKillPreview[client] != null)
+    if (g_tKillPreview[client] != null)
         TriggerTimer(g_tKillPreview[client], false);
 
-    if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
+    if (g_iCameraRef[client] != INVALID_ENT_REFERENCE)
         Timer_ClearCamera(null, client);
 }
 
 public Action Command_Arms(int client, int args)
 {
-    if(!client || !IsClientInGame(client) || !IsPlayerAlive(client))
+    if (!client || !IsClientInGame(client) || !IsPlayerAlive(client))
         return Plugin_Handled;
 
 #if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
+    if (g_iClientTeam[client] == 2)
         return Plugin_Handled;
 #endif
 
@@ -151,7 +156,7 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
     Store_SetDataIndex(itemid, g_iPlayerSkins);
 
     kv.GetString("model", g_ePlayerSkins[g_iPlayerSkins].szModel, PLATFORM_MAX_PATH);
-    kv.GetString("arms",  g_ePlayerSkins[g_iPlayerSkins].szArms,  PLATFORM_MAX_PATH);
+    kv.GetString("arms", g_ePlayerSkins[g_iPlayerSkins].szArms, PLATFORM_MAX_PATH);
     kv.GetString("sound", g_ePlayerSkins[g_iPlayerSkins].szSound, PLATFORM_MAX_PATH);
 
     g_ePlayerSkins[g_iPlayerSkins].iLevel = kv.GetNum("lvls", 0);
@@ -163,9 +168,9 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
     g_ePlayerSkins[g_iPlayerSkins].iTeam = kv.GetNum("team");
 #endif
 
-    if(!FileExists(g_ePlayerSkins[g_iPlayerSkins].szModel, true))
+    if (!FileExists(g_ePlayerSkins[g_iPlayerSkins].szModel, true))
     {
-        #if defined LOG_NOT_FOUND
+#if defined LOG_NOT_FOUND
         // missing model
         char auth[32], name[32];
         kv.GetString("auth", auth, 32);
@@ -178,11 +183,11 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
         {
             LogMessage("Skipped skin <%s> -> [%s]", name, g_ePlayerSkins[g_iPlayerSkins].szModel);
         }
-        #endif
+#endif
         return false;
     }
 
-    if(g_ePlayerSkins[g_iPlayerSkins].szArms[0] && !FileExists(g_ePlayerSkins[g_iPlayerSkins].szArms, true))
+    if (g_ePlayerSkins[g_iPlayerSkins].szArms[0] && !FileExists(g_ePlayerSkins[g_iPlayerSkins].szArms, true))
     {
         LogError("Missing 'Arms' files for '%s'::'%s'.", g_ePlayerSkins[g_iPlayerSkins].szModel, g_ePlayerSkins[g_iPlayerSkins].szArms);
     }
@@ -193,24 +198,24 @@ public bool PlayerSkins_Config(KeyValues kv, int itemid)
 
 public void PlayerSkins_OnMapStart()
 {
-    int deathsounds = 0;
+    int  deathsounds = 0;
     char szPath[PLATFORM_MAX_PATH], szPathStar[PLATFORM_MAX_PATH];
-    for(int i = 0; i < g_iPlayerSkins; ++i)
+    for (int i = 0; i < g_iPlayerSkins; ++i)
     {
         PrecacheModel(g_ePlayerSkins[i].szModel, false);
         AddFileToDownloadsTable(g_ePlayerSkins[i].szModel);
 
         // prevent double call
-        if(g_ePlayerSkins[i].szArms[0] != 0 && strcmp(g_ePlayerSkins[i].szArms, g_ePlayerSkins[i].szModel, false) != 0)
+        if (g_ePlayerSkins[i].szArms[0] != 0 && strcmp(g_ePlayerSkins[i].szArms, g_ePlayerSkins[i].szModel, false) != 0)
         {
             PrecacheModel(g_ePlayerSkins[i].szArms, false);
             AddFileToDownloadsTable(g_ePlayerSkins[i].szArms);
         }
 
-        if(g_ePlayerSkins[i].szSound[0] != 0)
+        if (g_ePlayerSkins[i].szSound[0] != 0)
         {
             FormatEx(STRING(szPath), "sound/%s", g_ePlayerSkins[i].szSound);
-            if(FileExists(szPath, true))
+            if (FileExists(szPath, true))
             {
                 FormatEx(STRING(szPathStar), "*%s", g_ePlayerSkins[i].szSound);
                 AddToStringTable(FindStringTable("soundprecache"), szPathStar);
@@ -245,25 +250,25 @@ public void PlayerSkins_Reset()
 
 public int PlayerSkins_Equip(int client, int id)
 {
-    if(IsClientInGame(client) && IsPlayerAlive(client))
+    if (IsClientInGame(client) && IsPlayerAlive(client))
         tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
 #if defined Global_Skin
     return 2;
 #else
-    return g_ePlayerSkins[Store_GetDataIndex(id)].iTeam-2;
+    return g_ePlayerSkins[Store_GetDataIndex(id)].iTeam - 2;
 #endif
 }
 
 public int PlayerSkins_Remove(int client, int id)
 {
-    if(IsClientInGame(client))
+    if (IsClientInGame(client))
         tPrintToChat(client, "%T", "PlayerSkins Settings Changed", client);
 
 #if defined Global_Skin
     return 2;
 #else
-    return g_ePlayerSkins[Store_GetDataIndex(id)].iTeam-2;
+    return g_ePlayerSkins[Store_GetDataIndex(id)].iTeam - 2;
 #endif
 }
 
@@ -271,7 +276,7 @@ void Store_PreSetClientModel(int client)
 {
     int m_iEquipped = GetEquippedSkin(client);
 
-    if(m_iEquipped >= 0)
+    if (m_iEquipped >= 0)
     {
         CreateTimer(0.02, Timer_SetClientModel, client | (Store_GetDataIndex(m_iEquipped) << 7), TIMER_FLAG_NO_MAPCHANGE);
         return;
@@ -296,11 +301,11 @@ static Action Timer_SetDefaultModel(Handle timer, int client)
 
 static void Store_SetClientModel(int client, int m_iData)
 {
-    if(!IsClientInGame(client) || !IsPlayerAlive(client))
+    if (!IsClientInGame(client) || !IsPlayerAlive(client))
         return;
 
 #if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
+    if (g_iClientTeam[client] == 2)
     {
         strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), "#zombie");
         return;
@@ -334,7 +339,7 @@ static void Store_SetClientModel(int client, int m_iData)
 
     strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), skin_t);
 
-    if(!StrEqual(arms_t, "null"))
+    if (!StrEqual(arms_t, "null"))
     {
         if (Store_CallSetPlayerSkinArms(client, STRING(arms_t)))
         {
@@ -365,24 +370,24 @@ public Action Timer_SetClientModel(Handle timer, int val)
 public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
     // not death sound
-    if(channel != SNDCHAN_VOICE || sample[0] != '~')
+    if (channel != SNDCHAN_VOICE || sample[0] != '~')
         return Plugin_Continue;
 
     // not from local player
-    if(!IsValidClient(client))
+    if (!IsValidClient(client))
         return Plugin_Continue;
 
 #if defined GM_ZE
     // ignore zombie
-    if(g_iClientTeam[client] == 2)
+    if (g_iClientTeam[client] == 2)
         return Plugin_Continue;
 #endif
 
     // allow sound
-    if(g_szDeathVoice[client][0] != '*')
+    if (g_szDeathVoice[client][0] != '*')
         return Plugin_Continue;
 
-    //if (strcmp(soundEntry, "Player.Death") == 0 || strcmp(soundEntry, "Player.DeathFem") == 0)
+    // if (strcmp(soundEntry, "Player.Death") == 0 || strcmp(soundEntry, "Player.DeathFem") == 0)
     if (strncmp(soundEntry, "Player.Death", 12, false) == 0)
     {
         // Block
@@ -395,14 +400,14 @@ public Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLA
 
 void Broadcast_DeathSound(int client)
 {
-    if(!IsClientInGame(client))
+    if (!IsClientInGame(client))
         return;
 
-    if(g_szDeathVoice[client][0] != '*')
+    if (g_szDeathVoice[client][0] != '*')
         return;
 
 #if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
+    if (g_iClientTeam[client] == 2)
         return;
 #endif
 
@@ -413,7 +418,7 @@ void Broadcast_DeathSound(int client)
 
     Call_StartForward(g_hOnPlayerDeathVoice);
     Call_PushCell(client);
-    Call_PushStringEx(sound, PLATFORM_MAX_PATH, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(sound, PLATFORM_MAX_PATH, SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_Finish(res);
 
     if (res >= Plugin_Handled)
@@ -424,7 +429,7 @@ void Broadcast_DeathSound(int client)
 
     float fPos[3], fAgl[3];
     GetClientEyePosition(client, fPos);
-    GetClientEyeAngles  (client, fAgl);
+    GetClientEyeAngles(client, fAgl);
 
     fPos[2] -= 3.0;
 
@@ -448,25 +453,27 @@ void Broadcast_DeathSound(int client)
 
     EmitSoundToClient(client, sound, SOUND_FROM_PLAYER, SNDCHAN_VOICE, _, _, 1.0);
 
-    int[] clients = new int[MAXPLAYERS+1]; int counts; float vPos[3];
-    for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i) && !IsFakeClient(i) && i != client)
-    {
-        if (IsPlayerAlive(i))
+    int[] clients = new int[MAXPLAYERS + 1];
+    int   counts;
+    float vPos[3];
+    for (int i = 1; i <= MaxClients; i++)
+        if (IsClientInGame(i) && !IsFakeClient(i) && i != client)
         {
-            GetClientEyePosition(i, vPos);
-            if (GetVectorDistance(fPos, vPos) >= 1024.0)
+            if (IsPlayerAlive(i))
             {
-                // skip if so far
-                continue;
+                GetClientEyePosition(i, vPos);
+                if (GetVectorDistance(fPos, vPos) >= 1024.0)
+                {
+                    // skip if so far
+                    continue;
+                }
             }
-        }
 
-        clients[counts++] = i;
-    }
+            clients[counts++] = i;
+        }
 
     if (counts > 0)
         EmitSound(clients, counts, sound, speaker, SNDCHAN_VOICE, _, _, 1.0, _, speaker);
-
 }
 
 void Store_PreviewSkin(int client, int itemid)
@@ -480,7 +487,7 @@ void Store_PreviewSkin(int client, int itemid)
         return;
     }
 
-    int m_iViewModel = CreateEntityByName("prop_dynamic_override"); //prop_physics_multiplayer
+    int m_iViewModel = CreateEntityByName("prop_dynamic_override"); // prop_physics_multiplayer
     DispatchKeyValue(m_iViewModel, "spawnflags", "64");
     DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_Items[itemid].iData].szModel);
     DispatchKeyValue(m_iViewModel, "rendermode", "0");
@@ -506,8 +513,8 @@ void Store_PreviewSkin(int client, int itemid)
     SetEntProp(m_iViewModel, Prop_Send, "m_nGlowStyle", 2);
     SetEntPropFloat(m_iViewModel, Prop_Send, "m_flGlowMaxDist", 2000.0);
 
-    //Miku Green
-    SetEntData(m_iViewModel, offset    ,  57, _, true);
+    // Miku Green
+    SetEntData(m_iViewModel, offset, 57, _, true);
     SetEntData(m_iViewModel, offset + 1, 197, _, true);
     SetEntData(m_iViewModel, offset + 2, 187, _, true);
     SetEntData(m_iViewModel, offset + 3, 255, _, true);
@@ -529,7 +536,7 @@ void Store_PreviewSkin(int client, int itemid)
 
     TeleportEntity(m_iViewModel, m_fPosition, m_fAngles, NULL_VECTOR);
 
-    g_iPreviewTimes[client] = GetTime()+18;
+    g_iPreviewTimes[client] = GetTime() + 18;
     g_iPreviewModel[client] = EntIndexToEntRef(m_iViewModel);
 
     SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
@@ -580,7 +587,7 @@ public Action Timer_KillPreview(Handle timer, int client)
 {
     g_tKillPreview[client] = null;
 
-    if(g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
+    if (g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iPreviewModel[client]);
         if (entity > 0 && IsValidEdict(entity))
@@ -595,7 +602,7 @@ public Action Timer_KillPreview(Handle timer, int client)
 
 public void FirstPersonDeathCamera(int client)
 {
-    if(!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
+    if (!IsClientInGame(client) || g_iClientTeam[client] < 2 || IsPlayerAlive(client))
         return;
 
     if (!store_firstperson_death_camera.BoolValue)
@@ -607,7 +614,7 @@ public void FirstPersonDeathCamera(int client)
     Call_PushCell(client);
     Call_Finish(ret);
 
-    if(ret >= Plugin_Handled)
+    if (ret >= Plugin_Handled)
     {
         g_iCameraRef[client] = INVALID_ENT_REFERENCE;
         return;
@@ -624,12 +631,12 @@ public void FirstPersonDeathCamera(int client)
 static bool SpawnCamAndAttach(int client, int ragdoll)
 {
     int iEntity = CreateEntityByName("prop_dynamic");
-    if(iEntity == -1)
+    if (iEntity == -1)
         return false;
 
-    DispatchKeyValue(iEntity, "model",      "models/blackout.mdl");
-    DispatchKeyValue(iEntity, "solid",      "0");
-    DispatchKeyValue(iEntity, "rendermode", "10"); // dont render
+    DispatchKeyValue(iEntity, "model", "models/blackout.mdl");
+    DispatchKeyValue(iEntity, "solid", "0");
+    DispatchKeyValue(iEntity, "rendermode", "10");    // dont render
     DispatchKeyValue(iEntity, "disableshadows", "1"); // no shadows
 
     float m_fAngles[3];
@@ -660,7 +667,7 @@ static bool SpawnCamAndAttach(int client, int ragdoll)
 
 public Action Timer_ClearCamera(Handle timer, int client)
 {
-    if(g_iCameraRef[client] != INVALID_ENT_REFERENCE)
+    if (g_iCameraRef[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iCameraRef[client]);
 
@@ -681,29 +688,29 @@ public Action Timer_ClearCamera(Handle timer, int client)
     return Plugin_Stop;
 }
 
-#define FFADE_IN        0x0001        // Just here so we don't pass 0 into the function
-#define FFADE_OUT       0x0002        // Fade out (not in)
-#define FFADE_MODULATE  0x0004        // Modulate (don't blend)
-#define FFADE_STAYOUT   0x0008        // ignores the duration, stays faded out until new ScreenFade message received
-#define FFADE_PURGE     0x0010        // Purges all other fades, replacing them with this one
+#define FFADE_IN       0x0001 // Just here so we don't pass 0 into the function
+#define FFADE_OUT      0x0002 // Fade out (not in)
+#define FFADE_MODULATE 0x0004 // Modulate (don't blend)
+#define FFADE_STAYOUT  0x0008 // ignores the duration, stays faded out until new ScreenFade message received
+#define FFADE_PURGE    0x0010 // Purges all other fades, replacing them with this one
 
 static void FadeScreenBlack(int client)
 {
-    Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
-    pb.SetInt("duration", 2560); //3072
+    Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS));
+    pb.SetInt("duration", 2560); // 3072
     pb.SetInt("hold_time", 0);
-    pb.SetInt("flags", FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT);
-    pb.SetColor("clr", {0, 0, 0, 255});
+    pb.SetInt("flags", FFADE_OUT | FFADE_PURGE | FFADE_STAYOUT);
+    pb.SetColor("clr", { 0, 0, 0, 255 });
     EndMessage();
 }
 
 static void FadeScreenWhite(int client)
 {
-    Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
+    Protobuf pb = view_as<Protobuf>(StartMessageOne("Fade", client, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS));
     pb.SetInt("duration", 1536);
     pb.SetInt("hold_time", 1536);
-    pb.SetInt("flags", FFADE_IN|FFADE_PURGE);
-    pb.SetColor("clr", {0, 0, 0, 0});
+    pb.SetInt("flags", FFADE_IN | FFADE_PURGE);
+    pb.SetColor("clr", { 0, 0, 0, 0 });
     EndMessage();
 }
 
@@ -724,19 +731,20 @@ static int GetEquippedSkin(int client)
 #if defined Global_Skin
     return Store_GetEquippedItem(client, "playerskin", 2);
 #else
-    return Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client]-2);
+    return Store_GetEquippedItem(client, "playerskin", g_iClientTeam[client] - 2);
 #endif
 }
 
 #if defined GM_ZE
+
 public void ZR_OnClientHumanPost(int client, bool respawn, bool protect)
 {
     // If client has been respawned.
-    if(respawn)
+    if (respawn)
         return;
 
     // Dead Player.
-    if(!IsPlayerAlive(client))
+    if (!IsPlayerAlive(client))
         return;
 
     Store_PreSetClientModel(client);
@@ -745,11 +753,11 @@ public void ZR_OnClientHumanPost(int client, bool respawn, bool protect)
 
 void Store_RemoveClientGloves(int client, int m_iData = -1)
 {
-    if(m_iData == -1 && GetEquippedSkin(client) <= 0)
+    if (m_iData == -1 && GetEquippedSkin(client) <= 0)
         return;
 
     int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
-    if(gloves != -1)
+    if (gloves != -1)
         AcceptEntityInput(gloves, "KillHierarchy");
 }
 
@@ -761,7 +769,7 @@ void Store_OnPlayerSpawn(int client)
 void Store_ResetPlayerSkin(int client)
 {
     strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), "#default");
-    g_iSkinLevel[client] = 0;
+    g_iSkinLevel[client]      = 0;
     g_szDeathVoice[client][0] = '\0';
 }
 
@@ -783,28 +791,29 @@ void Store_GetPlayerSkinModel(int client, char[] model, int maxLen)
 void Store_CallDefaultSkin(int client)
 {
 #if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
+    if (g_iClientTeam[client] == 2)
     {
         strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), "#zombie");
         return;
     }
 #endif
 
-    char skin_t[128], arms_t[128]; int body;
+    char skin_t[128], arms_t[128];
+    int  body;
 
     bool ret = false;
 
     Call_StartForward(g_hOnPlayerSkinDefault);
     Call_PushCell(client);
-    Call_PushCell(g_iClientTeam[client]-2);
-    Call_PushStringEx(STRING(skin_t), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(g_iClientTeam[client] - 2);
+    Call_PushStringEx(STRING(skin_t), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(128);
-    Call_PushStringEx(STRING(arms_t), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(arms_t), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(128);
     Call_PushCellRef(body);
     Call_Finish(ret);
 
-    if(ret)
+    if (ret)
     {
         if (IsModelPrecached(skin_t))
         {
@@ -814,7 +823,7 @@ void Store_CallDefaultSkin(int client)
 
         if (Store_CallSetPlayerSkinArms(client, STRING(arms_t)))
         {
-            if(IsModelPrecached(arms_t))
+            if (IsModelPrecached(arms_t))
             {
                 Store_SetClientArms(client, arms_t);
             }
@@ -839,7 +848,8 @@ void EnforceDeathSound(int client, const char[] skin, const int body)
 
 Action Store_CallPreSetModel(int client, char skin[128], char arms[128], int &body)
 {
-    char s[128], a[128]; int b = body;
+    char s[128], a[128];
+    int  b = body;
     strcopy(STRING(s), skin);
     strcopy(STRING(a), arms);
 
@@ -847,8 +857,8 @@ Action Store_CallPreSetModel(int client, char skin[128], char arms[128], int &bo
 
     Call_StartForward(g_hOnPlayerSetModel);
     Call_PushCell(client);
-    Call_PushStringEx(STRING(s), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-    Call_PushStringEx(STRING(a), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(s), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(a), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCellRef(b);
     Call_Finish(res);
 
@@ -876,7 +886,7 @@ bool Store_CallSetPlayerSkinArms(int client, char[] arms, int len)
     Action res = Plugin_Continue;
     Call_StartForward(gf);
     Call_PushCell(client);
-    Call_PushStringEx(STRING(buff), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushStringEx(STRING(buff), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
     Call_PushCell(len);
     Call_Finish(res);
 
@@ -908,11 +918,14 @@ bool GetSkinData(int itemid, char skin[128], char arms[128], int &body, int &tea
 
 int FindDataIndexByModel(const char[] skin, const int body)
 {
-    for(int i = 0; i < g_iPlayerSkins; ++i)
+    for (int i = 0; i < g_iPlayerSkins; ++i)
     {
-        if (strcmp(g_ePlayerSkins[i].szModel, skin) == 0) {
-            if (g_ePlayerSkins[i].nBody > 0) {
-                if (body != g_ePlayerSkins[i].nBody) {
+        if (strcmp(g_ePlayerSkins[i].szModel, skin) == 0)
+        {
+            if (g_ePlayerSkins[i].nBody > 0)
+            {
+                if (body != g_ePlayerSkins[i].nBody)
+                {
                     continue;
                 }
             }

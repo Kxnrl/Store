@@ -1,15 +1,20 @@
+// MAIN_FILE ../../store.sp
+
+#pragma semicolon 1
+#pragma newdecls required
+
 #define Module_Trail
 
-enum struct Trail
+abstract_struct Trail
 {
     char szMaterial[PLATFORM_MAX_PATH];
-    int iSlot;
+    int  iSlot;
 }
 
 static Trail g_eTrails[STORE_MAX_ITEMS];
 
 static int g_iTrails = 0;
-static int g_iClientTrails[MAXPLAYERS+1][STORE_MAX_SLOTS];
+static int g_iClientTrails[MAXPLAYERS + 1][STORE_MAX_SLOTS];
 
 bool Trails_Config(KeyValues kv, int itemid)
 {
@@ -18,13 +23,13 @@ bool Trails_Config(KeyValues kv, int itemid)
     kv.GetString("material", g_eTrails[g_iTrails].szMaterial, PLATFORM_MAX_PATH);
     g_eTrails[g_iTrails].iSlot = kv.GetNum("slot");
 
-    if(FileExists(g_eTrails[g_iTrails].szMaterial, true))
+    if (FileExists(g_eTrails[g_iTrails].szMaterial, true))
     {
         ++g_iTrails;
         return true;
     }
 
-    #if defined LOG_NOT_FOUND
+#if defined LOG_NOT_FOUND
     // missing model
     char auth[32], name[32];
     kv.GetString("auth", auth, 32);
@@ -37,18 +42,18 @@ bool Trails_Config(KeyValues kv, int itemid)
     {
         LogMessage("Skipped trail <%s> -> [%s]", name, g_eTrails[g_iTrails].szMaterial);
     }
-    #endif
+#endif
 
     return false;
 }
 
 void Trails_OnMapStart()
 {
-    for(int a = 0; a <= MaxClients; ++a)
-        for(int b = 0; b < STORE_MAX_SLOTS; ++b)
+    for (int a = 0; a <= MaxClients; ++a)
+        for (int b = 0; b < STORE_MAX_SLOTS; ++b)
             g_iClientTrails[a][b] = INVALID_ENT_REFERENCE;
 
-    for(int i = 0; i < g_iTrails; ++i)
+    for (int i = 0; i < g_iTrails; ++i)
     {
         if (PrecacheModel(g_eTrails[i].szMaterial) > 0)
         {
@@ -64,7 +69,7 @@ void Trails_Reset()
 
 int Trails_Equip(int client, int id)
 {
-    if(IsPlayerAlive(client))
+    if (IsPlayerAlive(client))
         Store_SetClientTrail(client);
 
     return g_eTrails[Store_GetDataIndex(id)].iSlot;
@@ -74,12 +79,12 @@ int Trails_Remove(int client, int id)
 {
     Store_SetClientTrail(client);
 
-    return  g_eTrails[Store_GetDataIndex(id)].iSlot;
+    return g_eTrails[Store_GetDataIndex(id)].iSlot;
 }
 
 void Store_RemoveClientTrail(int client, int slot)
 {
-    if(g_iClientTrails[client][slot] != INVALID_ENT_REFERENCE)
+    if (g_iClientTrails[client][slot] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientTrails[client][slot]);
         if (entity > 0 && IsValidEdict(entity))
@@ -93,7 +98,7 @@ void Store_RemoveClientTrail(int client, int slot)
 
 void Trails_OnClientDisconnect(int client)
 {
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for (int i = 0; i < STORE_MAX_SLOTS; ++i)
         Store_RemoveClientTrail(client, i);
 }
 
@@ -104,10 +109,10 @@ void Store_SetClientTrail(int client)
 
 public void Store_PreSetTrail(int client)
 {
-    if(!IsClientInGame(client))
+    if (!IsClientInGame(client))
         return;
 
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for (int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
         Store_RemoveClientTrail(client, i);
         CreateTrail(client, -1, i);
@@ -117,35 +122,35 @@ public void Store_PreSetTrail(int client)
 void CreateTrail(int client, int itemid = -1, int slot = 0)
 {
 #if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
+    if (g_iClientTeam[client] == 2)
         return;
 #endif
 
     int m_iEquipped = (itemid == -1) ? Store_GetEquippedItem(client, "trail", slot) : itemid;
 
-    if(m_iEquipped < 0)
+    if (m_iEquipped < 0)
         return;
 
     int m_iData = Store_GetDataIndex(m_iEquipped);
 
-    int m_aEquipped[STORE_MAX_SLOTS] = {-1,...};
-    int m_iNumEquipped = 0;
+    int m_aEquipped[STORE_MAX_SLOTS] = { -1, ... };
+    int m_iNumEquipped               = 0;
 
     int m_iCurrent;
 
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for (int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
-        if((m_aEquipped[m_iNumEquipped] = Store_GetEquippedItem(client, "trail", i)) >= 0)
+        if ((m_aEquipped[m_iNumEquipped] = Store_GetEquippedItem(client, "trail", i)) >= 0)
         {
-            if(i == g_eTrails[m_iData].iSlot)
+            if (i == g_eTrails[m_iData].iSlot)
                 m_iCurrent = m_iNumEquipped;
             ++m_iNumEquipped;
         }
     }
 
-    int entity = g_iClientTrails[client][slot] == INVALID_ENT_REFERENCE ? -1 : EntRefToEntIndex( g_iClientTrails[client][slot]);
+    int entity = g_iClientTrails[client][slot] == INVALID_ENT_REFERENCE ? -1 : EntRefToEntIndex(g_iClientTrails[client][slot]);
 
-    if(IsValidEdict(entity))
+    if (IsValidEdict(entity))
         return;
 
     entity = CreateEntityByName("env_spritetrail");
@@ -170,14 +175,14 @@ void AttachTrail(int ent, int client, int current, int num)
 {
     float m_fOrigin[3];
     float m_fAngle[3];
-    float m_fTemp[3] = {0.0, 90.0, 0.0};
+    float m_fTemp[3] = { 0.0, 90.0, 0.0 };
     GetEntPropVector(client, Prop_Data, "m_angAbsRotation", m_fAngle);
     SetEntPropVector(client, Prop_Data, "m_angAbsRotation", m_fTemp);
-    float m_fX = (30.0*((num-1)%3))/2-(30.0*(current%3));
+    float m_fX = (30.0 * ((num - 1) % 3)) / 2 - (30.0 * (current % 3));
     float m_fPosition[3];
     m_fPosition[0] = m_fX;
     m_fPosition[1] = 0.0;
-    m_fPosition[2]= 0.5+(current/3)*30.0;
+    m_fPosition[2] = 0.5 + (current / 3) * 30.0;
     GetClientAbsOrigin(client, m_fOrigin);
     AddVectors(m_fOrigin, m_fPosition, m_fOrigin);
     TeleportEntity(ent, m_fOrigin, m_fTemp, NULL_VECTOR);

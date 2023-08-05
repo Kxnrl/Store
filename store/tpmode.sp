@@ -1,3 +1,8 @@
+// MAIN_FILE ../store.sp
+
+#pragma semicolon 1
+#pragma newdecls required
+
 #if defined GM_ZE || defined GM_KZ || defined GM_BH || defined GM_SR || defined GM_TT
     #define Module_TPMode
 #endif

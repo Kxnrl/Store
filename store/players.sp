@@ -1,3 +1,8 @@
+// MAIN_FILE ../store.sp
+
+#pragma semicolon 1
+#pragma newdecls required
+
 #define Module_Player
 
 void Players_OnPluginStart()
@@ -63,7 +68,7 @@ public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBro
 
     int client = GetClientOfUserId(event.GetInt("userid"));
 
-    if(IsFakeClient(client) || g_iClientTeam[client] <= 1)
+    if (IsFakeClient(client) || g_iClientTeam[client] <= 1)
         return Plugin_Continue;
 
     RequestFrame(OnClientSpawnPost, client);
@@ -77,7 +82,8 @@ public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBro
     //  64tick ~ 0.016
     // 128tick ~ 0.008
     CreateTimer(0.0, Timer_ClearCamera, client);
-    if(g_tKillPreview[client] != null) TriggerTimer(g_tKillPreview[client], false);
+    if (g_tKillPreview[client] != null)
+        TriggerTimer(g_tKillPreview[client], false);
 #endif
 
     return Plugin_Continue;
@@ -85,7 +91,7 @@ public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBro
 
 public void OnClientSpawnPost(int client)
 {
-    if(!IsClientInGame(client) || !IsPlayerAlive(client))
+    if (!IsClientInGame(client) || !IsPlayerAlive(client))
         return;
 
 #if defined Module_Skin
@@ -108,7 +114,7 @@ public Action Timer_DelaySpawn(Handle timer, int userid)
 {
     int client = GetClientOfUserId(userid);
 
-    if(!client || !IsPlayerAlive(client))
+    if (!client || !IsPlayerAlive(client))
         return Plugin_Stop;
 
 #if defined Module_Aura
@@ -130,7 +136,7 @@ public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBro
 {
     int client = GetClientOfUserId(event.GetInt("userid"));
 
-    if(IsFakeClient(client))
+    if (IsFakeClient(client))
         return Plugin_Continue;
 
 #if defined Module_Skin
@@ -167,7 +173,7 @@ public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, boo
 
 void DeathReset(int client)
 {
-    #pragma unused client
+#pragma unused client
 
 #if defined Module_Aura
     Store_RemoveClientAura(client);
@@ -181,7 +187,7 @@ void DeathReset(int client)
     Store_RemoveClientPart(client);
 #endif
 
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for (int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
 #if defined Module_Hats
         Store_RemoveClientHats(client, i);
@@ -195,13 +201,13 @@ void DeathReset(int client)
 
 public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroadcast)
 {
-    int client = GetClientOfUserId(event.GetInt("userid"));
+    int client  = GetClientOfUserId(event.GetInt("userid"));
     int newteam = event.GetInt("team");
     int oldteam = event.GetInt("oldteam");
 
     g_iClientTeam[client] = newteam;
 
-    if(oldteam > 1 && newteam <= 1)
+    if (oldteam > 1 && newteam <= 1)
     {
 #if defined Module_Aura
         Store_RemoveClientAura(client);
@@ -216,12 +222,12 @@ public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroa
 #endif
 
 #if defined Module_Trail
-        for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+        for (int i = 0; i < STORE_MAX_SLOTS; ++i)
             Store_RemoveClientTrail(client, i);
 #endif
 
 #if defined Module_Hats
-        for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+        for (int i = 0; i < STORE_MAX_SLOTS; ++i)
             Store_RemoveClientHats(client, i);
 #endif
     }
@@ -234,9 +240,9 @@ public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroa
 }
 
 #if defined TeamArms
-void OnClientTeamPost(int client)
+void        OnClientTeamPost(int client)
 {
-    if(!IsClientInGame(client) || !IsPlayerAlive(client) || g_iClientTeam[client] > 1)
+    if (!IsClientInGame(client) || !IsPlayerAlive(client) || g_iClientTeam[client] > 1)
         return;
 
     Store_PreSetClientModel(client);

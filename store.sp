@@ -118,6 +118,7 @@ GlobalForward g_hShouldDrawItem    = null;
 
 ArrayList g_aCaseSkins[3];
 StringMap g_smParentMap = null;
+ArrayList g_aLateQueue;
 
 Store_Item   g_Items[STORE_MAX_ITEMS];
 Client_Data  g_ClientData[MAXPLAYERS + 1];
@@ -282,6 +283,7 @@ public void OnPluginStart()
 #endif
 
     g_smParentMap = new StringMap();
+    g_aLateQueue  = new ArrayList();
 
     // Setting default values
     for (int client = 1; client <= MaxClients; ++client)
@@ -1323,6 +1325,18 @@ public void OnClientPutInServer(int client)
 #endif
 }
 
+public Action OnClientPreAdminCheck(int client)
+{
+    int index = g_aLateQueue.FindValue(client);
+    if (index > -1)
+    {
+        g_aLateQueue.Erase(index);
+        ClientCommand(client, "retry;");
+        return Plugin_Handled;
+    }
+    return Plugin_Continue;
+}
+
 public void OnClientPostAdminCheck(int client)
 {
     if (IsFakeClient(client))
@@ -1335,6 +1349,10 @@ public void OnClientPostAdminCheck(int client)
 
 public void OnClientDisconnect(int client)
 {
+    int index = g_aLateQueue.FindValue(client);
+    if (index > -1)
+        g_aLateQueue.Erase(index);
+
     if (IsFakeClient(client))
         return;
 
@@ -4158,7 +4176,10 @@ static void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
     {
         if (IsClientConnected(i) && !IsFakeClient(i))
         {
-            ClientCommand(i, "retry;");
+            if (IsClientInGame(i))
+                ClientCommand(i, "retry;");
+            else
+                g_aLateQueue.Push(i);
         }
     }
 }

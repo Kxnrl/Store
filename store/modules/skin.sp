@@ -975,7 +975,7 @@ static void SetClientArms(int client, const char[] arms_t)
     event.Cancel();
 }
 
-// Outer
+// Internal Api
 
 /**
  * Checks if a client is in death camera mode.
@@ -998,7 +998,6 @@ int Skin_GetPlayerSkinLevel(int client)
 {
     return g_iSkinLevel[client];
 }
-
 
 /**
  * Retrieves the current skin model for a given client.

@@ -561,6 +561,7 @@ static void CheckCPandSCP()
             DeleteFile(path[0]);
         }
         ServerCommand("sm plugins unload chat-processor.smx");
+        ServerExecute();
         LogMessage("'chat-processor.smx' detected!");
     }
 
@@ -575,6 +576,7 @@ static void CheckCPandSCP()
             DeleteFile(path[0]);
         }
         ServerCommand("sm plugins unload simple-chatprocessor.smx");
+        ServerExecute();
         LogMessage("'simple-chatprocessor.smx' detected!");
     }
 }

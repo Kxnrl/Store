@@ -272,8 +272,7 @@ public void OnPluginStart()
         SetFailState("Current game is not be supported! CSGO only!");
 #endif
 
-    if (g_smParentMap == null)
-        g_smParentMap = new StringMap();
+    g_smParentMap = new StringMap();
 
     // Setting default values
     for (int client = 1; client <= MaxClients; ++client)
@@ -346,6 +345,7 @@ public void OnAllPluginsLoaded()
     }
 
 #pragma unused g_pfysRect, g_pOpenCase, g_pTransmit
+
     // LogMessage("Rect: %s | Case: %s", g_pfysRect ? "loaded" : "fail", g_pOpenCase ? "loaded" : "fail");
 }
 
@@ -497,11 +497,13 @@ public void OnMapStart()
     g_bInterMission = false;
 
     for (int i = 0; i < g_iTypeHandlers; ++i)
+    {
         if (g_TypeHandlers[i].fnMapStart != INVALID_FUNCTION && IsPluginRunning(g_TypeHandlers[i].hPlugin, g_TypeHandlers[i].szPlFile))
         {
             Call_StartFunction(g_TypeHandlers[i].hPlugin, g_TypeHandlers[i].fnMapStart);
             Call_Finish();
         }
+    }
 }
 
 public void OnMapEnd()
@@ -4131,18 +4133,24 @@ static void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
     delete items;
     delete item_array;
 
+    // rebuild download table
     if (FindPluginByFile("sm_downloader.smx") != INVALID_HANDLE)
     {
         LogMessage("Force reload downloader plugin.");
         ServerCommand("sm plugins reload sm_downloader.smx");
+        ServerExecute();
     }
 
-    char map[128];
-    GetCurrentMap(STRING(map));
-    if (strlen(map) > 3 && IsMapValid(map))
+    OnMapEnd();
+    OnMapStart();
+
+    // re-download resources
+    for (int i = 1; i <= MaxClients; i++)
     {
-        LogMessage("Force reload map to prevent server crash!"); // late precache will crash server.
-        ForceChangeLevel(map, "Reload Map to prevent server crash!");
+        if (IsClientConnected(i) && !IsFakeClient(i))
+        {
+            ClientCommand(i, "retry;");
+        }
     }
 }
 

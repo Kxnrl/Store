@@ -1096,9 +1096,9 @@ static any Native_GetPlayerSkin(Handle myself, int numParams)
 #if defined Module_Skin
     int client = GetNativeCell(1);
 
-    char model[2][192];
-    Skin_GetClientSkinModel(client, model[0], 192);
-    Skin_GetPlayerSkinModel(client, model[1], 192);
+    char model[2][PLATFORM_MAX_PATH];
+    Skin_GetClientSkinModel(client, model[0], sizeof(model[]));
+    Skin_GetPlayerSkinModel(client, model[1], sizeof(model[]));
 
     if (StrContains(model[1], "#default") != -1 || StrContains(model[1], "#zombie") != -1 || StrContains(model[0], "models/player/custom_player/legacy/") != -1)
         return false;

@@ -129,12 +129,12 @@ static void OnClientSpawned(int client)
         return;
 
     // particles should be delay.
-    CreateTimer(0.5 + client * 0.1, Timer_DelaySpawn, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.5 + (client / 8) * 0.1, Timer_DelaySpawn, GetClientSerial(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 
-static Action Timer_DelaySpawn(Handle timer, int userid)
+static Action Timer_DelaySpawn(Handle timer, int serial)
 {
-    int client = GetClientOfUserId(userid);
+    int client = GetClientFromSerial(serial);
 
     if (!client || !IsPlayerAlive(client))
         return Plugin_Stop;

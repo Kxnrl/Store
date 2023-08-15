@@ -194,7 +194,7 @@ static void Pets_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
         return;
 
     delete g_hDelay[client];
-    g_hDelay[client] = CreateTimer(0.5 + client * 0.1, Timer_DelaySpawn, client);
+    g_hDelay[client] = CreateTimer(0.5 + (client / 8) * 0.1, Timer_DelaySpawn, client);
 }
 
 static Action Timer_DelaySpawn(Handle timer, int client)

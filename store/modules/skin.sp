@@ -19,6 +19,7 @@ static PlayerSkin g_ePlayerSkins[STORE_MAX_ITEMS];
 
 static bool   g_bSoundHooked;
 static int    g_iPlayerSkins = 0;
+static bool   g_bSpawnModelHook;
 static int    g_iSkinLevel[MAXPLAYERS + 1];
 static int    g_iPreviewTimes[MAXPLAYERS + 1];
 static int    g_iPreviewModel[MAXPLAYERS + 1] = { INVALID_ENT_REFERENCE, ... };
@@ -32,14 +33,14 @@ static ConVar sv_disablefreezecam;
 static ConVar spec_replay_enable;
 static ConVar store_firstperson_death_camera;
 
-Handle g_tKillPreview[MAXPLAYERS + 1];
-Handle g_tResetCamera[MAXPLAYERS + 1];
+static Handle g_tKillPreview[MAXPLAYERS + 1];
+static Handle g_tResetCamera[MAXPLAYERS + 1];
 
-GlobalForward g_hOnPlayerSkinDefault  = null;
-GlobalForward g_hOnPlayerSetModel     = null;
-GlobalForward g_hOnPlayerSetModelPost = null;
-GlobalForward g_hOnFPDeathCamera      = null;
-GlobalForward g_hOnPlayerDeathVoice   = null;
+static GlobalForward g_hOnPlayerSkinDefault  = null;
+static GlobalForward g_hOnPlayerSetModel     = null;
+static GlobalForward g_hOnPlayerSetModelPost = null;
+static GlobalForward g_hOnFPDeathCamera      = null;
+static GlobalForward g_hOnPlayerDeathVoice   = null;
 
 void Skin_InitConVar()
 {
@@ -144,16 +145,42 @@ void Skin_OnClientDisconnect(int client)
 
     if (g_tResetCamera[client] != null)
         TriggerTimer(g_tResetCamera[client], false);
+
+    // fallback
+    g_bSpawnModelHook = false;
 }
 
 static MRESReturn Hook_OnSetModel(int client, DHookParam hParams)
 {
+    if (g_bSpawnModelHook)
+        return MRES_Ignored;
+
     if (IsPlayerSpawing(client))
     {
-        // char model[PLATFORM_MAX_PATH];
-        // hParams.GetString(1, model, sizeof(model));
-        // PrintToServer("Blocking %N SetModel -> %s", client, model);
-        return MRES_Supercede;
+        // due to connected spawning should be ignore
+        int team = GetClientTeam(client);
+        if (team < TEAM_OB)
+        {
+            // LogStackTrace("Failed to spawning setmodel: %N", client);
+            return MRES_Ignored;
+        }
+
+#if defined GM_ZE
+        // if we are in zombie mode, fallback to default model
+        if (team == TEAM_ZM)
+        {
+            return MRES_Ignored;
+        }
+#endif
+
+        g_bShouldFireEvent[client] = false;
+
+        g_bSpawnModelHook = true;
+        Skin_ResetPlayerSkin(client);
+        bool supercede    = Skin_SetClientSkin(client);
+        g_bSpawnModelHook = false;
+
+        return supercede ? MRES_Supercede : MRES_Ignored;
     }
 
     return MRES_Ignored;
@@ -161,8 +188,13 @@ static MRESReturn Hook_OnSetModel(int client, DHookParam hParams)
 
 static MRESReturn Hook_OnSetModelPost(int client, DHookParam hParams)
 {
+    if (g_bSpawnModelHook)
+        return MRES_Ignored;
+
     char model[PLATFORM_MAX_PATH];
-    hParams.GetString(1, model, sizeof(model));
+    // supercede!!!
+    // hParams.GetString(1, model, sizeof(model));
+    GetClientModel(client, model, sizeof(model));
     if (strcmp(model, g_szSkinModel[client]) != 0)
         Skin_ResetPlayerSkin(client);
 
@@ -307,30 +339,20 @@ static int PlayerSkins_Remove(int client, int id)
 #endif
 }
 
-void Skin_SetClientSkin(int client)
+bool Skin_SetClientSkin(int client)
 {
     int m_iEquipped = GetEquippedSkin(client);
 
-    if (m_iEquipped >= 0)
-    {
-        SetClientInventorySkin(client, Store_GetDataIndex(m_iEquipped));
-    }
-    else
-    {
-        SetClientDefaultSkin(client);
-    }
+    return m_iEquipped >= 0 ? SetClientInventorySkin(client, Store_GetDataIndex(m_iEquipped)) : SetClientDefaultSkin(client);
 }
 
-static void SetClientInventorySkin(int client, int index)
+static bool SetClientInventorySkin(int client, int index)
 {
-    if (!IsClientInGame(client) || !IsPlayerAlive(client))
-        return;
-
 #if defined GM_ZE
     if (GetClientTeam(client) == TEAM_ZM)
     {
         strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), "#zombie");
-        return;
+        return false;
     }
 #endif
 
@@ -341,13 +363,13 @@ static void SetClientInventorySkin(int client, int index)
 
     Action res = CallPreSetModel(client, skin_t, arms_t, body_t);
     if (res >= Plugin_Handled)
-        return;
+        return false;
     else if (res == Plugin_Changed)
     {
         // verify data index;
         index = FindDataIndexByModel(skin_t, body_t);
         if (index == -1)
-            return;
+            return false;
     }
 
     if (g_ePlayerSkins[index].szSound[0] != 0)
@@ -374,9 +396,11 @@ static void SetClientInventorySkin(int client, int index)
     Call_PushString(arms_t);
     Call_PushCell(body_t);
     Call_Finish();
+
+    return true;
 }
 
-static Action Hook_NormalSound(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
+static Action Hook_NormalSound(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &client, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
     // not death sound
     if (channel != SNDCHAN_VOICE || sample[0] != '~')
@@ -787,8 +811,6 @@ void Skin_OnPlayerSpawn(int client)
         TriggerTimer(g_tKillPreview[client], false);
 
     Skin_RemoveClientGloves(client, -1);
-    Skin_ResetPlayerSkin(client);
-    Skin_SetClientSkin(client);
 }
 
 void Skin_ResetPlayerSkin(int client)
@@ -804,19 +826,20 @@ void Skin_ResetPlayerSkin(int client)
     g_szDeathVoice[client][0] = 0;
 }
 
-static void SetClientDefaultSkin(int client)
+static bool SetClientDefaultSkin(int client)
 {
 #if defined GM_ZE
     if (GetClientTeam(client) == TEAM_ZM)
     {
         strcopy(g_szSkinModel[client], sizeof(g_szSkinModel[]), "#zombie");
-        return;
+        return false;
     }
 #endif
 
     char skin_t[128], arms_t[128];
     int  body = 0;
     bool ret  = false;
+    bool set  = false;
 
     Call_StartForward(g_hOnPlayerSkinDefault);
     Call_PushCell(client);
@@ -834,6 +857,7 @@ static void SetClientDefaultSkin(int client)
         {
             SetEntityModel(client, skin_t);
             SetEntProp(client, Prop_Send, "m_nBody", body > 0 ? body : 0);
+            set = true;
         }
 
         if (CallAllowSetPlayerSkinArms(client, STRING(arms_t)))
@@ -846,6 +870,8 @@ static void SetClientDefaultSkin(int client)
 
         EnforceDeathSound(client, skin_t, body);
     }
+
+    return set;
 }
 
 static void EnforceDeathSound(int client, const char[] skin, const int body)
@@ -1031,4 +1057,15 @@ bool Skin_GetSkinData(int itemid, char skin[128], char arms[128], int &body, int
     body = g_ePlayerSkins[m_iData].nBody;
     team = g_ePlayerSkins[m_iData].iTeam;
     return true;
+}
+
+/**
+ * Kills the skin preview for the specified client.
+ *
+ * @param client The client index to kill the skin preview for.
+ */
+void Skin_KillPreview(int client)
+{
+    if (g_tKillPreview[client] != null)
+        TriggerTimer(g_tKillPreview[client], false);
 }

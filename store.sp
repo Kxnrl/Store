@@ -3718,8 +3718,7 @@ void UTIL_ComposeItem(int client)
 void UTIL_BuyItem(int client)
 {
 #if defined Module_Skin
-    if (g_tKillPreview[client] != null)
-        TriggerTimer(g_tKillPreview[client], false);
+    Skin_KillPreview(client);
 #endif
 
     if (g_Items[g_iSelectedItem[client]].iHandler == g_iPackageHandler)

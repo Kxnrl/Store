@@ -741,7 +741,7 @@ static any Native_SetClientCredits(Handle myself, int numParams)
     if (g_ClientData[client].bRefresh)
     {
         DataPack pack = new DataPack();
-        pack.WriteCell(client);
+        pack.WriteCell(GetClientSerial(client));
         pack.WriteCell(difference);
         pack.WriteCell(g_ClientData[client].iId);
         pack.WriteCell(GetTime());
@@ -762,14 +762,15 @@ static any Native_SetClientCredits(Handle myself, int numParams)
 static Action Timer_SetCreditsDelay(Handle timer, DataPack pack)
 {
     pack.Reset();
-    int  client     = pack.ReadCell();
+    int  serial     = pack.ReadCell();
+    int  client     = GetClientFromSerial(serial);
     int  difference = pack.ReadCell();
     int  m_iStoreId = pack.ReadCell();
     int  iTimeStamp = pack.ReadCell();
     char logMsg[256];
     pack.ReadString(STRING(logMsg));
 
-    if (!IsClientInGame(client))
+    if (!client || !IsClientInGame(client))
     {
         delete pack;
         char m_szQuery[512], eReason[256];
@@ -4583,7 +4584,7 @@ void Call_OnClientLoaded(int client)
 
     tPrintToChat(client, "%T", "Inventory has been loaded", client);
 
-    if (g_fCreditsTimerInterval > 1.0)
+    if (g_fCreditsTimerInterval >= 1.0)
         g_ClientData[client].hTimer = CreateTimer(g_fCreditsTimerInterval, Timer_OnlineCredit, client, TIMER_REPEAT);
 }
 

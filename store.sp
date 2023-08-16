@@ -144,8 +144,8 @@ int g_iDataProtect[MAXPLAYERS + 1];
 
 bool g_bInvMode[MAXPLAYERS + 1];
 
-bool g_bLateLoad;
-
+bool g_bLateLoad;       // check if we need actual reload map or fake reload
+bool g_bStoreLoaded;
 bool g_bInterMission;
 
 // library
@@ -492,7 +492,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     MarkNativeAsOptional("TransmitManager_GetEntityState");
     MarkNativeAsOptional("TransmitManager_IsEntityHooked");
 
-    g_bLateLoad = late;
+    // g_bLateLoad = late;
+    // engine was loaded and after 10 seconds
+    g_bLateLoad = GetEngineTime() >= 10.0;
 
     // RegLibrary
     RegPluginLibrary("store");
@@ -3341,6 +3343,9 @@ void UTIL_LoadClientInventory(int client)
         return;
     }
 
+    if (!g_bStoreLoaded)
+        return;
+
     char m_szQuery[512];
     char m_szAuthId[32];
     if (!GetClientAuthId(client, AuthId_Steam2, STRING(m_szAuthId), true) || m_szAuthId[0] == 0 || g_bInterMission)
@@ -4160,6 +4165,9 @@ static void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
     delete items;
     delete item_array;
 
+    // we are loaded.
+    g_bStoreLoaded = true;
+
     // rebuild download table
     if (FindPluginByFile("sm_downloader.smx") != INVALID_HANDLE)
     {
@@ -4168,19 +4176,28 @@ static void SQL_LoadChildren(Database db, DBResultSet item_child, const char[] e
         ServerExecute();
     }
 
-    OnMapEnd();
-    OnMapStart();
-
-    // re-download resources
-    for (int i = 1; i <= MaxClients; i++)
+    if (g_bLateLoad)
     {
-        if (IsClientConnected(i) && !IsFakeClient(i))
+        OnMapEnd();
+        OnMapStart();
+
+        // re-download resources
+        for (int i = 1; i <= MaxClients; i++)
         {
-            if (IsClientInGame(i))
-                ClientCommand(i, "retry;");
-            else
-                g_aLateQueue.Push(i);
+            if (IsClientConnected(i) && !IsFakeClient(i))
+            {
+                if (IsClientInGame(i))
+                    ClientCommand(i, "retry;");
+                else
+                    g_aLateQueue.Push(i);
+            }
         }
+
+        LogMessage("Due to late load, we do fake map change and retry all clients.");
+    }
+    else
+    {
+        CreateTimer(1.0, ReloadMap, _, TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
@@ -4655,4 +4672,13 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 #endif
 
     return Plugin_Continue;
+}
+
+static Action ReloadMap(Handle timer)
+{
+    char map[PLATFORM_MAX_PATH];
+    GetCurrentMap(STRING(map));
+    LogMessage("Force reload map to ensure string tables is correct!");
+    ForceChangeLevel(map, "Force reload map to ensure string tables is correct!");
+    return Plugin_Stop;
 }

@@ -1,6 +1,11 @@
+// MAIN_FILE ../../store.sp
+
+#pragma semicolon 1
+#pragma newdecls required
+
 #define Module_Neon
 
-enum struct Neon
+abstract_struct Neon
 {
     int iColor[4];
     int iBright;
@@ -9,28 +14,27 @@ enum struct Neon
 }
 
 static Neon g_eNeons[STORE_MAX_ITEMS];
-static int g_iNeons = 0;
-static int g_iClientNeon[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static int  g_iNeons                      = 0;
+static int  g_iClientNeon[MAXPLAYERS + 1] = { INVALID_ENT_REFERENCE, ... };
 
 bool Neon_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iNeons);
-    KvGetColor(kv, "color", g_eNeons[g_iNeons].iColor[0], g_eNeons[g_iNeons].iColor[1], g_eNeons[g_iNeons].iColor[2], g_eNeons[g_iNeons].iColor[3]);
-    g_eNeons[g_iNeons].iBright = kv.GetNum("brightness");
+    kv.GetColor("color", g_eNeons[g_iNeons].iColor[0], g_eNeons[g_iNeons].iColor[1], g_eNeons[g_iNeons].iColor[2], g_eNeons[g_iNeons].iColor[3]);
+    g_eNeons[g_iNeons].iBright   = kv.GetNum("brightness");
     g_eNeons[g_iNeons].iDistance = kv.GetNum("distance");
-    g_eNeons[g_iNeons].iFade = kv.GetNum("distancefade");
+    g_eNeons[g_iNeons].iFade     = kv.GetNum("distancefade");
     ++g_iNeons;
     return true;
 }
 
 void Neon_OnMapStart()
 {
-
 }
 
 void Neon_OnClientDisconnect(int client)
 {
-    Store_RemoveClientNeon(client);
+    Neon_RemoveClientNeon(client);
 }
 
 void Neon_Reset()
@@ -40,29 +44,29 @@ void Neon_Reset()
 
 int Neon_Equip(int client, int id)
 {
-    RequestFrame(EquipNeon_Delay, client);
+    RequestFrame(DelayEquipNeon, client);
 
     return 0;
 }
 
-public void EquipNeon_Delay(int client)
+static void DelayEquipNeon(int client)
 {
-    if(IsClientInGame(client) && IsPlayerAlive(client))
-        Store_SetClientNeon(client);
+    if (IsClientInGame(client) && IsPlayerAlive(client))
+        Neon_SetClientNeon(client);
 }
 
 int Neon_Remove(int client, int id)
 {
-    Store_RemoveClientNeon(client);
+    Neon_RemoveClientNeon(client);
     return 0;
 }
 
-void Store_RemoveClientNeon(int client)
+void Neon_RemoveClientNeon(int client)
 {
-    if(g_iClientNeon[client] != INVALID_ENT_REFERENCE)
+    if (g_iClientNeon[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientNeon[client]);
-        if (entity > 0 && IsValidEdict(entity))
+        if (entity > MaxClients)
         {
             RemoveEntity(entity);
         }
@@ -70,22 +74,22 @@ void Store_RemoveClientNeon(int client)
     }
 }
 
-void Store_SetClientNeon(int client)
+void Neon_SetClientNeon(int client)
 {
-    Store_RemoveClientNeon(client);
+    Neon_RemoveClientNeon(client);
 
 #if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
+    if (GetClientTeam(client) == TEAM_ZM)
         return;
 #endif
 
     int m_iEquipped = Store_GetEquippedItem(client, "neon", 0);
-    if(m_iEquipped < 0)
+    if (m_iEquipped < 0)
         return;
 
     int m_iData = Store_GetDataIndex(m_iEquipped);
 
-    if(g_eNeons[m_iData].iColor[3] != 0)
+    if (g_eNeons[m_iData].iColor[3] > 0)
     {
         float clientOrigin[3];
         GetClientAbsOrigin(client, clientOrigin);
@@ -127,11 +131,11 @@ void Store_SetClientNeon(int client)
 
 stock void Call_OnNeonCreated(int client, int entity)
 {
-    static Handle gf = null;
+    static GlobalForward gf = null;
     if (gf == null)
     {
         // create
-        gf = CreateGlobalForward("Store_OnNeonCreated", ET_Ignore, Param_Cell, Param_Cell);
+        gf = new GlobalForward("Store_OnNeonCreated", ET_Ignore, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);

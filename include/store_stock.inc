@@ -4,25 +4,29 @@
 
 #define __STORE_STOCK__
 
+#if !defined abstract_struct
+    #define abstract_struct enum struct
+#endif
+
 #include <sdktools>
 
 #define STRING(%1) %1, sizeof(%1)
 
-enum struct Item_Plan
+abstract_struct Item_Plan
 {
     char szName[ITEM_NAME_LENGTH];
-    int iPrice;
-    int iTime;
+    int  iPrice;
+    int  iTime;
 }
 
-enum struct Type_Handler
+abstract_struct Type_Handler
 {
-    char szType[64];
-    char szPlFile[64];
-    bool bEquipable;
-    bool bRaw;
-    bool bDisposable;
-    Handle hPlugin;
+    char     szType[64];
+    char     szPlFile[64];
+    bool     bEquipable;
+    bool     bRaw;
+    bool     bDisposable;
+    Handle   hPlugin;
     Function fnMapStart;
     Function fnReset;
     Function fnConfig;
@@ -30,62 +34,62 @@ enum struct Type_Handler
     Function fnRemove;
 }
 
-enum struct Client_Item
+abstract_struct Client_Item
 {
-    int iId;
-    int iUniqueId;
+    int  iId;
+    int  iUniqueId;
     bool bSynced;
     bool bDeleted;
-    int iDateOfPurchase;
-    int iDateOfExpiration;
-    int iPriceOfPurchase;
+    int  iDateOfPurchase;
+    int  iDateOfExpiration;
+    int  iPriceOfPurchase;
 }
 
-enum struct Client_Data
+abstract_struct Client_Data
 {
-    int iId;
-    int iUserId;
-    char szAuthId[32];
-    int iCredits;
-    int iOriginalCredits;
-    int iDateOfJoin;
-    int iDateOfLastJoin;
-    int iItems;
-    int aEquipment[STORE_MAX_HANDLERS*STORE_MAX_SLOTS];
-    int aEquipmentSynced[STORE_MAX_HANDLERS*STORE_MAX_SLOTS];
-    bool bBan;
-    bool bLoaded;
-    bool bRefresh;
+    int    iId;
+    int    iUserId;
+    char   szAuthId[32];
+    int    iCredits;
+    int    iOriginalCredits;
+    int    iDateOfJoin;
+    int    iDateOfLastJoin;
+    int    iItems;
+    int    aEquipment[STORE_MAX_HANDLERS * STORE_MAX_SLOTS];
+    int    aEquipmentSynced[STORE_MAX_HANDLERS * STORE_MAX_SLOTS];
+    bool   bBan;
+    bool   bLoaded;
+    bool   bRefresh;
     Handle hTimer;
 }
 
-enum struct Menu_Handler
+abstract_struct Menu_Handler
 {
-    char szIdentifier[64];
-    char szPlFile[64];
-    Handle hPlugin;
+    char     szIdentifier[64];
+    char     szPlFile[64];
+    Handle   hPlugin;
     Function fnMenu;
     Function fnHandler;
 }
 
-enum struct Compose_Data
+abstract_struct Compose_Data
 {
     int item1;
     int item2;
     int types;
 }
 
-stock bool InsertMenuItemEx(Handle menu, int position, int style, char[] info, char[] display, any ...)
+stock bool InsertMenuItemEx(Menu menu, int position, int style, char[] info, char[] display, any...)
 {
     char m_display[256];
     VFormat(STRING(m_display), display, 6);
-    return (GetMenuItemCount(menu)==position) ? AddMenuItem(menu, info, m_display, style) : InsertMenuItem(menu, position, info, m_display, style);
+    return (menu.ItemCount == position) ? menu.AddItem(info, m_display, style) : menu.InsertItem(position, info, m_display, style);
 }
 
-stock void LogStoreError(const char[] buffer, any ...)
+stock void LogStoreError(const char[] buffer, any...)
 {
     static char path[128];
-    if(!path[0])
+    if (!path[0])
         BuildPath(Path_SM, STRING(path), "logs/store.error.log");
 
     char error[1024];
@@ -96,12 +100,14 @@ stock void LogStoreError(const char[] buffer, any ...)
 static void SQLCallback_Void_PrintQuery(Database db, DBResultSet results, const char[] error, DataPack pack)
 {
     float time = GetEngineTime() - pack.ReadFloat();
-    char query[1024];
+    char  query[1024];
     pack.ReadString(STRING(query));
-    if(time > 20.0) LogMessage("Store SQL slow query: %f -> %s", time, query);
-    if(results == null || error[0]) LogStoreError("SQL error happened.\nQuery: %s\nError: %s", query, error);
-
     delete pack;
+
+    if (results == null || error[0])
+        LogStoreError("SQL error happened.\nError: %s\nQuery: %s", error, query);
+    else if (time >= 15.0)
+        LogMessage("Store SQL slow query.\nTime : %fs\nQuery: %s", time, query);
 }
 
 stock void SQL_TVoid(Database db, char[] query, DBPriority dbp = DBPrio_Normal)
@@ -115,14 +121,14 @@ stock void SQL_TVoid(Database db, char[] query, DBPriority dbp = DBPrio_Normal)
 
 stock bool AllowItemForAuth(int client, const char[] authid)
 {
-    if(authid[0] == 0)
+    if (authid[0] == 0)
         return true;
 
     char m_szAuthId[32];
-    if(!GetClientAuthId(client, AuthId_Steam2, STRING(m_szAuthId)))
+    if (!GetClientAuthId(client, AuthId_Steam2, STRING(m_szAuthId)))
         return false;
 
-    if(StrContains(authid, m_szAuthId) == -1)
+    if (StrContains(authid, m_szAuthId) == -1)
         return false;
 
     return true;
@@ -130,21 +136,21 @@ stock bool AllowItemForAuth(int client, const char[] authid)
 
 stock bool AllowItemForVIP(int client, bool vip)
 {
-    if(!vip)
+    if (!vip)
         return true;
 
     int flags = GetUserFlagBits(client);
-    if(flags & ADMFLAG_ROOT || flags & ADMFLAG_RESERVATION)
+    if (flags & ADMFLAG_ROOT || flags & ADMFLAG_RESERVATION)
         return true;
     return false;
 }
 
 stock bool IsValidClient(int client)
 {
-    if(client > MaxClients || client < 1)
+    if (client > MaxClients || client < 1)
         return false;
 
-    if(!IsClientInGame(client))
+    if (!IsClientInGame(client))
         return false;
 
     return true;
@@ -152,21 +158,21 @@ stock bool IsValidClient(int client)
 
 stock void ClearTimer(Handle &timer)
 {
-    if(timer != INVALID_HANDLE)
+    if (timer != INVALID_HANDLE)
     {
         KillTimer(timer);
         timer = INVALID_HANDLE;
     }
 }
 
-stock bool AddMenuItemEx(Handle menu, int style, char[] info, char[] display, any ...)
+stock bool AddMenuItemEx(Menu menu, int style, char[] info, char[] display, any...)
 {
     char m_display[256];
     VFormat(STRING(m_display), display, 5);
-    return AddMenuItem(menu, info, m_display, style);
+    return menu.AddItem(info, m_display, style);
 }
 
-stock void tPrintToChat(int client, const char[] szMessage, any ...)
+stock void tPrintToChat(int client, const char[] szMessage, any...)
 {
     char szBuffer[256];
     VFormat(STRING(szBuffer), szMessage, 3);
@@ -175,13 +181,13 @@ stock void tPrintToChat(int client, const char[] szMessage, any ...)
     SayText2(client, szBuffer);
 }
 
-stock void tPrintToChatAll(const char[] szMessage, any ...)
+stock void tPrintToChatAll(const char[] szMessage, any...)
 {
     char szBuffer[256];
 
-    for(int client = 1; client <= MaxClients; client++)
+    for (int client = 1; client <= MaxClients; client++)
     {
-        if(IsClientInGame(client) && !IsFakeClient(client))
+        if (IsClientInGame(client) && !IsFakeClient(client))
         {
             SetGlobalTransTarget(client);
             VFormat(STRING(szBuffer), szMessage, 2);
@@ -196,9 +202,9 @@ stock void SayText2(int client, const char[] text, int sender = 0, bool sound = 
 {
     static EngineVersion engine = Engine_Unknown;
     if (engine == Engine_Unknown)
-        engine  = GetEngineVersion();
+        engine = GetEngineVersion();
 
-    Handle um = StartMessageOne(engine == Engine_CSGO ? "SayText2" : "SayText", client, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
+    Handle um = StartMessageOne(engine == Engine_CSGO ? "SayText2" : "SayText", client, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
     if (um == null)
     {
         LogError("StartMessageOne -> SayText2 is null");
@@ -231,59 +237,59 @@ stock void ReplaceColorsCode(char[] message, int maxLen, int team = 0)
 {
     static EngineVersion engine = Engine_Unknown;
     if (engine == Engine_Unknown)
-        engine  = GetEngineVersion();
+        engine = GetEngineVersion();
 
     if (engine == Engine_CSGO)
     {
-        ReplaceString(message, maxLen, "{normal}",      "\x01", false);
-        ReplaceString(message, maxLen, "{default}",     "\x01", false);
-        ReplaceString(message, maxLen, "{white}",       "\x01", false);
-        ReplaceString(message, maxLen, "{team}",        "\x03", false);
+        ReplaceString(message, maxLen, "{normal}", "\x01", false);
+        ReplaceString(message, maxLen, "{default}", "\x01", false);
+        ReplaceString(message, maxLen, "{white}", "\x01", false);
+        ReplaceString(message, maxLen, "{team}", "\x03", false);
 
-        ReplaceString(message, maxLen, "{darkred}",     "\x02", false);
-        ReplaceString(message, maxLen, "{pink}",        "\x03", false);
-        ReplaceString(message, maxLen, "{green}",       "\x04", false);
-        ReplaceString(message, maxLen, "{lightgreen}",  "\x05", false);
-        ReplaceString(message, maxLen, "{lime}",        "\x06", false);
-        ReplaceString(message, maxLen, "{red}",         "\x07", false);
-        ReplaceString(message, maxLen, "{grey}",        "\x08", false);
-        ReplaceString(message, maxLen, "{yellow}",      "\x09", false);
-        ReplaceString(message, maxLen, "{gold}",        "\x10", false);
-        ReplaceString(message, maxLen, "{silver}",      "\x0A", false);
-        ReplaceString(message, maxLen, "{blue}",        "\x0B", false);
-        ReplaceString(message, maxLen, "{darkblue}",    "\x0C", false);
-        ReplaceString(message, maxLen, "{purple}",      "\x0E", false);
-        ReplaceString(message, maxLen, "{lightred}",    "\x0F", false);
+        ReplaceString(message, maxLen, "{darkred}", "\x02", false);
+        ReplaceString(message, maxLen, "{pink}", "\x03", false);
+        ReplaceString(message, maxLen, "{green}", "\x04", false);
+        ReplaceString(message, maxLen, "{lightgreen}", "\x05", false);
+        ReplaceString(message, maxLen, "{lime}", "\x06", false);
+        ReplaceString(message, maxLen, "{red}", "\x07", false);
+        ReplaceString(message, maxLen, "{grey}", "\x08", false);
+        ReplaceString(message, maxLen, "{yellow}", "\x09", false);
+        ReplaceString(message, maxLen, "{gold}", "\x10", false);
+        ReplaceString(message, maxLen, "{silver}", "\x0A", false);
+        ReplaceString(message, maxLen, "{blue}", "\x0B", false);
+        ReplaceString(message, maxLen, "{darkblue}", "\x0C", false);
+        ReplaceString(message, maxLen, "{purple}", "\x0E", false);
+        ReplaceString(message, maxLen, "{lightred}", "\x0F", false);
 
-        switch(team)
+        switch (team)
         {
-            case 3 : ReplaceString(message, maxLen, "{teamcolor}", "\x0B", false);
-            case 2 : ReplaceString(message, maxLen, "{teamcolor}", "\x05", false);
+            case 3: ReplaceString(message, maxLen, "{teamcolor}", "\x0B", false);
+            case 2: ReplaceString(message, maxLen, "{teamcolor}", "\x05", false);
             default: ReplaceString(message, maxLen, "{teamcolor}", "\x01", false);
         }
     }
     else
     {
-        ReplaceString(message, maxLen, "{normal}",      "\x07FFFFFF", false);
-        ReplaceString(message, maxLen, "{default}",     "\x07FFFFFF", false);
-        ReplaceString(message, maxLen, "{white}",       "\x07FFFFFF", false);
-        ReplaceString(message, maxLen, "{darkred}",     "\x07FF0000", false);
-        ReplaceString(message, maxLen, "{pink}",        "\x07D32CE6", false);
-        ReplaceString(message, maxLen, "{green}",       "\x077FFF00", false);
-        ReplaceString(message, maxLen, "{lime}",        "\x07BFFF00", false);
-        ReplaceString(message, maxLen, "{yellow}",      "\x07FFD700", false);
-        ReplaceString(message, maxLen, "{lightgreen}",  "\x0798FB98", false);
-        ReplaceString(message, maxLen, "{lightred}",    "\x07EB4B4B", false);
-        ReplaceString(message, maxLen, "{red}",         "\x07DC143C", false);
-        ReplaceString(message, maxLen, "{gray}",        "\x07DCDCDC", false);
-        ReplaceString(message, maxLen, "{grey}",        "\x07DCDCDC", false);
-        ReplaceString(message, maxLen, "{olive}",       "\x07808000", false);
-        ReplaceString(message, maxLen, "{gold}",        "\x07E4AE39", false);
-        ReplaceString(message, maxLen, "{silver}",      "\x07B0C3D9", false);
-        ReplaceString(message, maxLen, "{lightblue}",   "\x075E98D9", false);
-        ReplaceString(message, maxLen, "{blue}",        "\x074B69FF", false);
-        ReplaceString(message, maxLen, "{purple}",      "\x078847FF", false);
-        ReplaceString(message, maxLen, "{darkorange}",  "\x07CF6A32", false);
+        ReplaceString(message, maxLen, "{normal}", "\x07FFFFFF", false);
+        ReplaceString(message, maxLen, "{default}", "\x07FFFFFF", false);
+        ReplaceString(message, maxLen, "{white}", "\x07FFFFFF", false);
+        ReplaceString(message, maxLen, "{darkred}", "\x07FF0000", false);
+        ReplaceString(message, maxLen, "{pink}", "\x07D32CE6", false);
+        ReplaceString(message, maxLen, "{green}", "\x077FFF00", false);
+        ReplaceString(message, maxLen, "{lime}", "\x07BFFF00", false);
+        ReplaceString(message, maxLen, "{yellow}", "\x07FFD700", false);
+        ReplaceString(message, maxLen, "{lightgreen}", "\x0798FB98", false);
+        ReplaceString(message, maxLen, "{lightred}", "\x07EB4B4B", false);
+        ReplaceString(message, maxLen, "{red}", "\x07DC143C", false);
+        ReplaceString(message, maxLen, "{gray}", "\x07DCDCDC", false);
+        ReplaceString(message, maxLen, "{grey}", "\x07DCDCDC", false);
+        ReplaceString(message, maxLen, "{olive}", "\x07808000", false);
+        ReplaceString(message, maxLen, "{gold}", "\x07E4AE39", false);
+        ReplaceString(message, maxLen, "{silver}", "\x07B0C3D9", false);
+        ReplaceString(message, maxLen, "{lightblue}", "\x075E98D9", false);
+        ReplaceString(message, maxLen, "{blue}", "\x074B69FF", false);
+        ReplaceString(message, maxLen, "{purple}", "\x078847FF", false);
+        ReplaceString(message, maxLen, "{darkorange}", "\x07CF6A32", false);
     }
 }
 
@@ -334,8 +340,8 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], float removeDelay = 0
 {
     int speaker = CreateEntityByName("info_target");
 
-    if(speaker == -1)
-        return -1;
+    if (speaker == INVALID_ENT_REFERENCE)
+        return INVALID_ENT_REFERENCE;
 
     DispatchKeyValue(speaker, "spawnflags", "2");
 
@@ -344,7 +350,7 @@ stock int SpawnSpeakerEntity(float fPos[3], float fAgl[3], float removeDelay = 0
     DispatchSpawn(speaker);
     ActivateEntity(speaker);
 
-    if(removeDelay > 0.0)
+    if (removeDelay > 0.0)
     {
         /*
         char input[128];
@@ -368,7 +374,7 @@ static Action Timer_RemoveSpeaker(Handle timer, int ref)
     return Plugin_Stop;
 }
 
-//https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4
+// https://forums.alliedmods.net/showpost.php?p=2471747&postcount=4
 stock void PrecacheParticleEffect(const char[] effect)
 {
     static int table = INVALID_STRING_TABLE;
@@ -385,7 +391,7 @@ stock void PrecacheEffect(const char[] name)
 {
     static int table = INVALID_STRING_TABLE;
 
-    if(table == INVALID_STRING_TABLE)
+    if (table == INVALID_STRING_TABLE)
         table = FindStringTable("EffectDispatch");
 
     bool save = LockStringTables(false);
@@ -398,7 +404,7 @@ stock int UTIL_GetRandomInt(int min, int max)
 {
     int random = GetURandomInt();
 
-    if(random == 0)
+    if (random == 0)
         random++;
 
     return RoundToCeil(float(random) / (float(SIZE_OF_INT) / float(max - min + 1))) + min - 1;

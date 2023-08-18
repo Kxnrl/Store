@@ -50,7 +50,7 @@ jobs:
         cp store.sp store_tt.sp
         for file in store_tt.sp
         do
-          sed -i "s%<Compile_Environment>%GM_TT%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_TT%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core TTT..."
@@ -62,7 +62,7 @@ jobs:
         cp store.sp store_ze.sp
         for file in store_ze.sp
         do
-          sed -i "s%<Compile_Environment>%GM_ZE%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_ZE%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core ZE..."
@@ -74,7 +74,7 @@ jobs:
         cp store.sp store_mg.sp
         for file in store_mg.sp
         do
-          sed -i "s%<Compile_Environment>%GM_MG%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_MG%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core MG..."
@@ -86,7 +86,7 @@ jobs:
         cp store.sp store_jb.sp
         for file in store_jb.sp
         do
-          sed -i "s%<Compile_Environment>%GM_JB%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_JB%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core JB..."
@@ -98,7 +98,7 @@ jobs:
         cp store.sp store_kz.sp
         for file in store_kz.sp
         do
-          sed -i "s%<Compile_Environment>%GM_KZ%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_KZ%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core KZ..."
@@ -110,7 +110,7 @@ jobs:
         cp store.sp store_pr.sp
         for file in store_pr.sp
         do
-          sed -i "s%<Compile_Environment>%GM_PR%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_PR%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core Pure..."
@@ -122,7 +122,7 @@ jobs:
         cp store.sp store_hg.sp
         for file in store_hg.sp
         do
-          sed -i "s%<Compile_Environment>%GM_HG%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_HG%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core HG..."
@@ -134,7 +134,7 @@ jobs:
         cp store.sp store_sr.sp
         for file in store_sr.sp
         do
-          sed -i "s%<Compile_Environment>%GM_SR%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_SR%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core Surf..."
@@ -146,7 +146,7 @@ jobs:
         cp store.sp store_hz.sp
         for file in store_hz.sp
         do
-          sed -i "s%<Compile_Environment>%GM_HZ%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_HZ%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core Warcraft..."
@@ -158,7 +158,7 @@ jobs:
         cp store.sp store_bh.sp
         for file in store_bh.sp
         do
-          sed -i "s%<Compile_Environment>%GM_BH%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_BH%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core BHOP..."
@@ -170,7 +170,7 @@ jobs:
         cp store.sp store_is.sp
         for file in store_is.sp
         do
-          sed -i "s%<Compile_Environment>%GM_IS%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_IS%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core Insurgency"
@@ -182,7 +182,7 @@ jobs:
         cp store.sp store_ef.sp
         for file in store_ef.sp
         do
-          sed -i "s%<Compile_Environment>%GM_EF%g" $file > output.txt
+          sed -i "s%COMPILE_ENVIRONMENT%GM_EF%g" $file > output.txt
           rm output.txt
         done
         echo -e "\nCompiling Core Left 4 Dead(2)..."
@@ -229,4 +229,4 @@ jobs:
         RSYNC_PASSWORD=${{secrets.RSYNC_PSWD}} rsync -avz ./build/plugins/*.smx rsync://${{secrets.RSYNC_USER}}@${{secrets.RSYNC_HOST}}:${{secrets.RSYNC_PORT}}/${{secrets.RSYNC_PATH}}/_Raw/
         RSYNC_PASSWORD=${{secrets.RSYNC_PSWD}} rsync -avz ./build/plugins/modules/*.smx rsync://${{secrets.RSYNC_USER}}@${{secrets.RSYNC_HOST}}:${{secrets.RSYNC_PORT}}/${{secrets.RSYNC_PATH}}/_Raw/
         RSYNC_PASSWORD=${{secrets.RSYNC_PSWD}} rsync -avz ./build/translations/store.phrases.txt rsync://${{secrets.RSYNC_USER}}@${{secrets.RSYNC_HOST}}:${{secrets.RSYNC_PORT}}/${{secrets.RSYNC_PATH}}/_Raw/translations/
-        
+

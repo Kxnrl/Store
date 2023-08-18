@@ -11,7 +11,7 @@
 #endif
 
 #define STORE_AUTHOR  "Kyle"
-#define STORE_VERSION "2.6.1" ... "." ... STORE_AUTO_VERSION
+#define STORE_VERSION "2.7.0" ... "." ... STORE_AUTO_VERSION
 #define STORE_URL     "https://www.kxnrl.com"
 
 public SharedPlugin __pl_store =

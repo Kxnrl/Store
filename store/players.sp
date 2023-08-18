@@ -1,10 +1,19 @@
+// MAIN_FILE ../store.sp
+
+#pragma semicolon 1
+#pragma newdecls required
+
 #define Module_Player
+
+static bool        bSpawning[MAXPLAYERS + 1];
+static DynamicHook pSetModel;
 
 void Players_OnPluginStart()
 {
-    HookEvent("player_spawn", Event_PlayerSpawn_Pre, EventHookMode_Pre);
-    HookEvent("player_death", Event_PlayerDeath_Pre, EventHookMode_Pre);
-    HookEvent("player_team",  Event_PlayerTeam_Pre,  EventHookMode_Pre);
+    HookEvent("player_death", Event_PlayerDeath, EventHookMode_Pre);
+    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
+
+    InitDHooks();
 
 #if defined Module_Skin
     Skin_OnPluginStart();
@@ -33,6 +42,46 @@ void Players_OnPluginStart()
 #endif
 }
 
+void InitDHooks()
+{
+    // Gamedata.
+    GameData config = new GameData("sdktools.games");
+    if (config == null)
+    {
+        LogError("Could not load sdktools.games gamedata");
+        return;
+    }
+
+    int offset = config.GetOffset("SetEntityModel");
+    if (offset == -1)
+    {
+        LogError("Failed to find SetEntityModel offset");
+        return;
+    }
+
+    delete config;
+
+    // DHooks.
+    pSetModel = new DynamicHook(offset, HookType_Entity, ReturnType_Void, ThisPointer_CBaseEntity);
+    if (pSetModel == null)
+    {
+        LogError("Failed to DHook \"SetEntityModel\".");
+        return;
+    }
+
+    pSetModel.AddParam(HookParamType_CharPtr);
+}
+
+void Players_OnClientPutInServer(int client)
+{
+    SDKHook(client, SDKHook_Spawn, OnClientSpawning);
+    SDKHook(client, SDKHook_SpawnPost, OnClientSpawned);
+
+#if defined Module_Skin
+    Skin_OnClientPutInServer(client, pSetModel);
+#endif
+}
+
 void Players_OnClientDisconnect(int client)
 {
 #if defined Module_Aura
@@ -56,86 +105,73 @@ void Players_OnClientDisconnect(int client)
 #endif
 }
 
-public Action Event_PlayerSpawn_Pre(Event event, const char[] name, bool dontBroadcast)
+static Action OnClientSpawning(int client)
 {
-    if (event.GetInt("teamnum", -1) == 0)
-        return Plugin_Continue;
-
-    int client = GetClientOfUserId(event.GetInt("userid"));
-
-    if(IsFakeClient(client) || g_iClientTeam[client] <= 1)
-        return Plugin_Continue;
-
-    RequestFrame(OnClientSpawnPost, client);
-
-#if defined Module_Skin
-    Store_OnPlayerSpawn(client);
-    Store_RemoveClientGloves(client, -1);
-    Store_ResetPlayerSkin(client);
-    Store_PreSetClientModel(client);
-    //  32tick ~ 0.032
-    //  64tick ~ 0.016
-    // 128tick ~ 0.008
-    CreateTimer(0.0, Timer_ClearCamera, client);
-    if(g_tKillPreview[client] != null) TriggerTimer(g_tKillPreview[client], false);
-#endif
+    bSpawning[client] = true;
 
     return Plugin_Continue;
 }
 
-public void OnClientSpawnPost(int client)
+static void OnClientSpawned(int client)
 {
-    if(!IsClientInGame(client) || !IsPlayerAlive(client))
+    bSpawning[client] = false;
+
+    // preventing client connected spawning
+    if (GetClientTeam(client) <= TEAM_OB)
         return;
 
 #if defined Module_Skin
-    Store_RemoveClientGloves(client, -1);
+    // now support default skin for FakeClient
+    Skin_OnPlayerSpawn(client);
 #endif
 
-#if defined Module_Trail
-    Store_SetClientTrail(client);
-#endif
-
-#if defined Module_Hats && !defined Module_Skin
-    Store_SetClientHat(client);
-#endif
+    if (IsFakeClient(client))
+        return;
 
     // particles should be delay.
-    CreateTimer(UTIL_GetRandomInt(5, 30) * 0.1, Timer_DelaySpawn, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.5 + (client / 8) * 0.1, Timer_DelaySpawn, GetClientSerial(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action Timer_DelaySpawn(Handle timer, int userid)
+static Action Timer_DelaySpawn(Handle timer, int serial)
 {
-    int client = GetClientOfUserId(userid);
+    int client = GetClientFromSerial(serial);
 
-    if(!client || !IsPlayerAlive(client))
+    if (!client || !IsPlayerAlive(client))
         return Plugin_Stop;
 
+#if defined Module_Trail
+    Trails_SetClientTrail(client);
+#endif
+
+#if defined Module_Hats
+    Hats_SetClientHat(client);
+#endif
+
 #if defined Module_Aura
-    Store_SetClientAura(client);
+    Aura_SetClientAura(client);
 #endif
 
 #if defined Module_Neon
-    Store_SetClientNeon(client);
+    Neon_SetClientNeon(client);
 #endif
 
 #if defined Module_Part
-    Store_SetClientPart(client);
+    Part_SetClientPart(client);
 #endif
 
     return Plugin_Stop;
 }
 
-public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBroadcast)
+static Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
     int client = GetClientOfUserId(event.GetInt("userid"));
 
-    if(IsFakeClient(client))
+    if (IsFakeClient(client))
         return Plugin_Continue;
 
 #if defined Module_Skin
-    RequestFrame(Broadcast_DeathSound, client);
-    RequestFrame(FirstPersonDeathCamera, client);
+    RequestFrame(Skin_BroadcastDeathSound, client);
+    RequestFrame(Skin_FirstPersonDeathCamera, client);
 #endif
 
     DeathReset(client);
@@ -145,84 +181,78 @@ public Action Event_PlayerDeath_Pre(Event event, const char[] name, bool dontBro
 
 public void ZR_OnClientInfected(int client, int attacker, bool motherInfect, bool respawnOverride, bool respawn)
 {
-    g_iClientTeam[client] = 2;
-
     DeathReset(client);
 
 #if defined Module_Skin
-    Store_ResetPlayerSkin(client);
+    Skin_ResetPlayerSkin(client);
 #endif
 }
 
 public void ZE_OnPlayerInfected(int client, int attacker, bool motherZombie, bool teleportOverride, bool teleport)
 {
-    g_iClientTeam[client] = 2;
-
     DeathReset(client);
 
 #if defined Module_Skin
-    Store_ResetPlayerSkin(client);
+    Skin_ResetPlayerSkin(client);
 #endif
 }
 
 void DeathReset(int client)
 {
-    #pragma unused client
+#pragma unused client
 
 #if defined Module_Aura
-    Store_RemoveClientAura(client);
+    Aura_RemoveClientAura(client);
 #endif
 
 #if defined Module_Neon
-    Store_RemoveClientNeon(client);
+    Neon_RemoveClientNeon(client);
 #endif
 
 #if defined Module_Part
-    Store_RemoveClientPart(client);
+    Part_RemoveClientPart(client);
 #endif
 
-    for(int i = 0; i < STORE_MAX_SLOTS; ++i)
+    for (int i = 0; i < STORE_MAX_SLOTS; ++i)
     {
 #if defined Module_Hats
-        Store_RemoveClientHats(client, i);
+        Hats_RemoveClientHats(client, i);
 #endif
 
 #if defined Module_Trail
-        Store_RemoveClientTrail(client, i);
+        Trails_RemoveClientTrail(client, i);
 #endif
     }
 }
 
-public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroadcast)
+static Action Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-    int client = GetClientOfUserId(event.GetInt("userid"));
+    int client  = GetClientOfUserId(event.GetInt("userid"));
     int newteam = event.GetInt("team");
     int oldteam = event.GetInt("oldteam");
 
-    g_iClientTeam[client] = newteam;
-
-    if(oldteam > 1 && newteam <= 1)
+    if (oldteam > TEAM_OB && newteam <= TEAM_OB)
     {
 #if defined Module_Aura
-        Store_RemoveClientAura(client);
+        Aura_RemoveClientAura(client);
 #endif
 
 #if defined Module_Neon
-        Store_RemoveClientNeon(client);
+        Neon_RemoveClientNeon(client);
 #endif
 
 #if defined Module_Part
-        Store_RemoveClientPart(client);
+        Part_RemoveClientPart(client);
 #endif
 
 #if defined Module_Trail
-        for(int i = 0; i < STORE_MAX_SLOTS; ++i)
-            Store_RemoveClientTrail(client, i);
+        for (int i = 0; i < STORE_MAX_SLOTS; ++i)
+            Trails_RemoveClientTrail(client, i);
 #endif
 
 #if defined Module_Hats
-        for(int i = 0; i < STORE_MAX_SLOTS; ++i)
-            Store_RemoveClientHats(client, i);
+        for (int i = 0; i < STORE_MAX_SLOTS; ++i)
+            Hats_RemoveClientHats(client, i);
 #endif
     }
 
@@ -234,26 +264,33 @@ public Action Event_PlayerTeam_Pre(Event event, const char[] name, bool dontBroa
 }
 
 #if defined TeamArms
+
 void OnClientTeamPost(int client)
 {
-    if(!IsClientInGame(client) || !IsPlayerAlive(client) || g_iClientTeam[client] > 1)
+    if (!IsClientInGame(client) || !IsPlayerAlive(client) || GetClientTeam(client) <= TEAM_OB)
         return;
 
-    Store_PreSetClientModel(client);
+    Skin_SetClientSkin(client);
 }
+
 #endif
 
 stock void Call_OnParticlesCreated(int client, int entity)
 {
-    static Handle gf = null;
+    static GlobalForward gf = null;
     if (gf == null)
     {
         // create
-        gf = CreateGlobalForward("Store_OnParticlesCreated", ET_Ignore, Param_Cell, Param_Cell);
+        gf = new GlobalForward("Store_OnParticlesCreated", ET_Ignore, Param_Cell, Param_Cell);
     }
 
     Call_StartForward(gf);
     Call_PushCell(client);
     Call_PushCell(entity);
     Call_Finish();
+}
+
+bool IsPlayerSpawing(int client)
+{
+    return bSpawning[client];
 }

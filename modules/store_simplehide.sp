@@ -17,7 +17,7 @@ public Plugin myinfo =
 };
 
 int  g_Edict[2048];
-bool g_bHide[MAXPLAYERS+1];
+bool g_bHide[MAXPLAYERS + 1];
 
 public void OnPluginStart()
 {
@@ -32,9 +32,9 @@ public Action Command_Hide(int client, int args)
 
     g_bHide[client] = !g_bHide[client];
     tPrintToChat(client, "[\x04Store\x01]  %T", "hide setting", client, g_bHide[client] ? "on" : "off");
-    for (int i = MaxClients+1; i < 2048; i++)
-    if (g_Edict[i] > 0 && IsValidEdict(i))
-        TransmitManager_SetEntityState(i, client, !g_bHide[client]);
+    for (int i = MaxClients + 1; i < 2048; i++)
+        if (g_Edict[i] > 0 && IsValidEdict(i))
+            TransmitManager_SetEntityState(i, client, !g_bHide[client]);
 
     return Plugin_Handled;
 }
@@ -92,6 +92,7 @@ public void Store_OnPetsCreated(int client, int entity)
 
 void UpdateTransmitState(int entity)
 {
-    for (int i = 1; i <= MaxClients; i++) if (IsClientInGame(i))
-        TransmitManager_SetEntityState(entity, i, !g_bHide[i]);
+    for (int i = 1; i <= MaxClients; i++)
+        if (IsClientInGame(i))
+            TransmitManager_SetEntityState(entity, i, !g_bHide[i]);
 }

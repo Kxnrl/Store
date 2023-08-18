@@ -1,17 +1,22 @@
+// MAIN_FILE ../../store.sp
+
+#pragma semicolon 1
+#pragma newdecls required
+
 #define Module_Part
 
 #define MAX_PART 128
 
-static int g_iParts = 0;
-static int g_iClientPart[MAXPLAYERS+1] = {INVALID_ENT_REFERENCE, ...};
+static int  g_iParts                      = 0;
+static int  g_iClientPart[MAXPLAYERS + 1] = { INVALID_ENT_REFERENCE, ... };
 static char g_szPartName[MAX_PART][PLATFORM_MAX_PATH];
 static char g_szPartFPcf[MAX_PART][PLATFORM_MAX_PATH];
-static char g_szPartClient[MAXPLAYERS+1][PLATFORM_MAX_PATH];
+static char g_szPartClient[MAXPLAYERS + 1][PLATFORM_MAX_PATH];
 
 void Part_OnClientDisconnect(int client)
 {
-    Store_RemoveClientPart(client);
-    g_szPartClient[client][0] = '\0';
+    Part_RemoveClientPart(client);
+    g_szPartClient[client][0] = 0;
 }
 
 void Part_Reset()
@@ -23,11 +28,11 @@ bool Part_Config(KeyValues kv, int itemid)
 {
     Store_SetDataIndex(itemid, g_iParts);
     kv.GetString("effect", g_szPartName[g_iParts], PLATFORM_MAX_PATH);
-    kv.GetString("model",  g_szPartFPcf[g_iParts], PLATFORM_MAX_PATH);
+    kv.GetString("model", g_szPartFPcf[g_iParts], PLATFORM_MAX_PATH);
 
-    if(!FileExists(g_szPartFPcf[g_iParts], true))
+    if (!FileExists(g_szPartFPcf[g_iParts], true))
     {
-        #if defined LOG_NOT_FOUND
+#if defined LOG_NOT_FOUND
         // missing model
         char auth[32], name[32];
         kv.GetString("auth", auth, 32);
@@ -40,7 +45,7 @@ bool Part_Config(KeyValues kv, int itemid)
         {
             LogMessage("Skipped aura <%s> -> [%s]", name, g_szPartFPcf[g_iParts]);
         }
-        #endif
+#endif
         return false;
     }
 
@@ -52,28 +57,28 @@ int Part_Equip(int client, int id)
 {
     g_szPartClient[client] = g_szPartName[Store_GetDataIndex(id)];
 
-    if(IsPlayerAlive(client))
-        Store_SetClientPart(client);
+    if (IsPlayerAlive(client))
+        Part_SetClientPart(client);
 
     return 0;
 }
 
 int Part_Remove(int client, int id)
 {
-    Store_RemoveClientPart(client);
-    g_szPartClient[client][0] = '\0';
+    Part_RemoveClientPart(client);
+    g_szPartClient[client][0] = 0;
 
     return 0;
 }
 
 void Part_OnMapStart()
 {
-    if(g_iParts <= 0)
+    if (g_iParts <= 0)
         return;
 
     PrecacheEffect("ParticleEffect");
 
-    for(int index = 0; index < g_iParts; ++index)
+    for (int index = 0; index < g_iParts; ++index)
     {
         PrecacheGeneric(g_szPartFPcf[index], true);
         PrecacheParticleEffect(g_szPartName[index]);
@@ -81,12 +86,12 @@ void Part_OnMapStart()
     }
 }
 
-void Store_RemoveClientPart(int client)
+void Part_RemoveClientPart(int client)
 {
-    if(g_iClientPart[client] != INVALID_ENT_REFERENCE)
+    if (g_iClientPart[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iClientPart[client]);
-        if (entity > 0 && IsValidEdict(entity))
+        if (entity > MaxClients)
         {
             RemoveEntity(entity);
         }
@@ -94,16 +99,16 @@ void Store_RemoveClientPart(int client)
     }
 }
 
-void Store_SetClientPart(int client)
+void Part_SetClientPart(int client)
 {
-    Store_RemoveClientPart(client);
+    Part_RemoveClientPart(client);
 
 #if defined GM_ZE
-    if(g_iClientTeam[client] == 2)
+    if (GetClientTeam(client) == TEAM_ZM)
         return;
 #endif
 
-    if(!(strcmp(g_szPartClient[client], "", false) == 0))
+    if (g_szPartClient[client][0])
     {
         float clientOrigin[3], clientAngles[3];
         GetClientAbsOrigin(client, clientOrigin);
@@ -113,7 +118,7 @@ void Store_SetClientPart(int client)
 
         int iEnt = CreateEntityByName("info_particle_system");
 
-        if(!IsValidEdict(iEnt))
+        if (!IsValidEdict(iEnt))
         {
             LogError("Failed to create info_particle_system -> %N -> %s", client, g_szPartClient[client]);
             return;

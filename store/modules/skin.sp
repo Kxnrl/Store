@@ -42,6 +42,9 @@ static GlobalForward g_hOnPlayerSetModelPost = null;
 static GlobalForward g_hOnFPDeathCamera      = null;
 static GlobalForward g_hOnPlayerDeathVoice   = null;
 
+#define SKIN_FLAGS_SKIN 1 << 1
+#define SKIN_FLAGS_ARMS 1 << 2
+
 void Skin_InitConVar()
 {
     store_firstperson_death_camera = CreateConVar("store_firstperson_death_camera", "1", "Camera for firstperson death view.", _, true, 0.0, true, 1.0);
@@ -211,7 +214,6 @@ static Action Command_Arms(int client, int args)
         return Plugin_Handled;
 #endif
 
-    Skin_RemoveClientGloves(client, -1);
     Skin_ResetPlayerSkin(client);
     Skin_SetClientSkin(client);
 
@@ -787,9 +789,9 @@ public void ZR_OnClientHumanPost(int client, bool respawn, bool protect)
 }
 #endif
 
-void Skin_RemoveClientGloves(int client, int index = -1)
+void Skin_RemoveClientGloves(int client, int flags)
 {
-    if (index == -1 && GetEquippedSkin(client) <= 0)
+    if (flags & SKIN_FLAGS_ARMS == 0)
         return;
 
     int gloves = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
@@ -810,7 +812,7 @@ void Skin_OnPlayerSpawn(int client)
     if (g_tKillPreview[client] != null)
         TriggerTimer(g_tKillPreview[client], false);
 
-    Skin_RemoveClientGloves(client, -1);
+    Skin_RemoveClientGloves(client, CheckDefaultSkinFlags(client));
 }
 
 void Skin_ResetPlayerSkin(int client)
@@ -872,6 +874,35 @@ static bool SetClientDefaultSkin(int client)
     }
 
     return set;
+}
+
+static int CheckDefaultSkinFlags(int client)
+{
+    char skin_t[128], arms_t[128];
+    int  body  = 0;
+    int  flags = 0;
+    bool ret   = false;
+
+    Call_StartForward(g_hOnPlayerSkinDefault);
+    Call_PushCell(client);
+    Call_PushCell(GetClientTeam(client) - 2);
+    Call_PushStringEx(STRING(skin_t), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_PushStringEx(STRING(arms_t), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+    Call_PushCell(128);
+    Call_PushCellRef(body);
+    Call_Finish(ret);
+
+    if (!ret)
+        return flags;
+
+    if (IsModelPrecached(skin_t))
+        flags |= SKIN_FLAGS_SKIN;
+
+    if (IsModelPrecached(arms_t))
+        flags |= SKIN_FLAGS_ARMS;
+
+    return flags;
 }
 
 static void EnforceDeathSound(int client, const char[] skin, const int body)
@@ -967,7 +998,7 @@ static int FindDataIndexByModel(const char[] skin, const int body)
 
 static void SetClientArms(int client, const char[] arms_t)
 {
-    Skin_RemoveClientGloves(client, 0);
+    Skin_RemoveClientGloves(client, SKIN_FLAGS_ARMS);
     SetEntPropString(client, Prop_Send, "m_szArmsModel", arms_t);
 
     if (!g_bShouldFireEvent[client])

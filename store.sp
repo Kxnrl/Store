@@ -474,6 +474,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Store_IsInDeathCamera",       Native_InDeathCamera);
     CreateNative("Store_IsGlobalTeam",          Native_IsGlobalTeam);
     CreateNative("Store_GetEquipPlayerSkin",    Native_GetEquippedSkin);
+    CreateNative("Store_ChatSayText",           Native_ChatSayText);
 
     MarkNativeAsOptional("RegClientCookie");
     MarkNativeAsOptional("GetClientCookie");
@@ -1278,6 +1279,24 @@ static any Native_IsGlobalTeam(Handle plugin, int numParams)
 {
 #if defined Global_Skin
     return true;
+#else
+    return false;
+#endif
+}
+
+static any Native_ChatSayText(Handle plugin, int numParams)
+{
+#if defined Module_Chat
+    int sender = GetNativeCell(1);
+    char szFlag[32], szName[128], szMessage[256];
+    GetNativeString(2, STRING(szFlag));
+    GetNativeString(3, STRING(szName));
+    GetNativeString(4, STRING(szMessage));
+    ArrayList pRecipients = GetNativeCell(5);
+    ArrayList pClone = pRecipients.Clone();
+    bool result = CPSupport_ChatSayText(sender, szFlag, szName, szMessage, pClone);
+    delete pClone;
+    return result;
 #else
     return false;
 #endif

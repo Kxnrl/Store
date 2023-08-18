@@ -123,6 +123,7 @@ native void Store_LogOpencase(int client, int item, int days, const char[] handl
 native void Store_IsInDeathCamera(int client);
 native bool Store_IsGlobalTeam();
 native bool Store_GetEquipPlayerSkin(int client, int team, char[] model, int modelLen, char[] arms, int armsLen, int &body);
+native bool Store_ChatSayText(int client, const char[] flag, const char[] name, const char[] message, ArrayList recipients);
 
 native ArrayList Store_GetItemList(); // List<Store_Item>
 

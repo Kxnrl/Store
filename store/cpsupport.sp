@@ -459,6 +459,94 @@ static Action OnSayText2(UserMsg msg_id, Protobuf msg, const int[] players, int 
     return Plugin_Handled;
 }
 
+bool CPSupport_ChatSayText(int m_iSender, char m_szFlag[32], char m_szName[128], char m_szText[256], ArrayList hRecipients)
+{
+#if defined USE_BF
+
+    ThrowError("CPSupport_ChatSayText is not supported on BitBuffer");
+
+#endif
+
+    char m_szFmt[32];
+    if (!g_tMsgFmt.GetString(m_szFlag, STRING(m_szFmt)))
+    {
+        ThrowNativeError(SP_ERROR_NATIVE, "CPSupport_ChatSayText -> g_tMsgFmt.GetString -> null");
+        return false;
+    }
+
+    RemoveAllColors(STRING(m_szName));
+    RemoveAllColors(STRING(m_szText));
+
+    char m_szNameCopy[128];
+    strcopy(STRING(m_szNameCopy), m_szName);
+
+    char m_szFlagCopy[32];
+    strcopy(STRING(m_szFlagCopy), m_szFlag);
+
+    bool   removedColor = false;
+    bool   processColor = true;
+    Action iResults     = CPA_Forward(m_iSender, m_szFlag, m_szName, m_szText, hRecipients, removedColor, processColor);
+
+    if (iResults >= Plugin_Handled)
+        return false;
+
+    if (strcmp(m_szFlag, m_szFlagCopy) != 0 && !g_tMsgFmt.GetString(m_szFlag, STRING(m_szFmt)))
+        return false;
+
+    if (strcmp(m_szNameCopy, m_szName) == 0)
+    {
+        switch (GetClientTeam(m_iSender))
+        {
+            case TEAM_CT: Format(STRING(m_szName), "\x0B%s", m_szName);
+            case TEAM_TE: Format(STRING(m_szName), "\x05%s", m_szName);
+            default: Format(STRING(m_szName), "\x01%s", m_szName);
+        }
+    }
+
+    char m_szBuffer[512];
+    strcopy(STRING(m_szBuffer), m_szFmt);
+
+    ReplaceString(STRING(m_szBuffer), "{1} :  {2}", "{1} {normal}:  {2}");
+    ReplaceString(STRING(m_szBuffer), "{1}", m_szName);
+    ReplaceString(STRING(m_szBuffer), "{2}", m_szText);
+
+    if (removedColor)
+    {
+        RemoveAllColors(STRING(m_szName));
+        RemoveAllColors(STRING(m_szText));
+    }
+
+    if (processColor)
+    {
+        ReplaceColorsCode(STRING(m_szBuffer), GetClientTeam(m_iSender));
+    }
+
+    int target_list[MAXPLAYERS + 1], target_count;
+    for (int x = 0; x < hRecipients.Length; ++x)
+    {
+        int client = hRecipients.Get(x);
+        if (IsClientInGame(client))
+            target_list[target_count++] = client;
+    }
+
+    Protobuf pb = UserMessageToProtobuf(StartMessageEx(g_umUMId, target_list, target_count, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS));
+    if (pb == null)
+        return false;
+
+    pb.SetInt("ent_idx", m_iSender);
+    pb.SetBool("chat", true);
+    pb.SetString("msg_name", m_szBuffer);
+    pb.AddString("params", "");
+    pb.AddString("params", "");
+    pb.AddString("params", "");
+    pb.AddString("params", "");
+    EndMessage();
+
+    CPP_Forward(m_iSender, m_szFlag, m_szName, m_szText, hRecipients, removedColor, processColor);
+
+    return true;
+}
+
 static void Frame_OnChatMessage_SayText2(DataPack data)
 {
     int  m_iSender = data.ReadCell();

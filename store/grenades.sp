@@ -120,7 +120,7 @@ static int GrenadeTrails_Remove(int client, int id)
     return 0;
 }
 
-static int GrenadeSkins_GetSlot(char[] weapon)
+static int GrenadeSkins_GetSlot(const char[] weapon)
 {
     for (int i = 0; i < g_iSlots; ++i)
         if (strcmp(weapon, g_szSlots[i]) == 0)
@@ -159,14 +159,13 @@ static void Grenades_OnEntitySpawnedPost(int ref)
     char m_szClassname[64];
     GetEdictClassname(entity, STRING(m_szClassname));
 
-    int char = FindCharInString(m_szClassname, '_');
-    if (char == -1)
+    int c = FindCharInString(m_szClassname, '_');
+    if (c == -1)
         return;
 
-    m_szClassname[char] = 0;
+    m_szClassname[c] = 0;
 
     OnGrenadeModel(client, entity, m_szClassname);
-
     OnGrenadeTrail(client, entity, m_szClassname);
 }
 
@@ -198,4 +197,6 @@ static void OnGrenadeTrail(int client, int entity, const char[] classname)
         TE_SetupBeamFollow(entity, g_eGrenadeTrails[m_iData].iCacheID, 0, 2.0, g_eGrenadeTrails[m_iData].fWidth, g_eGrenadeTrails[m_iData].fWidth, 10, m_iColor);
         TE_SendToAll();
     }
+
+#pragma unused classname
 }

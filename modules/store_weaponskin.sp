@@ -16,6 +16,8 @@ public Plugin myinfo =
     url         = STORE_URL
 };
 
+#define abstract_struct enum struct
+
 abstract_struct WeaponSkin
 {
     char  szUnique[32];

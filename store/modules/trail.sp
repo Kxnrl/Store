@@ -150,7 +150,7 @@ static void CreateTrail(int client, int itemid = -1, int slot = 0)
 
     int entity = g_iClientTrails[client][slot] == INVALID_ENT_REFERENCE ? -1 : EntRefToEntIndex(g_iClientTrails[client][slot]);
 
-    if (entity < MaxClients)
+    if (entity > MaxClients)
         return;
 
     entity = CreateEntityByName("env_spritetrail");

@@ -73,7 +73,8 @@ void Hats_OnMapStart()
         AddFileToDownloadsTable(g_eHats[i].szModel);
     }
 
-    CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    if (g_iHats)
+        CreateTimer(0.1, Timer_Hats_Adjust, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 static Action Timer_Hats_Adjust(Handle timer)
@@ -86,6 +87,44 @@ static Action Timer_Hats_Adjust(Handle timer)
             else
                 g_iSpecTarget[client] = client;
         }
+
+    if (g_pTransmit)
+    {
+        ArrayList m_Entities = new ArrayList();
+
+        for (int client = 1; client <= MaxClients; ++client)
+        {
+            for (int i = 0; i < STORE_MAX_SLOTS; ++i)
+            {
+                if (g_iClientHats[client][i] != INVALID_ENT_REFERENCE)
+                {
+                    int entity = EntRefToEntIndex(g_iClientHats[client][i]);
+                    if (entity > MaxClients && TransmitManager_IsEntityHooked(entity))
+                    {
+                        m_Entities.Push(entity);
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < m_Entities.Length; i++)
+        {
+            int entity = m_Entities.Get(i);
+            for (int target = 1; target <= MaxClients; ++target)
+            {
+                if (IsClientInGame(target))
+                {
+                    bool can = true;
+                    if (target == g_iHatsOwners[entity])
+                        can = IsPlayerTP(target);
+                    if (g_iSpecTarget[target] == g_iHatsOwners[entity])
+                        can = false;
+
+                    TransmitManager_SetEntityState(entity, target, can);
+                }
+            }
+        }
+    }
 
     return Plugin_Continue;
 }
@@ -192,7 +231,17 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
         if (g_eHats[m_iData].bHide)
         {
             // hook transmit
-            SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
+            if (g_pTransmit)
+            {
+                TransmitManager_AddEntityHooks(m_iEnt);
+                TransmitManager_SetEntityOwner(m_iEnt, client);
+                TransmitManager_SetEntityState(m_iEnt, client, false);
+            }
+            else if (!IsParallelMode())
+            {
+                // SDKHooks crashes in parallel mode
+                SDKHook(m_iEnt, SDKHook_SetTransmit, Hook_SetTransmit_Hat);
+            }
         }
 
         TeleportEntity(m_iEnt, m_fHatOrigin, m_fHatAngles, NULL_VECTOR);

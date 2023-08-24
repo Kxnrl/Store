@@ -574,11 +574,64 @@ void Skin_PreviewSkin(int client, int itemid)
     g_iPreviewTimes[client] = GetTime() + 18;
     g_iPreviewModel[client] = EntIndexToEntRef(m_iViewModel);
 
-    SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
+    if (g_pTransmit)
+    {
+        if (GetFeatureStatus(FeatureType_Native, "TransmitManager_SetEntityBlock") == FeatureStatus_Available)
+        {
+            TransmitManager_AddEntityHooks(m_iViewModel, false);
+            TransmitManager_SetEntityBlock(m_iViewModel, true);
+            PrintToServer("[Store]  Spawn preview model<%d> in block mode.", m_iViewModel);
+        }
+        // TODO switch to old mode
+        else
+        {
+            TransmitManager_AddEntityHooks(m_iViewModel);
+
+            SetEntPropEnt(m_iViewModel, Prop_Send, "m_hOwnerEntity", client);
+            CreateTimer(0.1, UpdatePreviewTransmitState, EntIndexToEntRef(m_iViewModel), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+            PrintToServer("[Store]  Spawn preview model<%d> in normal mode.", m_iViewModel);
+        }
+
+        TransmitManager_SetEntityOwner(m_iViewModel, client);
+        TransmitManager_SetEntityState(m_iViewModel, client, true);
+    }
+    else if (!IsParallelMode())
+    {
+        // SDKHooks crashes in parallel mode
+        SDKHook(m_iViewModel, SDKHook_SetTransmit, Hook_SetTransmit_Preview);
+    }
 
     g_tKillPreview[client] = CreateTimer(15.0, Timer_KillPreview, client);
 
     tPrintToChat(client, "%T", "Chat Preview", client);
+}
+
+static Action UpdatePreviewTransmitState(Handle timer, int ref)
+{
+    int entity = EntRefToEntIndex(ref);
+    if (entity < MaxClients)
+        return Plugin_Stop;
+
+    int client = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+    if (client == INVALID_ENT_REFERENCE)
+    {
+        RemoveEntity(entity);
+        return Plugin_Stop;
+    }
+
+    PrintToServer("[Store]  Update preview model<%d> in normal mode.", entity);
+
+    for (int target = 1; target <= MaxClients; ++target)
+    {
+        if (client != target && IsClientInGame(target))
+        {
+            TransmitManager_SetEntityState(entity, client, false);
+        }
+    }
+
+    TransmitManager_SetEntityState(entity, client, true);
+
+    return Plugin_Continue;
 }
 
 static Action Hook_SetTransmit_Preview(int entity, int client)

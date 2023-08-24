@@ -491,6 +491,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     MarkNativeAsOptional("TransmitManager_SetEntityOwner");
     MarkNativeAsOptional("TransmitManager_SetEntityState");
     MarkNativeAsOptional("TransmitManager_GetEntityState");
+    MarkNativeAsOptional("TransmitManager_SetEntityBlock");
+    MarkNativeAsOptional("TransmitManager_GetEntityBlock");
     MarkNativeAsOptional("TransmitManager_IsEntityHooked");
 
     // g_bLateLoad = late;
@@ -4628,6 +4630,15 @@ static void InterMissionLock(ConVar convar, const char[] oldValue, const char[] 
 {
     convar.SetFloat(20.0, true, true);
     LogMessage("Lock Convar [mp_match_restart_delay] to 20.0, from [%s] to [%s].", oldValue, newValue);
+}
+
+stock bool IsParallelMode()
+{
+    ConVar sv_parallel_send = FindConVar("sv_parallel_send");
+    if (sv_parallel_send == null)
+        return false;
+
+    return sv_parallel_send.BoolValue;
 }
 
 /*

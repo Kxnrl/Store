@@ -625,7 +625,7 @@ static Action Timer_KillPreview(Handle timer, int client)
     if (g_iPreviewModel[client] != INVALID_ENT_REFERENCE)
     {
         int entity = EntRefToEntIndex(g_iPreviewModel[client]);
-        if (entity > 0 && IsValidEdict(entity))
+        if (entity > MaxClients)
         {
             RemoveEntity(entity);
         }
@@ -705,8 +705,11 @@ static Action Timer_ClearCamera(Handle timer, int client)
     g_tResetCamera[client] = null;
 
     // Fix screen
-    SetClientViewEntity(client, client);
-    FadeScreenWhite(client);
+    if (IsClientInGame(client))
+    {
+        SetClientViewEntity(client, client);
+        FadeScreenWhite(client);
+    }
 
     // Remove entity
     if (g_iCameraRef[client] != INVALID_ENT_REFERENCE)

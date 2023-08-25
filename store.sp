@@ -62,6 +62,8 @@ enum
 #define TEAM_OB 1
 #define TEAM_US 0
 
+#define STORE_TRANSMIT_CHANNEL 5
+
 // Server
 #define COMPILE_ENVIRONMENT
 // GM_TT -> ttt server

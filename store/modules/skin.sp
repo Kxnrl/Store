@@ -593,7 +593,7 @@ void Skin_PreviewSkin(int client, int itemid)
         }
 
         TransmitManager_SetEntityOwner(m_iViewModel, client);
-        TransmitManager_SetEntityState(m_iViewModel, client, true);
+        TransmitManager_SetEntityState(m_iViewModel, client, true, STORE_TRANSMIT_CHANNEL);
     }
     else if (!IsParallelMode())
     {
@@ -625,11 +625,11 @@ static Action UpdatePreviewTransmitState(Handle timer, int ref)
     {
         if (client != target && IsClientInGame(target))
         {
-            TransmitManager_SetEntityState(entity, client, false);
+            TransmitManager_SetEntityState(entity, client, false, STORE_TRANSMIT_CHANNEL);
         }
     }
 
-    TransmitManager_SetEntityState(entity, client, true);
+    TransmitManager_SetEntityState(entity, client, true, STORE_TRANSMIT_CHANNEL);
 
     return Plugin_Continue;
 }

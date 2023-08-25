@@ -110,20 +110,22 @@ static Action Timer_Hats_Adjust(Handle timer)
         for (int i = 0; i < m_Entities.Length; i++)
         {
             int entity = m_Entities.Get(i);
-            for (int target = 1; target <= MaxClients; ++target)
+            for (int client = 1; client <= MaxClients; ++client)
             {
-                if (IsClientInGame(target))
+                if (IsClientInGame(client))
                 {
                     bool can = true;
-                    if (target == g_iHatsOwners[entity])
-                        can = IsPlayerTP(target);
-                    if (g_iSpecTarget[target] == g_iHatsOwners[entity])
+                    if (client == g_iHatsOwners[entity])
+                        can = IsPlayerTP(client);
+                    else if (g_iSpecTarget[client] == g_iHatsOwners[entity])
                         can = false;
 
-                    TransmitManager_SetEntityState(entity, target, can);
+                    TransmitManager_SetEntityState(entity, client, can, STORE_TRANSMIT_CHANNEL);
                 }
             }
         }
+
+        delete m_Entities;
     }
 
     return Plugin_Continue;
@@ -235,7 +237,7 @@ static void CreateHat(int client, int itemid = -1, int slot = 0)
             {
                 TransmitManager_AddEntityHooks(m_iEnt);
                 TransmitManager_SetEntityOwner(m_iEnt, client);
-                TransmitManager_SetEntityState(m_iEnt, client, false);
+                TransmitManager_SetEntityState(m_iEnt, client, false, STORE_TRANSMIT_CHANNEL);
             }
             else if (!IsParallelMode())
             {

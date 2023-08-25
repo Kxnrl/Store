@@ -270,7 +270,7 @@ static void StartSoundToAll(int client)
             for (int i = 1; i <= MaxClients; i++)
                 if (IsClientInGame(i) && i != client)
                 {
-                    TransmitManager_SetEntityState(speaker, i, false);
+                    TransmitManager_SetEntityState(speaker, i, false, STORE_TRANSMIT_CHANNEL);
                 }
         }
 
@@ -296,7 +296,7 @@ static void StartSoundToAll(int client)
                     if (TransmitManager_GetEntityState(client, i))
                     {
                         // don't transmit
-                        TransmitManager_SetEntityState(speaker, i, true);
+                        TransmitManager_SetEntityState(speaker, i, true, STORE_TRANSMIT_CHANNEL);
                     }
                     else
                     {

@@ -4,6 +4,7 @@
 #define _TransmitManager_included
 
 #define TRANSMIT_MAX_CHANNEL 5
+#define TRANSMIT_ALL_CHANNEL -1
 
 /**
  * Adds entity hooks for the given entity to the Transmit Manager.
@@ -83,7 +84,7 @@ native bool TransmitManager_IsEntityHooked(int entity);
 /**
  * _________________Do not edit below this line!_______________________
  */
-public Extension __ext_transmit = 
+public Extension __ext_transmit =
 {
     name = "TransmitManager",
     file = "TransmitManager.ext",

@@ -522,8 +522,14 @@ void Skin_PreviewSkin(int client, int itemid)
         return;
     }
 
-    int m_iViewModel = CreateEntityByName("prop_dynamic_override"); // prop_physics_multiplayer
-    DispatchKeyValue(m_iViewModel, "spawnflags", "64");
+    if (GetEntPropEnt(client, Prop_Send, "m_hGroundEntity") == -1)
+    {
+        tPrintToChat(client, "%T", "must on ground", client);
+        return;
+    }
+
+    int m_iViewModel = CreateEntityByName("prop_dynamic_override");
+    DispatchKeyValue(m_iViewModel, "spawnflags", "320");
     DispatchKeyValue(m_iViewModel, "model", g_ePlayerSkins[g_Items[itemid].iData].szModel);
     DispatchKeyValue(m_iViewModel, "rendermode", "0");
     DispatchKeyValue(m_iViewModel, "renderfx", "0");
@@ -540,8 +546,10 @@ void Skin_PreviewSkin(int client, int itemid)
     }
 
     SetEntProp(m_iViewModel, Prop_Send, "m_CollisionGroup", 11);
+    SetEntPropEnt(m_iViewModel, Prop_Send, "m_hOwnerEntity", client);
 
     AcceptEntityInput(m_iViewModel, "Enable");
+    SetEntityMoveType(m_iViewModel, MOVETYPE_NOCLIP);
 
     int offset = GetEntSendPropOffs(m_iViewModel, "m_clrGlow");
     SetEntProp(m_iViewModel, Prop_Send, "m_bShouldGlow", true, true);
@@ -557,7 +565,7 @@ void Skin_PreviewSkin(int client, int itemid)
     float m_fOrigin[3], m_fAngles[3], m_fRadians[2], m_fPosition[3];
 
     GetClientAbsOrigin(client, m_fOrigin);
-    GetClientAbsAngles(client, m_fAngles);
+    GetClientEyeAngles(client, m_fAngles); 
 
     m_fRadians[0] = DegToRad(m_fAngles[0]);
     m_fRadians[1] = DegToRad(m_fAngles[1]);
@@ -566,8 +574,11 @@ void Skin_PreviewSkin(int client, int itemid)
     m_fPosition[1] = m_fOrigin[1] + 64 * Cosine(m_fRadians[0]) * Sine(m_fRadians[1]);
     m_fPosition[2] = m_fOrigin[2] + 4 * Sine(m_fRadians[0]);
 
-    m_fAngles[0] *= -1.0;
-    m_fAngles[1] *= -1.0;
+    m_fAngles[0]  =   0.0;
+    m_fAngles[1] -= 180.0;
+    m_fAngles[2]  =   0.0;
+
+    m_fPosition[2] += 1.0;
 
     TeleportEntity(m_iViewModel, m_fPosition, m_fAngles, NULL_VECTOR);
 
@@ -576,24 +587,15 @@ void Skin_PreviewSkin(int client, int itemid)
 
     if (g_pTransmit)
     {
-        if (GetFeatureStatus(FeatureType_Native, "TransmitManager_SetEntityBlock") == FeatureStatus_Available)
-        {
-            TransmitManager_AddEntityHooks(m_iViewModel, false);
-            TransmitManager_SetEntityBlock(m_iViewModel, true);
-            PrintToServer("[Store]  Spawn preview model<%d> in block mode.", m_iViewModel);
-        }
-        // TODO switch to old mode
-        else
-        {
-            TransmitManager_AddEntityHooks(m_iViewModel);
-
-            SetEntPropEnt(m_iViewModel, Prop_Send, "m_hOwnerEntity", client);
-            CreateTimer(0.1, UpdatePreviewTransmitState, EntIndexToEntRef(m_iViewModel), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-            PrintToServer("[Store]  Spawn preview model<%d> in normal mode.", m_iViewModel);
-        }
-
+        TransmitManager_AddEntityHooks(m_iViewModel, false);
+        TransmitManager_SetEntityBlock(m_iViewModel, true);
         TransmitManager_SetEntityOwner(m_iViewModel, client);
-        TransmitManager_SetEntityState(m_iViewModel, client, true, STORE_TRANSMIT_CHANNEL);
+        TransmitManager_SetEntityState(m_iViewModel, client, true, TRANSMIT_ALL_CHANNEL);
+
+        PrintToServer("[Store]  Spawn preview model<%d> in block mode.", m_iViewModel);
+
+        // occlusion
+        CreateTimer(0.1, CheckPreviewOcclusion, EntIndexToEntRef(m_iViewModel), TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
     }
     else if (!IsParallelMode())
     {
@@ -606,7 +608,7 @@ void Skin_PreviewSkin(int client, int itemid)
     tPrintToChat(client, "%T", "Chat Preview", client);
 }
 
-static Action UpdatePreviewTransmitState(Handle timer, int ref)
+static Action CheckPreviewOcclusion(Handle timer, int ref)
 {
     int entity = EntRefToEntIndex(ref);
     if (entity < MaxClients)
@@ -619,17 +621,24 @@ static Action UpdatePreviewTransmitState(Handle timer, int ref)
         return Plugin_Stop;
     }
 
-    PrintToServer("[Store]  Update preview model<%d> in normal mode.", entity);
-
-    for (int target = 1; target <= MaxClients; ++target)
+    float vPosEntity[3], vPosClient[3];
+    GetClientAbsOrigin(client, vPosClient);
+    GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosEntity);
+    if (vPosClient[2] < vPosEntity[2] - 40.0)
     {
-        if (client != target && IsClientInGame(target))
-        {
-            TransmitManager_SetEntityState(entity, client, false, STORE_TRANSMIT_CHANNEL);
-        }
+        SafeKillPreview(client, entity);
+        PrintToServer("[Store]  CheckPreviewOcclusion(%N, %d) --3D-> %f :: %f", client, entity, vPosClient[2], vPosEntity[2] - 40.0);
+        return Plugin_Stop;
     }
+    vPosClient[2] = 0.0;
+    vPosEntity[2] = 0.0;
 
-    TransmitManager_SetEntityState(entity, client, true, STORE_TRANSMIT_CHANNEL);
+    if (GetVectorDistance(vPosEntity, vPosClient) < 32.0)
+    {
+        SafeKillPreview(client, entity);
+        PrintToServer("[Store]  CheckPreviewOcclusion(%N, %d) --2D-> %f", client, entity, GetVectorDistance(vPosEntity, vPosClient));
+        return Plugin_Stop;
+    }
 
     return Plugin_Continue;
 }

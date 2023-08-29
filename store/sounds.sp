@@ -263,15 +263,9 @@ static void StartSoundToAll(int client)
         int speaker = SpawnSpeakerEntity(fPos, fAgl, 3.5);
         if (g_pTransmit)
         {
-            TransmitManager_AddEntityHooks(speaker);
+            TransmitManager_AddEntityHooks(speaker, false);
             TransmitManager_SetEntityOwner(speaker, client);
             // PrintToChatAll("transmit speaker %d :: %N", speaker, client);
-
-            for (int i = 1; i <= MaxClients; i++)
-                if (IsClientInGame(i) && i != client)
-                {
-                    TransmitManager_SetEntityState(speaker, i, false, STORE_TRANSMIT_CHANNEL);
-                }
         }
 
         SetVariantString("!activator");
@@ -293,10 +287,10 @@ static void StartSoundToAll(int client)
 
                 if (g_pTransmit)
                 {
-                    if (TransmitManager_GetEntityState(client, i))
+                    if (TransmitManager_GetEntityState(client, i, TRANSMIT_ALL_CHANNEL))
                     {
                         // don't transmit
-                        TransmitManager_SetEntityState(speaker, i, true, STORE_TRANSMIT_CHANNEL);
+                        TransmitManager_SetEntityState(speaker, i, true, TRANSMIT_ALL_CHANNEL);
                     }
                     else
                     {

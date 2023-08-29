@@ -980,4 +980,10 @@
         "en" "Anti Collision..."
         "chi" "反和谐, 请使用正常视角进行预览..."
     }
+
+    "must on ground"
+    {
+        "en" "You must be on ground to use this feature."
+        "chi" "你必须站在地上才能使用该功能."
+    }
 }
